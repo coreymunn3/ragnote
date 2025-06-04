@@ -14,3 +14,275 @@ datasource db {
   url        = env("DATABASE_URL")
   extensions = [vector(schema: "public")]
 }
+
+enum PermissionLevel {
+  VIEWER
+  EDITOR // V2 feature: Editor permissions, but the enum is here for future-proofing.
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAUSED
+  TRIAL
+}
+
+enum CreditTransactionType {
+  AWARD_MONTHLY
+  AWARD_PURCHASE
+  DEBIT_AI_ACTION
+}
+
+enum ChatMessageSenderType {
+  USER
+  AI
+}
+
+enum FileType {
+  PDF
+  DOCX
+  IMAGE // For image files like JPG, PNG
+  AUDIO // For audio files like MP3, WAV
+  // Add other types as needed, e.g., VIDEO, CSV, JSON
+}
+
+// -----------------------------------------------------------
+// Core User & Authentication
+// -----------------------------------------------------------
+model user {
+  id         String   @id @default(uuid()) @db.Uuid
+  username   String   @unique
+  email      String   @unique
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+
+  folders              folder[]
+  notes                note[]
+  shared_notes         note_permission[] @relation("NotePermissionsSharedBy") // Notes this user has shared
+  notes_shared_with_me note_permission[] @relation("NotePermissionsSharedWith") // Notes shared with this user
+  files                file[] // Files uploaded by this user
+
+  subscription        user_subscription? // One-to-one relation
+  credit_transactions credit_transaction[]
+  chat_sessions       chat_session[]
+}
+
+// -----------------------------------------------------------
+// User Subscription 
+// -----------------------------------------------------------
+model user_subscription {
+  id                      String             @id @default(uuid()) @db.Uuid
+  user_id                 String             @unique @db.Uuid // Each user has at most one subscription
+  tier                    SubscriptionTier
+  status                  SubscriptionStatus
+  start_date              DateTime           @db.Timestamptz(3)
+  end_date                DateTime?          @db.Timestamptz(3) // Null for active, recurring subscriptions
+  renewal_date            DateTime?          @db.Timestamptz(3) // Next date for recurring renewal
+  monthly_credits_awarded Int // Number of credits awarded each month for this tier
+  last_credit_award_date  DateTime?          @db.Timestamptz(3) // To track last credit award for monthly cron job
+  created_at              DateTime           @default(now()) @db.Timestamptz(3)
+  updated_at              DateTime           @updatedAt @db.Timestamptz(3)
+
+  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("user_subscription")
+}
+
+// -----------------------------------------------------------
+// Credit Transaction Log 
+// -----------------------------------------------------------
+model credit_transaction {
+  id                String                @id @default(uuid()) @db.Uuid
+  user_id           String                @db.Uuid
+  transaction_type  CreditTransactionType
+  amount            Int // Positive value; type indicates debit/award, negative indicates spend
+  description       String? // E.g., 'Monthly award', 'RAG query - health note'
+  related_entity_id String? // E.g., chat_message.id for a debit, subscription.id for an award
+  created_at        DateTime              @default(now()) @db.Timestamptz(3)
+
+  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("credit_transaction")
+}
+
+// -----------------------------------------------------------
+// Folder Structure
+// -----------------------------------------------------------
+model folder {
+  id          String   @id @default(uuid()) @db.Uuid
+  user_id     String   @db.Uuid
+  folder_name String
+  is_deleted  Boolean  @default(false) // Soft delete for V1
+  created_at  DateTime @default(now()) @db.Timestamptz(3)
+  updated_at  DateTime @updatedAt @db.Timestamptz(3)
+
+  user         user           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  notes        note[]
+  files        file[]
+  chat_session chat_session[]
+}
+
+// -----------------------------------------------------------
+// Notes & Versioning
+// -----------------------------------------------------------
+model note {
+  id                 String  @id @default(uuid()) @db.Uuid
+  user_id            String  @db.Uuid
+  folder_id          String? @db.Uuid
+  title              String
+  current_version_id String? @unique @db.Uuid // Points to the currently published version
+  is_deleted         Boolean @default(false) // Soft delete for V1
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+
+  user            user              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  folder          folder?           @relation(fields: [folder_id], references: [id], onDelete: SetNull)
+  versions        note_version[]    @relation("NoteVersions") // All versions of this note
+  current_version note_version?     @relation("CurrentNoteVersion", fields: [current_version_id], references: [id], onDelete: SetNull)
+  permissions     note_permission[] // Shares related to this note
+  chat_sessions   chat_session[]    @relation("NoteChatSessions") // Chat sessions specific to this note
+}
+
+model note_version {
+  id             String    @id @default(uuid()) @db.Uuid
+  note_id        String    @db.Uuid
+  version_number Int       @default(1)
+  content        String // Full content of this version
+  is_published   Boolean   @default(true) // True if it's a draft, false if published
+  published_at   DateTime? @db.Timestamptz(3) // Null if it's a draft
+  created_at     DateTime  @default(now()) @db.Timestamptz(3)
+
+  note               note         @relation("NoteVersions", fields: [note_id], references: [id], onDelete: Cascade)
+  chunks             note_chunk[] // Chunks and embeddings for this version
+  current_version_of note?        @relation("CurrentNoteVersion")
+
+  @@index([note_id, is_published, published_at]) // Optimize for retrieving published versions
+  @@index([note_id, version_number]) // For fetching specific versions
+  @@map("note_version")
+}
+
+model note_chunk {
+  id              String                      @id @default(uuid()) @db.Uuid
+  note_version_id String                      @db.Uuid
+  chunk_index     Int
+  chunk_text      String
+  embedding       Unsupported("vector(1536)")
+  created_at      DateTime                    @default(now()) @db.Timestamptz(3)
+
+  note_version note_version @relation(fields: [note_version_id], references: [id], onDelete: Cascade)
+
+  @@index([note_version_id]) // Optimize for retrieving chunks for a specific version
+  @@map("note_chunk")
+}
+
+// -----------------------------------------------------------
+// Note Sharing & Permissions
+// -----------------------------------------------------------
+model note_permission {
+  id                  String          @id @default(uuid()) @db.Uuid
+  note_id             String          @db.Uuid
+  shared_by_user_id   String          @db.Uuid
+  shared_with_user_id String?         @db.Uuid // Null if inviting a non-user by email
+  shared_with_email   String? // Email for non-user invitations
+  permission_level    PermissionLevel // e.g., VIEWER, EDITOR (V2)
+  share_token         String? // Unique token for email invitation link
+  // token_expires_at    DateTime?       // Removed for V1 simplicity as discussed
+  active              Boolean         @default(true) // For V1, consider simply deleting instead of soft-deactivating
+  created_at          DateTime        @default(now()) @db.Timestamptz(3)
+  updated_at          DateTime        @updatedAt @db.Timestamptz(3)
+
+  note        note  @relation(fields: [note_id], references: [id], onDelete: Cascade)
+  shared_by   user  @relation("NotePermissionsSharedBy", fields: [shared_by_user_id], references: [id], onDelete: Cascade)
+  shared_with user? @relation("NotePermissionsSharedWith", fields: [shared_with_user_id], references: [id], onDelete: Cascade)
+
+  // Uniqueness: For MVP, rely on application logic to prevent duplicate shares
+  // (e.g., cannot share same note to same user_id AND cannot share same note to same email)
+  // More complex unique constraints or partial indexes in Postgres can handle this later.
+  @@map("note_permission")
+}
+
+// -----------------------------------------------------------
+// File Uploads (for future text/audio extraction)
+// -----------------------------------------------------------
+model file {
+  id          String   @id @default(uuid()) @db.Uuid
+  user_id     String   @db.Uuid
+  folder_id   String?  @db.Uuid
+  file_name   String
+  file_type   FileType // e.g., PDF, DOCX, IMAGE, AUDIO
+  file_url    String? // URL to cloud storage for the raw file
+  is_deleted  Boolean  @default(false) // Soft delete for V1
+  uploaded_at DateTime @default(now()) @db.Timestamptz(3)
+
+  user           user                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  folder         folder?              @relation(fields: [folder_id], references: [id], onDelete: SetNull)
+  content_chunks file_content_chunk[] // Chunks and embeddings for extracted content
+}
+
+model file_content_chunk {
+  id                 String  @id @default(uuid()) @db.Uuid
+  file_id            String  @db.Uuid
+  chunk_text         String? // Extracted text (transcription for audio, OCR for images/PDFs)
+  audio_url_segment  String? // For audio chunks: URL to specific segment
+  image_url_segment  String? // For image chunks: URL to specific crop
+  start_time_seconds Float? // For audio/video chunks: start time
+  end_time_seconds   Float? // For audio/video chunks: end time
+
+  embedding Unsupported("vector(1536)")
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+
+  file file @relation(fields: [file_id], references: [id], onDelete: Cascade)
+
+  @@index([file_id]) // Optimize for retrieving chunks for a specific file
+  @@map("file_content_chunk")
+}
+
+// -----------------------------------------------------------
+// Chat Sessions & Messages 
+// -----------------------------------------------------------
+model chat_session {
+  id              String  @id @default(uuid()) @db.Uuid
+  user_id         String  @db.Uuid
+  title           String? // Auto-generated title for the conversation
+  scope_note_id   String? @map("scope_note_id") @db.Uuid // FK to note if chat is note-specific
+  scope_folder_id String? @map("scope_folder_id") @db.Uuid // FK to folder if chat is folder-specific
+  is_pinned       Boolean @default(false) // For pinning conversations in UI
+  is_deleted      Boolean @default(false) // Soft delete for V1
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+  updated_at DateTime @updatedAt @db.Timestamptz(3)
+
+  user     user           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  note     note?          @relation("NoteChatSessions", fields: [scope_note_id], references: [id], onDelete: SetNull)
+  folder   folder?        @relation(fields: [scope_folder_id], references: [id], onDelete: SetNull) // (Note: folder-scoped chat is V2, but field is here)
+  messages chat_message[] // Individual messages within this session
+
+  @@index([user_id, is_deleted]) // Optimize for retrieving user's active/deleted chats
+  @@index([user_id, is_pinned]) // Optimize for pinned chats
+  @@map("chat_session")
+}
+
+model chat_message {
+  id                        String                @id @default(uuid()) @db.Uuid
+  chat_session_id           String                @db.Uuid
+  sender_type               ChatMessageSenderType
+  content                   String
+  // `referenced_note_chunk_ids` and `referenced_file_chunk_ids` are arrays of IDs that point to the chunks used as context.
+  // This helps in sourcing the AI's response.
+  referenced_note_chunk_ids String[]              @map("referenced_note_chunk_ids")
+  referenced_file_chunk_ids String[]              @map("referenced_file_chunk_ids")
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+
+  chat_session chat_session @relation(fields: [chat_session_id], references: [id], onDelete: Cascade)
+
+  @@index([chat_session_id]) // Optimize for retrieving messages for a specific session
+  @@map("chat_message")
+}
