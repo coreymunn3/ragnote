@@ -1,0 +1,19 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  db:
+    image: ankane/pgvector:latest 
+    restart: always
+    environment:
+      POSTGRES_DB: ragnote 
+      POSTGRES_USER: postgres    
+      POSTGRES_PASSWORD: admin 
+    ports:
+      - "35432:5432" 
+    volumes:
+      - db_data:/var/lib/postgresql/data # Persistent data volume
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Script to enable pgvector
+
+volumes:
+  db_data:
