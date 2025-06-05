@@ -35,7 +35,9 @@ enum SubscriptionStatus {
 enum CreditTransactionType {
   AWARD_MONTHLY
   AWARD_PURCHASE
-  DEBIT_AI_ACTION
+  AI_ACTION
+  BONUS
+  REFUND
 }
 
 enum ChatMessageSenderType {
