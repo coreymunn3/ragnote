@@ -54,7 +54,7 @@ enum FileType {
 // -----------------------------------------------------------
 // Core User & Authentication
 // -----------------------------------------------------------
-model user {
+model app_user {
   id         String   @id @default(uuid()) @db.Uuid
   username   String   @unique
   email      String   @unique
@@ -88,7 +88,7 @@ model user_subscription {
   created_at              DateTime           @default(now()) @db.Timestamptz(3)
   updated_at              DateTime           @updatedAt @db.Timestamptz(3)
 
-  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user app_user @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("user_subscription")
 }
@@ -105,7 +105,7 @@ model credit_transaction {
   related_entity_id String? // E.g., chat_message.id for a debit, subscription.id for an award
   created_at        DateTime              @default(now()) @db.Timestamptz(3)
 
-  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user app_user @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("credit_transaction")
 }
@@ -121,7 +121,7 @@ model folder {
   created_at  DateTime @default(now()) @db.Timestamptz(3)
   updated_at  DateTime @updatedAt @db.Timestamptz(3)
 
-  user         user           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user         app_user       @relation(fields: [user_id], references: [id], onDelete: Cascade)
   notes        note[]
   files        file[]
   chat_session chat_session[]
@@ -141,7 +141,7 @@ model note {
   created_at DateTime @default(now()) @db.Timestamptz(3)
   updated_at DateTime @updatedAt @db.Timestamptz(3)
 
-  user            user              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user            app_user          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   folder          folder?           @relation(fields: [folder_id], references: [id], onDelete: SetNull)
   versions        note_version[]    @relation("NoteVersions") // All versions of this note
   current_version note_version?     @relation("CurrentNoteVersion", fields: [current_version_id], references: [id], onDelete: SetNull)
@@ -197,9 +197,9 @@ model note_permission {
   created_at          DateTime        @default(now()) @db.Timestamptz(3)
   updated_at          DateTime        @updatedAt @db.Timestamptz(3)
 
-  note        note  @relation(fields: [note_id], references: [id], onDelete: Cascade)
-  shared_by   user  @relation("NotePermissionsSharedBy", fields: [shared_by_user_id], references: [id], onDelete: Cascade)
-  shared_with user? @relation("NotePermissionsSharedWith", fields: [shared_with_user_id], references: [id], onDelete: Cascade)
+  note        note      @relation(fields: [note_id], references: [id], onDelete: Cascade)
+  shared_by   app_user  @relation("NotePermissionsSharedBy", fields: [shared_by_user_id], references: [id], onDelete: Cascade)
+  shared_with app_user? @relation("NotePermissionsSharedWith", fields: [shared_with_user_id], references: [id], onDelete: Cascade)
 
   // Uniqueness: For MVP, rely on application logic to prevent duplicate shares
   // (e.g., cannot share same note to same user_id AND cannot share same note to same email)
@@ -220,7 +220,7 @@ model file {
   is_deleted  Boolean  @default(false) // Soft delete for V1
   uploaded_at DateTime @default(now()) @db.Timestamptz(3)
 
-  user           user                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user           app_user             @relation(fields: [user_id], references: [id], onDelete: Cascade)
   folder         folder?              @relation(fields: [folder_id], references: [id], onDelete: SetNull)
   content_chunks file_content_chunk[] // Chunks and embeddings for extracted content
 }
@@ -259,7 +259,7 @@ model chat_session {
   created_at DateTime @default(now()) @db.Timestamptz(3)
   updated_at DateTime @updatedAt @db.Timestamptz(3)
 
-  user     user           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user     app_user       @relation(fields: [user_id], references: [id], onDelete: Cascade)
   note     note?          @relation("NoteChatSessions", fields: [scope_note_id], references: [id], onDelete: SetNull)
   folder   folder?        @relation(fields: [scope_folder_id], references: [id], onDelete: SetNull) // (Note: folder-scoped chat is V2, but field is here)
   messages chat_message[] // Individual messages within this session
