@@ -58,6 +58,7 @@ enum FileType {
 // -----------------------------------------------------------
 model app_user {
   id         String   @id @default(uuid()) @db.Uuid
+  clerk_id   String   @unique
   username   String?
   email      String   @unique
   first_name String?
