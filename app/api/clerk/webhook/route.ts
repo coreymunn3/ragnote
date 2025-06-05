@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { ClerkWebhookEvent } from "@/lib/types";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { NEW_ACCOUNT_SIGNUP_BONUS } from "@/CONSTANTS";
 
 export async function POST(req: Request) {
   const CLERK_WEBHOOK_SIGNING_SECRET = process.env.CLERK_WEBHOOK_SIGNING_SECRET;
@@ -134,7 +135,7 @@ export async function POST(req: Request) {
         await prisma.credit_transaction.create({
           data: {
             user_id: newUser.id,
-            amount: 100,
+            amount: NEW_ACCOUNT_SIGNUP_BONUS,
             transaction_type: "BONUS",
             description: "New Account Bonus",
           },

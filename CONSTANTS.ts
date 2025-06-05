@@ -1,0 +1,1 @@
+export const NEW_ACCOUNT_SIGNUP_BONUS = 10;
