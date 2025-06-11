@@ -1,4 +1,9 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import {
+  FilePlus2Icon,
+  FolderIcon,
+  FolderPlusIcon,
+  Trash2Icon,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -17,33 +22,34 @@ import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
 import BrandingHeader from "@/components/shared/BrandingHeader";
 import { SignedIn, UserButton } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
+import { Button } from "@/components/ui/button";
 
 // Menu items.
 const items = [
   {
-    title: "Home",
+    title: "All Notes",
     url: "#",
-    icon: Home,
+    icon: FolderIcon,
   },
   {
-    title: "Inbox",
+    title: "Cooking",
     url: "#",
-    icon: Inbox,
+    icon: FolderIcon,
   },
   {
-    title: "Calendar",
+    title: "Climbing",
     url: "#",
-    icon: Calendar,
+    icon: FolderIcon,
   },
   {
-    title: "Search",
+    title: "Hiking Trips",
     url: "#",
-    icon: Search,
+    icon: FolderIcon,
   },
   {
-    title: "Settings",
+    title: "Recently Deleted",
     url: "#",
-    icon: Settings,
+    icon: Trash2Icon,
   },
 ];
 
@@ -53,20 +59,40 @@ const WebSidebar = async () => {
     <Sidebar>
       <SidebarHeader>
         <div className="flex justify-between items-center">
+          {/* User Button */}
           <SignedIn>
             <div className="flex items-center space-x-2">
               <UserButton />
               <p className="text-sm font-semibold">{user?.fullName}</p>
             </div>
           </SignedIn>
-          <WebSidebarInternalTrigger />
+          {/* Additional Controls */}
+          <div>
+            {/* New Note */}
+            <Button variant={"ghost"}>
+              <FilePlus2Icon className="h-4 w-4" />
+            </Button>
+            {/* Collapse Sidebar */}
+            <WebSidebarInternalTrigger />
+          </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>Your Folders</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
+              {/* button to create a new folder */}
+              <SidebarMenuItem key={"000"}>
+                <SidebarMenuButton
+                  variant={"outline"}
+                  className="bg-transparent"
+                >
+                  <FolderPlusIcon className="h-4 w-4" />
+                  New Folder
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {/* your folders */}
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
