@@ -6,10 +6,13 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
 } from "@/components/ui/sidebar";
+import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
 
 // Menu items.
 const items = [
@@ -43,6 +46,12 @@ const items = [
 const WebSidebar = () => {
   return (
     <Sidebar>
+      <SidebarHeader>
+        <div className="flex justify-between items-center">
+          <p className="font-semibold text-sm">Corey Munn's Space</p>
+          <WebSidebarInternalTrigger />
+        </div>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -62,6 +71,7 @@ const WebSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarRail />
     </Sidebar>
   );
 };

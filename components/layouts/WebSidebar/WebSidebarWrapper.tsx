@@ -1,5 +1,6 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import WebSidebar from "./WebSidebar";
+import WebSidebarExternalTrigger from "./WebSidebarExternalTrigger";
 
 export default function WebSidebarWrapper({
   children,
@@ -10,7 +11,9 @@ export default function WebSidebarWrapper({
     <SidebarProvider>
       <WebSidebar />
       <main>
-        <SidebarTrigger />
+        <div className="flex items-center">
+          <WebSidebarExternalTrigger />
+        </div>
         {children}
       </main>
     </SidebarProvider>
