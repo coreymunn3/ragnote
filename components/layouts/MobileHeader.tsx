@@ -1,27 +1,30 @@
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/navbar";
+import React from "react";
 import { SignedIn, UserButton } from "@clerk/nextjs";
-import { Button } from "@heroui/button";
 import { BrainIcon } from "lucide-react";
-import { ThemeSwitch } from "../ThemeSwitch";
+import ThemeSwitch from "../ThemeSwitch";
 
 const MobileHeader = () => {
   return (
-    <Navbar>
-      <NavbarBrand>
-        <BrainIcon className="h-6 w-6" />
-        <span className="ml-2 font-bold">RagNote AI</span>
-      </NavbarBrand>
-      <NavbarContent justify="end">
-        <NavbarItem>
-          <ThemeSwitch />
-        </NavbarItem>
-        <NavbarItem>
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
-        </NavbarItem>
-      </NavbarContent>
-    </Navbar>
+    <header className="flex h-16 items-center justify-between px-4 border-b">
+      {/* Brand/Logo Section */}
+      <div className="flex items-center">
+        <BrainIcon className="h-6 w-6 text-primary" />{" "}
+        {/* Assuming 'text-primary' is a Tailwind color */}
+        <span className="ml-2 text-lg font-bold">RagNote AI</span>
+      </div>
+
+      {/* Right-hand side actions (Theme Switch, User Button) */}
+      <div className="flex items-center space-x-4">
+        {/* Theme Switch */}
+        <ThemeSwitch />
+
+        {/* User Button (Clerk) */}
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+      </div>
+    </header>
   );
 };
+
 export default MobileHeader;

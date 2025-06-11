@@ -1,6 +1,5 @@
-import { Button } from "@heroui/button";
-import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { auth } from "@clerk/nextjs/server";
 import { SignInButton, SignUpButton, SignedOut } from "@clerk/nextjs";
 
