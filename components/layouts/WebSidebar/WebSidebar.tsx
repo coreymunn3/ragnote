@@ -3,6 +3,7 @@ import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -13,6 +14,9 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
+import BrandingHeader from "@/components/shared/BrandingHeader";
+import { SignedIn, UserButton } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 
 // Menu items.
 const items = [
@@ -43,12 +47,18 @@ const items = [
   },
 ];
 
-const WebSidebar = () => {
+const WebSidebar = async () => {
+  const user = await currentUser();
   return (
     <Sidebar>
       <SidebarHeader>
         <div className="flex justify-between items-center">
-          <p className="font-semibold text-sm">Corey Munn's Space</p>
+          <SignedIn>
+            <div className="flex items-center space-x-2">
+              <UserButton />
+              <p className="text-sm font-semibold">{user?.fullName}</p>
+            </div>
+          </SignedIn>
           <WebSidebarInternalTrigger />
         </div>
       </SidebarHeader>
@@ -71,6 +81,9 @@ const WebSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <BrandingHeader />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

@@ -1,6 +1,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import WebSidebar from "./WebSidebar";
 import WebSidebarExternalTrigger from "./WebSidebarExternalTrigger";
+import ThemeSwitch from "../ThemeSwitch";
 
 export default function WebSidebarWrapper({
   children,
@@ -10,9 +11,16 @@ export default function WebSidebarWrapper({
   return (
     <SidebarProvider>
       <WebSidebar />
-      <main>
+      <main className="w-full p-1">
         <div className="flex items-center">
-          <WebSidebarExternalTrigger />
+          {/* left side controls */}
+          <div className="flex-1">
+            <WebSidebarExternalTrigger />
+          </div>
+          {/* right side controls */}
+          <div>
+            <ThemeSwitch />
+          </div>
         </div>
         {children}
       </main>
