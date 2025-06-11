@@ -11,8 +11,11 @@
   "dependencies": {
     "@clerk/nextjs": "^6.20.2",
     "@prisma/client": "^6.9.0",
+    "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-navigation-menu": "^1.2.13",
+    "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tooltip": "^1.2.7",
     "@react-aria/ssr": "3.9.8",
     "@react-aria/visually-hidden": "3.8.23",
     "class-variance-authority": "^0.7.1",
