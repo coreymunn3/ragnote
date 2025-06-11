@@ -2,7 +2,7 @@
 import React from "react";
 import { useTheme } from "next-themes";
 import { SunIcon, MoonIcon } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 const ThemeSwitch = () => {
   const { theme, setTheme } = useTheme();

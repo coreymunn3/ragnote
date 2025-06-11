@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+import WebDashboardContent from "@/components/dashboard/WebDashboardContent";
+import MobileDashboardContent from "@/components/dashboard/MobileDashboardContent";
 
 export default async function Dashboard() {
   const { userId } = await auth();
@@ -10,10 +12,16 @@ export default async function Dashboard() {
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-      <p>Welcome to your dashboard!</p>
-      <p>This page is using the conditional layout system.</p>
-    </div>
+    <>
+      {/* Mobile Dashboard Content: Visible only on small screens */}
+      <div className="md:hidden">
+        <MobileDashboardContent />
+      </div>
+
+      {/* Web Dashboard Content: Hidden on small screens, visible from md breakpoint and up */}
+      <div className="hidden md:block">
+        <WebDashboardContent />
+      </div>
+    </>
   );
 }

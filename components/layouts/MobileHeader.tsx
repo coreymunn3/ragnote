@@ -1,11 +1,11 @@
 import React from "react";
 import { SignedIn, UserButton } from "@clerk/nextjs";
 import { BrainIcon } from "lucide-react";
-import ThemeSwitch from "../ThemeSwitch";
+import ThemeSwitch from "./ThemeSwitch";
 
 const MobileHeader = () => {
   return (
-    <header className="flex h-16 items-center justify-between px-4 border-b">
+    <header className="flex items-center justify-between px-4 py-4">
       {/* Brand/Logo Section */}
       <div className="flex items-center">
         <BrainIcon className="h-6 w-6 text-primary" />{" "}
