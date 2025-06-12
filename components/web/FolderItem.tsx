@@ -1,9 +1,9 @@
 "use client";
 import { Folder, Note } from "@/lib/types";
-import { ChevronRightIcon, FileIcon } from "lucide-react";
+import { ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";
-import Link from "next/link";
+import NoteItem from "./NoteItem";
 
 interface FolderItemProps {
   folder: Folder;
@@ -45,16 +45,7 @@ const FolderItem = ({ folder, Icon }: FolderItemProps) => {
       {open && (
         <div className="p-1 flex flex-col space-y-1">
           {folder.notes.map((note: Note) => (
-            <Button
-              variant={"ghost"}
-              className="flex justify-start p-0 hover:bg-primary/20"
-              asChild
-            >
-              <Link href={`/note/${note.id}`}>
-                <FileIcon className="h-4 w-4" />
-                <p>{note.title}</p>
-              </Link>
-            </Button>
+            <NoteItem note={note} />
           ))}
         </div>
       )}

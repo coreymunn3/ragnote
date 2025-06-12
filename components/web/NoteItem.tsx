@@ -1,0 +1,24 @@
+import { Note } from "@/lib/types";
+import { Button } from "../ui/button";
+import Link from "next/link";
+import { FileIcon } from "lucide-react";
+
+interface NoteItemProps {
+  note: Note;
+}
+
+const NoteItem = ({ note }: NoteItemProps) => {
+  return (
+    <Button
+      variant={"ghost"}
+      className="flex justify-start p-0 hover:bg-primary/20"
+      asChild
+    >
+      <Link href={`/note/${note.id}`}>
+        <FileIcon className="h-4 w-4" />
+        <p>{note.title}</p>
+      </Link>
+    </Button>
+  );
+};
+export default NoteItem;
