@@ -28,6 +28,7 @@ import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
+  TooltipProvider,
 } from "@/components/ui/tooltip";
 import FolderList from "@/components/web/FolderList";
 
@@ -172,27 +173,29 @@ const WebSidebar = async () => {
             <WebSidebarInternalTrigger />
           </div>
         </div>
-        <div className="flex items-center">
-          {/* New Note */}
-          <Tooltip>
-            <TooltipTrigger>
-              <Button variant={"ghost"}>
-                <FilePlus2Icon className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Add a New Note</TooltipContent>
-          </Tooltip>
+        <TooltipProvider>
+          <div className="flex items-center">
+            {/* New Note */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant={"ghost"}>
+                  <FilePlus2Icon className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Add a New Note</TooltipContent>
+            </Tooltip>
 
-          {/* New Folder */}
-          <Tooltip>
-            <TooltipTrigger>
-              <Button variant={"ghost"}>
-                <FolderPlusIcon className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Add a New Folder</TooltipContent>
-          </Tooltip>
-        </div>
+            {/* New Folder */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant={"ghost"}>
+                  <FolderPlusIcon className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Add a New Folder</TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
       </SidebarHeader>
       {/* The Sidebar Content pane */}
       <SidebarContent className="p-2">

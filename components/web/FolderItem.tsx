@@ -3,6 +3,7 @@ import { Folder } from "@/lib/types";
 import { SidebarMenuButton } from "../ui/sidebar";
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
+import { Button } from "../ui/button";
 
 interface FolderItemProps {
   folder: Folder;
@@ -17,8 +18,13 @@ const FolderItem = ({ folder, Icon }: FolderItemProps) => {
   };
 
   return (
-    <div className={` p-1 rounded-[1.5rem]`} onClick={toggleOpen}>
-      <SidebarMenuButton className="flex justify-between items-center">
+    <div
+      className={`p-1 rounded-[1.5rem] ${
+        open ? "bg-stone-100 dark:bg-primary/30" : ""
+      }`}
+      onClick={toggleOpen}
+    >
+      <SidebarMenuButton className="flex justify-between items-center w-full hover:bg-transparent">
         {/* Folder Name and Icon */}
         <div className="flex items-center space-x-2">
           {Icon}
