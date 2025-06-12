@@ -1,9 +1,4 @@
-import {
-  FilePlus2Icon,
-  FolderIcon,
-  FolderPlusIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { FilePlus2Icon, FolderIcon, FolderPlusIcon } from "lucide-react";
 
 import {
   Sidebar,
@@ -23,38 +18,34 @@ import BrandingHeader from "@/components/shared/BrandingHeader";
 import { SignedIn, UserButton } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
-
-// Menu items.
-const items = [
-  {
-    title: "All Notes",
-    url: "#",
-    icon: FolderIcon,
-  },
-  {
-    title: "Cooking",
-    url: "#",
-    icon: FolderIcon,
-  },
-  {
-    title: "Climbing",
-    url: "#",
-    icon: FolderIcon,
-  },
-  {
-    title: "Hiking Trips",
-    url: "#",
-    icon: FolderIcon,
-  },
-  {
-    title: "Recently Deleted",
-    url: "#",
-    icon: Trash2Icon,
-  },
-];
+import { Folder } from "@/lib/types";
 
 const WebSidebar = async () => {
   const user = await currentUser();
+  // TO DO - get the users folders from DB
+  const folders = [
+    {
+      id: "1",
+      folder_name: "All Notes",
+      count: 112,
+    },
+    {
+      id: "2",
+      folder_name: "Cooking",
+      count: 23,
+    },
+    {
+      id: "3",
+      folder_name: "Climbing",
+      count: 12,
+    },
+    {
+      id: "4",
+      folder_name: "Hiking Trips",
+      count: 41,
+    },
+  ];
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -93,12 +84,12 @@ const WebSidebar = async () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {/* your folders */}
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
+              {folders.map((folder: Folder) => (
+                <SidebarMenuItem key={folder.id}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
+                    <a href={"#"}>
+                      <FolderIcon className="h-4 w-4" />
+                      <span>{folder.folder_name}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

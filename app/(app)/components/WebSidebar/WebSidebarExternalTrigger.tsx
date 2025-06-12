@@ -1,7 +1,7 @@
 "use client";
 import { useSidebar } from "@/components/ui/sidebar";
 import { MenuIcon } from "lucide-react";
-import { Button } from "../../ui/button";
+import { Button } from "@/components/ui/button";
 
 const WebSidebarExternalTrigger = () => {
   const { toggleSidebar, open } = useSidebar();

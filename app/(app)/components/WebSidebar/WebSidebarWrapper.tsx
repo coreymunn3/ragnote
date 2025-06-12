@@ -1,7 +1,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import WebSidebar from "./WebSidebar";
 import WebSidebarExternalTrigger from "./WebSidebarExternalTrigger";
-import ThemeSwitch from "../ThemeSwitch";
+import ThemeSwitch from "@/components/layouts/ThemeSwitch";
 
 export default function WebSidebarWrapper({
   children,
