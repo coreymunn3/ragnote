@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import WebDashboardContent from "@/components/dashboard/WebDashboardContent";
-import MobileDashboardContent from "@/components/dashboard/MobileDashboardContent";
+import WebDashboardContent from "../components/dashboard/WebDashboardContent";
+import MobileDashboardContent from "../components/dashboard/MobileDashboardContent";
 
 export default async function Dashboard() {
   const { userId } = await auth();
