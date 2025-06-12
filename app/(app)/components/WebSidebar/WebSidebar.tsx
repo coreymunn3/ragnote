@@ -1,5 +1,10 @@
-import { FilePlus2Icon, FolderIcon, FolderPlusIcon } from "lucide-react";
-
+import {
+  ChevronRightIcon,
+  FilePlus2Icon,
+  FolderIcon,
+  FolderPlusIcon,
+  Trash2Icon,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,11 +19,17 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
-import BrandingHeader from "@/components/shared/BrandingHeader";
+import BrandingHeader from "@/components/BrandingHeader";
 import { SignedIn, UserButton } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
 import { Folder } from "@/lib/types";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import FolderList from "@/components/web/FolderList";
 
 const WebSidebar = async () => {
   const user = await currentUser();
@@ -27,24 +38,122 @@ const WebSidebar = async () => {
     {
       id: "1",
       folder_name: "All Notes",
-      count: 112,
+      notes: [
+        {
+          title: "Trips I want to take in 2025",
+          current_version: {
+            version_number: 7,
+            is_published: true,
+            published_at: new Date(),
+          },
+          created_at: new Date(),
+          updated_at: new Date(),
+          shared_with_count: 0,
+        },
+        {
+          title: "Beef Stew Recipe",
+          current_version: {
+            version_number: 2,
+            is_published: true,
+            published_at: new Date(),
+          },
+          created_at: new Date(),
+          updated_at: new Date(),
+          shared_with_count: 0,
+        },
+        {
+          title: "Groceries",
+          current_version: {
+            version_number: 4,
+            is_published: false,
+            published_at: null,
+          },
+          created_at: new Date(),
+          updated_at: new Date(),
+          shared_with_count: 0,
+        },
+        {
+          title: "2025 Summer Training Plans",
+          current_version: {
+            version_number: 14,
+            is_published: true,
+            published_at: new Date(),
+          },
+          created_at: new Date(),
+          updated_at: new Date(),
+          shared_with_count: 0,
+        },
+      ],
     },
     {
       id: "2",
       folder_name: "Cooking",
-      count: 23,
+      notes: [
+        {
+          title: "Beef Stew Recipe",
+          current_version: {
+            version_number: 2,
+            is_published: true,
+            published_at: new Date(),
+          },
+          created_at: new Date(),
+          updated_at: new Date(),
+          shared_with_count: 0,
+        },
+        {
+          title: "Groceries",
+          current_version: {
+            version_number: 4,
+            is_published: false,
+            published_at: null,
+          },
+          created_at: new Date(),
+          updated_at: new Date(),
+          shared_with_count: 0,
+        },
+      ],
     },
     {
       id: "3",
       folder_name: "Climbing",
-      count: 12,
+      notes: [
+        {
+          title: "2025 Summer Training Plans",
+          current_version: {
+            version_number: 14,
+            is_published: true,
+            published_at: new Date(),
+          },
+          created_at: new Date(),
+          updated_at: new Date(),
+          shared_with_count: 0,
+        },
+      ],
     },
     {
       id: "4",
       folder_name: "Hiking Trips",
-      count: 41,
+      notes: [
+        {
+          title: "Trips I want to take in 2025",
+          current_version: {
+            version_number: 7,
+            is_published: true,
+            published_at: new Date(),
+          },
+          created_at: new Date(),
+          updated_at: new Date(),
+          shared_with_count: 0,
+        },
+      ],
     },
   ];
+  // TO DO - get the users recently deleted folders from DB
+  const recentlyDeleted = {
+    id: "111",
+    folder_name: "Recently Deleted",
+    notes: [],
+  };
 
   return (
     <Sidebar>
@@ -59,43 +168,45 @@ const WebSidebar = async () => {
           </SignedIn>
           {/* Additional Controls */}
           <div>
-            {/* New Note */}
-            <Button variant={"ghost"}>
-              <FilePlus2Icon className="h-4 w-4" />
-            </Button>
             {/* Collapse Sidebar */}
             <WebSidebarInternalTrigger />
           </div>
         </div>
+        <div className="flex items-center">
+          {/* New Note */}
+          <Tooltip>
+            <TooltipTrigger>
+              <Button variant={"ghost"}>
+                <FilePlus2Icon className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Add a New Note</TooltipContent>
+          </Tooltip>
+
+          {/* New Folder */}
+          <Tooltip>
+            <TooltipTrigger>
+              <Button variant={"ghost"}>
+                <FolderPlusIcon className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Add a New Folder</TooltipContent>
+          </Tooltip>
+        </div>
       </SidebarHeader>
-      <SidebarContent>
+      {/* The Sidebar Content pane */}
+      <SidebarContent className="p-2">
+        {/* Your Folders */}
         <SidebarGroup>
           <SidebarGroupLabel>Your Folders</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {/* button to create a new folder */}
-              <SidebarMenuItem key={"000"}>
-                <SidebarMenuButton
-                  variant={"outline"}
-                  className="bg-transparent"
-                >
-                  <FolderPlusIcon className="h-4 w-4" />
-                  New Folder
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              {/* your folders */}
-              {folders.map((folder: Folder) => (
-                <SidebarMenuItem key={folder.id}>
-                  <SidebarMenuButton asChild>
-                    <a href={"#"}>
-                      <FolderIcon className="h-4 w-4" />
-                      <span>{folder.folder_name}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <FolderList folders={folders} recentlyDeleted={recentlyDeleted} />
           </SidebarGroupContent>
+        </SidebarGroup>
+        {/* shared folders */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Shared Folders</SidebarGroupLabel>
+          <SidebarGroupContent>Shared Folders go here</SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
