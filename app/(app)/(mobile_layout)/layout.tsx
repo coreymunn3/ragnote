@@ -1,4 +1,4 @@
-import MobileHeader from "@/components/layouts/MobileHeader";
+import MobileHeader from "../components/layouts/MobileHeader";
 
 export default function MobileLayout({
   children,

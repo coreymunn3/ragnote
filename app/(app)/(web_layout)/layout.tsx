@@ -1,4 +1,4 @@
-import WebSidebarWrapper from "@/components/layouts/WebSidebar/WebSidebarWrapper";
+import WebSidebarWrapper from "../components/WebSidebar/WebSidebarWrapper";
 
 export default function WebLayout({ children }: { children: React.ReactNode }) {
   return (
