@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react"; // Import useEffect and useState
 import { useTheme } from "next-themes";
 import { SunIcon, MoonIcon } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 const ThemeSwitch = () => {
   const [mounted, setMounted] = useState(false); // State to track if the component has mounted on the client

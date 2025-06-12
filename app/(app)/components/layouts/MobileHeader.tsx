@@ -1,8 +1,7 @@
 import React from "react";
 import { SignedIn, UserButton } from "@clerk/nextjs";
-import { BrainIcon } from "lucide-react";
 import ThemeSwitch from "./ThemeSwitch";
-import BrandingHeader from "../shared/BrandingHeader";
+import BrandingHeader from "@/components/shared/BrandingHeader";
 
 const MobileHeader = () => {
   return (
