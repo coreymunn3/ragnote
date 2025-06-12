@@ -41,6 +41,7 @@ const WebSidebar = async () => {
       folder_name: "All Notes",
       notes: [
         {
+          id: "1",
           title: "Trips I want to take in 2025",
           current_version: {
             version_number: 7,
@@ -52,6 +53,7 @@ const WebSidebar = async () => {
           shared_with_count: 0,
         },
         {
+          id: "2",
           title: "Beef Stew Recipe",
           current_version: {
             version_number: 2,
@@ -63,6 +65,7 @@ const WebSidebar = async () => {
           shared_with_count: 0,
         },
         {
+          id: "3",
           title: "Groceries",
           current_version: {
             version_number: 4,
@@ -74,6 +77,7 @@ const WebSidebar = async () => {
           shared_with_count: 0,
         },
         {
+          id: "4",
           title: "2025 Summer Training Plans",
           current_version: {
             version_number: 14,
@@ -91,6 +95,7 @@ const WebSidebar = async () => {
       folder_name: "Cooking",
       notes: [
         {
+          id: "2",
           title: "Beef Stew Recipe",
           current_version: {
             version_number: 2,
@@ -102,6 +107,7 @@ const WebSidebar = async () => {
           shared_with_count: 0,
         },
         {
+          id: "3",
           title: "Groceries",
           current_version: {
             version_number: 4,
@@ -119,6 +125,7 @@ const WebSidebar = async () => {
       folder_name: "Climbing",
       notes: [
         {
+          id: "4",
           title: "2025 Summer Training Plans",
           current_version: {
             version_number: 14,
@@ -136,6 +143,7 @@ const WebSidebar = async () => {
       folder_name: "Hiking Trips",
       notes: [
         {
+          id: "1",
           title: "Trips I want to take in 2025",
           current_version: {
             version_number: 7,

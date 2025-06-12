@@ -34,6 +34,7 @@ export type Folder = {
 };
 
 export type Note = {
+  id: string;
   title: string;
   current_version: {
     version_number: number;

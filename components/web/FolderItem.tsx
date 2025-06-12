@@ -1,9 +1,9 @@
 "use client";
-import { Folder } from "@/lib/types";
-import { SidebarMenuButton } from "../ui/sidebar";
-import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import { Folder, Note } from "@/lib/types";
+import { ChevronRightIcon, FileIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 interface FolderItemProps {
   folder: Folder;
@@ -20,24 +20,44 @@ const FolderItem = ({ folder, Icon }: FolderItemProps) => {
   return (
     <div
       className={`p-1 rounded-[1.5rem] ${
-        open ? "bg-stone-100 dark:bg-primary/30" : ""
-      }`}
+        open ? "bg-gradient-to-br to-background from-primary/20" : ""
+      } hover:bg-primary/10 transition-colors duration-200`}
       onClick={toggleOpen}
     >
-      <SidebarMenuButton className="flex justify-between items-center w-full hover:bg-transparent">
+      <Button
+        className="p-2 flex justify-between items-center w-full hover:bg-transparent"
+        variant={"ghost"}
+      >
         {/* Folder Name and Icon */}
         <div className="flex items-center space-x-2">
           {Icon}
           <span>{`${folder.folder_name} (${folder.notes.length})`}</span>
         </div>
         {/* Expand Icon */}
-        <div>
-          <ChevronRightIcon
-            className={`h-4 w-4 transition-transform duration-200 ${open && "rotate-90"}`}
-          />
+        {folder.notes.length > 0 && (
+          <div>
+            <ChevronRightIcon
+              className={`h-4 w-4 transition-transform duration-200 ${open && "rotate-90"}`}
+            />
+          </div>
+        )}
+      </Button>
+      {open && (
+        <div className="p-1 flex flex-col space-y-1">
+          {folder.notes.map((note: Note) => (
+            <Button
+              variant={"ghost"}
+              className="flex justify-start p-0 hover:bg-primary/20"
+              asChild
+            >
+              <Link href={`/note/${note.id}`}>
+                <FileIcon className="h-4 w-4" />
+                <p>{note.title}</p>
+              </Link>
+            </Button>
+          ))}
         </div>
-      </SidebarMenuButton>
-      {open && <div className={`p-2`}>Test</div>}
+      )}
     </div>
   );
 };
