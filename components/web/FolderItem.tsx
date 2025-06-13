@@ -20,12 +20,14 @@ const FolderItem = ({ folder, Icon }: FolderItemProps) => {
   return (
     <div
       className={`p-1 rounded-[1.5rem] ${
-        open ? "bg-gradient-to-br to-background from-primary/20" : ""
-      } hover:bg-primary/10 transition-colors duration-200`}
+        open
+          ? "bg-gradient-to-br from-primary/20 to-sidebar dark:from-sidebar-accent-foreground/30 dark:to-sidebar"
+          : ""
+      } hover:bg-primary/20 dark:hover:bg-sidebar-accent-foreground/20 transition-colors duration-200`}
       onClick={toggleOpen}
     >
       <Button
-        className="p-2 flex justify-between items-center w-full hover:bg-transparent"
+        className="p-2 flex justify-between items-center w-full hover:bg-transparent dark:hover:bg-transparent"
         variant={"ghost"}
       >
         {/* Folder Name and Icon */}

@@ -11,7 +11,7 @@ const NoteItem = ({ note }: NoteItemProps) => {
   return (
     <Button
       variant={"ghost"}
-      className="flex justify-start p-0 hover:bg-primary/20"
+      className="flex justify-start p-0 hover:bg-primary/20 dark:hover:bg-sidebar-accent-foreground/20"
       asChild
     >
       <Link href={`/note/${note.id}`}>
