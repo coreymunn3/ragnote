@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import NoteItem from "./NoteItem";
 import { AnimatedExpandable, AnimatedListItem } from "@/components/animations";
+import Link from "next/link";
 
 interface FolderItemProps {
   folder: Folder;
@@ -12,11 +13,17 @@ interface FolderItemProps {
   showCount?: boolean;
 }
 
-const FolderItem = ({ folder, Icon, showCount = true }: FolderItemProps) => {
+const FolderItem = ({
+  folder: { id, folder_name, link, notes },
+  Icon,
+  showCount = true,
+}: FolderItemProps) => {
   const [open, setOpen] = useState(false);
 
+  const containsNotes = notes.length > 0;
+
   const toggleOpen = () => {
-    setOpen(!open);
+    if (containsNotes) setOpen(!open);
   };
 
   return (
@@ -31,24 +38,27 @@ const FolderItem = ({ folder, Icon, showCount = true }: FolderItemProps) => {
       <Button
         className="p-2 flex justify-between items-center w-full hover:bg-transparent dark:hover:bg-transparent"
         variant={"ghost"}
+        asChild
       >
-        {/* Folder Name and Icon */}
-        <div className="flex items-center space-x-2">
-          {Icon}
-          <span>{`${folder.folder_name} ${showCount ? `(${folder.notes.length})` : ""} `}</span>
-        </div>
-        {/* Expand Icon */}
-        {folder.notes.length > 0 && (
-          <div>
-            <ChevronRightIcon
-              className={`h-4 w-4 transition-transform duration-200 ${open && "rotate-90"}`}
-            />
+        <Link href={link}>
+          {/* Folder Name and Icon */}
+          <div className="flex items-center space-x-2">
+            {Icon}
+            <span>{`${folder_name} ${showCount ? `(${notes.length})` : ""} `}</span>
           </div>
-        )}
+          {/* Expand Icon */}
+          {containsNotes && (
+            <div>
+              <ChevronRightIcon
+                className={`h-4 w-4 transition-transform duration-200 ${open && "rotate-90"}`}
+              />
+            </div>
+          )}
+        </Link>
       </Button>
       <AnimatedExpandable isOpen={open}>
         <div className="p-1 flex flex-col space-y-1">
-          {folder.notes.map((note: Note, index) => (
+          {notes.map((note: Note, index) => (
             <AnimatedListItem key={note.id} index={index}>
               <NoteItem note={note} />
             </AnimatedListItem>

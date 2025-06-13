@@ -29,6 +29,7 @@ const WebSidebar = async () => {
     {
       id: "1",
       folder_name: "All Notes",
+      link: `/folder/1`,
       notes: [
         {
           id: "1",
@@ -83,6 +84,7 @@ const WebSidebar = async () => {
     {
       id: "2",
       folder_name: "Cooking",
+      link: `/folder/2`,
       notes: [
         {
           id: "2",
@@ -113,6 +115,7 @@ const WebSidebar = async () => {
     {
       id: "3",
       folder_name: "Climbing",
+      link: `/folder/3`,
       notes: [
         {
           id: "4",
@@ -131,6 +134,7 @@ const WebSidebar = async () => {
     {
       id: "4",
       folder_name: "Hiking Trips",
+      link: `/folder/4`,
       notes: [
         {
           id: "1",
@@ -152,13 +156,15 @@ const WebSidebar = async () => {
   const recentlyDeleted = {
     id: "111",
     folder_name: "Recently Deleted",
+    link: `/folder/111`,
     notes: [],
   };
 
   // TO DO - get the shared notes from db
   const shared = {
-    id: "111",
+    id: "222",
     folder_name: "Shared With You",
+    link: `/folder/222`,
     notes: [],
   };
 
@@ -205,6 +211,22 @@ const WebSidebar = async () => {
       </SidebarHeader>
       {/* The Sidebar Content pane */}
       <SidebarContent className="p-2">
+        <SidebarGroup>
+          <SidebarGroupLabel>Get Started</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <FolderList
+              folders={[
+                {
+                  id: "home",
+                  folder_name: "Home",
+                  link: "/dashboard",
+                  notes: [],
+                },
+              ]}
+              showCount={false}
+            />
+          </SidebarGroupContent>
+        </SidebarGroup>
         {/* Your Folders */}
         <SidebarGroup>
           <SidebarGroupLabel>Your Folders</SidebarGroupLabel>
