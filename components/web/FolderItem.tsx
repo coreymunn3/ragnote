@@ -2,6 +2,7 @@
 import { Folder, Note } from "@/lib/types";
 import { ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../ui/button";
 import NoteItem from "./NoteItem";
 
@@ -44,13 +45,37 @@ const FolderItem = ({ folder, Icon }: FolderItemProps) => {
           </div>
         )}
       </Button>
-      {open && (
-        <div className="p-1 flex flex-col space-y-1">
-          {folder.notes.map((note: Note) => (
-            <NoteItem note={note} />
-          ))}
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{
+              duration: 0.3,
+              ease: "easeInOut",
+              opacity: { duration: 0.2 },
+            }}
+            className="overflow-hidden"
+          >
+            <div className="p-1 flex flex-col space-y-1">
+              {folder.notes.map((note: Note, index) => (
+                <motion.div
+                  key={note.id}
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    delay: index * 0.1,
+                    duration: 0.2,
+                  }}
+                >
+                  <NoteItem note={note} />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -158,6 +158,7 @@ const WebSidebar = async () => {
     },
   ];
   // TO DO - get the users recently deleted folders from DB
+  // we will create this folder manually, containing only notes with is_deleted of true
   const recentlyDeleted = {
     id: "111",
     folder_name: "Recently Deleted",
