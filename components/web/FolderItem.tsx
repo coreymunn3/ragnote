@@ -9,9 +9,10 @@ import { AnimatedExpandable, AnimatedListItem } from "@/components/animations";
 interface FolderItemProps {
   folder: Folder;
   Icon: React.ReactNode;
+  showCount?: boolean;
 }
 
-const FolderItem = ({ folder, Icon }: FolderItemProps) => {
+const FolderItem = ({ folder, Icon, showCount = true }: FolderItemProps) => {
   const [open, setOpen] = useState(false);
 
   const toggleOpen = () => {
@@ -34,7 +35,7 @@ const FolderItem = ({ folder, Icon }: FolderItemProps) => {
         {/* Folder Name and Icon */}
         <div className="flex items-center space-x-2">
           {Icon}
-          <span>{`${folder.folder_name} (${folder.notes.length})`}</span>
+          <span>{`${folder.folder_name} ${showCount ? `(${folder.notes.length})` : ""} `}</span>
         </div>
         {/* Expand Icon */}
         {folder.notes.length > 0 && (
