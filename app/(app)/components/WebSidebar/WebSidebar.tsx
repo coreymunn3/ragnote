@@ -1,10 +1,4 @@
-import {
-  ChevronRightIcon,
-  FilePlus2Icon,
-  FolderIcon,
-  FolderPlusIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { FilePlus2Icon, FolderPlusIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,9 +7,6 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
@@ -23,7 +14,6 @@ import BrandingHeader from "@/components/BrandingHeader";
 import { SignedIn, UserButton } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
-import { Folder } from "@/lib/types";
 import {
   Tooltip,
   TooltipTrigger,
@@ -165,6 +155,13 @@ const WebSidebar = async () => {
     notes: [],
   };
 
+  // TO DO - get the shared notes from db
+  const shared = {
+    id: "111",
+    folder_name: "Shared With You",
+    notes: [],
+  };
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -212,13 +209,12 @@ const WebSidebar = async () => {
         <SidebarGroup>
           <SidebarGroupLabel>Your Folders</SidebarGroupLabel>
           <SidebarGroupContent>
-            <FolderList folders={folders} recentlyDeleted={recentlyDeleted} />
+            <FolderList
+              folders={folders}
+              recentlyDeleted={recentlyDeleted}
+              shared={shared}
+            />
           </SidebarGroupContent>
-        </SidebarGroup>
-        {/* shared folders */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Shared Folders</SidebarGroupLabel>
-          <SidebarGroupContent>Shared Folders go here</SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>

@@ -1,17 +1,29 @@
 "use client";
 import { Folder } from "@/lib/types";
 import { SidebarMenu, SidebarMenuItem } from "../ui/sidebar";
-import { FolderIcon, Trash2Icon } from "lucide-react";
+import { FolderIcon, FolderSyncIcon, Trash2Icon } from "lucide-react";
 import FolderItem from "./FolderItem";
 import { AnimatedListItem } from "@/components/animations";
 
 interface FolderListProps {
   folders: Folder[];
   recentlyDeleted: Folder;
+  shared: Folder;
 }
 
-const FolderList = ({ folders, recentlyDeleted }: FolderListProps) => {
-  const allFolders = [...folders, recentlyDeleted];
+const FolderList = ({ folders, shared, recentlyDeleted }: FolderListProps) => {
+  const allFolders = [...folders, shared, recentlyDeleted];
+
+  const getFolderIcon = (folderName: string) => {
+    switch (folderName) {
+      case "Recently Deleted":
+        return <Trash2Icon className="h-4 w-4" />;
+      case "Shared With You":
+        return <FolderSyncIcon className="h-4 w-4" />;
+      default:
+        return <FolderIcon className="h-4 w-4" />;
+    }
+  };
 
   return (
     <SidebarMenu>
@@ -20,13 +32,7 @@ const FolderList = ({ folders, recentlyDeleted }: FolderListProps) => {
           <AnimatedListItem index={index}>
             <FolderItem
               folder={folder}
-              Icon={
-                folder.folder_name === "Recently Deleted" ? (
-                  <Trash2Icon className="h-4 w-4" />
-                ) : (
-                  <FolderIcon className="h-4 w-4" />
-                )
-              }
+              Icon={getFolderIcon(folder.folder_name)}
             />
           </AnimatedListItem>
         </SidebarMenuItem>
