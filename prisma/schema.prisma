@@ -142,6 +142,7 @@ model note {
   folder_id          String? @db.Uuid
   title              String
   current_version_id String? @unique @db.Uuid // Points to the currently published version
+  is_pinned          Boolean @default(false)
   is_deleted         Boolean @default(false) // Soft delete for V1
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
