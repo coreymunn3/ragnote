@@ -88,7 +88,7 @@ export function ScrollableContainer({
       {showFade && canScrollLeft && (
         <div
           className={cn(
-            "absolute top-0 left-[-4px] bottom-0 w-16 pointer-events-none bg-gradient-to-r from-white dark:from-black to-transparent",
+            "absolute top-0 left-[-4px] bottom-0 w-16 pointer-events-none bg-gradient-to-r from-background to-transparent",
             fadeClassName
           )}
         />
@@ -98,7 +98,7 @@ export function ScrollableContainer({
       {showFade && canScrollRight && (
         <div
           className={cn(
-            "absolute top-0 right-[-4px] bottom-0 w-16 pointer-events-none bg-gradient-to-l from-white dark:from-black to-transparent",
+            "absolute top-0 right-[-4px] bottom-0 w-16 pointer-events-none bg-gradient-to-l from-background to-transparent",
             fadeClassName
           )}
         />
