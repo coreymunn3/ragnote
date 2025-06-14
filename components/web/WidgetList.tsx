@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { ScrollableContainer } from "@/components/ui/scrollable-container";
-import { AnimatedListItem } from "../animations";
+import { AnimatedListItem, AnimatedTypography } from "../animations";
 import { TypographyH3 } from "../ui/typgrophy";
 
 interface WidgetListProps<T> {
@@ -32,7 +32,11 @@ const WidgetList = <T extends { id: string }>({
       {/* Title area */}
       <div className="flex items-center pb-3 space-x-2">
         {icon}
-        {title && <TypographyH3 className="pb-0">{title}</TypographyH3>}
+        {title && (
+          <AnimatedTypography variant="h3" className="pb-0" delay={delay}>
+            {title}
+          </AnimatedTypography>
+        )}
       </div>
 
       {/* Scrollable Container for the items */}
