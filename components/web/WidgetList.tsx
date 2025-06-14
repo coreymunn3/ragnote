@@ -1,21 +1,28 @@
-import { Note } from "@/lib/types";
 import { ReactNode } from "react";
-import NoteWidget from "./NoteWidget";
 import { cn } from "@/lib/utils";
 import { ScrollableContainer } from "@/components/ui/scrollable-container";
 import { AnimatedListItem } from "../animations";
 import { TypographyH3 } from "../ui/typgrophy";
 
-interface WidgetListProps {
-  notes: Note[];
+interface WidgetListProps<T> {
+  items: T[];
+  renderItem: (item: T, index: number) => React.ReactNode;
   title?: string;
   icon?: ReactNode;
   className?: string;
+  emptyMessage?: string;
 }
 
-const WidgetList = ({ notes, title, icon, className }: WidgetListProps) => {
-  if (!notes || notes.length === 0) {
-    return <div className="text-muted-foreground py-4">No notes available</div>;
+const WidgetList = <T extends { id: string }>({
+  items,
+  renderItem,
+  title,
+  icon,
+  className,
+  emptyMessage = "No items available",
+}: WidgetListProps<T>) => {
+  if (!items || items.length === 0) {
+    return <div className="text-muted-foreground py-4">{emptyMessage}</div>;
   }
 
   return (
@@ -26,13 +33,11 @@ const WidgetList = ({ notes, title, icon, className }: WidgetListProps) => {
         {title && <TypographyH3 className="pb-0">{title}</TypographyH3>}
       </div>
 
-      {/* Scrollable Container for the Notes */}
+      {/* Scrollable Container for the items */}
       <ScrollableContainer containerClassName="pb-2 space-x-5 scrollbar-hide">
-        {notes.map((note, index) => (
-          <AnimatedListItem key={note.id} index={index} animation="fadeInUp">
-            <div className="flex-shrink-0">
-              <NoteWidget note={note} />
-            </div>
+        {items.map((item, index) => (
+          <AnimatedListItem key={item.id} index={index} animation="fadeInUp">
+            <div className="flex-shrink-0">{renderItem(item, index)}</div>
           </AnimatedListItem>
         ))}
       </ScrollableContainer>
