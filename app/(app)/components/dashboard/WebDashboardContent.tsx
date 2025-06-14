@@ -24,7 +24,7 @@ const WebDashboardContent = async () => {
       is_deleted: false,
       created_at: new Date(),
       updated_at: new Date(),
-      shared_with_count: 0,
+      shared_with_count: 1,
     },
     {
       id: "2",
@@ -38,7 +38,7 @@ const WebDashboardContent = async () => {
       is_deleted: false,
       created_at: new Date(),
       updated_at: new Date(),
-      shared_with_count: 0,
+      shared_with_count: 1,
     },
     {
       id: "3",
@@ -52,7 +52,7 @@ const WebDashboardContent = async () => {
       is_deleted: false,
       created_at: new Date(),
       updated_at: new Date(),
-      shared_with_count: 0,
+      shared_with_count: 3,
     },
   ];
   return (
