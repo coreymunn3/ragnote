@@ -11,6 +11,7 @@ interface WidgetListProps<T> {
   icon?: ReactNode;
   className?: string;
   emptyMessage?: string;
+  delay?: number; // Optional delay for child animations
 }
 
 const WidgetList = <T extends { id: string }>({
@@ -20,6 +21,7 @@ const WidgetList = <T extends { id: string }>({
   icon,
   className,
   emptyMessage = "No items available",
+  delay = 0, // Default to no delay
 }: WidgetListProps<T>) => {
   if (!items || items.length === 0) {
     return <div className="text-muted-foreground py-4">{emptyMessage}</div>;
@@ -36,7 +38,12 @@ const WidgetList = <T extends { id: string }>({
       {/* Scrollable Container for the items */}
       <ScrollableContainer containerClassName="pb-2 space-x-5 scrollbar-hide">
         {items.map((item, index) => (
-          <AnimatedListItem key={item.id} index={index} animation="fadeInUp">
+          <AnimatedListItem
+            key={item.id}
+            index={index}
+            animation="fadeInUp"
+            delay={delay}
+          >
             <div className="flex-shrink-0">{renderItem(item, index)}</div>
           </AnimatedListItem>
         ))}

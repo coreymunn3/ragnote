@@ -94,11 +94,12 @@ export const staggerContainer = {
 // Generic stagger animation creator that supports multiple animation types
 export const createStaggerAnimation = (
   index: number,
-  animationType: string
+  animationType: string,
+  additionalDelay: number = 0
 ) => {
-  // Base transition with staggering
+  // Base transition with staggering plus any additional delay
   const transition = {
-    delay: index * STAGGER_DELAY,
+    delay: index * STAGGER_DELAY + additionalDelay,
     duration: ANIMATION_DURATION.normal,
     ease: ANIMATION_EASING.easeOut,
   };

@@ -11,6 +11,7 @@ import ConversationWidget from "@/components/web/ConversationWidget";
 import { currentUser } from "@clerk/nextjs/server";
 import { Calendar1Icon, MessageSquareIcon, PinIcon } from "lucide-react";
 import { AnimatedListItem } from "@/components/animations";
+import { STAGGER_DELAY } from "@/lib/animations";
 
 const WebDashboardContent = async () => {
   const user = await currentUser();
@@ -105,6 +106,7 @@ const WebDashboardContent = async () => {
               renderItem={(note) => <NoteWidget note={note} />}
               title={"Pinned"}
               icon={<PinIcon className="h-6 w-6 text-muted-foreground" />}
+              delay={1 * STAGGER_DELAY} // Delay based on section index
             />
           </div>
         </AnimatedListItem>
@@ -116,6 +118,7 @@ const WebDashboardContent = async () => {
               renderItem={(note) => <NoteWidget note={note} />}
               title={"Recent"}
               icon={<Calendar1Icon className="h-6 w-6 text-muted-foreground" />}
+              delay={2 * STAGGER_DELAY} // Delay based on section index
             />
           </div>
         </AnimatedListItem>
@@ -131,6 +134,7 @@ const WebDashboardContent = async () => {
               icon={
                 <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
               }
+              delay={3 * STAGGER_DELAY} // Delay based on section index
             />
           </div>
         </AnimatedListItem>

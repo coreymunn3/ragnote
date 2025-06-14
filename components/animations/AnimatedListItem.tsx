@@ -15,6 +15,7 @@ interface AnimatedListItemProps {
   index: number;
   className?: string;
   animation: AnimationVariant; // Required with no default
+  delay?: number; // Optional additional delay
 }
 
 export const AnimatedListItem = ({
@@ -22,10 +23,11 @@ export const AnimatedListItem = ({
   index,
   className,
   animation,
+  delay = 0, // Default to no additional delay
 }: AnimatedListItemProps) => {
-  // Use the generic stagger animation creator
+  // Use the generic stagger animation creator with additional delay
   const variants = getReducedMotionVariants(
-    createStaggerAnimation(index, animation)
+    createStaggerAnimation(index, animation, delay)
   );
 
   return (
