@@ -3,7 +3,7 @@ import {
   TypographyH2,
   TypographyH3,
 } from "@/components/ui/typgrophy";
-import NoteWidget from "@/components/web/NoteWidget";
+import NotesList from "@/components/web/NotesList";
 import { Note } from "@/lib/types";
 import { currentUser } from "@clerk/nextjs/server";
 
@@ -74,10 +74,10 @@ const WebDashboardContent = async () => {
         </div>
         {/* Recent Notes */}
         <div>
-          <TypographyH3>Recent Notes</TypographyH3>
-          <div className="flex space-x-2">
-            {recent && recent.map((note: Note) => <NoteWidget note={note} />)}
-          </div>
+          <NotesList
+            notes={recent}
+            title={<TypographyH3>Recent Notes</TypographyH3>}
+          />
         </div>
         {/* Recent Conversations */}
         <div>
