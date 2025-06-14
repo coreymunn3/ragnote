@@ -1,0 +1,6 @@
+const WebDashboardLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="px-4 max-w-4xl mx-auto">WebDashboardLayout {children}</div>
+  );
+};
+export default WebDashboardLayout;
