@@ -1,6 +1,6 @@
 const MobileDashboardContent = () => {
   return (
-    <div className="p-4 ">
+    <div>
       {/* TO DO - render recent notes */}
       {/* TO DO - render folder list */}
       Folders List Mobile
