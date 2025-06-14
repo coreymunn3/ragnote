@@ -6,14 +6,14 @@ import { ScrollableContainer } from "@/components/ui/scrollable-container";
 import { AnimatedListItem } from "../animations";
 import { TypographyH3 } from "../ui/typgrophy";
 
-interface NotesListProps {
+interface WidgetListProps {
   notes: Note[];
   title?: string;
   icon?: ReactNode;
   className?: string;
 }
 
-const NotesList = ({ notes, title, icon, className }: NotesListProps) => {
+const WidgetList = ({ notes, title, icon, className }: WidgetListProps) => {
   if (!notes || notes.length === 0) {
     return <div className="text-muted-foreground py-4">No notes available</div>;
   }
@@ -40,4 +40,4 @@ const NotesList = ({ notes, title, icon, className }: NotesListProps) => {
   );
 };
 
-export default NotesList;
+export default WidgetList;
