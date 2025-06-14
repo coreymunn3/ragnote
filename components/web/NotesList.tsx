@@ -2,6 +2,7 @@ import { Note } from "@/lib/types";
 import { ReactNode } from "react";
 import NoteWidget from "./NoteWidget";
 import { cn } from "@/lib/utils";
+import { ScrollableContainer } from "@/components/ui/scrollable-container";
 
 interface NotesListProps {
   notes: Note[];
@@ -16,22 +17,16 @@ const NotesList = ({ notes, title, className }: NotesListProps) => {
 
   return (
     <div className={cn("w-full", className)}>
-      {title && <div className="">{title}</div>}
+      {title && <div className="mb-3">{title}</div>}
 
-      {/* Scrollable container with fade effect */}
-      <div className="relative">
-        {/* Horizontal scrolling container */}
-        <div className="flex overflow-x-auto pb-4 pt-1 px-1 -mx-1 space-x-4 scrollbar-hide scroll-smooth">
-          {notes.map((note) => (
-            <div key={note.id} className="flex-shrink-0">
-              <NoteWidget note={note} />
-            </div>
-          ))}
-        </div>
-
-        {/* Right side fade effect */}
-        <div className="absolute top-0 right-[-4] bottom-0 w-16 pointer-events-none bg-gradient-to-l from-background to-transparent" />
-      </div>
+      {/* Use the new ScrollableContainer */}
+      <ScrollableContainer containerClassName="pb-4 pt-1 px-1 -mx-1 space-x-5 scrollbar-hide">
+        {notes.map((note) => (
+          <div key={note.id} className="flex-shrink-0">
+            <NoteWidget note={note} />
+          </div>
+        ))}
+      </ScrollableContainer>
     </div>
   );
 };
