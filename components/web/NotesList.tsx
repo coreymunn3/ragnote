@@ -3,25 +3,31 @@ import { ReactNode } from "react";
 import NoteWidget from "./NoteWidget";
 import { cn } from "@/lib/utils";
 import { ScrollableContainer } from "@/components/ui/scrollable-container";
-import { AnimatedContainer, AnimatedListItem } from "../animations";
+import { AnimatedListItem } from "../animations";
+import { TypographyH3 } from "../ui/typgrophy";
 
 interface NotesListProps {
   notes: Note[];
-  title?: ReactNode;
+  title?: string;
+  icon?: ReactNode;
   className?: string;
 }
 
-const NotesList = ({ notes, title, className }: NotesListProps) => {
+const NotesList = ({ notes, title, icon, className }: NotesListProps) => {
   if (!notes || notes.length === 0) {
     return <div className="text-muted-foreground py-4">No notes available</div>;
   }
 
   return (
     <div className={cn("w-full", className)}>
-      {title && <div className="mb-3">{title}</div>}
+      {/* Title area */}
+      <div className="flex items-center pb-3 space-x-2">
+        {icon}
+        {title && <TypographyH3 className="pb-0">{title}</TypographyH3>}
+      </div>
 
-      {/* Use the new ScrollableContainer */}
-      <ScrollableContainer containerClassName="pb-4 pt-1 px-1 -mx-1 space-x-5 scrollbar-hide">
+      {/* Scrollable Container for the Notes */}
+      <ScrollableContainer containerClassName="pb-2 space-x-5 scrollbar-hide">
         {notes.map((note, index) => (
           <AnimatedListItem key={note.id} index={index} animation="fadeInUp">
             <div className="flex-shrink-0">
