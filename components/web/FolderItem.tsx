@@ -11,25 +11,27 @@ interface FolderItemProps {
   folder: Folder;
   Icon: React.ReactNode;
   showCount?: boolean;
+  isOpen?: boolean;
+  onToggle?: () => void;
 }
 
 const FolderItem = ({
   folder: { id, folder_name, link, notes },
   Icon,
   showCount = true,
+  isOpen = false,
+  onToggle,
 }: FolderItemProps) => {
-  const [open, setOpen] = useState(false);
-
   const containsNotes = notes.length > 0;
 
   const toggleOpen = () => {
-    if (containsNotes) setOpen(!open);
+    if (containsNotes && onToggle) onToggle();
   };
 
   return (
     <div
       className={`p-1 rounded-[1.5rem] ${
-        open
+        isOpen
           ? "bg-gradient-to-br from-primary/20 to-sidebar dark:from-sidebar-accent-foreground/30 dark:to-sidebar"
           : ""
       } hover:bg-primary/20 dark:hover:bg-sidebar-accent-foreground/20 transition-colors duration-200`}
@@ -50,13 +52,13 @@ const FolderItem = ({
           {containsNotes && (
             <div>
               <ChevronRightIcon
-                className={`h-4 w-4 transition-transform duration-200 ${open && "rotate-90"}`}
+                className={`h-4 w-4 transition-transform duration-200 ${isOpen && "rotate-90"}`}
               />
             </div>
           )}
         </Link>
       </Button>
-      <AnimatedExpandable isOpen={open}>
+      <AnimatedExpandable isOpen={isOpen}>
         <div className="p-1 flex flex-col space-y-1">
           {notes.map((note: Note, index) => (
             <AnimatedListItem key={note.id} index={index}>

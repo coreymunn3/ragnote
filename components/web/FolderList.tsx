@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import FolderItem from "./FolderItem";
 import { AnimatedListItem } from "@/components/animations";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 interface FolderListProps {
   folders: Folder[];
@@ -23,6 +25,19 @@ const FolderList = ({
   recentlyDeleted,
   showCount,
 }: FolderListProps) => {
+  const pathname = usePathname();
+  const [openFolderId, setOpenFolderId] = useState<string | null>(null);
+
+  // Close all folders when on the dashboard route
+  useEffect(() => {
+    if (pathname === "/dashboard") {
+      setOpenFolderId(null);
+    }
+  }, [pathname]);
+
+  const toggleFolder = (folderId: string) => {
+    setOpenFolderId((current) => (current === folderId ? null : folderId));
+  };
   const allFolders = [
     ...folders,
     ...(shared ? [shared] : []),
@@ -51,6 +66,8 @@ const FolderList = ({
               folder={folder}
               Icon={getFolderIcon(folder.folder_name)}
               showCount={showCount}
+              isOpen={openFolderId === folder.id}
+              onToggle={() => toggleFolder(folder.id)}
             />
           </AnimatedListItem>
         </SidebarMenuItem>
