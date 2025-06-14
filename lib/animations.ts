@@ -105,6 +105,11 @@ export const createStaggerAnimation = (
 
   // Animation properties based on type
   switch (animationType) {
+    case "fadeIn": // New type - just opacity, no movement
+      return {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition },
+      };
     case "fadeInUp":
       return {
         hidden: { opacity: 0, y: 10 },

@@ -10,6 +10,7 @@ import NoteWidget from "@/components/web/NoteWidget";
 import ConversationWidget from "@/components/web/ConversationWidget";
 import { currentUser } from "@clerk/nextjs/server";
 import { Calendar1Icon, MessageSquareIcon, PinIcon } from "lucide-react";
+import { AnimatedListItem } from "@/components/animations";
 
 const WebDashboardContent = async () => {
   const user = await currentUser();
@@ -86,45 +87,53 @@ const WebDashboardContent = async () => {
       <TypographyH1>{`Welcome, ${user?.firstName}!`}</TypographyH1>
       <div className="flex flex-col space-y-12">
         {/* global chat input */}
-        <Card className="min-h-[200px]">
-          <CardHeader>
-            <CardTitle>Chat with your notes</CardTitle>
-            <CardDescription>
-              Here we will show an input to chat with all your notes
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <AnimatedListItem index={0} animation="fadeIn">
+          <Card className="min-h-[200px]">
+            <CardHeader>
+              <CardTitle>Chat with your notes</CardTitle>
+              <CardDescription>
+                Here we will show an input to chat with all your notes
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </AnimatedListItem>
         {/* Pinned Notes */}
-        <div>
-          <WidgetList
-            items={notes}
-            renderItem={(note) => <NoteWidget note={note} />}
-            title={"Pinned"}
-            icon={<PinIcon className="h-6 w-6 text-muted-foreground" />}
-          />
-        </div>
+        <AnimatedListItem index={1} animation="fadeIn">
+          <div>
+            <WidgetList
+              items={notes}
+              renderItem={(note) => <NoteWidget note={note} />}
+              title={"Pinned"}
+              icon={<PinIcon className="h-6 w-6 text-muted-foreground" />}
+            />
+          </div>
+        </AnimatedListItem>
         {/* Recent Notes */}
-        <div>
-          <WidgetList
-            items={notes}
-            renderItem={(note) => <NoteWidget note={note} />}
-            title={"Recent"}
-            icon={<Calendar1Icon className="h-6 w-6 text-muted-foreground" />}
-          />
-        </div>
+        <AnimatedListItem index={2} animation="fadeIn">
+          <div>
+            <WidgetList
+              items={notes}
+              renderItem={(note) => <NoteWidget note={note} />}
+              title={"Recent"}
+              icon={<Calendar1Icon className="h-6 w-6 text-muted-foreground" />}
+            />
+          </div>
+        </AnimatedListItem>
         {/* Recent Conversations */}
-        <div>
-          <WidgetList
-            items={conversations}
-            renderItem={(conversation) => (
-              <ConversationWidget conversation={conversation} />
-            )}
-            title={"Recent Chats & Conversations"}
-            icon={
-              <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
-            }
-          />
-        </div>
+        <AnimatedListItem index={3} animation="fadeIn">
+          <div>
+            <WidgetList
+              items={conversations}
+              renderItem={(conversation) => (
+                <ConversationWidget conversation={conversation} />
+              )}
+              title={"Recent Chats & Conversations"}
+              icon={
+                <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
+              }
+            />
+          </div>
+        </AnimatedListItem>
       </div>
     </div>
   );

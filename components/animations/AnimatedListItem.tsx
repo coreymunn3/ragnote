@@ -8,7 +8,7 @@ import {
 
 // Define animation types available in the system
 // Add new types here as they're added to createStaggerAnimation
-type AnimationVariant = "fadeInRight" | "fadeInUp";
+type AnimationVariant = "fadeInRight" | "fadeInUp" | "fadeIn";
 
 interface AnimatedListItemProps {
   children: React.ReactNode;
