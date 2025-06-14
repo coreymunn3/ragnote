@@ -91,19 +91,33 @@ export const staggerContainer = {
   },
 };
 
-// Custom stagger variant generator
-export const createStaggerItem = (index: number) => ({
-  hidden: { opacity: 0, x: 10 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      delay: index * STAGGER_DELAY,
-      duration: ANIMATION_DURATION.normal,
-      ease: ANIMATION_EASING.easeOut,
-    },
-  },
-});
+// Generic stagger animation creator that supports multiple animation types
+export const createStaggerAnimation = (
+  index: number,
+  animationType: string
+) => {
+  // Base transition with staggering
+  const transition = {
+    delay: index * STAGGER_DELAY,
+    duration: ANIMATION_DURATION.normal,
+    ease: ANIMATION_EASING.easeOut,
+  };
+
+  // Animation properties based on type
+  switch (animationType) {
+    case "fadeInUp":
+      return {
+        hidden: { opacity: 0, y: 10 },
+        visible: { opacity: 1, y: 0, transition },
+      };
+    case "fadeInRight":
+    default:
+      return {
+        hidden: { opacity: 0, x: 10 },
+        visible: { opacity: 1, x: 0, transition },
+      };
+  }
+};
 
 // Reduced motion variants (respects user preferences)
 export const getReducedMotionVariants = (variants: any) => {

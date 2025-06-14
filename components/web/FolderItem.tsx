@@ -61,7 +61,11 @@ const FolderItem = ({
       <AnimatedExpandable isOpen={isOpen}>
         <div className="p-1 flex flex-col space-y-1">
           {notes.map((note: Note, index) => (
-            <AnimatedListItem key={note.id} index={index}>
+            <AnimatedListItem
+              key={note.id}
+              index={index}
+              animation="fadeInRight"
+            >
               <NoteItem note={note} />
             </AnimatedListItem>
           ))}

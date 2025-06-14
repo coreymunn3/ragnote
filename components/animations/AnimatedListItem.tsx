@@ -1,20 +1,32 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { createStaggerItem, getReducedMotionVariants } from "@/lib/animations";
+import {
+  createStaggerAnimation,
+  getReducedMotionVariants,
+} from "@/lib/animations";
+
+// Define animation types available in the system
+// Add new types here as they're added to createStaggerAnimation
+type AnimationVariant = "fadeInRight" | "fadeInUp";
 
 interface AnimatedListItemProps {
   children: React.ReactNode;
   index: number;
   className?: string;
+  animation: AnimationVariant; // Required with no default
 }
 
 export const AnimatedListItem = ({
   children,
   index,
   className,
+  animation,
 }: AnimatedListItemProps) => {
-  const variants = getReducedMotionVariants(createStaggerItem(index));
+  // Use the generic stagger animation creator
+  const variants = getReducedMotionVariants(
+    createStaggerAnimation(index, animation)
+  );
 
   return (
     <motion.div

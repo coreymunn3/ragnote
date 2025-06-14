@@ -61,7 +61,7 @@ const FolderList = ({
     <SidebarMenu>
       {allFolders.map((folder: Folder, index) => (
         <SidebarMenuItem key={folder.id}>
-          <AnimatedListItem index={index}>
+          <AnimatedListItem index={index} animation="fadeInRight">
             <FolderItem
               folder={folder}
               Icon={getFolderIcon(folder.folder_name)}
