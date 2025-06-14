@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import WebDashboardContent from "../components/Dashboard/WebDashboardContent";
-import MobileDashboardContent from "../components/Dashboard/MobileDashboardContent";
+import MobileFolderPageContent from "../../components/Folder/MobileFolderPageContent";
+import WebFolderPageContent from "../../components/Folder/WebFolderPageContent";
 import ResponsiveView from "@/components/ResponsiveView";
 
-export default async function Dashboard() {
+export default async function FolderPage() {
   const { userId } = await auth();
 
   // Protect this page from non-logged-in users
@@ -13,8 +13,8 @@ export default async function Dashboard() {
   }
 
   // Render each view component
-  const mobileView = <MobileDashboardContent />;
-  const webView = <WebDashboardContent />;
+  const mobileView = <MobileFolderPageContent />;
+  const webView = <WebFolderPageContent />;
 
   return <ResponsiveView mobileView={mobileView} webView={webView} />;
 }
