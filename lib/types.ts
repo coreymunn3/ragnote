@@ -48,3 +48,13 @@ export type Note = {
   created_at: Date;
   shared_with_count: number;
 };
+
+export type Conversation = {
+  id: string;
+  title: string;
+  is_pinned: boolean;
+  is_deleted: boolean;
+  updated_at: Date;
+  created_at: Date;
+  messages_count: number;
+};
