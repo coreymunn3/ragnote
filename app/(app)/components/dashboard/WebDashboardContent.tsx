@@ -60,6 +60,34 @@ const WebDashboardContent = async () => {
       updated_at: new Date(),
       shared_with_count: 3,
     },
+    {
+      id: "4",
+      title: "Test Note",
+      current_version: {
+        version_number: 1,
+        is_published: false,
+        published_at: null,
+      },
+      is_pinned: false,
+      is_deleted: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      shared_with_count: 3,
+    },
+    {
+      id: "5",
+      title: "Test Note 2",
+      current_version: {
+        version_number: 1,
+        is_published: false,
+        published_at: null,
+      },
+      is_pinned: false,
+      is_deleted: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      shared_with_count: 3,
+    },
   ];
 
   const conversations = [
