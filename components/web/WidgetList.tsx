@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { ScrollableContainer } from "@/components/ui/scrollable-container";
 import { AnimatedListItem, AnimatedTypography } from "../animations";
+import { STAGGER_DELAY } from "@/lib/animations";
 
 interface WidgetListProps<T> {
   items: T[];
@@ -39,7 +40,7 @@ const WidgetList = <T extends { id: string }>({
                 key={item.id}
                 index={index}
                 animation="fadeInUp"
-                delay={delay}
+                delay={delay * STAGGER_DELAY}
               >
                 {renderItem(item, index)}
               </AnimatedListItem>
@@ -53,7 +54,8 @@ const WidgetList = <T extends { id: string }>({
               <AnimatedListItem
                 key={item.id}
                 index={index}
-                animation="fadeInRight"
+                animation="fadeIn"
+                delay={delay * STAGGER_DELAY}
               >
                 <div className="flex-shrink-0">{renderItem(item, index)}</div>
               </AnimatedListItem>
@@ -69,7 +71,7 @@ const WidgetList = <T extends { id: string }>({
                 key={item.id}
                 index={index}
                 animation="fadeInUp"
-                delay={delay}
+                delay={delay * STAGGER_DELAY}
               >
                 <div className="flex-shrink-0">{renderItem(item, index)}</div>
               </AnimatedListItem>
@@ -85,7 +87,11 @@ const WidgetList = <T extends { id: string }>({
       <div className="flex items-center pb-3 space-x-2">
         {icon}
         {title && (
-          <AnimatedTypography variant="h3" className="pb-0" delay={delay}>
+          <AnimatedTypography
+            variant="h3"
+            className="pb-0"
+            delay={delay * STAGGER_DELAY}
+          >
             {title}
           </AnimatedTypography>
         )}
