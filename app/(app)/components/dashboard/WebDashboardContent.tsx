@@ -4,19 +4,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { TypographyH1 } from "@/components/ui/typgrophy";
 import WidgetList from "@/components/web/WidgetList";
 import NoteWidget from "@/components/web/NoteWidget";
 import ConversationWidget from "@/components/web/ConversationWidget";
 import { currentUser } from "@clerk/nextjs/server";
 import { Calendar1Icon, MessageSquareIcon, PinIcon } from "lucide-react";
-import { AnimatedListItem } from "@/components/animations";
+import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { STAGGER_DELAY } from "@/lib/animations";
 
 const WebDashboardContent = async () => {
   const user = await currentUser();
 
-  // TO DO - get recent notes
+  // TO DO - get all notes in the folder ordered by most recent
+  // ...and eventually, all files as a separate folder
   const notes = [
     {
       id: "1",
@@ -85,7 +85,7 @@ const WebDashboardContent = async () => {
   return (
     // TO DO - transfer this max w and margin auto into a layout. that should be universal
     <div>
-      <TypographyH1>{`Welcome, ${user?.firstName}!`}</TypographyH1>
+      <AnimatedTypography variant="h1">{`Welcome, ${user?.firstName}!`}</AnimatedTypography>
       <div className="flex flex-col space-y-12">
         {/* global chat input */}
         <AnimatedListItem index={0} animation="fadeIn">

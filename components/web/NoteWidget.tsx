@@ -22,7 +22,7 @@ const NoteWidget = ({ note }: NoteWidgetProps) => {
   return (
     <Card
       variant="dense"
-      className="w-[300px] cursor-pointer hover:shadow-md hover:text-primary transition-all duration-200"
+      className="min-w-[200px] cursor-pointer hover:shadow-md hover:text-primary transition-all duration-200"
     >
       <CardHeader>
         <div className="flex justify-between items-start">

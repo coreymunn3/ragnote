@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { ScrollableContainer } from "@/components/ui/scrollable-container";
 import { AnimatedListItem, AnimatedTypography } from "../animations";
-import { TypographyH3 } from "../ui/typgrophy";
 
 interface WidgetListProps<T> {
   items: T[];
@@ -12,6 +11,7 @@ interface WidgetListProps<T> {
   className?: string;
   emptyMessage?: string;
   delay?: number; // Optional delay for child animations
+  displayMode?: "horizontal" | "grid"; // Control display as horizontal scroll or responsive grid
 }
 
 const WidgetList = <T extends { id: string }>({
@@ -22,10 +22,48 @@ const WidgetList = <T extends { id: string }>({
   className,
   emptyMessage = "No items available",
   delay = 0, // Default to no delay
+  displayMode = "horizontal", // Default to horizontal for backward compatibility
 }: WidgetListProps<T>) => {
   if (!items || items.length === 0) {
     return <div className="text-muted-foreground py-4">{emptyMessage}</div>;
   }
+
+  // Render content based on display mode
+  const renderContent = () => {
+    switch (displayMode) {
+      case "grid":
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-2">
+            {items.map((item, index) => (
+              <AnimatedListItem
+                key={item.id}
+                index={index}
+                animation="fadeInUp"
+                delay={delay}
+              >
+                {renderItem(item, index)}
+              </AnimatedListItem>
+            ))}
+          </div>
+        );
+      case "horizontal":
+      default:
+        return (
+          <ScrollableContainer containerClassName="pb-2 space-x-5 scrollbar-hide">
+            {items.map((item, index) => (
+              <AnimatedListItem
+                key={item.id}
+                index={index}
+                animation="fadeInUp"
+                delay={delay}
+              >
+                <div className="flex-shrink-0">{renderItem(item, index)}</div>
+              </AnimatedListItem>
+            ))}
+          </ScrollableContainer>
+        );
+    }
+  };
 
   return (
     <div className={cn("w-full", className)}>
@@ -39,19 +77,8 @@ const WidgetList = <T extends { id: string }>({
         )}
       </div>
 
-      {/* Scrollable Container for the items */}
-      <ScrollableContainer containerClassName="pb-2 space-x-5 scrollbar-hide">
-        {items.map((item, index) => (
-          <AnimatedListItem
-            key={item.id}
-            index={index}
-            animation="fadeInUp"
-            delay={delay}
-          >
-            <div className="flex-shrink-0">{renderItem(item, index)}</div>
-          </AnimatedListItem>
-        ))}
-      </ScrollableContainer>
+      {/* Content rendered based on display mode */}
+      {renderContent()}
     </div>
   );
 };

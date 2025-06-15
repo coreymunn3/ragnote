@@ -25,7 +25,7 @@ import FolderList from "@/components/web/FolderList";
 const WebSidebar = async () => {
   const user = await currentUser();
   // TO DO - get the users folders from DB
-  const folders = [
+  const userFolders = [
     {
       id: "1",
       folder_name: "All Notes",
@@ -170,7 +170,7 @@ const WebSidebar = async () => {
   // TO DO - get the users recently deleted folders from DB
   // we will create this folder manually, containing only notes with is_deleted of true
   const recentlyDeleted = {
-    id: "111",
+    id: "11",
     folder_name: "Recently Deleted",
     link: `/folder/111`,
     notes: [],
@@ -178,11 +178,33 @@ const WebSidebar = async () => {
 
   // TO DO - get the shared notes from db
   const shared = {
-    id: "222",
+    id: "22",
     folder_name: "Shared With You",
     link: `/folder/222`,
     notes: [],
   };
+
+  // TO DO - get conversations from the db
+  const conversations = [
+    {
+      id: "33",
+      title: "What kind of questions can I ask you?",
+      is_pinned: false,
+      is_deleted: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      messages_count: 4,
+    },
+    {
+      id: "33",
+      title: "Have you noticed any patterns in my grocery shopping?",
+      is_pinned: false,
+      is_deleted: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      messages_count: 23,
+    },
+  ];
 
   return (
     <Sidebar>
@@ -248,10 +270,18 @@ const WebSidebar = async () => {
           <SidebarGroupLabel>Your Folders</SidebarGroupLabel>
           <SidebarGroupContent>
             <FolderList
-              folders={folders}
+              folders={userFolders}
               recentlyDeleted={recentlyDeleted}
               shared={shared}
             />
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Your AI Conversations</SidebarGroupLabel>
+          <SidebarGroupContent>
+            {/* TO DO - create conversations list similar to folder list above
+              probably need to make folderlist more generalized?
+            */}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
