@@ -25,7 +25,7 @@ const NoteWidget = ({ note }: NoteWidgetProps) => {
     <Link href={noteUrl} className="block w-full h-full">
       <Card
         variant="dense"
-        className="min-w-[200px] cursor-pointer hover:shadow-md hover:text-primary transition-all duration-200"
+        className="min-w-[250px] cursor-pointer hover:shadow-md hover:text-primary transition-all duration-200"
       >
         <CardHeader>
           <div className="flex justify-between items-start">
