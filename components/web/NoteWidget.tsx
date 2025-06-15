@@ -1,13 +1,11 @@
 import { Note } from "@/lib/types";
 import { TypographyMuted, TypographySmall } from "../ui/typgrophy";
 import { Badge } from "../ui/badge";
-import { CalendarClockIcon, FileEditIcon, UsersRoundIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { UsersRoundIcon } from "lucide-react";
 import Link from "next/link";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
