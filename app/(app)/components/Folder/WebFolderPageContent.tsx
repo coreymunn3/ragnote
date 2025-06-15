@@ -23,7 +23,7 @@ const WebFolderPageContent = () => {
         is_deleted: false,
         created_at: new Date(),
         updated_at: new Date(),
-        shared_with_count: 0,
+        shared_with_count: 2,
       },
       {
         id: "2",
@@ -51,7 +51,7 @@ const WebFolderPageContent = () => {
         is_deleted: false,
         created_at: new Date(),
         updated_at: new Date(),
-        shared_with_count: 0,
+        shared_with_count: 1,
       },
       {
         id: "4",
@@ -79,7 +79,7 @@ const WebFolderPageContent = () => {
         is_deleted: false,
         created_at: new Date(),
         updated_at: new Date(),
-        shared_with_count: 0,
+        shared_with_count: 1,
       },
       {
         id: "6",
@@ -107,7 +107,7 @@ const WebFolderPageContent = () => {
         is_deleted: false,
         created_at: new Date(),
         updated_at: new Date(),
-        shared_with_count: 0,
+        shared_with_count: 3,
       },
       {
         id: "8",
