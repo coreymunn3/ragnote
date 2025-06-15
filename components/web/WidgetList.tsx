@@ -11,7 +11,7 @@ interface WidgetListProps<T> {
   className?: string;
   emptyMessage?: string;
   delay?: number; // Optional delay for child animations
-  displayMode?: "horizontal" | "grid"; // Control display as horizontal scroll or responsive grid
+  displayMode?: "horizontal" | "grid" | "vertical"; // Control display as horizontal scroll or responsive grid
 }
 
 const WidgetList = <T extends { id: string }>({
@@ -33,7 +33,7 @@ const WidgetList = <T extends { id: string }>({
     switch (displayMode) {
       case "grid":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {items.map((item, index) => (
               <AnimatedListItem
                 key={item.id}
@@ -46,10 +46,24 @@ const WidgetList = <T extends { id: string }>({
             ))}
           </div>
         );
+      case "vertical":
+        return (
+          <div className="flex flex-col space-y-2">
+            {items.map((item, index) => (
+              <AnimatedListItem
+                key={item.id}
+                index={index}
+                animation="fadeInRight"
+              >
+                <div className="flex-shrink-0">{renderItem(item, index)}</div>
+              </AnimatedListItem>
+            ))}
+          </div>
+        );
       case "horizontal":
       default:
         return (
-          <ScrollableContainer containerClassName="pb-2 space-x-5 scrollbar-hide">
+          <ScrollableContainer containerClassName="space-x-5 scrollbar-hide">
             {items.map((item, index) => (
               <AnimatedListItem
                 key={item.id}
@@ -78,7 +92,7 @@ const WidgetList = <T extends { id: string }>({
       </div>
 
       {/* Content rendered based on display mode */}
-      {renderContent()}
+      <div className="pb-4">{renderContent()}</div>
     </div>
   );
 };
