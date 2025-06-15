@@ -30,7 +30,7 @@ const FolderItem = ({
 
   return (
     <div
-      className={`p-1 rounded-[1.5rem] ${
+      className={`p-1 rounded-md ${
         isOpen ? "bg-primary/20" : ""
       } hover:bg-primary/20 transition-colors duration-200`}
       onClick={toggleOpen}
