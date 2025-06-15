@@ -1,5 +1,6 @@
 import MobileLayout from "./components/layouts/mobile/layout";
 import WebLayout from "./components/layouts/web/layout";
+import ResponsiveLayout from "../../components/ResponsiveLayout";
 
 export default function LayoutSwitch({
   children,
@@ -8,14 +9,9 @@ export default function LayoutSwitch({
 }) {
   return (
     <div>
-      {/* render mobile layouts on small screens */}
-      <div className="md:hidden">
-        <MobileLayout>{children}</MobileLayout>
-      </div>
-      {/* render web layout on larger screens */}
-      <div className="hidden md:block">
-        <WebLayout>{children}</WebLayout>
-      </div>
+      <ResponsiveLayout MobileLayout={MobileLayout} WebLayout={WebLayout}>
+        {children}
+      </ResponsiveLayout>
     </div>
   );
 }
