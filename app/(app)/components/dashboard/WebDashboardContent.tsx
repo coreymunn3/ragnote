@@ -130,7 +130,7 @@ const WebDashboardContent = async () => {
               renderItem={(conversation) => (
                 <ConversationWidget conversation={conversation} />
               )}
-              title={"Recent Chats & Conversations"}
+              title={"Chats & Conversations"}
               icon={
                 <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
               }
