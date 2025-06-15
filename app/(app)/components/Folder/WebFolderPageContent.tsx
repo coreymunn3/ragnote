@@ -1,4 +1,4 @@
-import { AnimatedTypography } from "@/components/animations";
+import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { Separator } from "@/components/ui/separator";
 import { TypographyMuted } from "@/components/ui/typgrophy";
 import WidgetList from "@/components/web/WidgetList";
@@ -139,20 +139,26 @@ const WebFolderPageContent = () => {
       </div>
       <Separator orientation="horizontal" className="mb-6" />
 
-      {/* Display pinned notes prominently */}
-      <WidgetList
-        title="Pinned"
-        items={pinnedNotes}
-        renderItem={(note) => <NoteWidget note={note} />}
-        displayMode="vertical"
-      />
-      {/* Display notes in a responsive grid layout */}
-      <WidgetList
-        title="Notes"
-        items={unpinnedNotes}
-        renderItem={(note) => <NoteWidget note={note} />}
-        displayMode="grid"
-      />
+      <div className="flex flex-col space-y-4">
+        {/* Display pinned notes prominently */}
+        <AnimatedListItem index={1} animation="fadeIn">
+          <WidgetList
+            items={pinnedNotes}
+            renderItem={(note) => <NoteWidget note={note} pinned />}
+            displayMode="vertical"
+            delay={1}
+          />
+        </AnimatedListItem>
+        {/* Display notes in a responsive grid layout */}
+        <AnimatedListItem index={2} animation="fadeIn">
+          <WidgetList
+            items={unpinnedNotes}
+            renderItem={(note) => <NoteWidget note={note} />}
+            displayMode="grid"
+            delay={2}
+          />
+        </AnimatedListItem>
+      </div>
     </div>
   );
 };

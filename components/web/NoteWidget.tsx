@@ -1,7 +1,7 @@
 import { Note } from "@/lib/types";
 import { TypographyMuted, TypographySmall } from "../ui/typgrophy";
 import { Badge } from "../ui/badge";
-import { UsersRoundIcon } from "lucide-react";
+import { PinIcon, UsersRoundIcon } from "lucide-react";
 import Link from "next/link";
 import {
   Card,
@@ -13,9 +13,10 @@ import {
 
 interface NoteWidgetProps {
   note: Note;
+  pinned?: boolean;
 }
 
-const NoteWidget = ({ note }: NoteWidgetProps) => {
+const NoteWidget = ({ note, pinned = false }: NoteWidgetProps) => {
   const isPublished = note.current_version.is_published;
 
   // Construct note URL
@@ -25,16 +26,22 @@ const NoteWidget = ({ note }: NoteWidgetProps) => {
     <Link href={noteUrl} className="block w-full h-full">
       <Card
         variant="dense"
-        className="min-w-[250px] cursor-pointer hover:shadow-md hover:text-primary transition-all duration-200"
+        className={`${pinned ? "bg-primary/15" : ""} cursor-pointer hover:shadow-md hover:text-primary transition-all duration-200`}
       >
+        {/* Note Widget Header */}
         <CardHeader>
           <div className="flex justify-between items-start">
-            <CardTitle className="text-base font-semibold line-clamp-1 overflow-ellipsis">
-              {note.title}
-            </CardTitle>
+            {/* Header left - title & icon */}
+            <div className="flex items-center space-x-2">
+              {pinned && <PinIcon className="h-4 w-4" />}
+              <CardTitle className="text-base font-semibold line-clamp-1 overflow-ellipsis">
+                {note.title}
+              </CardTitle>
+            </div>
+            {/* Header right - the published badge */}
             <Badge
               variant={isPublished ? "default" : "secondary"}
-              className="ml-2 whitespace-nowrap flex-shrink-0"
+              className={`ml-2 whitespace-nowrap flex-shrink-0 ${pinned && !isPublished && "border-stone-500"}`}
             >
               v{note.current_version.version_number}
             </Badge>
@@ -42,9 +49,15 @@ const NoteWidget = ({ note }: NoteWidgetProps) => {
         </CardHeader>
 
         <CardContent>
-          <TypographyMuted className="line-clamp-2 overflow-ellipsis">
+          <TypographyMuted
+            className={`line-clamp-2 ${pinned && "line-clamp-4"} overflow-ellipsis`}
+          >
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem
+            ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+            tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum
+            dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+            incididunt ut labore et dolore magna aliqua.
           </TypographyMuted>
         </CardContent>
 
