@@ -1,7 +1,8 @@
 import React from "react";
-import { SignedIn, UserButton } from "@clerk/nextjs";
+import { SignedIn } from "@clerk/nextjs";
 import ThemeSwitch from "@/components/ThemeSwitch";
 import BrandingHeader from "@/components/BrandingHeader";
+import UserButtonClient from "../../../../components/UserButtonClient";
 
 const MobileHeader = () => {
   return (
@@ -17,7 +18,7 @@ const MobileHeader = () => {
 
         {/* User Button (Clerk) */}
         <SignedIn>
-          <UserButton />
+          <UserButtonClient />
         </SignedIn>
       </div>
     </header>
