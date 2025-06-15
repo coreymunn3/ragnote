@@ -3,7 +3,7 @@ import { Folder, Note } from "@/lib/types";
 import { ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";
-import NoteItem from "./NoteItem";
+import FolderListItem from "./FolderListItem";
 import { AnimatedExpandable, AnimatedListItem } from "@/components/animations";
 import Link from "next/link";
 
@@ -64,7 +64,7 @@ const FolderItem = ({
               index={index}
               animation="fadeInRight"
             >
-              <NoteItem note={note} />
+              <FolderListItem note={note} />
             </AnimatedListItem>
           ))}
         </div>

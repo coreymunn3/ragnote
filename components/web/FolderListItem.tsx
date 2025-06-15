@@ -3,15 +3,15 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { FileIcon } from "lucide-react";
 
-interface NoteItemProps {
+interface FolderListItemProps {
   note: Note;
 }
 
-const NoteItem = ({ note }: NoteItemProps) => {
+const FolderListItem = ({ note }: FolderListItemProps) => {
   return (
     <Button
       variant={"ghost"}
-      className="flex justify-start p-0 hover:bg-primary/20 dark:hover:bg-sidebar-accent-foreground/20"
+      className="flex justify-start p-0 hover:bg-primary/20"
       asChild
     >
       <Link href={`/note/${note.id}`}>
@@ -21,4 +21,4 @@ const NoteItem = ({ note }: NoteItemProps) => {
     </Button>
   );
 };
-export default NoteItem;
+export default FolderListItem;
