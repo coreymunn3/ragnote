@@ -1,5 +1,5 @@
-import { Conversation } from "@/lib/types";
-import { TypographyMuted, TypographySmall } from "../ui/typgrophy";
+import { Conversation } from "@/lib/types/conversationTypes";
+import { TypographySmall } from "../ui/typgrophy";
 import { MessageSquareIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 

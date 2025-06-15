@@ -1,5 +1,5 @@
 "use client";
-import { Folder } from "@/lib/types";
+import { Folder } from "@/lib/types/folderTypes";
 import { SidebarMenu, SidebarMenuItem } from "../ui/sidebar";
 import {
   FolderIcon,

@@ -1,4 +1,4 @@
-import { Note } from "@/lib/types";
+import { Note } from "@/lib/types/noteTypes";
 import { TypographyMuted, TypographySmall } from "../ui/typgrophy";
 import { Badge } from "../ui/badge";
 import { PinIcon, PinOff, PinOffIcon, UsersRoundIcon } from "lucide-react";

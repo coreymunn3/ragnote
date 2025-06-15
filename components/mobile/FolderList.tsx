@@ -1,4 +1,4 @@
-import { Folder } from "@/lib/types";
+import { Folder } from "@/lib/types/folderTypes";
 
 interface FolderListProps {
   folders: Folder[];

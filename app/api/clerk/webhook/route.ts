@@ -1,6 +1,6 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
-import { ClerkWebhookEvent } from "@/lib/types";
+import { ClerkWebhookEvent } from "@/lib/types/clerkTypes";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { NEW_ACCOUNT_SIGNUP_BONUS } from "@/CONSTANTS";

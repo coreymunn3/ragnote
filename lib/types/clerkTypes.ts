@@ -1,5 +1,3 @@
-import { DateTime } from "luxon";
-
 export interface ClerkWebhookEvent {
   type: string;
   timestamp: number;
@@ -26,35 +24,3 @@ interface ClerkWebhookEventDataFull extends ClerkWebhookEventDataBase {
 type ClerkWebhookEventData =
   | ClerkWebhookEventDataBase
   | ClerkWebhookEventDataFull;
-
-export type Folder = {
-  id: string;
-  folder_name: string;
-  link: string;
-  notes: Note[];
-};
-
-export type Note = {
-  id: string;
-  title: string;
-  current_version: {
-    version_number: number;
-    is_published: Boolean;
-    published_at: Date | null;
-  };
-  is_pinned: Boolean;
-  is_deleted: Boolean;
-  updated_at: Date;
-  created_at: Date;
-  shared_with_count: number;
-};
-
-export type Conversation = {
-  id: string;
-  title: string;
-  is_pinned: boolean;
-  is_deleted: boolean;
-  updated_at: Date;
-  created_at: Date;
-  messages_count: number;
-};

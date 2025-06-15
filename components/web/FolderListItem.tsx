@@ -1,4 +1,4 @@
-import { Note } from "@/lib/types";
+import { Note } from "@/lib/types/noteTypes";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { FileIcon } from "lucide-react";
