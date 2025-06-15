@@ -1,5 +1,5 @@
-import WebDashboardLayout from "../(web_layout)/dashboard/layout";
-import MobileDashboardLayout from "../(mobile_layout)/dashboard/layout";
+import WebDashboardLayout from "../components/layouts/web/dashboard/layout";
+import MobileDashboardLayout from "../components/layouts/mobile/dashboard/layout";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (

@@ -1,5 +1,5 @@
-import MobileLayout from "./(mobile_layout)/layout";
-import WebLayout from "./(web_layout)/layout";
+import MobileLayout from "./components/layouts/mobile/layout";
+import WebLayout from "./components/layouts/web/layout";
 
 export default function LayoutSwitch({
   children,

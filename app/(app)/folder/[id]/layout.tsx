@@ -1,5 +1,5 @@
-import WebFolderLayout from "../../(web_layout)/folder/layout";
-import MobileFolderLayout from "../../(mobile_layout)/folder/layout";
+import WebFolderLayout from "../../components/layouts/web/folder/layout";
+import MobileFolderLayout from "../../components/layouts/mobile/folder/layout";
 
 const FolderPageLayout = ({ children }: { children: React.ReactNode }) => {
   return (
