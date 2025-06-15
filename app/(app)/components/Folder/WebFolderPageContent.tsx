@@ -5,7 +5,7 @@ import WidgetList from "@/components/web/WidgetList";
 import NoteWidget from "@/components/web/NoteWidget";
 
 const WebFolderPageContent = () => {
-  // TO DO - get the folder data and all of its notes
+  // TO DO - get the folder data and all of its notes (not pinned)
   const folder = {
     id: "1",
     folder_name: "All Notes",
@@ -61,7 +61,7 @@ const WebFolderPageContent = () => {
           is_published: true,
           published_at: new Date(),
         },
-        is_pinned: false,
+        is_pinned: true,
         is_deleted: false,
         created_at: new Date(),
         updated_at: new Date(),
@@ -103,7 +103,7 @@ const WebFolderPageContent = () => {
           is_published: false,
           published_at: null,
         },
-        is_pinned: false,
+        is_pinned: true,
         is_deleted: false,
         created_at: new Date(),
         updated_at: new Date(),
@@ -126,6 +126,9 @@ const WebFolderPageContent = () => {
     ],
   };
 
+  const unpinnedNotes = folder.notes.filter((note) => !note.is_pinned);
+  const pinnedNotes = folder.notes.filter((note) => note.is_pinned);
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -136,9 +139,17 @@ const WebFolderPageContent = () => {
       </div>
       <Separator orientation="horizontal" className="mb-6" />
 
+      {/* Display pinned notes prominently */}
+      <WidgetList
+        title="Pinned"
+        items={pinnedNotes}
+        renderItem={(note) => <NoteWidget note={note} />}
+        displayMode="vertical"
+      />
       {/* Display notes in a responsive grid layout */}
       <WidgetList
-        items={folder.notes}
+        title="Notes"
+        items={unpinnedNotes}
         renderItem={(note) => <NoteWidget note={note} />}
         displayMode="grid"
       />
