@@ -49,7 +49,7 @@ const WidgetList = <T extends { id: string }>({
         );
       case "vertical":
         return (
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col space-y-4">
             {items.map((item, index) => (
               <AnimatedListItem
                 key={item.id}
@@ -65,7 +65,7 @@ const WidgetList = <T extends { id: string }>({
       case "horizontal":
       default:
         return (
-          <ScrollableContainer containerClassName="space-x-5 scrollbar-hide">
+          <ScrollableContainer containerClassName="space-x-4 scrollbar-hide">
             {items.map((item, index) => (
               <AnimatedListItem
                 key={item.id}
