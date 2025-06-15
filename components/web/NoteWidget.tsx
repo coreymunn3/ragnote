@@ -1,7 +1,7 @@
 import { Note } from "@/lib/types";
 import { TypographyMuted, TypographySmall } from "../ui/typgrophy";
 import { Badge } from "../ui/badge";
-import { PinIcon, UsersRoundIcon } from "lucide-react";
+import { PinIcon, PinOff, PinOffIcon, UsersRoundIcon } from "lucide-react";
 import Link from "next/link";
 import {
   Card,
@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { Button } from "../ui/button";
 
 interface NoteWidgetProps {
   note: Note;
@@ -26,7 +27,7 @@ const NoteWidget = ({ note, pinned = false }: NoteWidgetProps) => {
     <Link href={noteUrl} className="block w-full h-full">
       <Card
         variant="dense"
-        className={`${pinned ? "bg-primary/15" : ""} cursor-pointer hover:shadow-md hover:text-primary transition-all duration-200`}
+        className={`${pinned && "bg-primary/15"} ${!pinned && "min-w-[250px]"} cursor-pointer hover:shadow-md hover:text-primary transition-all duration-200`}
       >
         {/* Note Widget Header */}
         <CardHeader>
@@ -38,13 +39,15 @@ const NoteWidget = ({ note, pinned = false }: NoteWidgetProps) => {
                 {note.title}
               </CardTitle>
             </div>
-            {/* Header right - the published badge */}
-            <Badge
-              variant={isPublished ? "default" : "secondary"}
-              className={`ml-2 whitespace-nowrap flex-shrink-0 ${pinned && !isPublished && "border-stone-500"}`}
-            >
-              v{note.current_version.version_number}
-            </Badge>
+            {/* Header right - the published badge and options */}
+            <div className="flex items-start space-x-2">
+              <Badge
+                variant={isPublished ? "default" : "secondary"}
+                className={`ml-2 whitespace-nowrap flex-shrink-0 ${pinned && !isPublished && "border-stone-500"}`}
+              >
+                v{note.current_version.version_number}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
 
