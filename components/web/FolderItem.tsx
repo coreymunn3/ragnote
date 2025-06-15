@@ -31,10 +31,8 @@ const FolderItem = ({
   return (
     <div
       className={`p-1 rounded-[1.5rem] ${
-        isOpen
-          ? "bg-gradient-to-br from-primary/20 to-sidebar dark:from-sidebar-accent-foreground/30 dark:to-sidebar"
-          : ""
-      } hover:bg-primary/20 dark:hover:bg-sidebar-accent-foreground/20 transition-colors duration-200`}
+        isOpen ? "bg-primary/20" : ""
+      } hover:bg-primary/20 transition-colors duration-200`}
       onClick={toggleOpen}
     >
       <Button
