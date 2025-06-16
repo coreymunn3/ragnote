@@ -1,5 +1,5 @@
 import { Note } from "@/lib/types/noteTypes";
-import { TypographyMuted, TypographySmall } from "../ui/typgrophy";
+import { TypographyMuted, TypographySmall } from "../ui/typography";
 import { Badge } from "../ui/badge";
 import { PinIcon, PinOff, PinOffIcon, UsersRoundIcon } from "lucide-react";
 import Link from "next/link";

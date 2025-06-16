@@ -1,6 +1,6 @@
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { Separator } from "@/components/ui/separator";
-import { TypographyMuted } from "@/components/ui/typgrophy";
+import { TypographyMuted } from "@/components/ui/typography";
 import WidgetList from "@/components/web/WidgetList";
 import NoteWidget from "@/components/web/NoteWidget";
 
