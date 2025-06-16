@@ -32,7 +32,7 @@ const WebNotePageContent = () => {
   };
 
   return (
-    <div className="h-screen w-full">
+    <div className="pt-8">
       <RichTextEditor onChange={handleEditorChange} />
     </div>
   );

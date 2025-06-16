@@ -16,9 +16,12 @@ export type Note = {
 
 export type NoteVersion = {
   id: string;
-  versionNumber: number;
-  content: string;
+  version_number: number;
   is_published: boolean;
   published_at: Date;
   created_at: Date;
+};
+
+export type NoteVersionWithContent = NoteVersion & {
+  content: string;
 };
