@@ -6,73 +6,59 @@ import { useCreateBlockNote } from "@blocknote/react";
 import type { BlockNoteEditor } from "@blocknote/core";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import "../styles/blocknote-custom.css";
+// an example of how to use custom css to change blocknote appearance
+// import "../styles/blocknote-custom.css";
 
-// Create a custom BlockNote theme with hardcoded values
+// Utility function to get CSS variable value
+const getCssVar = (name: string): string => {
+  if (typeof window === "undefined") return "";
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
+};
+
+// Convert HSL variable to color
+const hslFromVar = (varName: string): string => {
+  const value = getCssVar(varName);
+  return value ? `hsl(${value})` : "";
+};
+
+// Create a custom BlockNote theme using CSS variables
 const createCustomTheme = (isDarkMode: boolean): Theme => {
-  // Using hardcoded values to ensure proper rendering
-  const lightColors = {
+  // Single colors object using CSS variables that already respond to theme
+  const colors = {
     editor: {
-      text: "#1a1a1a", // Dark text for light mode
-      background: "#ffffff", // White background for light mode
+      text: hslFromVar("--foreground"),
+      background: hslFromVar("--background"),
     },
     menu: {
-      text: "#1a1a1a",
-      background: "#ffffff",
+      text: hslFromVar("--foreground"),
+      background: hslFromVar("--background"),
     },
     tooltip: {
-      text: "#1a1a1a",
-      background: "#ffffff",
+      text: hslFromVar("--foreground"),
+      background: hslFromVar("--popover"),
     },
     hovered: {
-      text: "#1a1a1a",
-      background: "#f0f0f0",
+      text: hslFromVar("--foreground"),
+      background: hslFromVar("--secondary"),
     },
     selected: {
-      text: "#ffffff",
-      background: "#7c3aed", // Purple primary color
+      text: hslFromVar("--primary-foreground"),
+      background: hslFromVar("--primary"),
     },
     disabled: {
-      text: "#888888",
-      background: "#f0f0f0",
+      text: hslFromVar("--muted-foreground"),
+      background: hslFromVar("--muted"),
     },
-    shadow: "rgba(0, 0, 0, 0.1)",
-    border: "#e2e2e2",
-    sideMenu: "#7c3aed", // Purple primary color
-  };
-
-  const darkColors = {
-    editor: {
-      text: "#f0f0f0", // Light text for dark mode
-      background: "#1a1a1a", // Dark background for dark mode
-    },
-    menu: {
-      text: "#f0f0f0",
-      background: "#2a2a2a",
-    },
-    tooltip: {
-      text: "#f0f0f0",
-      background: "#2a2a2a",
-    },
-    hovered: {
-      text: "#f0f0f0",
-      background: "#3a3a3a",
-    },
-    selected: {
-      text: "#ffffff",
-      background: "#9d65fb", // Lighter purple for dark mode
-    },
-    disabled: {
-      text: "#888888",
-      background: "#3a3a3a",
-    },
-    shadow: "rgba(0, 0, 0, 0.3)",
-    border: "#444444",
-    sideMenu: "#9d65fb", // Lighter purple for dark mode
+    // Keep shadow different based on theme
+    shadow: isDarkMode ? "rgba(0, 0, 0, 0.3)" : "rgba(0, 0, 0, 0.1)",
+    border: hslFromVar("--border"),
+    sideMenu: hslFromVar("--primary"),
   };
 
   return {
-    colors: isDarkMode ? darkColors : lightColors,
+    colors: colors,
     borderRadius: 16, // Use a numeric value instead of CSS variable
     fontFamily: "var(--font-sans)",
   };
@@ -108,13 +94,19 @@ const RichTextEditor = ({
     setMounted(true);
   }, []);
 
-  // Set up theme based on dark/light mode
+  // Set up theme based on dark/light mode with a delay to ensure CSS variables are updated
   useEffect(() => {
     if (!mounted) return;
 
-    // Use resolvedTheme instead of theme to properly handle 'system' preference
-    const isDarkMode = resolvedTheme === "dark";
-    setCustomTheme(createCustomTheme(isDarkMode));
+    // Add a small delay to ensure CSS variables have been updated after theme change
+    const timer = setTimeout(() => {
+      // Use resolvedTheme instead of theme to properly handle 'system' preference
+      const isDarkMode = resolvedTheme === "dark";
+      setCustomTheme(createCustomTheme(isDarkMode));
+    }, 10); // 100ms delay should be sufficient
+
+    // Cleanup timeout on unmount or before running effect again
+    return () => clearTimeout(timer);
   }, [resolvedTheme, mounted]);
 
   // Set up onChange handler if provided
@@ -141,9 +133,6 @@ const RichTextEditor = ({
     return <div className={`h-full w-full bg-background ${className}`}></div>;
   }
 
-  // Get current theme
-  const isDarkMode = resolvedTheme === "dark";
-
   return (
     <div className={`h-full w-full ${className}`}>
       {mounted && customTheme && editor && (
@@ -152,16 +141,6 @@ const RichTextEditor = ({
           theme={customTheme}
           className="custom-blocknote"
           editable={!readOnly}
-          style={{
-            // Typography adjustments
-            fontSize: "1rem",
-            lineHeight: "1.5",
-            // Adjusting min height for better UX
-            minHeight: "calc(100vh - 2rem)",
-            // Ensure correct background and text color
-            backgroundColor: "transparent",
-            color: isDarkMode ? "#f0f0f0" : "#1a1a1a",
-          }}
         />
       )}
     </div>
