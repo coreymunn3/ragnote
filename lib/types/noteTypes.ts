@@ -2,6 +2,7 @@ export type Note = {
   id: string;
   title: string;
   current_version: {
+    id: string;
     version_number: number;
     is_published: Boolean;
     published_at: Date | null;

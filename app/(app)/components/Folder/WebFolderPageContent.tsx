@@ -15,6 +15,7 @@ const WebFolderPageContent = () => {
         id: "1",
         title: "Trips I want to take in 2025",
         current_version: {
+          id: "abcd",
           version_number: 7,
           is_published: true,
           published_at: new Date(),
@@ -29,6 +30,7 @@ const WebFolderPageContent = () => {
         id: "2",
         title: "Beef Stew Recipe",
         current_version: {
+          id: "abcd",
           version_number: 2,
           is_published: true,
           published_at: new Date(),
@@ -43,6 +45,7 @@ const WebFolderPageContent = () => {
         id: "3",
         title: "Groceries",
         current_version: {
+          id: "abcd",
           version_number: 4,
           is_published: false,
           published_at: null,
@@ -57,6 +60,7 @@ const WebFolderPageContent = () => {
         id: "4",
         title: "2025 Summer Training Plans",
         current_version: {
+          id: "abcd",
           version_number: 14,
           is_published: true,
           published_at: new Date(),
@@ -71,6 +75,7 @@ const WebFolderPageContent = () => {
         id: "5",
         title: "Trips I want to take in 2025",
         current_version: {
+          id: "abcd",
           version_number: 7,
           is_published: true,
           published_at: new Date(),
@@ -85,6 +90,7 @@ const WebFolderPageContent = () => {
         id: "6",
         title: "Beef Stew Recipe",
         current_version: {
+          id: "abcd",
           version_number: 2,
           is_published: true,
           published_at: new Date(),
@@ -99,6 +105,7 @@ const WebFolderPageContent = () => {
         id: "7",
         title: "Groceries",
         current_version: {
+          id: "abcd",
           version_number: 4,
           is_published: false,
           published_at: null,
@@ -113,6 +120,7 @@ const WebFolderPageContent = () => {
         id: "8",
         title: "2025 Summer Training Plans",
         current_version: {
+          id: "abcd",
           version_number: 14,
           is_published: true,
           published_at: new Date(),

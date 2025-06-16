@@ -21,6 +21,7 @@ const WebDashboardContent = async () => {
       id: "1",
       title: "Trips I want to take in 2025",
       current_version: {
+        id: "abcd",
         version_number: 7,
         is_published: true,
         published_at: new Date(),
@@ -35,6 +36,7 @@ const WebDashboardContent = async () => {
       id: "2",
       title: "Beef Stew Recipe",
       current_version: {
+        id: "abcd",
         version_number: 2,
         is_published: true,
         published_at: new Date(),
@@ -49,6 +51,7 @@ const WebDashboardContent = async () => {
       id: "3",
       title: "Groceries",
       current_version: {
+        id: "abcd",
         version_number: 4,
         is_published: false,
         published_at: null,
@@ -63,6 +66,7 @@ const WebDashboardContent = async () => {
       id: "4",
       title: "Test Note",
       current_version: {
+        id: "abcd",
         version_number: 1,
         is_published: false,
         published_at: null,
@@ -77,6 +81,7 @@ const WebDashboardContent = async () => {
       id: "5",
       title: "Test Note 2",
       current_version: {
+        id: "abcd",
         version_number: 1,
         is_published: false,
         published_at: null,
