@@ -21,7 +21,7 @@ const NoteWidget = ({ note, pinned = false }: NoteWidgetProps) => {
   const isPublished = note.current_version.is_published;
 
   // Construct note URL
-  const noteUrl = `/note/${note.id}`;
+  const noteUrl = `/note/${note.id}/version/${note.current_version.id}`;
 
   return (
     <Link href={noteUrl} className="block w-full h-full">

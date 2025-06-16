@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import MobileNotePageContent from "../../components/Note/MobileNotePageContent";
-import WebNotePageContent from "../../components/Note/WebNotePageContent";
+import MobileNotePageContent from "@/app/(app)/components/Note/MobileNotePageContent";
+import WebNotePageContent from "@/app/(app)/components/Note/WebNotePageContent";
 import ResponsiveView from "@/components/ResponsiveView";
 
 export default async function NotePage() {

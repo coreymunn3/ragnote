@@ -1,5 +1,5 @@
-import WebNoteLayout from "../../components/layouts/web/note/layout";
-import MobileNoteLayout from "../../components/layouts/mobile/note/layout";
+import WebNoteLayout from "@/app/(app)/components/layouts/web/note/layout";
+import MobileNoteLayout from "@/app/(app)/components/layouts/mobile/note/layout";
 import ResponsiveLayout from "@/components/ResponsiveLayout";
 
 export default function LayoutSwitch({
