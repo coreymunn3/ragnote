@@ -21,6 +21,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import FolderList from "@/components/web/FolderList";
+import ThemeSwitch from "@/components/ThemeSwitch";
 
 const WebSidebar = async () => {
   const user = await currentUser();
@@ -35,6 +36,7 @@ const WebSidebar = async () => {
           id: "1",
           title: "Trips I want to take in 2025",
           current_version: {
+            id: "abcd",
             version_number: 7,
             is_published: true,
             published_at: new Date(),
@@ -49,6 +51,7 @@ const WebSidebar = async () => {
           id: "2",
           title: "Beef Stew Recipe",
           current_version: {
+            id: "abcd",
             version_number: 2,
             is_published: true,
             published_at: new Date(),
@@ -63,6 +66,7 @@ const WebSidebar = async () => {
           id: "3",
           title: "Groceries",
           current_version: {
+            id: "abcd",
             version_number: 4,
             is_published: false,
             published_at: null,
@@ -77,6 +81,7 @@ const WebSidebar = async () => {
           id: "4",
           title: "2025 Summer Training Plans",
           current_version: {
+            id: "abcd",
             version_number: 14,
             is_published: true,
             published_at: new Date(),
@@ -98,6 +103,7 @@ const WebSidebar = async () => {
           id: "2",
           title: "Beef Stew Recipe",
           current_version: {
+            id: "abcd",
             version_number: 2,
             is_published: true,
             published_at: new Date(),
@@ -112,6 +118,7 @@ const WebSidebar = async () => {
           id: "3",
           title: "Groceries",
           current_version: {
+            id: "abcd",
             version_number: 4,
             is_published: false,
             published_at: null,
@@ -133,6 +140,7 @@ const WebSidebar = async () => {
           id: "4",
           title: "2025 Summer Training Plans",
           current_version: {
+            id: "abcd",
             version_number: 14,
             is_published: true,
             published_at: new Date(),
@@ -154,6 +162,7 @@ const WebSidebar = async () => {
           id: "1",
           title: "Trips I want to take in 2025",
           current_version: {
+            id: "abcd",
             version_number: 7,
             is_published: true,
             published_at: new Date(),
@@ -286,6 +295,7 @@ const WebSidebar = async () => {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
+        <ThemeSwitch />
         <BrandingHeader />
       </SidebarFooter>
       <SidebarRail />
