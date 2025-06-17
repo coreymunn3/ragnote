@@ -59,7 +59,7 @@ const createCustomTheme = (isDarkMode: boolean): Theme => {
 
   return {
     colors: colors,
-    borderRadius: 16, // Use a numeric value instead of CSS variable
+    borderRadius: 16,
     fontFamily: "var(--font-sans)",
   };
 };
@@ -79,25 +79,14 @@ const RichTextEditor = ({
 }: RichTextEditorProps) => {
   const { resolvedTheme } = useTheme();
   const [customTheme, setCustomTheme] = useState<Theme | null>(null);
-  const [mounted, setMounted] = useState(false);
 
-  // Call the hook at the top level of the component
-  // This is safe because null will be used during SSR
-  // and the real editor will only be used client-side after mounting
-  const editor =
-    typeof window !== "undefined"
-      ? useCreateBlockNote({ initialContent })
-      : null;
-
-  // Handle mounting state to avoid hydration mismatch
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const editor = useCreateBlockNote({
+    initialContent,
+  });
 
   // Set up theme based on dark/light mode with a delay to ensure CSS variables are updated
   useEffect(() => {
-    if (!mounted) return;
-
+    if (!editor) return;
     // Add a small delay to ensure CSS variables have been updated after theme change
     const timer = setTimeout(() => {
       // Use resolvedTheme instead of theme to properly handle 'system' preference
@@ -107,40 +96,22 @@ const RichTextEditor = ({
 
     // Cleanup timeout on unmount or before running effect again
     return () => clearTimeout(timer);
-  }, [resolvedTheme, mounted]);
-
-  // Set up onChange handler if provided
-  useEffect(() => {
-    if (onChange && editor) {
-      // Subscribe to editor changes
-      const unsubscribe = editor.onChange(() => {
-        if (onChange) {
-          onChange(editor);
-        }
-      });
-
-      // Cleanup subscription on unmount
-      return () => {
-        if (unsubscribe) {
-          unsubscribe();
-        }
-      };
-    }
-  }, [editor, onChange]);
+  }, [resolvedTheme]);
 
   // Don't render until component is mounted to avoid hydration issues
-  if (!mounted) {
+  if (!editor) {
     return <div className={`h-full w-full bg-background ${className}`}></div>;
   }
 
   return (
     <div className={`h-full w-full ${className}`}>
-      {mounted && customTheme && editor && (
+      {customTheme && editor && (
         <BlockNoteView
           editor={editor}
           theme={customTheme}
           className="custom-blocknote"
           editable={!readOnly}
+          onChange={onChange}
         />
       )}
     </div>

@@ -25,10 +25,11 @@ const WebNotePageContent = () => {
 
   const version = {};
 
-  // Handle content changes
+  // TO DO - save editor content to a draft after debouncing
   const handleEditorChange = (editor: BlockNoteEditor) => {
-    console.log("Content changed:", editor);
-    // Here you would save the content to your backend
+    console.log("onChange:", JSON.stringify(editor.document));
+    // Here you would implement debounced saving logic
+    // debouncedSave(id, JSON.stringify(editor.document));
   };
 
   return (
