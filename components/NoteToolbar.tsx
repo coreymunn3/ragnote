@@ -8,16 +8,17 @@ import {
 } from "./ui/dropdown-menu";
 import { NoteVersion } from "@/lib/types/noteTypes";
 import VersionBadge from "./VersionBadge";
-import { TypographyMuted, TypographyP } from "./ui/typography";
+import { TypographyMuted } from "./ui/typography";
 import { Button } from "./ui/button";
 import { EllipsisVerticalIcon, ForwardIcon } from "lucide-react";
+import EditableField from "./EditableField";
 
 const NoteToolbar = () => {
   const { id, versionId } = useParams();
   // TO DO - get the note data using the page params
   const note = {
     id: "1",
-    title: "Trips I want to take in 2025",
+    title: "Trips 2025",
     current_version: {
       id: "abcd",
       version_number: 4,
@@ -64,12 +65,19 @@ const NoteToolbar = () => {
   ];
 
   return (
-    <div className="flex items-center justify-between px-14 py-2 border-b border-accent">
+    <div className="flex items-center justify-between px-14 py-2">
       {/* left side - title and version */}
-      <div className="flex items-start space-x-2">
-        <TypographyP>{note.title}</TypographyP>
+      <div className="flex items-end  space-x-2">
+        <EditableField
+          value={note.title}
+          variant="bold"
+          onSave={(newTitle) => {
+            // Will implement API call to update the title later
+            console.log("Saving new title:", newTitle);
+          }}
+        />
         <DropdownMenu>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger className="p-1">
             <VersionBadge version={noteVersions[0]} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
