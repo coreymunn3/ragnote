@@ -3,6 +3,8 @@ import { Separator } from "@/components/ui/separator";
 import { TypographyMuted } from "@/components/ui/typography";
 import WidgetList from "@/components/web/WidgetList";
 import NoteWidget from "@/components/web/NoteWidget";
+import { Button } from "@/components/ui/button";
+import { FilePlus2Icon } from "lucide-react";
 
 const WebFolderPageContent = () => {
   // TO DO - get the folder data and all of its notes (not pinned)
@@ -143,7 +145,12 @@ const WebFolderPageContent = () => {
         <AnimatedTypography variant="h1">
           {folder.folder_name}
         </AnimatedTypography>
-        <TypographyMuted>{`${folder.notes.length} Items`}</TypographyMuted>
+        <div className="flex space-x-2 items-center">
+          <TypographyMuted>{`${folder.notes.length} Items`}</TypographyMuted>
+          <Button variant={"ghost"}>
+            <FilePlus2Icon className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
       <Separator orientation="horizontal" className="mb-6" />
 
