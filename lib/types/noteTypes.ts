@@ -23,5 +23,5 @@ export type NoteVersion = {
 };
 
 export type NoteVersionWithContent = NoteVersion & {
-  content: string;
+  content: any;
 };

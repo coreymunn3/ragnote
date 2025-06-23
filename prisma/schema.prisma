@@ -160,7 +160,7 @@ model note_version {
   id             String    @id @default(uuid()) @db.Uuid
   note_id        String    @db.Uuid
   version_number Int       @default(1)
-  content        String // Full content of this version
+  content        Json      @db.Json // Full content of this version
   is_published   Boolean   @default(true) // True if it's a draft, false if published
   published_at   DateTime? @db.Timestamptz(3) // Null if it's a draft
   created_at     DateTime  @default(now()) @db.Timestamptz(3)
