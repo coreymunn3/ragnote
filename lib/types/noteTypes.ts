@@ -25,3 +25,28 @@ export type NoteVersion = {
 export type NoteVersionWithContent = NoteVersion & {
   content: any;
 };
+
+/**
+ * Request Types for Note Service
+ */
+export type CreateNoteRequest = {
+  userId: string;
+  folderId?: string;
+  title: string;
+  content: string;
+};
+
+/**
+ * Response Types for Note Service
+ */
+export type NoteResponse = {
+  id: string;
+  user_id: string;
+  folder_id: string | null;
+  title: string;
+  current_version_id: string;
+  is_pinned: boolean;
+  is_deleted: boolean;
+  created_at: Date;
+  updated_at: Date;
+};
