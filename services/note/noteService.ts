@@ -1,19 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { createNoteSchema } from "./noteValidators";
 import { CreateNoteRequest, NoteResponse } from "@/lib/types/noteTypes";
-import {
-  BadRequestError,
-  NotFoundError,
-  ConflictError,
-} from "@/lib/errors/apiErrors";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { NotFoundError } from "@/lib/errors/apiErrors";
+import { withErrorHandling } from "@/lib/errors/errorHandlers";
 
 export class NoteService {
-  public async createNote(data: CreateNoteRequest): Promise<NoteResponse> {
-    // Validate the request data
-    const validatedData = createNoteSchema.parse(data);
+  public createNote = withErrorHandling(
+    async (data: CreateNoteRequest): Promise<NoteResponse> => {
+      // Validate the request data
+      const validatedData = createNoteSchema.parse(data);
 
-    try {
       // Create the base note record and first version in a transaction
       const newNote = await prisma.$transaction(async (tx) => {
         // Validate folder ownership if folderId is provided
@@ -69,41 +65,6 @@ export class NoteService {
       }
 
       return newNote as NoteResponse;
-    } catch (error) {
-      // Handle Zod validation errors
-      if (error instanceof Error && error.name === "ZodError") {
-        throw new BadRequestError(`Invalid input: ${error.message}`);
-      }
-
-      // Handle Prisma errors
-      if (error instanceof PrismaClientKnownRequestError) {
-        switch (error.code) {
-          case "P2002":
-            throw new ConflictError(
-              "A note with this information already exists"
-            );
-          case "P2003":
-            throw new NotFoundError("Referenced folder does not exist");
-          case "P2025":
-            throw new NotFoundError("Record not found");
-          default:
-            console.error("Prisma error:", error);
-            throw new Error("Database operation failed");
-        }
-      }
-
-      // Re-throw known ApiErrors
-      if (
-        error instanceof NotFoundError ||
-        error instanceof ConflictError ||
-        error instanceof BadRequestError
-      ) {
-        throw error;
-      }
-
-      // Log unexpected errors and throw generic error
-      console.error("Unexpected error in createNote:", error);
-      throw new Error("Failed to create note");
     }
-  }
+  );
 }
