@@ -232,29 +232,6 @@ const WebSidebar = async () => {
             <WebSidebarInternalTrigger />
           </div>
         </div>
-        <TooltipProvider>
-          <div className="flex items-center">
-            {/* New Note */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant={"ghost"}>
-                  <FilePlus2Icon className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Add a New Note</TooltipContent>
-            </Tooltip>
-
-            {/* New Folder */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant={"ghost"}>
-                  <FolderPlusIcon className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Add a New Folder</TooltipContent>
-            </Tooltip>
-          </div>
-        </TooltipProvider>
       </SidebarHeader>
       {/* The Sidebar Content pane */}
       <SidebarContent className="p-2">
@@ -296,6 +273,10 @@ const WebSidebar = async () => {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
+        <Button variant={"ghost"} className="my-2">
+          <FolderPlusIcon className="h-4 w-4" />
+          Create Folder
+        </Button>
         <ThemeSwitch />
         <BrandingHeader />
       </SidebarFooter>
