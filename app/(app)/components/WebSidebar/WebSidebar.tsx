@@ -271,6 +271,7 @@ const WebSidebar = async () => {
                 },
               ]}
               showCount={false}
+              showCreateFile={false}
             />
           </SidebarGroupContent>
         </SidebarGroup>

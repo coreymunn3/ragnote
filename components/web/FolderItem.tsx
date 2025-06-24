@@ -1,7 +1,7 @@
 "use client";
-import { Folder, Note } from "@/lib/types";
-import { ChevronRightIcon } from "lucide-react";
-import { useState } from "react";
+import { Folder } from "@/lib/types/folderTypes";
+import { Note } from "@/lib/types/noteTypes";
+import { ChevronRightIcon, FilePlus2Icon } from "lucide-react";
 import { Button } from "../ui/button";
 import FolderListItem from "./FolderListItem";
 import { AnimatedExpandable, AnimatedListItem } from "@/components/animations";
@@ -13,6 +13,7 @@ interface FolderItemProps {
   showCount?: boolean;
   isOpen?: boolean;
   onToggle?: () => void;
+  showCreateFile?: boolean;
 }
 
 const FolderItem = ({
@@ -21,6 +22,7 @@ const FolderItem = ({
   showCount = true,
   isOpen = false,
   onToggle,
+  showCreateFile = true,
 }: FolderItemProps) => {
   const containsNotes = notes.length > 0;
 
@@ -46,14 +48,25 @@ const FolderItem = ({
             {Icon}
             <span>{`${folder_name} ${showCount ? `(${notes.length})` : ""} `}</span>
           </div>
-          {/* Expand Icon */}
-          {containsNotes && (
+          <div className="flex items-center space-x-1">
+            {showCreateFile && (
+              <div>
+                <Button variant={"ghost"} className="hover:bg-transparent">
+                  <FilePlus2Icon className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            {/* Expand Icon */}
             <div>
-              <ChevronRightIcon
-                className={`h-4 w-4 transition-transform duration-200 ${isOpen && "rotate-90"}`}
-              />
+              {containsNotes ? (
+                <ChevronRightIcon
+                  className={`h-4 w-4 transition-transform duration-200 ${isOpen && "rotate-90"}`}
+                />
+              ) : (
+                <div className="h-4 w-4"></div>
+              )}
             </div>
-          )}
+          </div>
         </Link>
       </Button>
       <AnimatedExpandable isOpen={isOpen}>

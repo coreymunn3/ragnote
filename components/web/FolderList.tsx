@@ -17,6 +17,7 @@ interface FolderListProps {
   recentlyDeleted?: Folder;
   shared?: Folder;
   showCount?: boolean;
+  showCreateFile?: boolean;
 }
 
 const FolderList = ({
@@ -24,6 +25,7 @@ const FolderList = ({
   shared,
   recentlyDeleted,
   showCount,
+  showCreateFile,
 }: FolderListProps) => {
   const pathname = usePathname();
   const [openFolderId, setOpenFolderId] = useState<string | null>(null);
@@ -68,6 +70,7 @@ const FolderList = ({
               showCount={showCount}
               isOpen={openFolderId === folder.id}
               onToggle={() => toggleFolder(folder.id)}
+              showCreateFile={showCreateFile}
             />
           </AnimatedListItem>
         </SidebarMenuItem>
