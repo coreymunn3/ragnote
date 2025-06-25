@@ -14,12 +14,6 @@ import BrandingHeader from "@/components/BrandingHeader";
 import { SignedIn, UserButton } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
 import FolderList from "@/components/web/FolderList";
 import ThemeSwitch from "@/components/ThemeSwitch";
 
