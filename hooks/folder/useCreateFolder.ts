@@ -1,13 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { CreateFolderApiRequest, Folder } from "@/lib/types/folderTypes";
+import { CreateFolderApiRequest, PrismaFolder } from "@/lib/types/folderTypes";
 
-async function createFolder(data: CreateFolderApiRequest): Promise<Folder> {
-  const response = await axios.post<Folder>("/api/folder", data);
+async function createFolder(
+  data: CreateFolderApiRequest
+): Promise<PrismaFolder> {
+  const response = await axios.post<PrismaFolder>("/api/folder", data);
   return response.data;
 }
 
-export function useCreateFolder(onSuccess?: (newFolder: Folder) => void) {
+export function useCreateFolder(onSuccess?: (newFolder: PrismaFolder) => void) {
   const queryClient = useQueryClient();
 
   return useMutation({
