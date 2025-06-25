@@ -1,5 +1,5 @@
 "use client";
-import { Folder } from "@/lib/types/folderTypes";
+import { FolderWithNotes } from "@/lib/types/folderTypes";
 import { Note } from "@/lib/types/noteTypes";
 import { ChevronRightIcon, FilePlus2Icon } from "lucide-react";
 import { Button } from "../ui/button";
@@ -8,7 +8,7 @@ import { AnimatedExpandable, AnimatedListItem } from "@/components/animations";
 import Link from "next/link";
 
 interface FolderItemProps {
-  folder: Folder;
+  folder: FolderWithNotes;
   Icon: React.ReactNode;
   showCount?: boolean;
   isOpen?: boolean;
@@ -17,7 +17,7 @@ interface FolderItemProps {
 }
 
 const FolderItem = ({
-  folder: { id, folder_name, link, notes },
+  folder: { id, folder_name, href, notes },
   Icon,
   showCount = true,
   isOpen = false,
@@ -42,7 +42,7 @@ const FolderItem = ({
         variant={"ghost"}
         asChild
       >
-        <Link href={link}>
+        <Link href={href}>
           {/* Folder Name and Icon */}
           <div className="flex items-center space-x-2">
             {Icon}

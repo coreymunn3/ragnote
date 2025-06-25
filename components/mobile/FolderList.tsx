@@ -1,7 +1,7 @@
-import { Folder } from "@/lib/types/folderTypes";
+import { FolderWithNotes } from "@/lib/types/folderTypes";
 
 interface FolderListProps {
-  folders: Folder[];
+  folders: FolderWithNotes[];
 }
 
 const FolderList = ({ folders }: FolderListProps) => {

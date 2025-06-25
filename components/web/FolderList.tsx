@@ -1,5 +1,5 @@
 "use client";
-import { Folder } from "@/lib/types/folderTypes";
+import { FolderWithNotes } from "@/lib/types/folderTypes";
 import { SidebarMenu, SidebarMenuItem } from "../ui/sidebar";
 import {
   FolderIcon,
@@ -13,9 +13,9 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 interface FolderListProps {
-  folders: Folder[];
-  recentlyDeleted?: Folder;
-  shared?: Folder;
+  folders: FolderWithNotes[];
+  recentlyDeleted?: FolderWithNotes;
+  shared?: FolderWithNotes;
   showCount?: boolean;
   showCreateFile?: boolean;
 }
@@ -61,7 +61,7 @@ const FolderList = ({
 
   return (
     <SidebarMenu>
-      {allFolders.map((folder: Folder, index) => (
+      {allFolders.map((folder: FolderWithNotes, index) => (
         <SidebarMenuItem key={folder.id}>
           <AnimatedListItem index={index} animation="fadeInRight">
             <FolderItem

@@ -1,12 +1,19 @@
 import { prisma } from "@/lib/prisma";
-import { createNoteSchema } from "./noteValidators";
-import { CreateNoteRequest, NoteResponse } from "@/lib/types/noteTypes";
+import { createNoteSchema, getNotesInFolderSchema } from "./noteValidators";
+import {
+  CreateNoteRequest,
+  GetNotesInFolderRequest,
+  Note,
+  PrismaNote,
+} from "@/lib/types/noteTypes";
 import { NotFoundError } from "@/lib/errors/apiErrors";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
+import { transformToNote } from "./noteTransformers";
 
 export class NoteService {
+  // Create Note
   public createNote = withErrorHandling(
-    async (data: CreateNoteRequest): Promise<NoteResponse> => {
+    async (data: CreateNoteRequest): Promise<PrismaNote> => {
       // Validate the request data
       const validatedData = createNoteSchema.parse(data);
 
@@ -59,12 +66,36 @@ export class NoteService {
         return updatedNote;
       });
 
-      // Ensure current_version_id is set (should always be true after our transaction)
-      if (!newNote.current_version_id) {
-        throw new Error("Failed to set current version for new note");
-      }
+      return newNote;
+    }
+  );
 
-      return newNote as NoteResponse;
+  // Get All Notes In Foler
+  public getAllNotesInFolder = withErrorHandling(
+    async (data: GetNotesInFolderRequest): Promise<Note[]> => {
+      // validate request data
+      const validatedData = getNotesInFolderSchema.parse(data);
+
+      // get all notes in this folder
+      const notes = await prisma.note.findMany({
+        where: {
+          folder_id: validatedData.folderId,
+          user_id: validatedData.userId,
+          is_deleted: false,
+        },
+        include: {
+          current_version: true,
+          _count: {
+            select: {
+              permissions: true,
+            },
+          },
+        },
+      });
+
+      // transform the notes into the correct type and structure
+      const transformedNotes = notes.map((note) => transformToNote(note));
+      return transformedNotes;
     }
   );
 }

@@ -21,16 +21,16 @@ import CreateFolder from "../CreateFolder";
 const WebSidebar = () => {
   const createFolderMutation = useCreateFolder();
 
-  const handleCreateFolder = (folderName: string) => {
-    createFolderMutation.mutate({ folderName });
-  };
-
   // TO DO - get the users folders from DB
   const userFolders = [
     {
       id: "1",
       folder_name: "All Notes",
-      link: `/folder/1`,
+      href: `/folder/1`,
+      user_id: "",
+      is_deleted: false,
+      created_at: new Date(),
+      updated_at: new Date(),
       notes: [
         {
           id: "1",
@@ -97,7 +97,11 @@ const WebSidebar = () => {
     {
       id: "2",
       folder_name: "Cooking",
-      link: `/folder/2`,
+      href: `/folder/2`,
+      user_id: "",
+      is_deleted: false,
+      created_at: new Date(),
+      updated_at: new Date(),
       notes: [
         {
           id: "2",
@@ -134,7 +138,11 @@ const WebSidebar = () => {
     {
       id: "3",
       folder_name: "Climbing",
-      link: `/folder/3`,
+      href: `/folder/3`,
+      user_id: "",
+      is_deleted: false,
+      created_at: new Date(),
+      updated_at: new Date(),
       notes: [
         {
           id: "4",
@@ -156,7 +164,11 @@ const WebSidebar = () => {
     {
       id: "4",
       folder_name: "Hiking Trips",
-      link: `/folder/4`,
+      href: `/folder/4`,
+      user_id: "",
+      is_deleted: false,
+      created_at: new Date(),
+      updated_at: new Date(),
       notes: [
         {
           id: "1",
@@ -181,7 +193,11 @@ const WebSidebar = () => {
   const recentlyDeleted = {
     id: "11",
     folder_name: "Recently Deleted",
-    link: `/folder/111`,
+    href: `/folder/111`,
+    user_id: "",
+    is_deleted: false,
+    created_at: new Date(),
+    updated_at: new Date(),
     notes: [],
   };
 
@@ -189,7 +205,11 @@ const WebSidebar = () => {
   const shared = {
     id: "22",
     folder_name: "Shared With You",
-    link: `/folder/222`,
+    href: `/folder/222`,
+    user_id: "",
+    is_deleted: false,
+    created_at: new Date(),
+    updated_at: new Date(),
     notes: [],
   };
 
@@ -243,8 +263,12 @@ const WebSidebar = () => {
                 {
                   id: "home",
                   folder_name: "Home",
-                  link: "/dashboard",
+                  href: "/dashboard",
                   notes: [],
+                  user_id: "",
+                  is_deleted: false,
+                  created_at: new Date(),
+                  updated_at: new Date(),
                 },
               ]}
               showCount={false}

@@ -11,3 +11,8 @@ export const createNoteSchema = z.object({
     .refine((name) => name.length > 0, "Note name cannot be just whitespace"),
   content: z.string().min(0), // Initial content can be empty
 });
+
+export const getNotesInFolderSchema = z.object({
+  userId: z.string().uuid(),
+  folderId: z.string().uuid(),
+});
