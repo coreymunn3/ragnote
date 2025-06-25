@@ -7,7 +7,7 @@ import WidgetList from "@/components/web/WidgetList";
 import NoteWidget from "@/components/web/NoteWidget";
 import { Button } from "@/components/ui/button";
 import { FilePlus2Icon, FolderPenIcon, Trash2Icon } from "lucide-react";
-import OptionsMenu from "@/components/web/OptionsMenu";
+import OptionsMenu from "@/components/OptionsMenu";
 
 const WebFolderPageContent = () => {
   // TO DO - get the folder data and all of its notes (not pinned)

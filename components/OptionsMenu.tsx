@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { EllipsisVerticalIcon } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "./ui/button";
 import React from "react";
 
 interface Option {

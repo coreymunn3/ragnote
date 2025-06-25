@@ -12,7 +12,7 @@ import { TypographyMuted } from "./ui/typography";
 import { Button } from "./ui/button";
 import { ForwardIcon, Trash2Icon } from "lucide-react";
 import EditableField from "./EditableField";
-import OptionsMenu from "./web/OptionsMenu";
+import OptionsMenu from "./OptionsMenu";
 
 const NoteToolbar = () => {
   const { id, versionId } = useParams();
