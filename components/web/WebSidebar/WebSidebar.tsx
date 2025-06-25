@@ -1,6 +1,5 @@
 "use client";
 
-import { FolderPlusIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +13,6 @@ import {
 import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
 import BrandingHeader from "@/components/BrandingHeader";
 import { SignedIn, UserButton } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
 import FolderList from "@/components/web/FolderList";
 import ThemeSwitch from "@/components/ThemeSwitch";
 import { useCreateFolder } from "@/hooks/folder/useCreateFolder";
