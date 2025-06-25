@@ -12,13 +12,15 @@ import {
 } from "@/components/ui/sidebar";
 import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
 import BrandingHeader from "@/components/BrandingHeader";
-import { SignedIn, UserButton } from "@clerk/nextjs";
+import { SignedIn, UserButton, useUser } from "@clerk/nextjs";
 import FolderList from "@/components/web/FolderList";
 import ThemeSwitch from "@/components/ThemeSwitch";
 import { useCreateFolder } from "@/hooks/folder/useCreateFolder";
 import CreateFolder from "../CreateFolder";
+import WebSidebarFolderGroup from "./WebSidebarFolderGroup";
 
 const WebSidebar = () => {
+  const { user } = useUser();
   const createFolderMutation = useCreateFolder();
 
   // TO DO - get the users folders from DB
@@ -243,7 +245,16 @@ const WebSidebar = () => {
           <SignedIn>
             <div className="flex items-center space-x-2">
               <UserButton />
-              {/* <p className="text-sm font-semibold">{user?.fullName}</p> */}
+              <div className="flex flex-col">
+                <p className="text-sm font-semibold">
+                  {user?.fullName || user?.firstName || "User"}
+                </p>
+                {user?.primaryEmailAddress && (
+                  <p className="text-xs text-muted-foreground">
+                    {user.primaryEmailAddress.emailAddress}
+                  </p>
+                )}
+              </div>
             </div>
           </SignedIn>
           {/* Additional Controls */}
@@ -255,46 +266,34 @@ const WebSidebar = () => {
       </SidebarHeader>
       {/* The Sidebar Content pane */}
       <SidebarContent className="p-2">
-        <SidebarGroup>
-          <SidebarGroupLabel>Get Started</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <FolderList
-              folders={[
-                {
-                  id: "home",
-                  folder_name: "Home",
-                  href: "/dashboard",
-                  notes: [],
-                  user_id: "",
-                  is_deleted: false,
-                  created_at: new Date(),
-                  updated_at: new Date(),
-                },
-              ]}
-              showCount={false}
-              showCreateFile={false}
-            />
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Home */}
+        <WebSidebarFolderGroup
+          groupName="Get Started"
+          folders={[
+            {
+              id: "home",
+              folder_name: "Home",
+              href: "/dashboard",
+              notes: [],
+              user_id: "",
+              is_deleted: false,
+              created_at: new Date(),
+              updated_at: new Date(),
+            },
+          ]}
+          showCount={false}
+          showCreateFile={false}
+        />
         {/* Your Folders */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Your Folders</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <FolderList
-              folders={userFolders}
-              recentlyDeleted={recentlyDeleted}
-              shared={shared}
-            />
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Your AI Conversations</SidebarGroupLabel>
-          <SidebarGroupContent>
-            {/* TO DO - create conversations list similar to folder list above
-              probably need to make folderlist more generalized?
-            */}
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <WebSidebarFolderGroup
+          groupName="Your Folders"
+          folders={userFolders}
+          shared={shared}
+          recentlyDeleted={recentlyDeleted}
+        />
+        {/*  TO DO - find out the best way to render conversations in a group
+        Probably make another component, WebSidebarConversations
+        */}
       </SidebarContent>
       <SidebarFooter>
         <CreateFolder />
