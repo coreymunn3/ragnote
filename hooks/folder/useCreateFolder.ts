@@ -1,18 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import {
-  CreateFolderApiRequest,
-  FolderResponse,
-} from "@/lib/types/folderTypes";
+import { CreateFolderApiRequest, Folder } from "@/lib/types/folderTypes";
 
-async function createFolder(
-  data: CreateFolderApiRequest
-): Promise<FolderResponse> {
-  const response = await axios.post<FolderResponse>("/api/folder", data);
+async function createFolder(data: CreateFolderApiRequest): Promise<Folder> {
+  const response = await axios.post<Folder>("/api/folder", data);
   return response.data;
 }
 
-export function useCreateFolder() {
+export function useCreateFolder(onSuccess?: (newFolder: Folder) => void) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -22,6 +17,9 @@ export function useCreateFolder() {
       queryClient.invalidateQueries({ queryKey: ["folders"] });
 
       console.log(`Folder "${newFolder.folder_name}" created successfully!`);
+
+      // Run custom callback if provided
+      onSuccess?.(newFolder);
     },
     onError: (error) => {
       if (axios.isAxiosError(error)) {
