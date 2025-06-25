@@ -8,11 +8,17 @@ export type Folder = {
 };
 
 /**
+ * Request Types for Folder APIs
+ */
+export type CreateFolderApiRequest = {
+  folderName: string;
+};
+
+/**
  * Request Types for Folder Service
  */
-export type CreateFolderRequest = {
+export type CreateFolderRequest = CreateFolderApiRequest & {
   userId: string;
-  folderName: string;
 };
 
 /**

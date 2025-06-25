@@ -1,4 +1,6 @@
-import { FilePlus2Icon, FolderPlusIcon } from "lucide-react";
+"use client";
+
+import { FolderPlusIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,13 +14,18 @@ import {
 import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
 import BrandingHeader from "@/components/BrandingHeader";
 import { SignedIn, UserButton } from "@clerk/nextjs";
-import { currentUser } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
 import FolderList from "@/components/web/FolderList";
 import ThemeSwitch from "@/components/ThemeSwitch";
+import { useCreateFolder } from "@/hooks/folder/useCreateFolder";
 
-const WebSidebar = async () => {
-  const user = await currentUser();
+const WebSidebar = () => {
+  const createFolderMutation = useCreateFolder();
+
+  const handleCreateFolder = (folderName: string) => {
+    createFolderMutation.mutate({ folderName });
+  };
+
   // TO DO - get the users folders from DB
   const userFolders = [
     {
@@ -217,7 +224,7 @@ const WebSidebar = async () => {
           <SignedIn>
             <div className="flex items-center space-x-2">
               <UserButton />
-              <p className="text-sm font-semibold">{user?.fullName}</p>
+              {/* <p className="text-sm font-semibold">{user?.fullName}</p> */}
             </div>
           </SignedIn>
           {/* Additional Controls */}
@@ -267,7 +274,12 @@ const WebSidebar = async () => {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <Button variant={"ghost"} className="my-2">
+        <Button
+          variant={"ghost"}
+          className="my-2"
+          onClick={() => handleCreateFolder("Test 123")}
+          disabled={createFolderMutation.isPending}
+        >
           <FolderPlusIcon className="h-4 w-4" />
           Create Folder
         </Button>
