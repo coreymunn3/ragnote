@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import FolderList from "@/components/web/FolderList";
 import ThemeSwitch from "@/components/ThemeSwitch";
 import { useCreateFolder } from "@/hooks/folder/useCreateFolder";
+import CreateFolder from "../CreateFolder";
 
 const WebSidebar = () => {
   const createFolderMutation = useCreateFolder();
@@ -274,15 +275,7 @@ const WebSidebar = () => {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <Button
-          variant={"ghost"}
-          className="my-2"
-          onClick={() => handleCreateFolder("Test 123")}
-          disabled={createFolderMutation.isPending}
-        >
-          <FolderPlusIcon className="h-4 w-4" />
-          Create Folder
-        </Button>
+        <CreateFolder />
         <ThemeSwitch />
         <BrandingHeader />
       </SidebarFooter>
