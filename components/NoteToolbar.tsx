@@ -10,8 +10,9 @@ import { NoteVersion } from "@/lib/types/noteTypes";
 import VersionBadge from "./VersionBadge";
 import { TypographyMuted } from "./ui/typography";
 import { Button } from "./ui/button";
-import { EllipsisVerticalIcon, ForwardIcon } from "lucide-react";
+import { ForwardIcon, Trash2Icon } from "lucide-react";
 import EditableField from "./EditableField";
+import OptionsMenu from "./web/OptionsMenu";
 
 const NoteToolbar = () => {
   const { id, versionId } = useParams();
@@ -95,9 +96,15 @@ const NoteToolbar = () => {
         <Button variant={"ghost"}>
           <ForwardIcon className="h-4 w-4" />
         </Button>
-        <Button variant={"ghost"}>
-          <EllipsisVerticalIcon className="h-4 w-4" />
-        </Button>
+        <OptionsMenu
+          options={[
+            {
+              label: "Delete",
+              icon: <Trash2Icon className="h-4 w-4" />,
+              onClick: () => console.log("TO DO - Delete Note"),
+            },
+          ]}
+        />
       </div>
     </div>
   );

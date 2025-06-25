@@ -1,10 +1,13 @@
+"use client";
+
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { Separator } from "@/components/ui/separator";
 import { TypographyMuted } from "@/components/ui/typography";
 import WidgetList from "@/components/web/WidgetList";
 import NoteWidget from "@/components/web/NoteWidget";
 import { Button } from "@/components/ui/button";
-import { FilePlus2Icon } from "lucide-react";
+import { FilePlus2Icon, FolderPenIcon, Trash2Icon } from "lucide-react";
+import OptionsMenu from "@/components/web/OptionsMenu";
 
 const WebFolderPageContent = () => {
   // TO DO - get the folder data and all of its notes (not pinned)
@@ -150,6 +153,20 @@ const WebFolderPageContent = () => {
           <Button variant={"ghost"}>
             <FilePlus2Icon className="h-4 w-4" />
           </Button>
+          <OptionsMenu
+            options={[
+              {
+                label: "Rename",
+                icon: <FolderPenIcon className="h-4 w-4" />,
+                onClick: () => console.log("TO DO - Rename Folder"),
+              },
+              {
+                label: "Delete",
+                icon: <Trash2Icon className="h-4 w-4" />,
+                onClick: () => console.log("TO DO - Delete Folder"),
+              },
+            ]}
+          />
         </div>
       </div>
       <Separator orientation="horizontal" className="mb-6" />
