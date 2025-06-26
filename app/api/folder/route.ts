@@ -36,3 +36,26 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function GET(req: NextRequest) {
+  auth.protect();
+
+  try {
+    const dbUser = await getDbUser();
+    const userFolders = folderService.getFoldersForUser({ userId: dbUser.id });
+    return userFolders;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.statusCode }
+      );
+    }
+    console.error("Unexpected error in GET /api/folder:", error);
+    const internalError = new InternalServerError();
+    return NextResponse.json(
+      { error: internalError.message },
+      { status: internalError.statusCode }
+    );
+  }
+}
