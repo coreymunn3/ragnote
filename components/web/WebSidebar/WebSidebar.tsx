@@ -13,183 +13,15 @@ import {
 import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
 import BrandingHeader from "@/components/BrandingHeader";
 import { SignedIn, UserButton, useUser } from "@clerk/nextjs";
-import FolderList from "@/components/web/FolderList";
 import ThemeSwitch from "@/components/ThemeSwitch";
-import { useCreateFolder } from "@/hooks/folder/useCreateFolder";
 import CreateFolder from "../CreateFolder";
 import WebSidebarFolderGroup from "./WebSidebarFolderGroup";
+import { useGetFolders } from "@/hooks/folder/useGetFolders";
 
 const WebSidebar = () => {
   const { user } = useUser();
-  const createFolderMutation = useCreateFolder();
+  const userFolders = useGetFolders();
 
-  // TO DO - get the users folders from DB
-  const userFolders = [
-    {
-      id: "1",
-      folder_name: "All Notes",
-      href: `/folder/1`,
-      user_id: "",
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      notes: [
-        {
-          id: "1",
-          title: "Trips I want to take in 2025",
-          current_version: {
-            id: "abcd",
-            version_number: 7,
-            is_published: true,
-            published_at: new Date(),
-          },
-          is_pinned: false,
-          is_deleted: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          shared_with_count: 0,
-        },
-        {
-          id: "2",
-          title: "Beef Stew Recipe",
-          current_version: {
-            id: "abcd",
-            version_number: 2,
-            is_published: true,
-            published_at: new Date(),
-          },
-          is_pinned: false,
-          is_deleted: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          shared_with_count: 0,
-        },
-        {
-          id: "3",
-          title: "Groceries",
-          current_version: {
-            id: "abcd",
-            version_number: 4,
-            is_published: false,
-            published_at: null,
-          },
-          is_pinned: false,
-          is_deleted: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          shared_with_count: 0,
-        },
-        {
-          id: "4",
-          title: "2025 Summer Training Plans",
-          current_version: {
-            id: "abcd",
-            version_number: 14,
-            is_published: true,
-            published_at: new Date(),
-          },
-          is_pinned: false,
-          is_deleted: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          shared_with_count: 0,
-        },
-      ],
-    },
-    {
-      id: "2",
-      folder_name: "Cooking",
-      href: `/folder/2`,
-      user_id: "",
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      notes: [
-        {
-          id: "2",
-          title: "Beef Stew Recipe",
-          current_version: {
-            id: "abcd",
-            version_number: 2,
-            is_published: true,
-            published_at: new Date(),
-          },
-          is_pinned: false,
-          is_deleted: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          shared_with_count: 0,
-        },
-        {
-          id: "3",
-          title: "Groceries",
-          current_version: {
-            id: "abcd",
-            version_number: 4,
-            is_published: false,
-            published_at: null,
-          },
-          is_pinned: false,
-          is_deleted: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          shared_with_count: 0,
-        },
-      ],
-    },
-    {
-      id: "3",
-      folder_name: "Climbing",
-      href: `/folder/3`,
-      user_id: "",
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      notes: [
-        {
-          id: "4",
-          title: "2025 Summer Training Plans",
-          current_version: {
-            id: "abcd",
-            version_number: 14,
-            is_published: true,
-            published_at: new Date(),
-          },
-          is_pinned: false,
-          is_deleted: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          shared_with_count: 0,
-        },
-      ],
-    },
-    {
-      id: "4",
-      folder_name: "Hiking Trips",
-      href: `/folder/4`,
-      user_id: "",
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      notes: [
-        {
-          id: "1",
-          title: "Trips I want to take in 2025",
-          current_version: {
-            id: "abcd",
-            version_number: 7,
-            is_published: true,
-            published_at: new Date(),
-          },
-          is_pinned: false,
-          is_deleted: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          shared_with_count: 0,
-        },
-      ],
-    },
-  ];
   // TO DO - get the users recently deleted folders from DB
   // we will create this folder manually, containing only notes with is_deleted of true
   const recentlyDeleted = {
@@ -287,7 +119,7 @@ const WebSidebar = () => {
         {/* Your Folders */}
         <WebSidebarFolderGroup
           groupName="Your Folders"
-          folders={userFolders}
+          folders={userFolders.data}
           shared={shared}
           recentlyDeleted={recentlyDeleted}
         />
