@@ -16,3 +16,7 @@ export const getNotesInFolderSchema = z.object({
   userId: z.string().uuid(),
   folderId: z.string().uuid(),
 });
+
+export const getSharedNotesSchema = z.object({
+  userId: z.string().uuid(),
+});

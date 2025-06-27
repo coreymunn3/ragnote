@@ -41,6 +41,10 @@ export type GetNotesInFolderRequest = {
   folderId: string;
 };
 
+export type GetSharedNotesRequeset = {
+  userId: string;
+};
+
 /**
  * Response Types for Note Service
  */

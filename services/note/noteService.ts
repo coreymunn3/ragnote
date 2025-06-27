@@ -1,8 +1,13 @@
 import { prisma } from "@/lib/prisma";
-import { createNoteSchema, getNotesInFolderSchema } from "./noteValidators";
+import {
+  createNoteSchema,
+  getNotesInFolderSchema,
+  getSharedNotesSchema,
+} from "./noteValidators";
 import {
   CreateNoteRequest,
   GetNotesInFolderRequest,
+  GetSharedNotesRequeset,
   Note,
   PrismaNote,
 } from "@/lib/types/noteTypes";
@@ -98,4 +103,38 @@ export class NoteService {
       return transformedNotes;
     }
   );
+
+  // Get all Shared Notes
+  public getSharedNotes = withErrorHandling(
+    async (data: GetSharedNotesRequeset): Promise<Note[]> => {
+      const validatedData = getSharedNotesSchema.parse(data);
+
+      // Find all notes that have been shared with this user
+      const sharedNotes = await prisma.note.findMany({
+        where: {
+          permissions: {
+            some: {
+              shared_with_user_id: validatedData.userId,
+              active: true,
+            },
+          },
+          is_deleted: false,
+        },
+        include: {
+          current_version: true,
+          _count: {
+            select: {
+              permissions: true,
+            },
+          },
+        },
+      });
+
+      // Transform the notes into the correct type and structure
+      const transformedNotes = sharedNotes.map((note) => transformToNote(note));
+      return transformedNotes;
+    }
+  );
+
+  // Get all Deleted Notes
 }

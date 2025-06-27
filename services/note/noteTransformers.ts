@@ -21,6 +21,7 @@ export const transformToNote = (note: PrismaNoteWithVersion): Note => {
     is_deleted: note.is_deleted,
     updated_at: note.updated_at,
     created_at: note.created_at,
+    // this is the main reason this transformation exists
     shared_with_count: note._count.permissions,
   };
 };
