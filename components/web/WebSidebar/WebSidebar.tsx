@@ -119,7 +119,8 @@ const WebSidebar = () => {
         {/* Your Folders */}
         <WebSidebarFolderGroup
           groupName="Your Folders"
-          folders={userFolders.data}
+          folders={userFolders?.data}
+          isLoading={userFolders.isLoading}
           shared={shared}
           recentlyDeleted={recentlyDeleted}
         />

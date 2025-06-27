@@ -11,9 +11,11 @@ import FolderItem from "./FolderItem";
 import { AnimatedListItem } from "@/components/animations";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FolderListProps {
   folders: FolderWithNotes[];
+  isLoading?: boolean;
   recentlyDeleted?: FolderWithNotes;
   shared?: FolderWithNotes;
   showCount?: boolean;
@@ -22,6 +24,7 @@ interface FolderListProps {
 
 const FolderList = ({
   folders,
+  isLoading = false,
   shared,
   recentlyDeleted,
   showCount,
@@ -40,8 +43,9 @@ const FolderList = ({
   const toggleFolder = (folderId: string) => {
     setOpenFolderId((current) => (current === folderId ? null : folderId));
   };
+
   const allFolders = [
-    ...folders,
+    ...(folders || []),
     ...(shared ? [shared] : []),
     ...(recentlyDeleted ? [recentlyDeleted] : []),
   ];
@@ -58,6 +62,23 @@ const FolderList = ({
         return <FolderIcon className="h-4 w-4" />;
     }
   };
+
+  const renderFolderSkeletons = () => {
+    return Array.from({ length: 3 }).map((_, index) => (
+      <SidebarMenuItem key={`skeleton-${index}`}>
+        <AnimatedListItem index={index} animation="fadeInRight">
+          <div className="flex items-center gap-2 p-2">
+            <Skeleton className="h-4 w-4 rounded" />
+            <Skeleton className="h-4 flex-1 rounded" />
+          </div>
+        </AnimatedListItem>
+      </SidebarMenuItem>
+    ));
+  };
+
+  if (isLoading) {
+    return <SidebarMenu>{renderFolderSkeletons()}</SidebarMenu>;
+  }
 
   return (
     <SidebarMenu>

@@ -8,6 +8,7 @@ import { FolderWithNotes } from "@/lib/types/folderTypes";
 
 interface WebSidebarFolderGroupProps {
   folders: FolderWithNotes[];
+  isLoading?: boolean;
   groupName: string;
   showCount?: boolean;
   showCreateFile?: boolean;
@@ -17,6 +18,7 @@ interface WebSidebarFolderGroupProps {
 
 const WebSidebarFolderGroup = ({
   folders,
+  isLoading = false,
   groupName,
   showCount,
   showCreateFile,
@@ -29,6 +31,7 @@ const WebSidebarFolderGroup = ({
       <SidebarGroupContent>
         <FolderList
           folders={folders}
+          isLoading={isLoading}
           showCount={showCount}
           showCreateFile={showCreateFile}
           recentlyDeleted={recentlyDeleted}
