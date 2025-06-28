@@ -33,7 +33,7 @@ const CreateFolder = () => {
       <DialogTrigger asChild>
         <Button
           variant={"ghost"}
-          className="my-2"
+          className="w-full flex justify-start h-[44px] hover:bg-primary/20 transition-colors duration-200"
           disabled={createFolderMutation.isPending}
         >
           <FolderPlusIcon className="h-4 w-4" />

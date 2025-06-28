@@ -22,7 +22,7 @@ const FolderItem = ({
   showCount = true,
   isOpen = false,
   onToggle,
-  allowCreateNote = true,
+  allowCreateNote,
 }: FolderItemProps) => {
   const containsNotes = notes.length > 0;
 
@@ -51,7 +51,11 @@ const FolderItem = ({
           <div className="flex items-center space-x-1">
             {allowCreateNote && (
               <div>
-                <Button variant={"ghost"} className="hover:bg-transparent">
+                <Button
+                  variant={"ghost"}
+                  className="hover:bg-transparent"
+                  onClick={() => console.log("create note")}
+                >
                   <FilePlus2Icon className="h-4 w-4" />
                 </Button>
               </div>

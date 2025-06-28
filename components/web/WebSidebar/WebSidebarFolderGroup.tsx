@@ -12,6 +12,7 @@ interface WebSidebarFolderGroupProps {
   groupName: string;
   showCount?: boolean;
   allowCreateNote?: boolean;
+  allowCreateFolder?: boolean;
 }
 
 const WebSidebarFolderGroup = ({
@@ -20,6 +21,7 @@ const WebSidebarFolderGroup = ({
   groupName,
   showCount,
   allowCreateNote,
+  allowCreateFolder,
 }: WebSidebarFolderGroupProps) => {
   return (
     <SidebarGroup>
@@ -30,6 +32,7 @@ const WebSidebarFolderGroup = ({
           isLoading={isLoading}
           showCount={showCount}
           allowCreateNote={allowCreateNote}
+          allowCreateFolder={allowCreateFolder}
         />
       </SidebarGroupContent>
     </SidebarGroup>

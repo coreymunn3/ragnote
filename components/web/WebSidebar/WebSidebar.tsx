@@ -11,7 +11,6 @@ import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
 import BrandingHeader from "@/components/BrandingHeader";
 import { SignedIn, UserButton, useUser } from "@clerk/nextjs";
 import ThemeSwitch from "@/components/ThemeSwitch";
-import CreateFolder from "../CreateFolder";
 import WebSidebarFolderGroup from "./WebSidebarFolderGroup";
 import { useGetUserFolders } from "@/hooks/folder/useGetUserFolders";
 
@@ -64,27 +63,26 @@ const WebSidebar = () => {
             },
           ]}
           showCount={false}
-          allowCreateNote={false}
         />
         {/* Your Folders */}
         <WebSidebarFolderGroup
           groupName="Your Folders"
           folders={folders.data?.user}
           isLoading={folders.isLoading}
+          allowCreateFolder={true}
+          allowCreateNote={true}
         />
         {/* system folders */}
         <WebSidebarFolderGroup
           groupName="System Folders"
           folders={folders.data?.system}
           isLoading={folders.isLoading}
-          allowCreateNote={false}
         />
         {/*  TO DO - find out the best way to render conversations in a group
         Probably make another component, WebSidebarConversations
         */}
       </SidebarContent>
       <SidebarFooter>
-        <CreateFolder />
         <ThemeSwitch />
         <BrandingHeader />
       </SidebarFooter>

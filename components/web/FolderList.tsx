@@ -12,12 +12,14 @@ import { AnimatedListItem } from "@/components/animations";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import CreateFolder from "./CreateFolder";
 
 interface FolderListProps {
   folders: FolderWithNotes[] | undefined;
   isLoading?: boolean;
   showCount?: boolean;
   allowCreateNote?: boolean;
+  allowCreateFolder?: boolean;
 }
 
 const FolderList = ({
@@ -25,6 +27,7 @@ const FolderList = ({
   isLoading = false,
   showCount,
   allowCreateNote,
+  allowCreateFolder,
 }: FolderListProps) => {
   const pathname = usePathname();
   const [openFolderId, setOpenFolderId] = useState<string | null>(null);
@@ -89,6 +92,11 @@ const FolderList = ({
             </AnimatedListItem>
           </SidebarMenuItem>
         ))}
+      {allowCreateFolder && (
+        <AnimatedListItem index={folders?.length || 0} animation="fadeInRight">
+          <CreateFolder />
+        </AnimatedListItem>
+      )}
     </SidebarMenu>
   );
 };
