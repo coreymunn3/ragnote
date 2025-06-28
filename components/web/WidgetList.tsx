@@ -21,12 +21,16 @@ const WidgetList = <T extends { id: string }>({
   title,
   icon,
   className,
-  emptyMessage = "No items available",
+  emptyMessage = "No Notes Yet :(",
   delay = 0, // Default to no delay
   displayMode = "horizontal", // Default to horizontal for backward compatibility
 }: WidgetListProps<T>) => {
   if (!items || items.length === 0) {
-    return <div className="text-muted-foreground py-4">{emptyMessage}</div>;
+    return (
+      <div className="text-muted-foreground text-sm py-4 text-center">
+        {emptyMessage}
+      </div>
+    );
   }
 
   // Render content based on display mode

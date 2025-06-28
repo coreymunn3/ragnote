@@ -8,137 +8,13 @@ import NoteWidget from "@/components/web/NoteWidget";
 import { Button } from "@/components/ui/button";
 import { FilePlus2Icon, FolderPenIcon, Trash2Icon } from "lucide-react";
 import OptionsMenu from "@/components/OptionsMenu";
+import { FolderWithNotes } from "@/lib/types/folderTypes";
 
-const WebFolderPageContent = () => {
-  // TO DO - get the folder data and all of its notes (not pinned)
-  const folder = {
-    id: "1",
-    folder_name: "All Notes",
-    link: `/folder/1`,
-    notes: [
-      {
-        id: "1",
-        title: "Trips I want to take in 2025",
-        current_version: {
-          id: "abcd",
-          version_number: 7,
-          is_published: true,
-          published_at: new Date(),
-        },
-        is_pinned: false,
-        is_deleted: false,
-        created_at: new Date(),
-        updated_at: new Date(),
-        shared_with_count: 2,
-      },
-      {
-        id: "2",
-        title: "Beef Stew Recipe",
-        current_version: {
-          id: "abcd",
-          version_number: 2,
-          is_published: true,
-          published_at: new Date(),
-        },
-        is_pinned: false,
-        is_deleted: false,
-        created_at: new Date(),
-        updated_at: new Date(),
-        shared_with_count: 0,
-      },
-      {
-        id: "3",
-        title: "Groceries",
-        current_version: {
-          id: "abcd",
-          version_number: 4,
-          is_published: false,
-          published_at: null,
-        },
-        is_pinned: false,
-        is_deleted: false,
-        created_at: new Date(),
-        updated_at: new Date(),
-        shared_with_count: 1,
-      },
-      {
-        id: "4",
-        title: "2025 Summer Training Plans",
-        current_version: {
-          id: "abcd",
-          version_number: 14,
-          is_published: true,
-          published_at: new Date(),
-        },
-        is_pinned: true,
-        is_deleted: false,
-        created_at: new Date(),
-        updated_at: new Date(),
-        shared_with_count: 0,
-      },
-      {
-        id: "5",
-        title: "Trips I want to take in 2025",
-        current_version: {
-          id: "abcd",
-          version_number: 7,
-          is_published: true,
-          published_at: new Date(),
-        },
-        is_pinned: false,
-        is_deleted: false,
-        created_at: new Date(),
-        updated_at: new Date(),
-        shared_with_count: 1,
-      },
-      {
-        id: "6",
-        title: "Beef Stew Recipe",
-        current_version: {
-          id: "abcd",
-          version_number: 2,
-          is_published: true,
-          published_at: new Date(),
-        },
-        is_pinned: false,
-        is_deleted: false,
-        created_at: new Date(),
-        updated_at: new Date(),
-        shared_with_count: 0,
-      },
-      {
-        id: "7",
-        title: "Groceries",
-        current_version: {
-          id: "abcd",
-          version_number: 4,
-          is_published: false,
-          published_at: null,
-        },
-        is_pinned: true,
-        is_deleted: false,
-        created_at: new Date(),
-        updated_at: new Date(),
-        shared_with_count: 3,
-      },
-      {
-        id: "8",
-        title: "2025 Summer Training Plans",
-        current_version: {
-          id: "abcd",
-          version_number: 14,
-          is_published: true,
-          published_at: new Date(),
-        },
-        is_pinned: false,
-        is_deleted: false,
-        created_at: new Date(),
-        updated_at: new Date(),
-        shared_with_count: 0,
-      },
-    ],
-  };
+interface WebFolderPageContentProps {
+  folder: FolderWithNotes;
+}
 
+const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
   const unpinnedNotes = folder.notes.filter((note) => !note.is_pinned);
   const pinnedNotes = folder.notes.filter((note) => note.is_pinned);
 
@@ -173,14 +49,17 @@ const WebFolderPageContent = () => {
 
       <div className="flex flex-col space-y-4">
         {/* Display pinned notes prominently */}
-        <AnimatedListItem index={1} animation="fadeIn">
-          <WidgetList
-            items={pinnedNotes}
-            renderItem={(note) => <NoteWidget note={note} pinned />}
-            displayMode="vertical"
-            delay={1}
-          />
-        </AnimatedListItem>
+        {pinnedNotes.length > 0 && (
+          <AnimatedListItem index={1} animation="fadeIn">
+            <WidgetList
+              items={pinnedNotes}
+              renderItem={(note) => <NoteWidget note={note} pinned />}
+              displayMode="vertical"
+              delay={1}
+            />
+          </AnimatedListItem>
+        )}
+
         {/* Display notes in a responsive grid layout */}
         <AnimatedListItem index={2} animation="fadeIn">
           <WidgetList
