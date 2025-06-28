@@ -11,9 +11,7 @@ interface WebSidebarFolderGroupProps {
   isLoading?: boolean;
   groupName: string;
   showCount?: boolean;
-  showCreateFile?: boolean;
-  recentlyDeleted?: FolderWithNotes;
-  shared?: FolderWithNotes;
+  allowCreateNote?: boolean;
 }
 
 const WebSidebarFolderGroup = ({
@@ -21,9 +19,7 @@ const WebSidebarFolderGroup = ({
   isLoading = false,
   groupName,
   showCount,
-  showCreateFile,
-  recentlyDeleted,
-  shared,
+  allowCreateNote,
 }: WebSidebarFolderGroupProps) => {
   return (
     <SidebarGroup>
@@ -33,7 +29,7 @@ const WebSidebarFolderGroup = ({
           folders={folders}
           isLoading={isLoading}
           showCount={showCount}
-          showCreateFile={showCreateFile}
+          allowCreateNote={allowCreateNote}
         />
       </SidebarGroupContent>
     </SidebarGroup>

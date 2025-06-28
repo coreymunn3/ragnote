@@ -17,14 +17,14 @@ interface FolderListProps {
   folders: FolderWithNotes[] | undefined;
   isLoading?: boolean;
   showCount?: boolean;
-  showCreateFile?: boolean;
+  allowCreateNote?: boolean;
 }
 
 const FolderList = ({
   folders,
   isLoading = false,
   showCount,
-  showCreateFile,
+  allowCreateNote,
 }: FolderListProps) => {
   const pathname = usePathname();
   const [openFolderId, setOpenFolderId] = useState<string | null>(null);
@@ -84,7 +84,7 @@ const FolderList = ({
                 showCount={showCount}
                 isOpen={openFolderId === folder.id}
                 onToggle={() => toggleFolder(folder.id)}
-                showCreateFile={showCreateFile}
+                allowCreateNote={allowCreateNote}
               />
             </AnimatedListItem>
           </SidebarMenuItem>

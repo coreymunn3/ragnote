@@ -64,7 +64,7 @@ const WebSidebar = () => {
             },
           ]}
           showCount={false}
-          showCreateFile={false}
+          allowCreateNote={false}
         />
         {/* Your Folders */}
         <WebSidebarFolderGroup
@@ -77,6 +77,7 @@ const WebSidebar = () => {
           groupName="System Folders"
           folders={folders.data?.system}
           isLoading={folders.isLoading}
+          allowCreateNote={false}
         />
         {/*  TO DO - find out the best way to render conversations in a group
         Probably make another component, WebSidebarConversations

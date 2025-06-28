@@ -13,7 +13,7 @@ interface FolderItemProps {
   showCount?: boolean;
   isOpen?: boolean;
   onToggle?: () => void;
-  showCreateFile?: boolean;
+  allowCreateNote?: boolean;
 }
 
 const FolderItem = ({
@@ -22,7 +22,7 @@ const FolderItem = ({
   showCount = true,
   isOpen = false,
   onToggle,
-  showCreateFile = true,
+  allowCreateNote = true,
 }: FolderItemProps) => {
   const containsNotes = notes.length > 0;
 
@@ -49,7 +49,7 @@ const FolderItem = ({
             <span>{`${folder_name} ${showCount ? `(${notes.length})` : ""} `}</span>
           </div>
           <div className="flex items-center space-x-1">
-            {showCreateFile && (
+            {allowCreateNote && (
               <div>
                 <Button variant={"ghost"} className="hover:bg-transparent">
                   <FilePlus2Icon className="h-4 w-4" />
