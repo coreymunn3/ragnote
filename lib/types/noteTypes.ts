@@ -22,9 +22,11 @@ export type NoteVersion = {
   created_at: Date;
 };
 
-export type NoteVersionWithContent = NoteVersion & {
-  content: any;
-};
+export type NoteVersionWithContent = Expand<
+  NoteVersion & {
+    content: any;
+  }
+>;
 
 /**
  * Response Types for Note Service

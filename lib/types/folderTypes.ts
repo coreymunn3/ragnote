@@ -21,10 +21,12 @@ export type PrismaFolder = {
   updated_at: Date;
 };
 
-export type FolderWithNotes = PrismaFolder & {
-  href: string;
-  notes: Note[];
-};
+export type FolderWithNotes = Expand<
+  PrismaFolder & {
+    href: string;
+    notes: Note[];
+  }
+>;
 
 /**
  * Request Types for Folder APIs
