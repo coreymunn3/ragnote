@@ -23,10 +23,23 @@ export const POST = withApiRouteErrorHandling(postHandler, "POST /api/folder");
 const getHandler = async (req: NextRequest) => {
   auth.protect();
   const dbUser = await getDbUser();
-  const userFolders = await folderService.getFoldersForUser({
-    userId: dbUser.id,
-  });
-  return NextResponse.json(userFolders, { status: 200 });
+  // get the user and system folders
+  const [userFolders, systemFolders] = await Promise.all([
+    folderService.getUserCreatedFolders({
+      userId: dbUser.id,
+    }),
+    folderService.getUserSystemFolders({
+      userId: dbUser.id,
+    }),
+  ]);
+
+  return NextResponse.json(
+    {
+      user: userFolders,
+      system: systemFolders,
+    },
+    { status: 200 }
+  );
 };
 
 export const GET = withApiRouteErrorHandling(getHandler, "GET /api/folder");
