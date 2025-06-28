@@ -1,14 +1,14 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
-const getFolders = async () => {
+const getUserFolders = async () => {
   const res = await axios.get("/api/folder");
   return res.data;
 };
 
-export function useGetFolders() {
+export function useGetUserFolders() {
   return useQuery({
-    queryKey: ["folders"],
-    queryFn: getFolders,
+    queryKey: ["folders", "user"],
+    queryFn: getUserFolders,
   });
 }
