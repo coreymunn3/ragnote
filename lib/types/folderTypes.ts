@@ -1,5 +1,17 @@
 import { Note } from "./noteTypes";
 
+export const SYSTEM_FOLDERS = {
+  SHARED: {
+    id: "system:shared",
+    displayName: "Shared With You",
+  },
+  DELETED: {
+    id: "system:deleted",
+    displayName: "Recently Deleted",
+  },
+};
+export type SystemFolderId = "system:shared" | "system:deleted";
+
 export type PrismaFolder = {
   id: string;
   user_id: string;
@@ -28,7 +40,7 @@ export type CreateFolderRequest = CreateFolderApiRequest & {
   userId: string;
 };
 
-export type GetAllFoldersRequest = {
+export type GetFoldersRequest = {
   userId: string;
 };
 
