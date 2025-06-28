@@ -27,25 +27,6 @@ export type NoteVersionWithContent = NoteVersion & {
 };
 
 /**
- * Request Types for Note Service
- */
-export type CreateNoteRequest = {
-  userId: string;
-  folderId?: string;
-  title: string;
-  content: string;
-};
-
-export type GetNotesInFolderRequest = {
-  userId: string;
-  folderId: string;
-};
-
-export type GetSystemNotesRequeset = {
-  userId: string;
-};
-
-/**
  * Response Types for Note Service
  */
 export type PrismaNote = {

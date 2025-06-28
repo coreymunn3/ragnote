@@ -25,12 +25,8 @@ const getHandler = async (req: NextRequest) => {
   const dbUser = await getDbUser();
   // get the user and system folders
   const [userFolders, systemFolders] = await Promise.all([
-    folderService.getUserCreatedFolders({
-      userId: dbUser.id,
-    }),
-    folderService.getUserSystemFolders({
-      userId: dbUser.id,
-    }),
+    folderService.getUserCreatedFolders(dbUser.id),
+    folderService.getUserSystemFolders(dbUser.id),
   ]);
 
   return NextResponse.json(

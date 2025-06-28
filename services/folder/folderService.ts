@@ -1,13 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { createFolderSchema, getFolderByIdSchema } from "./folderValidators";
 import {
-  CreateFolderRequest,
   PrismaFolder,
-  GetFoldersRequest,
   FolderWithNotes,
   SYSTEM_FOLDERS,
   SystemFolderId,
-  GetFolderByIdRequest,
 } from "@/lib/types/folderTypes";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { NoteService } from "../note/noteService";
@@ -28,10 +25,7 @@ export class FolderService {
     // Get notes for each folder using noteService
     return Promise.all(
       folders.map(async (folder) => {
-        const notes = await noteService.getAllNotesInFolder({
-          folderId: folder.id,
-          userId,
-        });
+        const notes = await noteService.getAllNotesInFolder(folder.id, userId);
 
         return {
           ...folder,
@@ -94,8 +88,11 @@ export class FolderService {
 
   /** Create Folder */
   public createFolder = withErrorHandling(
-    async (data: CreateFolderRequest): Promise<PrismaFolder> => {
-      const validatedData = createFolderSchema.parse(data);
+    async (params: {
+      folderName: string;
+      userId: string;
+    }): Promise<PrismaFolder> => {
+      const validatedData = createFolderSchema.parse(params);
       // create the folder
       const newFolder = await prisma.folder.create({
         data: {
@@ -111,41 +108,41 @@ export class FolderService {
 
   /** Get All Folders created by the user */
   public getUserCreatedFolders = withErrorHandling(
-    async (data: GetFoldersRequest): Promise<FolderWithNotes[]> => {
+    async (userId: string): Promise<FolderWithNotes[]> => {
       // Get all folders for this user that are not deleted
       const folders = await prisma.folder.findMany({
         where: {
-          user_id: data.userId,
+          user_id: userId,
           is_deleted: false,
         },
       });
 
       // Get notes for each folder using the helper method
-      return await this.enrichFoldersWithNotes(folders, data.userId);
+      return await this.enrichFoldersWithNotes(folders, userId);
     }
   );
 
   public getUserSystemFolders = withErrorHandling(
-    async (data: GetFoldersRequest): Promise<FolderWithNotes[]> => {
+    async (userId: string): Promise<FolderWithNotes[]> => {
       /**
        * System folders are not "real" folders like the user created folders.
        * Instead, they are artificial folders, just groups of notes presented to the user the same way a folder would be.
        */
 
       const systemFolders: PrismaFolder[] = [
-        this.createSystemFolder("SHARED", data.userId),
-        this.createSystemFolder("DELETED", data.userId),
+        this.createSystemFolder("SHARED", userId),
+        this.createSystemFolder("DELETED", userId),
       ];
 
       // get notes for each of the system folders using the helper method
-      return await this.enrichFoldersWithNotes(systemFolders, data.userId);
+      return await this.enrichFoldersWithNotes(systemFolders, userId);
     }
   );
 
   /** Get a single folder by ID with its notes */
   public getFolderById = withErrorHandling(
-    async (data: GetFolderByIdRequest): Promise<FolderWithNotes> => {
-      const validatedData = getFolderByIdSchema.parse(data);
+    async (folderId: string, userId: string): Promise<FolderWithNotes> => {
+      const validatedData = getFolderByIdSchema.parse({ folderId, userId });
 
       // Check if this is a system folder
       if (FolderService.isSystemFolder(validatedData.folderId)) {

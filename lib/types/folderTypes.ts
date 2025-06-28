@@ -32,19 +32,3 @@ export type FolderWithNotes = PrismaFolder & {
 export type CreateFolderApiRequest = {
   folderName: string;
 };
-
-/**
- * Request Types for Folder Service
- */
-export type CreateFolderRequest = CreateFolderApiRequest & {
-  userId: string;
-};
-
-export type GetFoldersRequest = {
-  userId: string;
-};
-
-export type GetFolderByIdRequest = {
-  folderId: string;
-  userId: string;
-};
