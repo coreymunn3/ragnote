@@ -9,3 +9,8 @@ export const createFolderSchema = z.object({
     .trim()
     .refine((name) => name.length > 0, "Folder name cannot be just whitespace"),
 });
+
+export const getFolderByIdSchema = z.object({
+  folderId: z.string().min(1, "Folder ID is required"),
+  userId: z.string().uuid("Invalid user ID format"),
+});

@@ -43,3 +43,8 @@ export type CreateFolderRequest = CreateFolderApiRequest & {
 export type GetFoldersRequest = {
   userId: string;
 };
+
+export type GetFolderByIdRequest = {
+  folderId: string;
+  userId: string;
+};

@@ -14,7 +14,8 @@ import {
 import { NotFoundError } from "@/lib/errors/apiErrors";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { transformToNote } from "./noteTransformers";
-import { SYSTEM_FOLDERS, SystemFolderId } from "@/lib/types/folderTypes";
+import { SYSTEM_FOLDERS } from "@/lib/types/folderTypes";
+import { FolderService } from "../folder/folderService";
 
 export class NoteService {
   // Create Note
@@ -77,16 +78,6 @@ export class NoteService {
   );
 
   /**
-   * Determine if the folder is a system foler or a user created folder
-   * because we need to fetch system folder notes slightly differently
-   * @param folderId string
-   * @returns boolean
-   */
-  private isSystemFolder(folderId: string): folderId is SystemFolderId {
-    return folderId.startsWith("system:");
-  }
-
-  /**
    * Get the notes for a system folder
    * @param systemFolderId
    * @param userId
@@ -117,7 +108,7 @@ export class NoteService {
       const validatedData = getNotesInFolderSchema.parse(data);
 
       // check if this is a system folder, then return the system folder notes
-      if (this.isSystemFolder(validatedData.folderId)) {
+      if (FolderService.isSystemFolder(validatedData.folderId)) {
         return await this.getSystemFolderNotes(
           validatedData.folderId,
           validatedData.userId
