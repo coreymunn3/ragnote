@@ -41,7 +41,7 @@ export type GetNotesInFolderRequest = {
   folderId: string;
 };
 
-export type GetSharedNotesRequeset = {
+export type GetSystemNotesRequeset = {
   userId: string;
 };
 
