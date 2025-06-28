@@ -4,9 +4,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
@@ -16,58 +13,11 @@ import { SignedIn, UserButton, useUser } from "@clerk/nextjs";
 import ThemeSwitch from "@/components/ThemeSwitch";
 import CreateFolder from "../CreateFolder";
 import WebSidebarFolderGroup from "./WebSidebarFolderGroup";
-import { useGetFolders } from "@/hooks/folder/useGetFolders";
+import { useGetUserFolders } from "@/hooks/folder/useGetUserFolders";
 
 const WebSidebar = () => {
   const { user } = useUser();
-  const userFolders = useGetFolders();
-
-  // TO DO - get the users recently deleted folders from DB
-  // we will create this folder manually, containing only notes with is_deleted of true
-  const recentlyDeleted = {
-    id: "11",
-    folder_name: "Recently Deleted",
-    href: `/folder/111`,
-    user_id: "",
-    is_deleted: false,
-    created_at: new Date(),
-    updated_at: new Date(),
-    notes: [],
-  };
-
-  // TO DO - get the shared notes from db
-  const shared = {
-    id: "22",
-    folder_name: "Shared With You",
-    href: `/folder/222`,
-    user_id: "",
-    is_deleted: false,
-    created_at: new Date(),
-    updated_at: new Date(),
-    notes: [],
-  };
-
-  // TO DO - get conversations from the db
-  const conversations = [
-    {
-      id: "33",
-      title: "What kind of questions can I ask you?",
-      is_pinned: false,
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      messages_count: 4,
-    },
-    {
-      id: "33",
-      title: "Have you noticed any patterns in my grocery shopping?",
-      is_pinned: false,
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      messages_count: 23,
-    },
-  ];
+  const folders = useGetUserFolders();
 
   return (
     <Sidebar>
@@ -119,10 +69,14 @@ const WebSidebar = () => {
         {/* Your Folders */}
         <WebSidebarFolderGroup
           groupName="Your Folders"
-          folders={userFolders?.data}
-          isLoading={userFolders.isLoading}
-          shared={shared}
-          recentlyDeleted={recentlyDeleted}
+          folders={folders.data?.user}
+          isLoading={folders.isLoading}
+        />
+        {/* system folders */}
+        <WebSidebarFolderGroup
+          groupName="System Folders"
+          folders={folders.data?.system}
+          isLoading={folders.isLoading}
         />
         {/*  TO DO - find out the best way to render conversations in a group
         Probably make another component, WebSidebarConversations

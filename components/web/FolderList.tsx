@@ -14,10 +14,8 @@ import { usePathname } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface FolderListProps {
-  folders: FolderWithNotes[];
+  folders: FolderWithNotes[] | undefined;
   isLoading?: boolean;
-  recentlyDeleted?: FolderWithNotes;
-  shared?: FolderWithNotes;
   showCount?: boolean;
   showCreateFile?: boolean;
 }
@@ -25,8 +23,6 @@ interface FolderListProps {
 const FolderList = ({
   folders,
   isLoading = false,
-  shared,
-  recentlyDeleted,
   showCount,
   showCreateFile,
 }: FolderListProps) => {
@@ -44,25 +40,21 @@ const FolderList = ({
     setOpenFolderId((current) => (current === folderId ? null : folderId));
   };
 
-  const allFolders = [
-    ...(folders || []),
-    ...(shared ? [shared] : []),
-    ...(recentlyDeleted ? [recentlyDeleted] : []),
-  ];
-
-  const getFolderIcon = (folderName: string) => {
-    switch (folderName) {
-      case "Recently Deleted":
+  // show a folder Icon for system folders and home
+  const getFolderIcon = (folderId: string) => {
+    switch (folderId) {
+      case "system:deleted":
         return <Trash2Icon className="h-4 w-4" />;
-      case "Shared With You":
+      case "system:shared":
         return <FolderSyncIcon className="h-4 w-4" />;
-      case "Home":
+      case "home":
         return <HouseIcon className="h-4 w-4" />;
       default:
         return <FolderIcon className="h-4 w-4" />;
     }
   };
 
+  // skeletons when loading
   const renderFolderSkeletons = () => {
     return Array.from({ length: 3 }).map((_, index) => (
       <SidebarMenuItem key={`skeleton-${index}`}>
@@ -82,20 +74,21 @@ const FolderList = ({
 
   return (
     <SidebarMenu>
-      {allFolders.map((folder: FolderWithNotes, index) => (
-        <SidebarMenuItem key={folder.id}>
-          <AnimatedListItem index={index} animation="fadeInRight">
-            <FolderItem
-              folder={folder}
-              Icon={getFolderIcon(folder.folder_name)}
-              showCount={showCount}
-              isOpen={openFolderId === folder.id}
-              onToggle={() => toggleFolder(folder.id)}
-              showCreateFile={showCreateFile}
-            />
-          </AnimatedListItem>
-        </SidebarMenuItem>
-      ))}
+      {folders &&
+        folders.map((folder: FolderWithNotes, index) => (
+          <SidebarMenuItem key={folder.id}>
+            <AnimatedListItem index={index} animation="fadeInRight">
+              <FolderItem
+                folder={folder}
+                Icon={getFolderIcon(folder.folder_name)}
+                showCount={showCount}
+                isOpen={openFolderId === folder.id}
+                onToggle={() => toggleFolder(folder.id)}
+                showCreateFile={showCreateFile}
+              />
+            </AnimatedListItem>
+          </SidebarMenuItem>
+        ))}
     </SidebarMenu>
   );
 };
