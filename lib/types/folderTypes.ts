@@ -43,7 +43,3 @@ export type CreateFolderRequest = CreateFolderApiRequest & {
 export type GetFoldersRequest = {
   userId: string;
 };
-
-/**
- * Response Types for Note Service
- */
