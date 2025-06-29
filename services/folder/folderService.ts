@@ -111,7 +111,7 @@ export class FolderService {
     }
   );
 
-  /** Reset the folder name */
+  /** Rename the folder */
   public renameFolder = withErrorHandling(
     async (params: {
       folderId: string;

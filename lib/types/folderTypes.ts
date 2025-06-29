@@ -34,3 +34,7 @@ export type FolderWithNotes = Expand<
 export type CreateFolderApiRequest = {
   folderName: string;
 };
+
+export type UpdateFolderNameApiRequest = {
+  folderName: string;
+};
