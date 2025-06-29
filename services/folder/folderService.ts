@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import {
   createFolderSchema,
+  deleteFolderSchema,
   getFolderByIdSchema,
   renameFolderSchema,
 } from "./folderValidators";
@@ -110,6 +111,7 @@ export class FolderService {
     }
   );
 
+  /** Reset the folder name */
   public renameFolder = withErrorHandling(
     async (params: {
       folderId: string;
@@ -128,6 +130,34 @@ export class FolderService {
           folder_name: validatedData.newFolderName,
         },
       });
+      // throw error is nothing happened
+      if (!updatedFolder) {
+        throw new NotFoundError(
+          `Folder ${validatedData.folderId} belonging to user ${validatedData.userId} not found`
+        );
+      }
+      return updatedFolder;
+    }
+  );
+
+  /** Soft Delete the folder by setting is_deleted to true */
+  public softDeleteFolder = withErrorHandling(
+    async (folderId: string, userId: string) => {
+      const validatedData = deleteFolderSchema.parse({
+        folderId,
+        userId,
+      });
+      // attempt to delete the foler
+      const updatedFolder = await prisma.folder.update({
+        where: {
+          id: validatedData.folderId,
+          user_id: validatedData.userId,
+        },
+        data: {
+          is_deleted: true,
+        },
+      });
+      // throw error is nothing happened
       if (!updatedFolder) {
         throw new NotFoundError(
           `Folder ${validatedData.folderId} belonging to user ${validatedData.userId} not found`

@@ -21,6 +21,11 @@ export const renameFolderSchema = z.object({
     .refine((name) => name.length > 0, "Folder name cannot be just whitespace"),
 });
 
+export const deleteFolderSchema = z.object({
+  folderId: z.string().min(1, "Folder ID is required"),
+  userId: z.string().uuid("Invalid user ID format"),
+});
+
 export const getFolderByIdSchema = z.object({
   folderId: z.string().min(1, "Folder ID is required"),
   userId: z.string().uuid("Invalid user ID format"),
