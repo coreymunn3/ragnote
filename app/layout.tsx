@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: {
@@ -47,6 +48,7 @@ export default function RootLayout({
         >
           <div className="relative flex flex-col h-screen">
             <main className="">{children}</main>
+            <Toaster />
           </div>
         </Providers>
       </body>
