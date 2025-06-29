@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getDbUser } from "@/lib/getDbUser";
 import { FolderService } from "@/services/folder/folderService";
 import { CreateFolderApiRequest } from "@/lib/types/folderTypes";
-import { withApiRouteErrorHandling } from "@/lib/errors/apiRouteHandlers";
+import { withApiErrorHandling } from "@/lib/errors/apiRouteHandlers";
 
 const folderService = new FolderService();
 
@@ -18,7 +18,7 @@ const postHandler = async (req: NextRequest) => {
   return NextResponse.json(newFolder, { status: 200 });
 };
 
-export const POST = withApiRouteErrorHandling(postHandler, "POST /api/folder");
+export const POST = withApiErrorHandling(postHandler, "POST /api/folder");
 
 const getHandler = async (req: NextRequest) => {
   auth.protect();
@@ -38,4 +38,4 @@ const getHandler = async (req: NextRequest) => {
   );
 };
 
-export const GET = withApiRouteErrorHandling(getHandler, "GET /api/folder");
+export const GET = withApiErrorHandling(getHandler, "GET /api/folder");

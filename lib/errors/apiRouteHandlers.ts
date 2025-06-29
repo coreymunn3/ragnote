@@ -4,6 +4,7 @@ import { ApiError, InternalServerError } from "./apiErrors";
 /**
  * Higher-order function that wraps Next.js route handlers with automatic error handling
  * Eliminates repetitive try/catch blocks in API routes
+ * Supports both simple routes (single parameter) and dynamic routes (multiple parameters)
  */
 export function withApiErrorHandling<T extends any[]>(
   handler: (...args: T) => Promise<NextResponse>,
@@ -43,15 +44,4 @@ function handleApiError(error: unknown, context?: string): NextResponse {
     { error: internalError.message },
     { status: internalError.statusCode }
   );
-}
-
-/**
- * Type-safe wrapper specifically for Next.js API route handlers
- * Provides better TypeScript inference for common route handler patterns
- */
-export function withApiRouteErrorHandling(
-  handler: (req: NextRequest) => Promise<NextResponse>,
-  routeContext?: string
-) {
-  return withApiErrorHandling(handler, routeContext);
 }
