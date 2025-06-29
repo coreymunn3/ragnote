@@ -19,11 +19,12 @@ export function useCreateFolder(onSuccess?: (newFolder: PrismaFolder) => void) {
       // Invalidate folders list to trigger refetch
       queryClient.invalidateQueries({ queryKey: ["folders"] });
       // send toast
-      toast(`Folder "${newFolder.folder_name}" has been created!`);
+      toast.success(`Folder "${newFolder.folder_name}" has been created!`);
       // Run custom callback if provided
       onSuccess?.(newFolder);
     },
     onError: (error) => {
+      toast.error("Failed to create folder");
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.error || error.message;
         console.error("Failed to create folder:", errorMessage);
