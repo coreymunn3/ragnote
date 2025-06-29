@@ -19,7 +19,7 @@ export function useCreateFolder(onSuccess?: (newFolder: PrismaFolder) => void) {
       // Invalidate folders list to trigger refetch
       queryClient.invalidateQueries({ queryKey: ["folders"] });
       // send toast
-      toast.success(`Folder "${newFolder.folder_name}" has been created!`);
+      toast.success(`${newFolder.folder_name} has been created!`);
       // Run custom callback if provided
       onSuccess?.(newFolder);
     },
