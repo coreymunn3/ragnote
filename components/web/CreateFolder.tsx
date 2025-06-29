@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 const CreateFolder = () => {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -51,9 +52,9 @@ const CreateFolder = () => {
           onChange={(e) => setFolderName(e.target.value)}
         />
         <DialogFooter>
-          <Button onClick={() => setDialogOpen(false)} variant={"outline"}>
-            Cancel
-          </Button>
+          <DialogClose asChild>
+            <Button variant={"ghost"}>Cancel</Button>
+          </DialogClose>
           <Button
             onClick={() => handleCreateFolder(folderName)}
             disabled={!folderName || createFolderMutation.isPending}
