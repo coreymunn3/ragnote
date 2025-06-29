@@ -128,6 +128,11 @@ export class FolderService {
           folder_name: validatedData.newFolderName,
         },
       });
+      if (!updatedFolder) {
+        throw new NotFoundError(
+          `Folder ${validatedData.folderId} belonging to user ${validatedData.userId} not found`
+        );
+      }
       return updatedFolder;
     }
   );
