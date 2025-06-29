@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { createFolderSchema, getFolderByIdSchema } from "./folderValidators";
+import {
+  createFolderSchema,
+  getFolderByIdSchema,
+  renameFolderSchema,
+} from "./folderValidators";
 import {
   PrismaFolder,
   FolderWithNotes,
@@ -8,7 +12,7 @@ import {
 } from "@/lib/types/folderTypes";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { NoteService } from "../note/noteService";
-import { NotFoundError } from "@/lib/errors/apiErrors";
+import { ForbiddenError, NotFoundError } from "@/lib/errors/apiErrors";
 
 const noteService = new NoteService();
 export class FolderService {
@@ -103,6 +107,28 @@ export class FolderService {
       });
 
       return newFolder as PrismaFolder;
+    }
+  );
+
+  public renameFolder = withErrorHandling(
+    async (params: {
+      folderId: string;
+      newFolderName: string;
+      userId: string;
+    }): Promise<PrismaFolder> => {
+      const validatedData = renameFolderSchema.parse(params);
+      // attempt to update the name
+      const updatedFolder = await prisma.folder.update({
+        where: {
+          id: validatedData.folderId,
+          user_id: validatedData.userId,
+          is_deleted: false,
+        },
+        data: {
+          folder_name: validatedData.newFolderName,
+        },
+      });
+      return updatedFolder;
     }
   );
 
