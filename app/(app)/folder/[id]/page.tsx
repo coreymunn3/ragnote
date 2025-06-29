@@ -9,10 +9,13 @@ import { getDbUser } from "@/lib/getDbUser";
 export default async function FolderPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const { userId } = await auth();
   const folderService = new FolderService();
+
+  // Await params before using
+  const { id } = await params;
 
   // Protect this page from non-logged-in users
   if (!userId) {
@@ -21,7 +24,7 @@ export default async function FolderPage({
   // get the database user
   const dbUser = await getDbUser();
   // get the folder
-  const folder = await folderService.getFolderById(params.id, dbUser.id);
+  const folder = await folderService.getFolderById(id, dbUser.id);
 
   // Render each view component
   const mobileView = <MobileFolderPageContent folder={folder} />;
