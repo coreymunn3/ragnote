@@ -13,7 +13,7 @@ const getUserFolders = async (): Promise<GetUserFoldersData> => {
 
 export function useGetUserFolders() {
   return useQuery({
-    queryKey: ["folders", "user"],
+    queryKey: ["folders"],
     queryFn: getUserFolders,
   });
 }
