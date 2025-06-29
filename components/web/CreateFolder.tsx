@@ -14,15 +14,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { DialogClose } from "@radix-ui/react-dialog";
+import { useRouter } from "next/navigation";
 
 const CreateFolder = () => {
+  const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [folderName, setFolderName] = useState<string>("");
 
-  const createFolderMutation = useCreateFolder(() => {
+  const createFolderMutation = useCreateFolder((folder) => {
     // Clear input and close dialog on successful folder creation
     setFolderName("");
     setDialogOpen(false);
+    // route user to new folder
+    router.push(`/folder/${folder.id}`);
   });
 
   const handleCreateFolder = (folderName: string) => {
