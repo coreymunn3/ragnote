@@ -8,21 +8,13 @@ import NoteWidget from "@/components/web/NoteWidget";
 import { Button } from "@/components/ui/button";
 import { FilePlus2Icon, FolderPenIcon, Trash2Icon } from "lucide-react";
 import OptionsMenu from "@/components/OptionsMenu";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { FolderWithNotes } from "@/lib/types/folderTypes";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
+import InputDialog from "@/components/dialogs/InputDialog";
 
 interface WebFolderPageContentProps {
   folder: FolderWithNotes;
@@ -30,23 +22,12 @@ interface WebFolderPageContentProps {
 
 const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
   const router = useRouter();
-  // dialog, hook, and method to rename the folder
+  // dialog state management
   const [renameOpen, setRenameOpen] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
-  const renameFolder = useRenameFolder();
-  const handleRenameFolder = () => {
-    renameFolder.mutate({ folderId: folder.id, newFolderName });
-    setRenameOpen(false);
-  };
-  // dialog, hook, and method to delete the folder
   const [deleteOpen, setDeleteOpen] = useState(false);
+  // hooks for folder operations
+  const renameFolder = useRenameFolder();
   const deleteFolder = useDeleteFolder();
-  const handleDeleteFolder = () => {
-    deleteFolder.mutate({ folderId: folder.id });
-    setDeleteOpen(false);
-    // route the user back home
-    router.push("/dashboard");
-  };
   // separate pinned and unpinned notes to render them in different lists
   const unpinnedNotes = folder.notes.filter((note) => !note.is_pinned);
   const pinnedNotes = folder.notes.filter((note) => note.is_pinned);
@@ -105,50 +86,39 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
         </AnimatedListItem>
       </div>
 
-      {/* dialog to rename  */}
-      <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Rename This Folder</DialogTitle>
-            <Input
-              placeholder="Folder Name"
-              value={newFolderName}
-              onChange={(e) => setNewFolderName(e.target.value)}
-            />
-          </DialogHeader>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant={"ghost"}>Cancel</Button>
-            </DialogClose>
-            <Button
-              onClick={handleRenameFolder}
-              disabled={!newFolderName || renameFolder.isPending}
-            >
-              {renameFolder.isPending ? "Renaming..." : "Rename"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Rename Dialog */}
+      <InputDialog
+        open={renameOpen}
+        onOpenChange={setRenameOpen}
+        title="Rename This Folder"
+        placeholder="Folder Name"
+        confirmText="Rename"
+        confirmLoadingText="Renaming..."
+        onConfirm={(inputValue) => {
+          renameFolder.mutate({
+            folderId: folder.id,
+            newFolderName: inputValue,
+          });
+        }}
+        isLoading={renameFolder.isPending}
+        validate={(value) => value.trim().length > 0}
+      />
 
-      {/* dialog to confirm delete */}
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Are You Sure?</DialogTitle>
-            <DialogDescription>
-              You will be able to recover this folder later, for a while
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant={"ghost"}>Cancel</Button>
-            </DialogClose>
-            <Button onClick={handleDeleteFolder} variant={"destructive"}>
-              {deleteFolder.isPending ? "Deleting..." : "Delete"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Are You Sure?"
+        description="You will be able to recover this folder later, for a while"
+        confirmText="Delete"
+        confirmLoadingText="Deleting..."
+        confirmVariant="destructive"
+        onConfirm={() => {
+          deleteFolder.mutate({ folderId: folder.id });
+          router.push("/dashboard");
+        }}
+        isLoading={deleteFolder.isPending}
+      />
     </div>
   );
 };
