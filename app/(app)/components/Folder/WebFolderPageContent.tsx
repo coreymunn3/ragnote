@@ -9,12 +9,14 @@ import { Button } from "@/components/ui/button";
 import { FilePlus2Icon, FolderPenIcon, Trash2Icon } from "lucide-react";
 import OptionsMenu from "@/components/OptionsMenu";
 import { FolderWithNotes } from "@/lib/types/folderTypes";
+import { Note } from "@/lib/types/noteTypes";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 import InputDialog from "@/components/dialogs/InputDialog";
+import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
 
 interface WebFolderPageContentProps {
   folder: FolderWithNotes;
@@ -25,12 +27,20 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
   // dialog state management
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  // get the folder data
+  const folderData = useGetFolderById(folder.id, {
+    initialData: folder,
+  });
   // hooks for folder operations
   const renameFolder = useRenameFolder();
   const deleteFolder = useDeleteFolder();
   // separate pinned and unpinned notes to render them in different lists
-  const unpinnedNotes = folder.notes.filter((note) => !note.is_pinned);
-  const pinnedNotes = folder.notes.filter((note) => note.is_pinned);
+  const unpinnedNotes = folderData.data!.notes.filter(
+    (note: Note) => !note.is_pinned
+  );
+  const pinnedNotes = folderData.data!.notes.filter(
+    (note: Note) => note.is_pinned
+  );
 
   return (
     <div>
@@ -66,7 +76,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
         {/* Display pinned notes prominently */}
         {pinnedNotes.length > 0 && (
           <AnimatedListItem index={1} animation="fadeIn">
-            <WidgetList
+            <WidgetList<Note>
               items={pinnedNotes}
               renderItem={(note) => <NoteWidget note={note} pinned />}
               displayMode="vertical"
@@ -77,7 +87,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
 
         {/* Display notes in a responsive grid layout */}
         <AnimatedListItem index={2} animation="fadeIn">
-          <WidgetList
+          <WidgetList<Note>
             items={unpinnedNotes}
             renderItem={(note) => <NoteWidget note={note} />}
             displayMode="grid"

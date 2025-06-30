@@ -1,5 +1,6 @@
 import { PrismaFolder } from "@/lib/types/folderTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
 import axios from "axios";
 import { toast } from "sonner";
 
@@ -8,22 +9,27 @@ async function deleteFolder(data: { folderId: string }): Promise<PrismaFolder> {
   return res.data;
 }
 
-export function useDeleteFolder(
-  onSuccess?: (updatedFolder: PrismaFolder) => void
-) {
+export type UseDeleteFolderOptions = UseMutationHookOptions<
+  PrismaFolder,
+  Error,
+  { folderId: string }
+>;
+
+export function useDeleteFolder(options?: UseDeleteFolderOptions) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: deleteFolder,
-    onSuccess: (deletedFolder) => {
-      // Invalidate the folders list
+    onSuccess: (deletedFolder, variables, context) => {
+      // Default behavior
       queryClient.invalidateQueries({ queryKey: ["folders"] });
-      // send toast
       toast.success(`${deletedFolder.folder_name} has been deleted`);
-      // run the custom callback
-      onSuccess?.(deletedFolder);
+
+      // Custom onSuccess callback
+      options?.onSuccess?.(deletedFolder, variables, context);
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      // Default error handling
       toast.error("Failed to delete folder");
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.error || error.message;
@@ -31,6 +37,10 @@ export function useDeleteFolder(
       } else {
         console.error("Failed to delete folder:", error);
       }
+
+      // Custom onError callback
+      options?.onError?.(error, variables, context);
     },
+    ...options,
   });
 }

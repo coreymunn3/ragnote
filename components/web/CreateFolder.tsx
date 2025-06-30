@@ -10,11 +10,13 @@ const CreateFolder = () => {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
-  const createFolderMutation = useCreateFolder((folder) => {
-    // Close dialog on successful folder creation
-    setDialogOpen(false);
-    // route user to new folder
-    router.push(`/folder/${folder.id}`);
+  const createFolderMutation = useCreateFolder({
+    onSuccess: (folder) => {
+      // Close dialog on successful folder creation
+      setDialogOpen(false);
+      // route user to new folder
+      router.push(`/folder/${folder.id}`);
+    },
   });
 
   return (

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { CreateFolderApiRequest, PrismaFolder } from "@/lib/types/folderTypes";
+import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
 import { toast } from "sonner";
 
 async function createFolder(
@@ -10,20 +11,27 @@ async function createFolder(
   return response.data;
 }
 
-export function useCreateFolder(onSuccess?: (newFolder: PrismaFolder) => void) {
+export type UseCreateFolderOptions = UseMutationHookOptions<
+  PrismaFolder,
+  Error,
+  CreateFolderApiRequest
+>;
+
+export function useCreateFolder(options?: UseCreateFolderOptions) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: createFolder,
-    onSuccess: (newFolder) => {
-      // Invalidate folders list to trigger refetch
+    onSuccess: (newFolder, variables, context) => {
+      // Default behavior
       queryClient.invalidateQueries({ queryKey: ["folders"] });
-      // send toast
       toast.success(`${newFolder.folder_name} has been created!`);
-      // Run custom callback if provided
-      onSuccess?.(newFolder);
+
+      // Custom onSuccess callback
+      options?.onSuccess?.(newFolder, variables, context);
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      // Default error handling
       toast.error("Failed to create folder");
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.error || error.message;
@@ -31,10 +39,10 @@ export function useCreateFolder(onSuccess?: (newFolder: PrismaFolder) => void) {
       } else {
         console.error("Failed to create folder:", error);
       }
+
+      // Custom onError callback
+      options?.onError?.(error, variables, context);
     },
+    ...options,
   });
 }
-
-// Future: Add other folder mutations here
-// export function useUpdateFolder() { ... }
-// export function useDeleteFolder() { ... }
