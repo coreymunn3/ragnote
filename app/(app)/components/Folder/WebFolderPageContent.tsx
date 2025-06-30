@@ -30,6 +30,8 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
   // get the folder data
   const folderData = useGetFolderById(folder.id, {
     initialData: folder,
+    staleTime: 0,
+    refetchOnMount: true,
   });
   // hooks for folder operations
   const renameFolder = useRenameFolder();
@@ -46,10 +48,10 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
     <div>
       <div className="flex items-center justify-between">
         <AnimatedTypography variant="h1">
-          {folder.folder_name}
+          {folderData.data!.folder_name}
         </AnimatedTypography>
         <div className="flex space-x-2 items-center">
-          <TypographyMuted>{`${folder.notes.length} Items`}</TypographyMuted>
+          <TypographyMuted>{`${folderData.data!.notes.length} Items`}</TypographyMuted>
           {/* convert this into a CreateFile component similar to CreateFolder */}
           <Button variant={"ghost"}>
             <FilePlus2Icon className="h-4 w-4" />
