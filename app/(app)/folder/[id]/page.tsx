@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import MobileFolderPageContent from "../../components/Folder/MobileFolderPageContent";
 import WebFolderPageContent from "../../components/Folder/WebFolderPageContent";
@@ -24,7 +24,13 @@ export default async function FolderPage({
   // get the database user
   const dbUser = await getDbUser();
   // get the folder
-  const folder = await folderService.getFolderById(id, dbUser.id);
+  let folder;
+  try {
+    folder = await folderService.getFolderById(id, dbUser.id);
+  } catch (error) {
+    console.error(error);
+    notFound();
+  }
 
   // Render each view component
   const mobileView = <MobileFolderPageContent folder={folder} />;
