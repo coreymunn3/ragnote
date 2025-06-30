@@ -7,8 +7,8 @@ import { toast } from "sonner";
 async function createFolder(
   data: CreateFolderApiRequest
 ): Promise<PrismaFolder> {
-  const response = await axios.post<PrismaFolder>("/api/folder", data);
-  return response.data;
+  const res = await axios.post<PrismaFolder>("/api/folder", data);
+  return res.data;
 }
 
 export type UseCreateFolderOptions = UseMutationHookOptions<
@@ -21,9 +21,10 @@ export function useCreateFolder(options?: UseCreateFolderOptions) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    ...options,
     mutationFn: createFolder,
     onSuccess: (newFolder, variables, context) => {
-      // Default behavior
+      // Force invalidate and refetch the folders query
       queryClient.invalidateQueries({ queryKey: ["folders"] });
       toast.success(`${newFolder.folder_name} has been created!`);
 
@@ -43,6 +44,5 @@ export function useCreateFolder(options?: UseCreateFolderOptions) {
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },
-    ...options,
   });
 }

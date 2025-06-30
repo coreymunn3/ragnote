@@ -24,6 +24,7 @@ export function useRenameFolder(options?: UseRenameFolderOptions) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    ...options,
     mutationFn: renameFolder,
     onSuccess: (updatedFolder, variables, context) => {
       // Default behavior
@@ -51,6 +52,5 @@ export function useRenameFolder(options?: UseRenameFolderOptions) {
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },
-    ...options,
   });
 }

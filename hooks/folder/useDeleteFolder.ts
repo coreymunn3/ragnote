@@ -19,9 +19,10 @@ export function useDeleteFolder(options?: UseDeleteFolderOptions) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    ...options,
     mutationFn: deleteFolder,
     onSuccess: (deletedFolder, variables, context) => {
-      // Default behavior
+      // Invalidate the list of folders
       queryClient.invalidateQueries({ queryKey: ["folders"] });
       toast.success(`${deletedFolder.folder_name} has been deleted`);
 
@@ -41,6 +42,5 @@ export function useDeleteFolder(options?: UseDeleteFolderOptions) {
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },
-    ...options,
   });
 }
