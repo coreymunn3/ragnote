@@ -1,4 +1,5 @@
 import { Note } from "./noteTypes";
+import { Expand } from "./sharedTypes";
 
 export const SYSTEM_FOLDERS = {
   SHARED: {

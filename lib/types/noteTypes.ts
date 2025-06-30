@@ -1,3 +1,5 @@
+import { Expand } from "./sharedTypes";
+
 export type Note = {
   id: string;
   title: string;
