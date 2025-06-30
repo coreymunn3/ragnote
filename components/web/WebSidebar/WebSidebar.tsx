@@ -12,11 +12,11 @@ import BrandingHeader from "@/components/BrandingHeader";
 import { SignedIn, UserButton, useUser } from "@clerk/nextjs";
 import ThemeSwitch from "@/components/ThemeSwitch";
 import WebSidebarFolderGroup from "./WebSidebarFolderGroup";
-import { useGetUserFolders } from "@/hooks/folder/useGetUserFolders";
+import { useGetFolders } from "@/hooks/folder/useGetFolders";
 
 const WebSidebar = () => {
   const { user } = useUser();
-  const folders = useGetUserFolders();
+  const folders = useGetFolders();
 
   return (
     <Sidebar>

@@ -6,14 +6,14 @@ interface GetUserFoldersData {
   system: FolderWithNotes[];
 }
 
-const getUserFolders = async (): Promise<GetUserFoldersData> => {
+const getFolders = async (): Promise<GetUserFoldersData> => {
   const res = await axios.get("/api/folder");
   return res.data;
 };
 
-export function useGetUserFolders() {
+export function useGetFolders() {
   return useQuery({
     queryKey: ["folders"],
-    queryFn: getUserFolders,
+    queryFn: getFolders,
   });
 }
