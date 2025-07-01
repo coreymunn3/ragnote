@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import "@blocknote/mantine/style.css";
-import "../styles/blocknote-custom.css";
+// import "../styles/blocknote-custom.css";
 import type { BlockNoteEditor } from "@blocknote/core";
 import type { Theme } from "@blocknote/mantine";
 import { useTheme } from "next-themes";
@@ -119,7 +119,8 @@ const createCustomTheme = (isDarkMode: boolean, isMounted: boolean): Theme => {
 const RichTextEditor = dynamic(
   async () => {
     const { BlockNoteView } = await import("@blocknote/mantine");
-    const { useCreateBlockNote } = await import("@blocknote/react");
+    const { useCreateBlockNote, SideMenu, SideMenuController, AddBlockButton } =
+      await import("@blocknote/react");
 
     const BlockNoteEditorComponent = ({
       initialContent,
@@ -156,11 +157,20 @@ const RichTextEditor = dynamic(
         <div className={`h-full w-full ${className}`}>
           <BlockNoteView
             editor={editor}
+            sideMenu={false}
             theme={customTheme || undefined}
             className="custom-blocknote"
             editable={!readOnly}
             onChange={onChange}
-          />
+          >
+            <SideMenuController
+              sideMenu={(props) => (
+                <SideMenu {...props}>
+                  <AddBlockButton {...props} />
+                </SideMenu>
+              )}
+            />
+          </BlockNoteView>
         </div>
       );
     };
