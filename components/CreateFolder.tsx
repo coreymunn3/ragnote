@@ -1,6 +1,6 @@
 "use client";
 import { useCreateFolder } from "@/hooks/folder/useCreateFolder";
-import { Button } from "../ui/button";
+import { Button } from "./ui/button";
 import { FolderPlusIcon } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";

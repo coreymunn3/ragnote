@@ -12,7 +12,7 @@ import { AnimatedListItem } from "@/components/animations";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import CreateFolder from "./CreateFolder";
+import CreateFolder from "../CreateFolder";
 
 interface FolderListProps {
   folders: FolderWithNotes[] | undefined;

@@ -9,7 +9,6 @@ export const createNoteSchema = z.object({
     .max(255, "Note name cannot exceed 255 characters")
     .trim()
     .refine((name) => name.length > 0, "Note name cannot be just whitespace"),
-  content: z.string().min(0), // Initial content can be empty
 });
 
 export const getNotesInFolderSchema = z.object({

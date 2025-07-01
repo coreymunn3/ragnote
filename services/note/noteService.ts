@@ -17,7 +17,6 @@ export class NoteService {
     async (params: {
       userId: string;
       title: string;
-      content: string;
       folderId?: string;
     }): Promise<PrismaNote> => {
       // Validate the request data
@@ -56,7 +55,7 @@ export class NoteService {
           data: {
             note_id: note.id,
             version_number: 1,
-            content: validatedData.content,
+            content: [{}],
             is_published: false,
           },
         });

@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import FolderListItem from "./FolderListItem";
 import { AnimatedExpandable, AnimatedListItem } from "@/components/animations";
 import Link from "next/link";
+import CreateNote from "../CreateNote";
 
 interface FolderItemProps {
   folder: FolderWithNotes;
@@ -51,13 +52,7 @@ const FolderItem = ({
           <div className="flex items-center space-x-1">
             {allowCreateNote && (
               <div>
-                <Button
-                  variant={"ghost"}
-                  className="hover:bg-transparent"
-                  onClick={() => console.log("create note")}
-                >
-                  <FilePlus2Icon className="h-4 w-4" />
-                </Button>
+                <CreateNote classname="hover:bg-transparent" />
               </div>
             )}
             {/* Expand Icon */}

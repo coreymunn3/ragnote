@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 import InputDialog from "@/components/dialogs/InputDialog";
 import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
+import CreateNote from "@/components/CreateNote";
 
 interface WebFolderPageContentProps {
   folder: FolderWithNotes;
@@ -53,9 +54,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
         <div className="flex space-x-2 items-center">
           <TypographyMuted>{`${folderData.data!.notes.length} Items`}</TypographyMuted>
           {/* convert this into a CreateFile component similar to CreateFolder */}
-          <Button variant={"ghost"}>
-            <FilePlus2Icon className="h-4 w-4" />
-          </Button>
+          <CreateNote />
           <OptionsMenu
             options={[
               {
