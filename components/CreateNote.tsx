@@ -3,13 +3,21 @@
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { FilePlus2Icon } from "lucide-react";
+import { useCreateNote } from "@/hooks/note/useCreateNote";
 
-const CreateNote = ({ classname }: { classname?: string }) => {
+interface CreateNoteProps {
+  classname?: string;
+  folderId: string;
+}
+
+const CreateNote = ({ classname, folderId }: CreateNoteProps) => {
   const router = useRouter();
+  const createNote = useCreateNote();
 
   const handleCreateNote = () => {
     console.log("new note");
     // run mutation
+    createNote.mutate({ title: "Untitled", folderId });
     // push user to new note page
   };
 

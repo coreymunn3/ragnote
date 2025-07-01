@@ -31,6 +31,14 @@ export type NoteVersionWithContent = Expand<
 >;
 
 /**
+ * Request Types for Notes API
+ */
+export type CreateNoteApiRequest = {
+  title: string;
+  folderId?: string;
+};
+
+/**
  * Response Types for Note Service
  */
 export type PrismaNote = {

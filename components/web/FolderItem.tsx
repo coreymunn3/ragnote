@@ -18,7 +18,7 @@ interface FolderItemProps {
 }
 
 const FolderItem = ({
-  folder: { id, folder_name, href, notes },
+  folder: { id: folderId, folder_name, href, notes },
   Icon,
   showCount = true,
   isOpen = false,
@@ -52,7 +52,10 @@ const FolderItem = ({
           <div className="flex items-center space-x-1">
             {allowCreateNote && (
               <div>
-                <CreateNote classname="hover:bg-transparent" />
+                <CreateNote
+                  classname="hover:bg-transparent"
+                  folderId={folderId}
+                />
               </div>
             )}
             {/* Expand Icon */}

@@ -54,7 +54,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
         <div className="flex space-x-2 items-center">
           <TypographyMuted>{`${folderData.data!.notes.length} Items`}</TypographyMuted>
           {/* convert this into a CreateFile component similar to CreateFolder */}
-          <CreateNote />
+          <CreateNote folderId={folder.id} />
           <OptionsMenu
             options={[
               {
