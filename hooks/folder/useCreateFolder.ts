@@ -3,6 +3,7 @@ import axios from "axios";
 import { CreateFolderApiRequest, PrismaFolder } from "@/lib/types/folderTypes";
 import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
 import { toast } from "sonner";
+import { handleClientSideApiError } from "@/lib/errors/handleClientSideApiError";
 
 async function createFolder(
   data: CreateFolderApiRequest
@@ -32,15 +33,7 @@ export function useCreateFolder(options?: UseCreateFolderOptions) {
       options?.onSuccess?.(newFolder, variables, context);
     },
     onError: (error, variables, context) => {
-      // Default error handling
-      toast.error("Failed to create folder");
-      if (axios.isAxiosError(error)) {
-        const errorMessage = error.response?.data?.error || error.message;
-        console.error("Failed to create folder:", errorMessage);
-      } else {
-        console.error("Failed to create folder:", error);
-      }
-
+      handleClientSideApiError(error);
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },

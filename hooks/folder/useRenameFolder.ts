@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
 import axios from "axios";
 import { toast } from "sonner";
+import { handleClientSideApiError } from "@/lib/errors/handleClientSideApiError";
 
 async function renameFolder(data: {
   folderId: string;
@@ -40,15 +41,7 @@ export function useRenameFolder(options?: UseRenameFolderOptions) {
       options?.onSuccess?.(updatedFolder, variables, context);
     },
     onError: (error, variables, context) => {
-      // Default error handling
-      toast.error("Failed to rename folder");
-      if (axios.isAxiosError(error)) {
-        const errorMessage = error.response?.data?.error || error.message;
-        console.error("Failed to rename folder:", errorMessage);
-      } else {
-        console.error("Failed to rename folder:", error);
-      }
-
+      handleClientSideApiError(error);
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },
