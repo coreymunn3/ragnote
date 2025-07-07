@@ -1,9 +1,9 @@
-import { Note, PrismaNoteWithVersion } from "@/lib/types/noteTypes";
+import { Note, PrismaNoteWithVersionPreview } from "@/lib/types/noteTypes";
 
 /**
  * Transforms a Prisma note result (with includes) to the Note type expected by the frontend
  */
-export const transformToNote = (note: PrismaNoteWithVersion): Note => {
+export const transformToNote = (note: PrismaNoteWithVersionPreview): Note => {
   if (!note.current_version) {
     throw new Error("Note must have a current version");
   }
@@ -21,6 +21,7 @@ export const transformToNote = (note: PrismaNoteWithVersion): Note => {
     is_deleted: note.is_deleted,
     updated_at: note.updated_at,
     created_at: note.created_at,
+    preview: note.preview,
     // this is the main reason this transformation exists
     shared_with_count: note._count.permissions,
   };

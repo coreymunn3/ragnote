@@ -14,6 +14,7 @@ export type Note = {
   updated_at: Date;
   created_at: Date;
   shared_with_count: number;
+  preview: string;
 };
 
 export type NoteVersion = {
@@ -53,7 +54,7 @@ export type PrismaNote = {
   updated_at: Date;
 };
 
-export type PrismaNoteWithVersion = {
+export type PrismaNoteWithVersionPreview = {
   id: string;
   user_id: string;
   folder_id: string | null;
@@ -72,4 +73,5 @@ export type PrismaNoteWithVersion = {
   _count: {
     permissions: number;
   };
+  preview: string;
 };

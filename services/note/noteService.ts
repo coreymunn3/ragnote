@@ -12,6 +12,20 @@ import { SYSTEM_FOLDERS } from "@/lib/types/folderTypes";
 import { FolderService } from "../folder/folderService";
 
 export class NoteService {
+  /**
+   * Private helper method to enrich notes with preview text
+   */
+  private async enrichNotesWithPreviews<
+    T extends { current_version_id: string | null },
+  >(notes: T[]): Promise<(T & { preview: string })[]> {
+    return Promise.all(
+      notes.map(async (note) => ({
+        ...note,
+        preview: await this.getNotePreview(note.current_version_id!),
+      }))
+    );
+  }
+
   // Create Note
   public createNote = withErrorHandling(
     async (params: {
@@ -77,9 +91,6 @@ export class NoteService {
 
   /**
    * Get the notes for a system folder
-   * @param systemFolderId
-   * @param userId
-   * @returns system folder notes
    */
   private async getSystemFolderNotes(
     systemFolderId: string,
@@ -99,7 +110,9 @@ export class NoteService {
     }
   }
 
-  // Get All Notes In Foler
+  /**
+   * Get all the notes in a folder
+   */
   public getAllNotesInFolder = withErrorHandling(
     async (folderId: string, userId: string): Promise<Note[]> => {
       // validate request data
@@ -130,9 +143,82 @@ export class NoteService {
         },
       });
 
+      const notesWithPreviews = await this.enrichNotesWithPreviews(notes);
+
       // transform the notes into the correct type and structure
-      const transformedNotes = notes.map((note) => transformToNote(note));
+      const transformedNotes = notesWithPreviews.map((note) =>
+        transformToNote(note)
+      );
       return transformedNotes;
+    }
+  );
+
+  /**
+   * Get the content given a note version
+   */
+  public getNoteVersionContent = withErrorHandling(
+    async (versionId: string): Promise<any> => {
+      // get the note content from the version ID
+      const versionContent = await prisma.note_version.findUnique({
+        where: {
+          id: versionId,
+        },
+        select: {
+          content: true,
+        },
+      });
+
+      if (!versionContent) {
+        throw new NotFoundError("Note version not found");
+      }
+
+      return versionContent.content;
+    }
+  );
+
+  /**
+   * Get the preview of a note given the version ID
+   */
+  public getNotePreview = withErrorHandling(
+    async (versionId: string): Promise<string> => {
+      const content = await this.getNoteVersionContent(versionId);
+
+      // Handle empty or invalid content
+      if (!content || !Array.isArray(content) || content.length === 0) {
+        return "No content available";
+      }
+
+      // Get the first block
+      const firstBlock = content[0];
+
+      // Handle empty first block
+      if (
+        !firstBlock ||
+        !firstBlock.content ||
+        !Array.isArray(firstBlock.content)
+      ) {
+        return "No content available";
+      }
+
+      // Extract text from the first block's content
+      let previewText = "";
+      for (const contentItem of firstBlock.content) {
+        if (contentItem.type === "text" && contentItem.text) {
+          previewText += contentItem.text + " ";
+        }
+      }
+
+      // Trim to approximately 100 characters at word boundary
+      if (previewText.length > 100) {
+        const truncated = previewText.substring(0, 100);
+        const lastSpaceIndex = truncated.lastIndexOf(" ");
+        previewText =
+          lastSpaceIndex > 50
+            ? truncated.substring(0, lastSpaceIndex) + "..."
+            : truncated + "...";
+      }
+
+      return previewText || "No content available";
     }
   );
 
@@ -162,8 +248,10 @@ export class NoteService {
         },
       });
 
+      const notesWithPreviews = await this.enrichNotesWithPreviews(sharedNotes);
+
       // Transform the notes into the correct type and structure
-      const transformedSharedNotes = sharedNotes.map((note) =>
+      const transformedSharedNotes = notesWithPreviews.map((note) =>
         transformToNote(note)
       );
       return transformedSharedNotes;
@@ -190,8 +278,12 @@ export class NoteService {
           },
         },
       });
+
+      const notesWithPreviews =
+        await this.enrichNotesWithPreviews(deletedNotes);
+
       // transform response
-      const transformedDeleted = deletedNotes.map((note) =>
+      const transformedDeleted = notesWithPreviews.map((note) =>
         transformToNote(note)
       );
       return transformedDeleted;

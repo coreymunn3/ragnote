@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { Button } from "../ui/button";
 
 interface NoteWidgetProps {
   note: Note;
@@ -50,20 +49,13 @@ const NoteWidget = ({ note, pinned = false }: NoteWidgetProps) => {
             </div>
           </div>
         </CardHeader>
-
         <CardContent>
           <TypographyMuted
             className={`line-clamp-2 ${pinned && "line-clamp-4"} overflow-ellipsis`}
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem
-            ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum
-            dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-            incididunt ut labore et dolore magna aliqua.
+            {note.preview}
           </TypographyMuted>
         </CardContent>
-
         <CardFooter>
           <div className="flex justify-between w-full">
             {/* Last Edited */}
