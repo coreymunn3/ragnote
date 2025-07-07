@@ -12,10 +12,10 @@ import { EllipsisVerticalIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import React from "react";
 
-interface Option {
+export interface Option {
   label: string;
   icon?: React.ReactNode;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 interface OptionsMenuProps {
@@ -34,8 +34,8 @@ const OptionsMenu = ({ options }: OptionsMenuProps) => {
         {options.map((option) => (
           <DropdownMenuItem
             key={option.label}
-            onClick={() => {
-              option.onClick();
+            onClick={(e) => {
+              option.onClick(e);
             }}
           >
             <div className="flex items-center space-x-2">

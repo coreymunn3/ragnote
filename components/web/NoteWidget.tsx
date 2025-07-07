@@ -1,7 +1,13 @@
 import { Note } from "@/lib/types/noteTypes";
 import { TypographyMuted, TypographySmall } from "../ui/typography";
 import { Badge } from "../ui/badge";
-import { PinIcon, PinOff, PinOffIcon, UsersRoundIcon } from "lucide-react";
+import {
+  FolderOutputIcon,
+  PinIcon,
+  PinOffIcon,
+  Trash2Icon,
+  UsersRoundIcon,
+} from "lucide-react";
 import Link from "next/link";
 import {
   Card,
@@ -10,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import OptionsMenu, { Option } from "../OptionsMenu";
 
 interface NoteWidgetProps {
   note: Note;
@@ -18,6 +25,43 @@ interface NoteWidgetProps {
 
 const NoteWidget = ({ note, pinned = false }: NoteWidgetProps) => {
   const isPublished = note.current_version.is_published;
+
+  // list of actions a user can take on a note
+  const noteActions: Option[] = [
+    pinned
+      ? {
+          label: "Unpin",
+          icon: <PinOffIcon className="h-4 w-4" />,
+          onClick: (e: React.MouseEvent<HTMLDivElement>) => {
+            e.stopPropagation();
+            console.log("unpin");
+          },
+        }
+      : {
+          label: "Pin",
+          icon: <PinIcon className="h-4 w-4" />,
+          onClick: (e: React.MouseEvent<HTMLDivElement>) => {
+            e.stopPropagation();
+            console.log("pin");
+          },
+        },
+    {
+      label: "Move",
+      icon: <FolderOutputIcon className="h-4 w-4" />,
+      onClick: (e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation();
+        console.log("move");
+      },
+    },
+    {
+      label: "Delete",
+      icon: <Trash2Icon className="h-4 w-4" />,
+      onClick: (e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation();
+        console.log("delete");
+      },
+    },
+  ];
 
   // Construct note URL
   const noteUrl = `/note/${note.id}/version/${note.current_version.id}`;
@@ -30,7 +74,7 @@ const NoteWidget = ({ note, pinned = false }: NoteWidgetProps) => {
       >
         {/* Note Widget Header */}
         <CardHeader>
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-center">
             {/* Header left - title & icon */}
             <div className="flex items-center space-x-2">
               {pinned && <PinIcon className="h-4 w-4" />}
@@ -39,13 +83,14 @@ const NoteWidget = ({ note, pinned = false }: NoteWidgetProps) => {
               </CardTitle>
             </div>
             {/* Header right - the published badge and options */}
-            <div className="flex items-start space-x-2">
+            <div className="flex items-center justify-center space-x-2">
               <Badge
                 variant={isPublished ? "default" : "secondary"}
                 className={`ml-2 whitespace-nowrap flex-shrink-0 ${pinned && !isPublished && "border-stone-500"}`}
               >
                 v{note.current_version.version_number}
               </Badge>
+              <OptionsMenu options={noteActions} />
             </div>
           </div>
         </CardHeader>
