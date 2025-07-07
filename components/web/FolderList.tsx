@@ -83,7 +83,7 @@ const FolderList = ({
             <AnimatedListItem index={index} animation="fadeInRight">
               <FolderItem
                 folder={folder}
-                Icon={getFolderIcon(folder.folder_name)}
+                Icon={getFolderIcon(folder.id)}
                 showCount={showCount}
                 isOpen={openFolderId === folder.id}
                 onToggle={() => toggleFolder(folder.id)}
