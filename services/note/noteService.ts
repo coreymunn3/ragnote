@@ -13,6 +13,7 @@ import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { transformToNote } from "./noteTransformers";
 import { SYSTEM_FOLDERS } from "@/lib/types/folderTypes";
 import { isSystemFolder } from "@/lib/utils/folderUtils";
+import { NoteTextExtractor } from "./noteTextExtractor";
 
 export class NoteService {
   /**
@@ -72,7 +73,8 @@ export class NoteService {
           data: {
             note_id: note.id,
             version_number: 1,
-            content: [{}],
+            rich_text_content: [{}],
+            plain_text_content: "",
             is_published: false,
           },
         });
@@ -157,7 +159,7 @@ export class NoteService {
   );
 
   /**
-   * Get the content given a note version
+   * Get the rich text content given a note version
    */
   public getNoteVersionContent = withErrorHandling(
     async (versionId: string): Promise<any> => {
@@ -167,7 +169,7 @@ export class NoteService {
           id: versionId,
         },
         select: {
-          content: true,
+          rich_text_content: true,
         },
       });
 
@@ -175,7 +177,7 @@ export class NoteService {
         throw new NotFoundError("Note version not found");
       }
 
-      return versionContent.content;
+      return versionContent.rich_text_content;
     }
   );
 
@@ -184,44 +186,36 @@ export class NoteService {
    */
   public getNotePreview = withErrorHandling(
     async (versionId: string): Promise<string> => {
-      const content = await this.getNoteVersionContent(versionId);
+      // Get the plain text content from the version ID
+      const versionContent = await prisma.note_version.findUnique({
+        where: {
+          id: versionId,
+        },
+        select: {
+          plain_text_content: true,
+        },
+      });
 
-      // Handle empty or invalid content
-      if (!content || !Array.isArray(content) || content.length === 0) {
-        return "No content available";
+      if (!versionContent) {
+        throw new NotFoundError("Note version not found");
       }
 
-      // Get the first block
-      const firstBlock = content[0];
+      const plainText = versionContent.plain_text_content;
 
-      // Handle empty first block
-      if (
-        !firstBlock ||
-        !firstBlock.content ||
-        !Array.isArray(firstBlock.content)
-      ) {
+      if (!plainText || plainText.trim().length === 0) {
         return "No content available";
-      }
-
-      // Extract text from the first block's content
-      let previewText = "";
-      for (const contentItem of firstBlock.content) {
-        if (contentItem.type === "text" && contentItem.text) {
-          previewText += contentItem.text + " ";
-        }
       }
 
       // Trim to approximately 100 characters at word boundary
-      if (previewText.length > 100) {
-        const truncated = previewText.substring(0, 100);
+      if (plainText.length > 100) {
+        const truncated = plainText.substring(0, 100);
         const lastSpaceIndex = truncated.lastIndexOf(" ");
-        previewText =
-          lastSpaceIndex > 50
-            ? truncated.substring(0, lastSpaceIndex) + "..."
-            : truncated + "...";
+        return lastSpaceIndex > 50
+          ? truncated.substring(0, lastSpaceIndex) + "..."
+          : truncated + "...";
       }
 
-      return previewText || "No content available";
+      return plainText;
     }
   );
 
@@ -408,6 +402,71 @@ export class NoteService {
       });
 
       return deletedNote;
+    }
+  );
+
+  /**
+   * Update note content with both rich text and plain text versions
+   * Used when saving note edits from the rich text editor
+   */
+  public updateNoteContent = withErrorHandling(
+    async (params: {
+      versionId: string;
+      richTextContent: any;
+      userId: string;
+    }): Promise<void> => {
+      const { versionId, richTextContent, userId } = params;
+
+      // Verify the note version exists and belongs to the user
+      const noteVersion = await prisma.note_version.findFirst({
+        where: {
+          id: versionId,
+          note: {
+            user_id: userId,
+            is_deleted: false,
+          },
+        },
+      });
+
+      if (!noteVersion) {
+        throw new NotFoundError("Note version not found or access denied");
+      }
+
+      // Extract plain text from rich text content
+      const plainTextContent =
+        NoteTextExtractor.extractPlainText(richTextContent);
+
+      // Update the version with both rich text and plain text
+      await prisma.note_version.update({
+        where: { id: versionId },
+        data: {
+          rich_text_content: richTextContent,
+          plain_text_content: plainTextContent,
+        },
+      });
+    }
+  );
+
+  /**
+   * Get plain text content for chunking/embedding operations
+   * This retrieves the pre-processed plain text without JSON parsing
+   */
+  public getNotePlainTextContent = withErrorHandling(
+    async (versionId: string): Promise<string> => {
+      const versionContent = await prisma.note_version.findUnique({
+        where: {
+          id: versionId,
+        },
+        select: {
+          plain_text_content: true,
+        },
+      });
+
+      if (!versionContent) {
+        throw new NotFoundError("Note version not found");
+      }
+
+      return versionContent.plain_text_content;
     }
   );
 }

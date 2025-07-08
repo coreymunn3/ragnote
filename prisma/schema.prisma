@@ -157,13 +157,14 @@ model note {
 }
 
 model note_version {
-  id             String    @id @default(uuid()) @db.Uuid
-  note_id        String    @db.Uuid
-  version_number Int       @default(1)
-  content        Json      @db.Json // Full content of this version - json for blocknote editor
-  is_published   Boolean   @default(true) // True if it's a draft, false if published
-  published_at   DateTime? @db.Timestamptz(3) // Null if it's a draft
-  created_at     DateTime  @default(now()) @db.Timestamptz(3)
+  id                 String    @id @default(uuid()) @db.Uuid
+  note_id            String    @db.Uuid
+  version_number     Int       @default(1)
+  rich_text_content  Json      @default("[]") @db.Json // rich text content of this version - json for blocknote editor
+  plain_text_content String    @default("") // plain text content of this version - for embedding & processing
+  is_published       Boolean   @default(true) // True if it's a draft, false if published
+  published_at       DateTime? @db.Timestamptz(3) // Null if it's a draft
+  created_at         DateTime  @default(now()) @db.Timestamptz(3)
 
   note               note         @relation("NoteVersions", fields: [note_id], references: [id], onDelete: Cascade)
   chunks             note_chunk[] // Chunks and embeddings for this version

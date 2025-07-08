@@ -27,7 +27,8 @@ export type NoteVersion = {
 
 export type NoteVersionWithContent = Expand<
   NoteVersion & {
-    content: any;
+    rich_text_content: any;
+    plain_text_content: string;
   }
 >;
 
