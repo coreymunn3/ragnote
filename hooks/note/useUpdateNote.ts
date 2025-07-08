@@ -34,10 +34,35 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
     ...options,
     mutationFn: updateNote,
     onSuccess: (updatedNote, variables, context) => {
+      // Invalidate folder queries to update the UI
       queryClient.invalidateQueries({
-        queryKey: ["folder", variables.folderId],
+        queryKey: ["folders"],
       });
-      toast.success(`Note has been updated`);
+
+      // For move action, invalidate all folder queries to ensure UI updates
+      if (variables.action === "move") {
+        // Invalidate all folder queries since we don't know the source folder ID
+        queryClient.invalidateQueries({
+          queryKey: ["folder"],
+        });
+      } else {
+        // For other actions (pin/delete), invalidate the specific folder
+        if (variables?.folderId) {
+          queryClient.invalidateQueries({
+            queryKey: ["folder", variables.folderId],
+          });
+        }
+      }
+
+      // Show appropriate success message based on action
+      const actionMessages = {
+        toggle_pin: updatedNote.is_pinned ? "Note pinned" : "Note unpinned",
+        move: "Note moved successfully",
+        delete: "Note deleted",
+      };
+
+      toast.success(actionMessages[variables.action] || "Note updated");
+
       // Custom onSuccess callback
       options?.onSuccess?.(updatedNote, variables, context);
     },
