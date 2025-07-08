@@ -14,6 +14,7 @@ import {
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { NoteService } from "../note/noteService";
 import { ForbiddenError, NotFoundError } from "@/lib/errors/apiErrors";
+import { isSystemFolder, getSystemFolderKey } from "@/lib/utils/folderUtils";
 
 const noteService = new NoteService();
 export class FolderService {
@@ -63,33 +64,6 @@ export class FolderService {
       is_deleted: false, // does not matter
     };
   };
-
-  /**
-   * Determines if a folder ID represents a system folder
-   * @param folderId - The folder ID to check
-   * @returns True if the folder ID is a system folder
-   */
-  public static isSystemFolder(folderId: string): folderId is SystemFolderId {
-    return folderId.startsWith("system:");
-  }
-
-  /**
-   * Maps system folder ID to SYSTEM_FOLDERS key
-   * @param systemFolderId - The system folder ID
-   * @returns The corresponding key from SYSTEM_FOLDERS
-   */
-  private getSystemFolderKey(
-    systemFolderId: string
-  ): keyof typeof SYSTEM_FOLDERS {
-    switch (systemFolderId) {
-      case SYSTEM_FOLDERS.SHARED.id:
-        return "SHARED";
-      case SYSTEM_FOLDERS.DELETED.id:
-        return "DELETED";
-      default:
-        throw new NotFoundError(`Unknown system folder: ${systemFolderId}`);
-    }
-  }
 
   /** Create Folder */
   public createFolder = withErrorHandling(
@@ -206,9 +180,9 @@ export class FolderService {
       const validatedData = getFolderByIdSchema.parse({ folderId, userId });
 
       // Check if this is a system folder
-      if (FolderService.isSystemFolder(validatedData.folderId)) {
+      if (isSystemFolder(validatedData.folderId)) {
         const systemFolder = this.createSystemFolder(
-          this.getSystemFolderKey(validatedData.folderId),
+          getSystemFolderKey(validatedData.folderId),
           validatedData.userId
         );
         const enrichedFolders = await this.enrichFoldersWithNotes(
