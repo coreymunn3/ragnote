@@ -79,7 +79,9 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
           <AnimatedListItem index={1} animation="fadeIn">
             <WidgetList<Note>
               items={pinnedNotes}
-              renderItem={(note) => <NoteWidget note={note} pinned />}
+              renderItem={(note) => (
+                <NoteWidget note={note} folderId={folder.id} pinned />
+              )}
               displayMode="vertical"
               delay={1}
             />
@@ -90,7 +92,9 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
         <AnimatedListItem index={2} animation="fadeIn">
           <WidgetList<Note>
             items={unpinnedNotes}
-            renderItem={(note) => <NoteWidget note={note} />}
+            renderItem={(note) => (
+              <NoteWidget note={note} folderId={folder.id} />
+            )}
             displayMode="grid"
             delay={2}
           />

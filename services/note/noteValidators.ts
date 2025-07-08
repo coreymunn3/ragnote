@@ -19,3 +19,19 @@ export const getNotesInFolderSchema = z.object({
 export const getSystemNotesSchema = z.object({
   userId: z.string().uuid(),
 });
+
+export const togglePinNoteSchema = z.object({
+  noteId: z.string().uuid(),
+  userId: z.string().uuid(),
+});
+
+export const moveNoteSchema = z.object({
+  noteId: z.string().uuid(),
+  folderId: z.string().uuid(),
+  userId: z.string().uuid(),
+});
+
+export const deleteNoteSchema = z.object({
+  noteId: z.string().uuid(),
+  userId: z.string().uuid(),
+});

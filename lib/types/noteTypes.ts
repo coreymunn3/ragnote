@@ -39,6 +39,11 @@ export type CreateNoteApiRequest = {
   folderId?: string;
 };
 
+export type UpdateNoteApiRequest = {
+  action: "toggle_pin" | "move" | "delete";
+  folderId?: string;
+};
+
 /**
  * Response Types for Note Service
  */

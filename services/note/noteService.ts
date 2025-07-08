@@ -3,13 +3,16 @@ import {
   createNoteSchema,
   getNotesInFolderSchema,
   getSystemNotesSchema,
+  moveNoteSchema,
+  togglePinNoteSchema,
+  deleteNoteSchema,
 } from "./noteValidators";
 import { Note, PrismaNote } from "@/lib/types/noteTypes";
 import { NotFoundError } from "@/lib/errors/apiErrors";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { transformToNote } from "./noteTransformers";
 import { SYSTEM_FOLDERS } from "@/lib/types/folderTypes";
-import { FolderService } from "../folder/folderService";
+import { isSystemFolder } from "@/lib/utils/folderUtils";
 
 export class NoteService {
   /**
@@ -119,7 +122,7 @@ export class NoteService {
       const validatedData = getNotesInFolderSchema.parse({ folderId, userId });
 
       // check if this is a system folder, then return the system folder notes
-      if (FolderService.isSystemFolder(validatedData.folderId)) {
+      if (isSystemFolder(validatedData.folderId)) {
         return await this.getSystemFolderNotes(
           validatedData.folderId,
           validatedData.userId
@@ -287,6 +290,124 @@ export class NoteService {
         transformToNote(note)
       );
       return transformedDeleted;
+    }
+  );
+
+  public togglePinNote = withErrorHandling(
+    async (params: { noteId: string; userId: string }): Promise<PrismaNote> => {
+      const validatedData = togglePinNoteSchema.parse(params);
+
+      // Verify the note exists and belongs to the user
+      const note = await prisma.note.findFirst({
+        where: {
+          id: validatedData.noteId,
+          user_id: validatedData.userId,
+          is_deleted: false,
+        },
+      });
+
+      if (!note) {
+        throw new NotFoundError("Note not found or access denied");
+      }
+
+      // toggle the notes pinned field
+      const updatedNote = await prisma.note.update({
+        where: {
+          id: validatedData.noteId,
+        },
+        data: {
+          is_pinned: !note.is_pinned,
+        },
+        include: {
+          current_version: true,
+          _count: {
+            select: {
+              permissions: true,
+            },
+          },
+        },
+      });
+      return updatedNote;
+    }
+  );
+
+  public moveNote = withErrorHandling(
+    async (params: {
+      noteId: string;
+      folderId: string;
+      userId: string;
+    }): Promise<PrismaNote> => {
+      const validatedData = moveNoteSchema.parse(params);
+
+      // Verify the note exists and belongs to the user
+      const note = await prisma.note.findFirst({
+        where: {
+          id: validatedData.noteId,
+          user_id: validatedData.userId,
+          is_deleted: false,
+        },
+      });
+
+      if (!note) {
+        throw new NotFoundError("Note not found or access denied");
+      }
+
+      // Verify the target folder exists and belongs to the user (if not null)
+      if (validatedData.folderId) {
+        const folder = await prisma.folder.findFirst({
+          where: {
+            id: validatedData.folderId,
+            user_id: validatedData.userId,
+            is_deleted: false,
+          },
+        });
+
+        if (!folder) {
+          throw new NotFoundError("Target folder not found or access denied");
+        }
+      }
+
+      // move the note
+      const updatedNote = await prisma.note.update({
+        where: {
+          id: validatedData.noteId,
+        },
+        data: {
+          folder_id: validatedData.folderId,
+        },
+      });
+      return updatedNote;
+    }
+  );
+
+  public deleteNote = withErrorHandling(
+    async (params: { noteId: string; userId: string }): Promise<PrismaNote> => {
+      const validatedData = deleteNoteSchema.parse(params);
+
+      // Verify the note exists and belongs to the user
+      const note = await prisma.note.findFirst({
+        where: {
+          id: validatedData.noteId,
+          user_id: validatedData.userId,
+          is_deleted: false, // can't delete already deleted notes
+        },
+      });
+
+      if (!note) {
+        throw new NotFoundError("Note not found or already deleted");
+      }
+
+      // Soft delete the note
+      const deletedNote = await prisma.note.update({
+        where: {
+          id: validatedData.noteId,
+        },
+        data: {
+          is_deleted: true,
+        },
+      });
+
+      return deletedNote;
     }
   );
 }

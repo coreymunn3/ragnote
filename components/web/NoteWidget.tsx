@@ -1,3 +1,5 @@
+"use client";
+
 import { Note } from "@/lib/types/noteTypes";
 import { TypographyMuted, TypographySmall } from "../ui/typography";
 import { Badge } from "../ui/badge";
@@ -17,14 +19,45 @@ import {
   CardTitle,
 } from "../ui/card";
 import OptionsMenu, { Option } from "../OptionsMenu";
+import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 
 interface NoteWidgetProps {
   note: Note;
+  folderId?: string;
   pinned?: boolean;
 }
 
-const NoteWidget = ({ note, pinned = false }: NoteWidgetProps) => {
+const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
   const isPublished = note.current_version.is_published;
+
+  const updateNoteMutation = useUpdateNote();
+
+  const handleTogglePinNote = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    updateNoteMutation.mutate({
+      noteId: note.id,
+      folderId,
+      action: "toggle_pin",
+    });
+  };
+
+  const handleMoveNote = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    updateNoteMutation.mutate({
+      noteId: note.id,
+      // folderId: folderId,
+      action: "move",
+    });
+  };
+
+  const handleDeleteNote = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    updateNoteMutation.mutate({
+      noteId: note.id,
+      folderId,
+      action: "delete",
+    });
+  };
 
   // list of actions a user can take on a note
   const noteActions: Option[] = [
@@ -32,18 +65,12 @@ const NoteWidget = ({ note, pinned = false }: NoteWidgetProps) => {
       ? {
           label: "Unpin",
           icon: <PinOffIcon className="h-4 w-4" />,
-          onClick: (e: React.MouseEvent<HTMLDivElement>) => {
-            e.stopPropagation();
-            console.log("unpin");
-          },
+          onClick: handleTogglePinNote,
         }
       : {
           label: "Pin",
           icon: <PinIcon className="h-4 w-4" />,
-          onClick: (e: React.MouseEvent<HTMLDivElement>) => {
-            e.stopPropagation();
-            console.log("pin");
-          },
+          onClick: handleTogglePinNote,
         },
     {
       label: "Move",
@@ -56,10 +83,7 @@ const NoteWidget = ({ note, pinned = false }: NoteWidgetProps) => {
     {
       label: "Delete",
       icon: <Trash2Icon className="h-4 w-4" />,
-      onClick: (e: React.MouseEvent<HTMLDivElement>) => {
-        e.stopPropagation();
-        console.log("delete");
-      },
+      onClick: handleDeleteNote,
     },
   ];
 
