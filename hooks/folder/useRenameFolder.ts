@@ -41,7 +41,7 @@ export function useRenameFolder(options?: UseRenameFolderOptions) {
       options?.onSuccess?.(updatedFolder, variables, context);
     },
     onError: (error, variables, context) => {
-      handleClientSideApiError(error);
+      handleClientSideApiError(error, "Failed to rename folder");
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },

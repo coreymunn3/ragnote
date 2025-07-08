@@ -33,7 +33,7 @@ export function useCreateNote(options?: UseCreateNoteOptions) {
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
-      handleClientSideApiError(error);
+      handleClientSideApiError(error, "Failed to create note");
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },

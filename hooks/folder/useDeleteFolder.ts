@@ -31,7 +31,7 @@ export function useDeleteFolder(options?: UseDeleteFolderOptions) {
       options?.onSuccess?.(deletedFolder, variables, context);
     },
     onError: (error, variables, context) => {
-      handleClientSideApiError(error);
+      handleClientSideApiError(error, "Failed to delete folder");
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },

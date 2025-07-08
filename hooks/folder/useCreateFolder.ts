@@ -33,7 +33,7 @@ export function useCreateFolder(options?: UseCreateFolderOptions) {
       options?.onSuccess?.(newFolder, variables, context);
     },
     onError: (error, variables, context) => {
-      handleClientSideApiError(error);
+      handleClientSideApiError(error, "Failed to create folder");
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },
