@@ -1,6 +1,7 @@
 import WebNoteLayout from "@/app/(app)/components/layouts/web/note/layout";
 import MobileNoteLayout from "@/app/(app)/components/layouts/mobile/note/layout";
 import ResponsiveLayout from "@/components/ResponsiveLayout";
+import { NoteVersionProvider } from "@/contexts/NoteVersionContext";
 
 export default function LayoutSwitch({
   children,
@@ -8,13 +9,13 @@ export default function LayoutSwitch({
   children: React.ReactNode;
 }) {
   return (
-    <div>
+    <NoteVersionProvider>
       <ResponsiveLayout
         MobileLayout={MobileNoteLayout}
         WebLayout={WebNoteLayout}
       >
         {children}
       </ResponsiveLayout>
-    </div>
+    </NoteVersionProvider>
   );
 }
