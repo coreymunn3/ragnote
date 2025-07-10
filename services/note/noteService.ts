@@ -7,7 +7,7 @@ import {
   togglePinNoteSchema,
   deleteNoteSchema,
 } from "./noteValidators";
-import { Note, PrismaNote } from "@/lib/types/noteTypes";
+import { Note, PrismaNote, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import { NotFoundError } from "@/lib/errors/apiErrors";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { transformToNote } from "./noteTransformers";
@@ -409,12 +409,12 @@ export class NoteService {
    * Update note content with both rich text and plain text versions
    * Used when saving note edits from the rich text editor
    */
-  public updateNoteContent = withErrorHandling(
+  public updateNoteVersionContent = withErrorHandling(
     async (params: {
       versionId: string;
       richTextContent: any;
       userId: string;
-    }): Promise<void> => {
+    }): Promise<PrismaNoteVersion> => {
       const { versionId, richTextContent, userId } = params;
 
       // Verify the note version exists and belongs to the user
@@ -437,13 +437,15 @@ export class NoteService {
         NoteTextExtractor.extractPlainText(richTextContent);
 
       // Update the version with both rich text and plain text
-      await prisma.note_version.update({
+      const savedNote = await prisma.note_version.update({
         where: { id: versionId },
         data: {
           rich_text_content: richTextContent,
           plain_text_content: plainTextContent,
         },
       });
+      // return the saved note
+      return savedNote;
     }
   );
 

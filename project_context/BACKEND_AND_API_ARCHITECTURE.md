@@ -36,7 +36,7 @@ The Ragnote backend is built upon a layered architecture pattern, primarily focu
   - **Prisma Models/Database Tables:** Lowercase singular words, with `snake_case` for multi-word names (e.g., `note`, `note_version`, `note_chunk`, `note_permission`).
   - **Prisma Model Fields:** `snake_case` (e.g., `created_at`, `user_id`).
   - **TypeScript Types/Interfaces:** `PascalCase` (e.g., `NoteResponse`, `CreateNoteRequest`).
-  - **TypeScript Class/Function Names:** `PascalCase` for classes (e.g., `NoteService`), `camelCase` for functions/methods (e.g., `createNote`, `updateNoteContent`).
+  - **TypeScript Class/Function Names:** `PascalCase` for classes (e.g., `NoteService`), `camelCase` for functions/methods (e.g., `createNote`, `updateNoteVersionContent`).
 
 ## 4. Data Flow and Security Model
 
