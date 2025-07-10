@@ -31,7 +31,7 @@ export function NoteVersionProvider({
     id: noteId as string,
     title: "Trips 2025",
     current_version: {
-      id: "abcd",
+      id: "fa142a7a-0933-4538-a4e7-805851d788d3",
       version_number: 4,
       is_published: true,
       published_at: new Date(),
@@ -106,6 +106,8 @@ export function NoteVersionProvider({
     note,
     isLoading,
   };
+
+  console.log(contextValue);
 
   return (
     <NoteVersionContext.Provider value={contextValue}>

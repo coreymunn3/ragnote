@@ -6,84 +6,72 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { NoteVersion } from "@/lib/types/noteTypes";
+import { PrismaNoteVersion } from "@/lib/types/noteTypes";
 import VersionBadge from "./VersionBadge";
 import { TypographyMuted } from "./ui/typography";
 import { Button } from "./ui/button";
 import { ForwardIcon, SaveIcon, Trash2Icon } from "lucide-react";
 import EditableField from "./EditableField";
 import OptionsMenu from "./OptionsMenu";
+import { useNoteVersion } from "@/contexts/NoteVersionContext";
 
 const NoteToolbar = () => {
-  const { id, versionId } = useParams();
-  // TO DO - get the note data using the page params
-  const note = {
-    id: "1",
-    title: "Trips 2025",
-    current_version: {
-      id: "abcd",
-      version_number: 4,
-      is_published: true,
-      published_at: new Date(),
-    },
-    is_pinned: false,
-    is_deleted: false,
-    created_at: new Date(),
-    updated_at: new Date(),
-    shared_with_count: 2,
-  };
+  const { id } = useParams();
+  const {
+    note,
+    noteVersions,
+    selectedVersionId,
+    setSelectedVersionId,
+    isLoading,
+  } = useNoteVersion();
 
-  // TO DO - get all versions of this note, published and draft
-  const noteVersions = [
-    {
-      id: "abcd",
-      version_number: 4,
-      is_published: true,
-      published_at: new Date(),
-      created_at: new Date(),
-    },
-    {
-      id: "abc1",
-      version_number: 3,
-      is_published: true,
-      published_at: new Date(),
-      created_at: new Date(),
-    },
-    {
-      id: "abc2",
-      version_number: 2,
-      is_published: true,
-      published_at: new Date(),
-      created_at: new Date(),
-    },
-    {
-      id: "abc3",
-      version_number: 1,
-      is_published: true,
-      published_at: new Date(),
-      created_at: new Date(),
-    },
-  ];
+  if (isLoading || !note) {
+    return (
+      <div className="flex items-center justify-between px-14 py-2">
+        <div className="flex items-end space-x-2">
+          <div className="h-6 w-32 bg-gray-200 animate-pulse rounded"></div>
+          <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Find the selected version for display
+  const selectedVersion =
+    noteVersions.find((v) => v.id === selectedVersionId) || noteVersions[0];
+
+  /**
+   * TO DO
+   * A hook that enables us to save the adjusted note title
+   * save the note title in state when fetched, and any change updates that state
+   */
 
   return (
     <div className="flex items-center justify-between px-14 py-2">
       {/* left side - title and version */}
       <div className="flex items-end  space-x-2">
         <EditableField
-          value={note.title}
+          value={note.title} // should reference the title saved in state
           variant="bold"
           onSave={(newTitle) => {
             // Will implement API call to update the title later
+            // optimistically update
             console.log("Saving new title:", newTitle);
           }}
         />
         <DropdownMenu>
           <DropdownMenuTrigger className="p-1">
-            <VersionBadge version={noteVersions[0]} />
+            <VersionBadge version={selectedVersion} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-            {noteVersions.map((version: NoteVersion) => (
-              <DropdownMenuItem key={version.id}>
+            {noteVersions.map((version: PrismaNoteVersion) => (
+              <DropdownMenuItem
+                key={version.id}
+                onClick={() => setSelectedVersionId(version.id)}
+              >
                 <VersionBadge version={version} />
               </DropdownMenuItem>
             ))}

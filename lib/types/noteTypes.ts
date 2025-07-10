@@ -45,6 +45,10 @@ export type UpdateNoteApiRequest = {
   folderId?: string;
 };
 
+export type UpdateNoteVersionContentApiRequest = {
+  richTextContent: any;
+};
+
 /**
  * Response Types for Note Service
  */
@@ -58,6 +62,17 @@ export type PrismaNote = {
   is_deleted: boolean;
   created_at: Date;
   updated_at: Date;
+};
+
+export type PrismaNoteVersion = {
+  id: string;
+  note_id: string;
+  version_number: number;
+  rich_text_content: any;
+  plain_text_content: string;
+  is_published: boolean;
+  published_at: Date | null;
+  created_at: Date;
 };
 
 export type PrismaNoteWithVersionPreview = {
