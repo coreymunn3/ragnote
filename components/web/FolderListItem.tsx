@@ -14,7 +14,7 @@ const FolderListItem = ({ note }: FolderListItemProps) => {
       className="flex justify-start p-0 hover:bg-primary/20"
       asChild
     >
-      <Link href={`/note/${note.id}/version/${note.current_version.id}`}>
+      <Link href={`/note/${note.id}`}>
         <FileIcon className="h-4 w-4" />
         <p>{note.title}</p>
       </Link>

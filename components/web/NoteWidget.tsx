@@ -111,7 +111,7 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
   ];
 
   // Construct note URL
-  const noteUrl = `/note/${note.id}/version/${note.current_version.id}`;
+  const noteUrl = `/note/${note.id}`;
 
   return (
     <>
