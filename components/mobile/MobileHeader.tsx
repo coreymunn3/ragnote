@@ -2,7 +2,7 @@ import React from "react";
 import { SignedIn } from "@clerk/nextjs";
 import ThemeSwitch from "@/components/ThemeSwitch";
 import BrandingHeader from "@/components/BrandingHeader";
-import UserButtonClient from "../../../../components/UserButtonClient";
+import UserButtonClient from "../UserButtonClient";
 
 const MobileHeader = () => {
   return (
