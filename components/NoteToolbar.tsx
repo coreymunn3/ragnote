@@ -10,7 +10,7 @@ import { NoteVersion } from "@/lib/types/noteTypes";
 import VersionBadge from "./VersionBadge";
 import { TypographyMuted } from "./ui/typography";
 import { Button } from "./ui/button";
-import { ForwardIcon, Trash2Icon } from "lucide-react";
+import { ForwardIcon, SaveIcon, Trash2Icon } from "lucide-react";
 import EditableField from "./EditableField";
 import OptionsMenu from "./OptionsMenu";
 
@@ -92,12 +92,17 @@ const NoteToolbar = () => {
       </div>
       {/* right side - last edited & controls */}
       <div className="flex items-center space-x-2">
-        <TypographyMuted>{`Last Edited ${note.updated_at.toLocaleDateString()}`}</TypographyMuted>
+        <TypographyMuted>{`Saved ${note.updated_at.toLocaleDateString()}`}</TypographyMuted>
         <Button variant={"ghost"}>
-          <ForwardIcon className="h-4 w-4" />
+          <SaveIcon className="h-4 w-4" />
         </Button>
         <OptionsMenu
           options={[
+            {
+              label: "Share",
+              icon: <ForwardIcon className="h-4 w-4" />,
+              onClick: () => console.log("TO DO - share note"),
+            },
             {
               label: "Delete",
               icon: <Trash2Icon className="h-4 w-4" />,
