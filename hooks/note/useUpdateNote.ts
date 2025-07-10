@@ -67,7 +67,7 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
       options?.onSuccess?.(updatedNote, variables, context);
     },
     onError: (error, variables, context) => {
-      handleClientSideApiError(error, "Failed to pin/unpin note");
+      handleClientSideApiError(error, "Failed to update note");
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },
