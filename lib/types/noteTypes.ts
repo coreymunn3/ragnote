@@ -41,8 +41,9 @@ export type CreateNoteApiRequest = {
 };
 
 export type UpdateNoteApiRequest = {
-  action: "toggle_pin" | "move" | "delete";
+  action: "toggle_pin" | "move" | "delete" | "update_title";
   folderId?: string;
+  title?: string;
 };
 
 export type UpdateNoteVersionContentApiRequest = {

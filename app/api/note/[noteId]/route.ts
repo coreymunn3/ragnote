@@ -69,11 +69,30 @@ const putHandler = async (
         userId: dbUser.id,
       });
       return NextResponse.json(deletedNote, { status: 200 });
+    case "update_title":
+      // ensure title is present in request
+      if (!body.title) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "title is required for this operation",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+      const updatedTitleNote = await noteService.updateNoteTitle({
+        noteId,
+        title: body.title,
+        userId: dbUser.id,
+      });
+      return NextResponse.json(updatedTitleNote, { status: 200 });
     default:
       return NextResponse.json({
         success: false,
         message:
-          "action must be one of: toggle_pin, move, delete - or was not provided",
+          "action must be one of: toggle_pin, move, delete, update_title - or was not provided",
       });
   }
 };

@@ -15,6 +15,7 @@ import EditableField from "./EditableField";
 import OptionsMenu from "./OptionsMenu";
 import { useNoteVersion } from "@/contexts/NoteVersionContext";
 import { DateTime } from "luxon";
+import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 
 const NoteToolbar = () => {
   const { id } = useParams();
@@ -25,6 +26,8 @@ const NoteToolbar = () => {
     setSelectedVersionId,
     isLoading,
   } = useNoteVersion();
+
+  const updateNoteMutation = useUpdateNote();
 
   if (isLoading || !note) {
     return (
@@ -55,12 +58,14 @@ const NoteToolbar = () => {
       {/* left side - title and version */}
       <div className="flex items-end  space-x-2">
         <EditableField
-          value={note.title} // should reference the title saved in state
+          value={note.title}
           variant="bold"
           onSave={(newTitle) => {
-            // Will implement API call to update the title later
-            // optimistically update
-            console.log("Saving new title:", newTitle);
+            updateNoteMutation.mutate({
+              noteId: note.id,
+              action: "update_title",
+              title: newTitle,
+            });
           }}
         />
         <DropdownMenu>

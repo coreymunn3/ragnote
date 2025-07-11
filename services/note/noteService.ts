@@ -9,6 +9,7 @@ import {
   updateNoteVersionContentSchema,
   getNoteContentSchema,
   getNoteSchema,
+  updateNoteTitleSchema,
 } from "./noteValidators";
 import {
   Note,
@@ -386,6 +387,44 @@ export class NoteService {
     }
   );
 
+  /**
+   * Update the note's title
+   */
+  public updateNoteTitle = withErrorHandling(
+    async (params: {
+      noteId: string;
+      title: string;
+      userId: string;
+    }): Promise<PrismaNote> => {
+      const validatedData = updateNoteTitleSchema.parse(params);
+
+      // Verify the note exists and belongs to the user
+      const note = await prisma.note.findFirst({
+        where: {
+          id: validatedData.noteId,
+          user_id: validatedData.userId,
+          is_deleted: false,
+        },
+      });
+
+      if (!note) {
+        throw new NotFoundError("Note not found or access denied");
+      }
+
+      // Update the note title
+      const updatedNote = await prisma.note.update({
+        where: {
+          id: validatedData.noteId,
+        },
+        data: {
+          title: validatedData.title,
+        },
+      });
+
+      return updatedNote;
+    }
+  );
+
   // soft delete note
   public deleteNote = withErrorHandling(
     async (params: { noteId: string; userId: string }): Promise<PrismaNote> => {
@@ -545,11 +584,6 @@ export class NoteService {
       return transformToNote(noteWithPreview[0]);
     }
   );
-
-  /**
-   * Update the note's title
-   */
-  // public updateNoteTitle = withErrorHandling(async () => {});
 
   /**
    * Get list of versions for a note

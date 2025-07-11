@@ -51,3 +51,17 @@ export const getNoteSchema = z.object({
   noteId: z.string().uuid(),
   userId: z.string().uuid(),
 });
+
+export const updateNoteTitleSchema = z.object({
+  noteId: z.string().uuid(),
+  userId: z.string().uuid(),
+  title: z
+    .string()
+    .min(1, "Title cannot be empty")
+    .max(255, "Note title cannot exceed 255 characters")
+    .trim()
+    .refine(
+      (title) => title.length > 0,
+      "Note title cannot be just whitespace"
+    ),
+});
