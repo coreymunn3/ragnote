@@ -96,3 +96,8 @@ export type PrismaNoteWithVersionPreview = {
   };
   preview: string;
 };
+
+export type NoteContent = {
+  plainTextContent: string;
+  richTextContent: any;
+};

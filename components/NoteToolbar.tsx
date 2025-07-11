@@ -14,6 +14,7 @@ import { ForwardIcon, SaveIcon, Trash2Icon } from "lucide-react";
 import EditableField from "./EditableField";
 import OptionsMenu from "./OptionsMenu";
 import { useNoteVersion } from "@/contexts/NoteVersionContext";
+import { DateTime } from "luxon";
 
 const NoteToolbar = () => {
   const { id } = useParams();
@@ -80,7 +81,7 @@ const NoteToolbar = () => {
       </div>
       {/* right side - last edited & controls */}
       <div className="flex items-center space-x-2">
-        <TypographyMuted>{`Saved ${note.updated_at.toLocaleDateString()}`}</TypographyMuted>
+        <TypographyMuted>{`Saved ${DateTime.fromISO(note.updated_at.toString()).toLocaleString(DateTime.DATE_SHORT)}`}</TypographyMuted>
         <Button variant={"ghost"}>
           <SaveIcon className="h-4 w-4" />
         </Button>

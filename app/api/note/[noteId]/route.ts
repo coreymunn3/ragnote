@@ -7,19 +7,21 @@ import { UpdateNoteApiRequest } from "@/lib/types/noteTypes";
 
 const noteService = new NoteService();
 
-// Get a note by it's ID
-// const getHandler = async (
-//   req: NextRequest,
-//   { params }: { params: Promise<{ noteId: string }> }
-// ) => {
-//   auth.protect();
-//   const { noteId } = await params;
-//   const dbUser = await getDbUser();
-//   const note = await getNoteById();
-//   return NextResponse.json(note, { status: 200 });
-// };
+/**
+ * Get a note using its ID
+ */
+const getHandler = async (
+  req: NextRequest,
+  { params }: { params: Promise<{ noteId: string }> }
+) => {
+  auth.protect();
+  const { noteId } = await params;
+  const dbUser = await getDbUser();
+  const note = await noteService.getNoteById({ noteId, userId: dbUser.id });
+  return NextResponse.json(note, { status: 200 });
+};
 
-// export const GET = withApiErrorHandling(getHandler, "GET /api/note/[noteId]");
+export const GET = withApiErrorHandling(getHandler, "GET /api/note/[noteId]");
 
 /**
  * Update a note

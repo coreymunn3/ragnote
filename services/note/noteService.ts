@@ -6,8 +6,16 @@ import {
   moveNoteSchema,
   togglePinNoteSchema,
   deleteNoteSchema,
+  updateNoteVersionContentSchema,
+  getNoteContentSchema,
+  getNoteSchema,
 } from "./noteValidators";
-import { Note, PrismaNote, PrismaNoteVersion } from "@/lib/types/noteTypes";
+import {
+  Note,
+  NoteContent,
+  PrismaNote,
+  PrismaNoteVersion,
+} from "@/lib/types/noteTypes";
 import { NotFoundError } from "@/lib/errors/apiErrors";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { transformToNote } from "./noteTransformers";
@@ -30,7 +38,9 @@ export class NoteService {
     );
   }
 
-  // Create Note
+  /**
+   * Create a Note
+   */
   public createNote = withErrorHandling(
     async (params: {
       userId: string;
@@ -287,6 +297,7 @@ export class NoteService {
     }
   );
 
+  // toggle the note to pinned/unpinned
   public togglePinNote = withErrorHandling(
     async (params: { noteId: string; userId: string }): Promise<PrismaNote> => {
       const validatedData = togglePinNoteSchema.parse(params);
@@ -325,6 +336,7 @@ export class NoteService {
     }
   );
 
+  // move not to another folder
   public moveNote = withErrorHandling(
     async (params: {
       noteId: string;
@@ -374,6 +386,7 @@ export class NoteService {
     }
   );
 
+  // soft delete note
   public deleteNote = withErrorHandling(
     async (params: { noteId: string; userId: string }): Promise<PrismaNote> => {
       const validatedData = deleteNoteSchema.parse(params);
@@ -415,7 +428,8 @@ export class NoteService {
       richTextContent: any;
       userId: string;
     }): Promise<PrismaNoteVersion> => {
-      const { versionId, richTextContent, userId } = params;
+      const validatedData = updateNoteVersionContentSchema.parse(params);
+      const { versionId, richTextContent, userId } = validatedData;
 
       // Verify the note version exists and belongs to the user
       const noteVersion = await prisma.note_version.findFirst({
@@ -450,25 +464,100 @@ export class NoteService {
   );
 
   /**
-   * Get plain text content for chunking/embedding operations
-   * This retrieves the pre-processed plain text without JSON parsing
+   * Get rich text and plain text content
+   * The response can be destructured to return only the content you need in the moment, so no need to make 2 functions
    */
-  public getNotePlainTextContent = withErrorHandling(
-    async (versionId: string): Promise<string> => {
-      const versionContent = await prisma.note_version.findUnique({
+  public getNoteContent = withErrorHandling(
+    async (params: {
+      versionId: string;
+      userId: string;
+    }): Promise<NoteContent> => {
+      const validatedData = getNoteContentSchema.parse(params);
+      const versionContent = await prisma.note_version.findFirst({
         where: {
-          id: versionId,
+          id: validatedData.versionId,
+          note: {
+            is_deleted: false,
+            user_id: validatedData.userId,
+          },
         },
         select: {
           plain_text_content: true,
+          rich_text_content: true,
         },
       });
 
       if (!versionContent) {
-        throw new NotFoundError("Note version not found");
+        throw new NotFoundError("Note version not found or access denied");
       }
 
-      return versionContent.plain_text_content;
+      return {
+        plainTextContent: versionContent.plain_text_content,
+        richTextContent: versionContent.rich_text_content,
+      };
     }
   );
+
+  /**
+   * Get the note data
+   */
+  public getNoteById = withErrorHandling(
+    async (params: { noteId: string; userId: string }): Promise<Note> => {
+      const validatedData = getNoteSchema.parse(params);
+
+      // Find note that user either owns OR has been shared with them
+      const note = await prisma.note.findFirst({
+        where: {
+          id: validatedData.noteId,
+          is_deleted: false,
+          OR: [
+            // User owns the note
+            { user_id: validatedData.userId },
+            // Note has been shared with the user
+            {
+              permissions: {
+                some: {
+                  shared_with_user_id: validatedData.userId,
+                  active: true,
+                },
+              },
+            },
+          ],
+        },
+        include: {
+          current_version: true,
+          _count: {
+            select: {
+              permissions: true,
+            },
+          },
+        },
+      });
+
+      if (!note) {
+        throw new NotFoundError("Note not found or access denied");
+      }
+
+      // Enrich with preview
+      const noteWithPreview = await this.enrichNotesWithPreviews([note]);
+
+      // Transform and return
+      return transformToNote(noteWithPreview[0]);
+    }
+  );
+
+  /**
+   * Update the note's title
+   */
+  // public updateNoteTitle = withErrorHandling(async () => {});
+
+  /**
+   * Get list of versions for a note
+   */
+  // public getNoteVersions = withErrorHandling(async () => {});
+
+  /**
+   * Get the data for a specific note version
+   */
+  // public getNoteVersion = withErrorHandling(async () => {});
 }

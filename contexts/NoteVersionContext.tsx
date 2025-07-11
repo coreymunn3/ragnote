@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
+import { useGetNote } from "@/hooks/note/useGetNote";
 
 interface NoteVersionContextType {
   selectedVersionId: string | null;
@@ -9,6 +10,7 @@ interface NoteVersionContextType {
   noteVersions: PrismaNoteVersion[];
   note: Note | null;
   isLoading: boolean;
+  error: Error | null;
 }
 
 const NoteVersionContext = createContext<NoteVersionContextType | undefined>(
@@ -24,25 +26,15 @@ export function NoteVersionProvider({
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
     null
   );
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Placeholder data - will be replaced with actual API calls later
-  const note: Note = {
-    id: noteId as string,
-    title: "Trips 2025",
-    current_version: {
-      id: "fa142a7a-0933-4538-a4e7-805851d788d3",
-      version_number: 4,
-      is_published: true,
-      published_at: new Date(),
-    },
-    is_pinned: false,
-    is_deleted: false,
-    created_at: new Date(),
-    updated_at: new Date(),
-    shared_with_count: 2,
-    preview: "Planning our trips for 2025...",
-  };
+  // Fetch the note data using the hook
+  const {
+    data: note,
+    isLoading,
+    error,
+  } = useGetNote(noteId as string, {
+    enabled: !!noteId, // Only fetch if noteId exists
+  });
 
   const noteVersions: PrismaNoteVersion[] = [
     {
@@ -87,24 +79,20 @@ export function NoteVersionProvider({
     },
   ];
 
-  // Simulate loading and set default selected version
+  // Set default selected version when note data is loaded
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (note?.current_version?.id && !selectedVersionId) {
-        setSelectedVersionId(note.current_version.id);
-      }
-      setIsLoading(false);
-    }, 100); // Minimal delay to simulate loading
-
-    return () => clearTimeout(timer);
+    if (note?.current_version?.id && !selectedVersionId) {
+      setSelectedVersionId(note.current_version.id);
+    }
   }, [note, selectedVersionId]);
 
   const contextValue: NoteVersionContextType = {
     selectedVersionId,
     setSelectedVersionId,
     noteVersions,
-    note,
+    note: note || null,
     isLoading,
+    error: error || null,
   };
 
   return (
