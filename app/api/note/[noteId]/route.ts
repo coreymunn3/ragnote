@@ -27,7 +27,6 @@ const noteService = new NoteService();
  * - move to different folder
  * - delete (soft)
  */
-
 const putHandler = async (
   req: NextRequest,
   { params }: { params: Promise<{ noteId: string }> }

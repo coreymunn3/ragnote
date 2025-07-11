@@ -107,8 +107,6 @@ export function NoteVersionProvider({
     isLoading,
   };
 
-  console.log(contextValue);
-
   return (
     <NoteVersionContext.Provider value={contextValue}>
       {children}

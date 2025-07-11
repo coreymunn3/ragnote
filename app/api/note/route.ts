@@ -7,6 +7,9 @@ import { withApiErrorHandling } from "@/lib/errors/apiRouteHandlers";
 
 const noteService = new NoteService();
 
+/**
+ * Create a Note
+ */
 const postHandler = async (req: NextRequest) => {
   auth.protect();
   const body: CreateNoteApiRequest = await req.json();

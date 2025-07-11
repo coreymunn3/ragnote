@@ -7,13 +7,17 @@ import { UpdateNoteVersionContentApiRequest } from "@/lib/types/noteTypes";
 
 const noteService = new NoteService();
 
-// GET a note version including its rich text and plain text content
+/**
+ * GET a note version including its rich text and plain text content
+ */
 const getHandler = async (
   req: NextRequest,
   { params }: { params: Promise<{ noteId: string; versionId: string }> }
 ) => {};
 
-// PUT (update) a notes version including its rich text and plain text content
+/**
+ * PUT (update) a notes version including its rich text and plain text content
+ */
 const putHandler = async (
   req: NextRequest,
   { params }: { params: Promise<{ noteId: string; versionId: string }> }
@@ -35,7 +39,9 @@ export const PUT = withApiErrorHandling(
   "PUT /api/note/[noteId]/version/[versionId]"
 );
 
-// POST publish this note version, which creates a new draft version entirely
+/**
+ * POST publish this note version, which creates a new draft version entirely
+ */
 const postHandler = async (
   req: NextRequest,
   { params }: { params: Promise<{ noteId: string; versionId: string }> }
