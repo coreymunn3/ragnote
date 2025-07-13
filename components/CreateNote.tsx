@@ -15,7 +15,6 @@ const CreateNote = ({ classname, folderId }: CreateNoteProps) => {
   const createNote = useCreateNote();
 
   const handleCreateNote = () => {
-    console.log("new note");
     // run mutation
     createNote.mutate({ title: "Untitled", folderId });
     // push user to new note page

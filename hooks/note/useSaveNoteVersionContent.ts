@@ -37,7 +37,6 @@ export function useSaveNoteVersionContent(options?: useSaveNoteVersionOptions) {
     ...options,
     mutationFn: saveNoteVersionContent,
     onSuccess: (updatedNote, variables, context) => {
-      console.log("noteVersion", variables.versionId);
       // invalidate the note version query for this version if it exists
       queryClient.invalidateQueries({
         queryKey: ["noteVersion", variables.noteId, variables.versionId],
