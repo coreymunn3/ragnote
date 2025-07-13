@@ -62,15 +62,28 @@ export function NoteVersionProvider({
     }
   }, [note, selectedVersionId]);
 
+  // Update selected version when selectedVersionId or noteVersions change
   useEffect(() => {
-    if (selectedVersionId && noteVersions) {
-      setSelectedVersion(
-        noteVersions.find((v) => v.id === selectedVersionId) || null
-      );
+    if (selectedVersionId && noteVersions && noteVersions.length > 0) {
+      const foundVersion = noteVersions.find((v) => v.id === selectedVersionId);
+      setSelectedVersion(foundVersion || null);
+
+      // If the selected version doesn't exist in the versions list,
+      // fall back to the current version or the first available version
+      if (!foundVersion) {
+        const fallbackVersion = note?.current_version?.id
+          ? noteVersions.find((v) => v.id === note.current_version.id)
+          : noteVersions[0];
+
+        if (fallbackVersion) {
+          setSelectedVersionId(fallbackVersion.id);
+          setSelectedVersion(fallbackVersion);
+        }
+      }
     } else {
       setSelectedVersion(null);
     }
-  }, [selectedVersionId, noteVersions]);
+  }, [selectedVersionId, noteVersions, note?.current_version?.id]);
 
   const contextValue: NoteVersionContextType = useMemo(
     () => ({
@@ -93,8 +106,6 @@ export function NoteVersionProvider({
       versionsError,
     ]
   );
-
-  console.log("context", contextValue);
 
   return (
     <NoteVersionContext.Provider value={contextValue}>
