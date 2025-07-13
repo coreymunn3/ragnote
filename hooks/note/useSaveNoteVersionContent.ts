@@ -37,7 +37,10 @@ export function useSaveNoteVersionContent(options?: useSaveNoteVersionOptions) {
     ...options,
     mutationFn: saveNoteVersionContent,
     onSuccess: (updatedNote, variables, context) => {
-      // invalidate the note query?
+      // invalidate the note version query
+      queryClient.invalidateQueries({
+        queryKey: ["noteVersions"],
+      });
       // Custom onSuccess callback
       options?.onSuccess?.(updatedNote, variables, context);
     },
