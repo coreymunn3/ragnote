@@ -30,7 +30,7 @@ export class NoteTextExtractor {
 
       // Add block text with appropriate spacing
       if (blockText.trim()) {
-        plainText += blockText.trim() + "\n\n";
+        plainText += blockText.trim() + "\n";
       }
     }
 

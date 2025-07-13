@@ -16,7 +16,6 @@ const WebNotePageContent = () => {
 
   // TO DO - save editor content to a draft after debouncing for 3 seconds
   const handleEditorChange = debounce((editor: BlockNoteEditor) => {
-    console.log("onChange:", JSON.stringify(editor.document));
     // mutation to save the note version
     if (selectedVersionId) {
       saveNoteVersionContent.mutate({
