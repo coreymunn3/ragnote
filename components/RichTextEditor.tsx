@@ -7,6 +7,7 @@ import type { BlockNoteEditor } from "@blocknote/core";
 import type { Theme } from "@blocknote/mantine";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { Skeleton } from "./ui/skeleton";
 
 export interface RichTextEditorProps {
   initialContent?: any; // BlockNote JSON content
@@ -179,9 +180,7 @@ const RichTextEditor = dynamic(
   },
   {
     ssr: false,
-    loading: () => (
-      <div className="h-full w-full bg-background animate-pulse"></div>
-    ),
+    loading: () => <Skeleton className="h-64 w-full" />,
   }
 );
 
