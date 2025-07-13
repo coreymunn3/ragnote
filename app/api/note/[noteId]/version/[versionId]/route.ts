@@ -13,7 +13,23 @@ const noteService = new NoteService();
 const getHandler = async (
   req: NextRequest,
   { params }: { params: Promise<{ noteId: string; versionId: string }> }
-) => {};
+) => {
+  auth.protect();
+  const dbUser = await getDbUser();
+  const { versionId } = await params;
+  // get the version
+  const noteVersion = await noteService.getNoteVersion({
+    versionId,
+    userId: dbUser.id,
+  });
+  return NextResponse.json(noteVersion, {
+    status: 200,
+  });
+};
+export const GET = withApiErrorHandling(
+  getHandler,
+  "GET /api/note/[noteId]/version/[versionId]"
+);
 
 /**
  * PUT (update) a notes version including its rich text and plain text content

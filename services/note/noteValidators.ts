@@ -70,3 +70,8 @@ export const getNoteVersionsSchema = z.object({
   noteId: z.string().uuid(),
   userId: z.string().uuid(),
 });
+
+export const getNoteVersionSchema = z.object({
+  versionId: z.string().uuid(),
+  userId: z.string().uuid(),
+});

@@ -11,6 +11,7 @@ import {
   getNoteSchema,
   updateNoteTitleSchema,
   getNoteVersionsSchema,
+  getNoteVersionSchema,
 } from "./noteValidators";
 import {
   Note,
@@ -627,5 +628,28 @@ export class NoteService {
   /**
    * Get the data for a specific note version
    */
-  // public getNoteVersion = withErrorHandling(async () => {});
+  public getNoteVersion = withErrorHandling(
+    async (params: { versionId: string; userId: string }) => {
+      const validatedData = getNoteVersionSchema.parse(params);
+
+      // get the version of the note
+      const noteVersion = await prisma.note_version.findFirst({
+        where: {
+          id: validatedData.versionId,
+          note: {
+            is_deleted: false,
+            user_id: validatedData.userId,
+          },
+        },
+      });
+
+      if (!noteVersion) {
+        throw new NotFoundError(
+          `Note Version not found for version ${validatedData.versionId} or access denied`
+        );
+      }
+
+      return noteVersion;
+    }
+  );
 }
