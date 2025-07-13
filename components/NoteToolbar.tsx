@@ -9,8 +9,7 @@ import {
 import { PrismaNoteVersion } from "@/lib/types/noteTypes";
 import VersionBadge from "./VersionBadge";
 import { TypographyMuted } from "./ui/typography";
-import { Button } from "./ui/button";
-import { ForwardIcon, SaveIcon, Trash2Icon } from "lucide-react";
+import { ForwardIcon, Trash2Icon } from "lucide-react";
 import EditableField from "./EditableField";
 import OptionsMenu from "./OptionsMenu";
 import { useNoteVersion } from "@/contexts/NoteVersionContext";
@@ -47,12 +46,6 @@ const NoteToolbar = () => {
   const selectedVersion =
     noteVersions.find((v) => v.id === selectedVersionId) || noteVersions[0];
 
-  /**
-   * TO DO
-   * A hook that enables us to save the adjusted note title
-   * save the note title in state when fetched, and any change updates that state
-   */
-
   return (
     <div className="flex items-center justify-between px-14 py-2">
       {/* left side - title and version */}
@@ -87,9 +80,6 @@ const NoteToolbar = () => {
       {/* right side - last edited & controls */}
       <div className="flex items-center space-x-2">
         <TypographyMuted>{`Saved ${DateTime.fromISO(note.updated_at.toString()).toLocaleString(DateTime.DATE_SHORT)}`}</TypographyMuted>
-        <Button variant={"ghost"}>
-          <SaveIcon className="h-4 w-4" />
-        </Button>
         <OptionsMenu
           options={[
             {
