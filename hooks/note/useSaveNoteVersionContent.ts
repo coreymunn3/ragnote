@@ -37,8 +37,7 @@ export function useSaveNoteVersionContent(options?: useSaveNoteVersionOptions) {
     ...options,
     mutationFn: saveNoteVersionContent,
     onSuccess: (updatedNote, variables, context) => {
-      // invalidate the note query - TO DO
-      toast.success("Note Saved");
+      // invalidate the note query?
       // Custom onSuccess callback
       options?.onSuccess?.(updatedNote, variables, context);
     },

@@ -22,7 +22,7 @@ export function NoteVersionProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { id: noteId } = useParams();
+  const { id: noteId }: { id: string } = useParams();
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
     null
   );
@@ -32,7 +32,7 @@ export function NoteVersionProvider({
     data: note,
     isLoading,
     error,
-  } = useGetNote(noteId as string, {
+  } = useGetNote(noteId, {
     enabled: !!noteId, // Only fetch if noteId exists
   });
 
