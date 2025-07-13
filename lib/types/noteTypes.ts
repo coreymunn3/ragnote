@@ -74,6 +74,7 @@ export type PrismaNoteVersion = {
   is_published: boolean;
   published_at: Date | null;
   created_at: Date;
+  updated_at: Date;
 };
 
 export type PrismaNoteWithVersionPreview = {

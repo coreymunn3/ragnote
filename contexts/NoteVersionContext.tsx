@@ -46,6 +46,7 @@ export function NoteVersionProvider({
       is_published: true,
       published_at: new Date(),
       created_at: new Date(),
+      updated_at: new Date(),
     },
     {
       id: "abc1",
@@ -56,6 +57,7 @@ export function NoteVersionProvider({
       is_published: true,
       published_at: new Date(),
       created_at: new Date(),
+      updated_at: new Date(),
     },
     {
       id: "abc2",
@@ -66,6 +68,7 @@ export function NoteVersionProvider({
       is_published: true,
       published_at: new Date(),
       created_at: new Date(),
+      updated_at: new Date(),
     },
     {
       id: "abc3",
@@ -76,6 +79,7 @@ export function NoteVersionProvider({
       is_published: true,
       published_at: new Date(),
       created_at: new Date(),
+      updated_at: new Date(),
     },
   ];
 
@@ -94,6 +98,8 @@ export function NoteVersionProvider({
     isLoading,
     error: error || null,
   };
+
+  console.log("context", contextValue);
 
   return (
     <NoteVersionContext.Provider value={contextValue}>
