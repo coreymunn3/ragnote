@@ -21,7 +21,7 @@ const NoteToolbar = () => {
   const {
     note,
     noteVersions,
-    selectedVersionId,
+    selectedVersion,
     setSelectedVersionId,
     isLoading,
   } = useNoteVersion();
@@ -42,10 +42,6 @@ const NoteToolbar = () => {
     );
   }
 
-  // Find the selected version for display
-  const selectedVersion =
-    noteVersions.find((v) => v.id === selectedVersionId) || noteVersions[0];
-
   return (
     <div className="flex items-center justify-between px-14 py-2">
       {/* left side - title and version */}
@@ -61,25 +57,29 @@ const NoteToolbar = () => {
             });
           }}
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger className="p-1">
-            <VersionBadge version={selectedVersion} />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            {noteVersions.map((version: PrismaNoteVersion) => (
-              <DropdownMenuItem
-                key={version.id}
-                onClick={() => setSelectedVersionId(version.id)}
-              >
-                <VersionBadge version={version} />
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {selectedVersion && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="p-1">
+              <VersionBadge version={selectedVersion} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {noteVersions.map((version: PrismaNoteVersion) => (
+                <DropdownMenuItem
+                  key={version.id}
+                  onClick={() => setSelectedVersionId(version.id)}
+                >
+                  <VersionBadge version={version} />
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
       {/* right side - last edited & controls */}
       <div className="flex items-center space-x-2">
-        <TypographyMuted>{`Saved ${DateTime.fromISO(note.updated_at.toString()).toLocaleString(DateTime.DATE_SHORT)}`}</TypographyMuted>
+        {selectedVersion && (
+          <TypographyMuted>{`Saved ${DateTime.fromISO(selectedVersion.updated_at.toString()).toRelative()}`}</TypographyMuted>
+        )}
         <OptionsMenu
           options={[
             {

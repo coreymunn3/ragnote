@@ -1,12 +1,20 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+} from "react";
 import { useParams } from "next/navigation";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import { useGetNote } from "@/hooks/note/useGetNote";
+import { useGetNoteVersions } from "@/hooks/note/useGetNoteVersions";
 
 interface NoteVersionContextType {
   selectedVersionId: string | null;
   setSelectedVersionId: (versionId: string) => void;
+  selectedVersion: PrismaNoteVersion | null;
   noteVersions: PrismaNoteVersion[];
   note: Note | null;
   isLoading: boolean;
@@ -26,62 +34,26 @@ export function NoteVersionProvider({
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
     null
   );
+  const [selectedVersion, setSelectedVersion] =
+    useState<PrismaNoteVersion | null>(null);
 
   // Fetch the note data using the hook
   const {
     data: note,
-    isLoading,
-    error,
+    isLoading: noteLoading,
+    error: noteError,
   } = useGetNote(noteId, {
     enabled: !!noteId, // Only fetch if noteId exists
   });
 
-  const noteVersions: PrismaNoteVersion[] = [
-    {
-      id: "abcd",
-      note_id: noteId as string,
-      version_number: 4,
-      rich_text_content: {},
-      plain_text_content: "Current version content...",
-      is_published: true,
-      published_at: new Date(),
-      created_at: new Date(),
-      updated_at: new Date(),
-    },
-    {
-      id: "abc1",
-      note_id: noteId as string,
-      version_number: 3,
-      rich_text_content: {},
-      plain_text_content: "Version 3 content...",
-      is_published: true,
-      published_at: new Date(),
-      created_at: new Date(),
-      updated_at: new Date(),
-    },
-    {
-      id: "abc2",
-      note_id: noteId as string,
-      version_number: 2,
-      rich_text_content: {},
-      plain_text_content: "Version 2 content...",
-      is_published: true,
-      published_at: new Date(),
-      created_at: new Date(),
-      updated_at: new Date(),
-    },
-    {
-      id: "abc3",
-      note_id: noteId as string,
-      version_number: 1,
-      rich_text_content: {},
-      plain_text_content: "Version 1 content...",
-      is_published: true,
-      published_at: new Date(),
-      created_at: new Date(),
-      updated_at: new Date(),
-    },
-  ];
+  // Fetch the note versions using the hook
+  const {
+    data: noteVersions,
+    isLoading: versionsLoading,
+    error: versionsError,
+  } = useGetNoteVersions(noteId, {
+    enabled: !!noteId, // Only fetch if noteId exists
+  });
 
   // Set default selected version when note data is loaded
   useEffect(() => {
@@ -90,14 +62,37 @@ export function NoteVersionProvider({
     }
   }, [note, selectedVersionId]);
 
-  const contextValue: NoteVersionContextType = {
-    selectedVersionId,
-    setSelectedVersionId,
-    noteVersions,
-    note: note || null,
-    isLoading,
-    error: error || null,
-  };
+  useEffect(() => {
+    if (selectedVersionId && noteVersions) {
+      setSelectedVersion(
+        noteVersions.find((v) => v.id === selectedVersionId) || null
+      );
+    } else {
+      setSelectedVersion(null);
+    }
+  }, [selectedVersionId, noteVersions]);
+
+  const contextValue: NoteVersionContextType = useMemo(
+    () => ({
+      selectedVersionId,
+      setSelectedVersionId,
+      selectedVersion,
+      noteVersions: noteVersions || [],
+      note: note || null,
+      isLoading: noteLoading || versionsLoading,
+      error: noteError || versionsError || null,
+    }),
+    [
+      selectedVersionId,
+      selectedVersion,
+      noteVersions,
+      note,
+      noteLoading,
+      versionsLoading,
+      noteError,
+      versionsError,
+    ]
+  );
 
   console.log("context", contextValue);
 

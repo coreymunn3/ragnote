@@ -10,6 +10,7 @@ import {
   getNoteContentSchema,
   getNoteSchema,
   updateNoteTitleSchema,
+  getNoteVersionsSchema,
 } from "./noteValidators";
 import {
   Note,
@@ -527,7 +528,9 @@ export class NoteService {
       });
 
       if (!versionContent) {
-        throw new NotFoundError("Note version not found or access denied");
+        throw new NotFoundError(
+          `Note version not found for version ${validatedData.versionId} or access denied`
+        );
       }
 
       return {
@@ -574,7 +577,9 @@ export class NoteService {
       });
 
       if (!note) {
-        throw new NotFoundError("Note not found or access denied");
+        throw new NotFoundError(
+          `Note not found for note ${validatedData.noteId} or access denied`
+        );
       }
 
       // Enrich with preview
@@ -586,9 +591,38 @@ export class NoteService {
   );
 
   /**
-   * Get list of versions for a note
+   * Get list of versions for a note using its ID
    */
-  // public getNoteVersions = withErrorHandling(async () => {});
+  public getNoteVersions = withErrorHandling(
+    async (params: {
+      noteId: string;
+      userId: string;
+    }): Promise<PrismaNoteVersion[]> => {
+      const validatedData = getNoteVersionsSchema.parse(params);
+
+      // Get all versions of a note
+      const noteVersions = await prisma.note_version.findMany({
+        where: {
+          note_id: validatedData.noteId,
+          note: {
+            is_deleted: false,
+            user_id: validatedData.userId,
+          },
+        },
+        orderBy: {
+          version_number: "desc",
+        },
+      });
+
+      if (!noteVersions) {
+        throw new NotFoundError(
+          `Note Versions not found for note ${validatedData.noteId} or access denied`
+        );
+      }
+
+      return noteVersions;
+    }
+  );
 
   /**
    * Get the data for a specific note version

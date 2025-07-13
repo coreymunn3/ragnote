@@ -65,3 +65,8 @@ export const updateNoteTitleSchema = z.object({
       "Note title cannot be just whitespace"
     ),
 });
+
+export const getNoteVersionsSchema = z.object({
+  noteId: z.string().uuid(),
+  userId: z.string().uuid(),
+});
