@@ -162,7 +162,7 @@ model note_version {
   version_number     Int       @default(1)
   rich_text_content  Json      @default("[]") @db.Json // rich text content of this version - json for blocknote editor
   plain_text_content String    @default("") // plain text content of this version - for embedding & processing
-  is_published       Boolean   @default(true) // True if it's a draft, false if published
+  is_published       Boolean   @default(false) // False if it's a draft, true if published
   published_at       DateTime? @db.Timestamptz(3) // Null if it's a draft
   created_at         DateTime  @default(now()) @db.Timestamptz(3)
   updated_at         DateTime  @updatedAt @db.Timestamptz(3)
