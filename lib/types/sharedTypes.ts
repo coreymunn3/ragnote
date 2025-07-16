@@ -1,3 +1,4 @@
+import { PrismaClient } from "@prisma/client";
 import { UseQueryOptions, UseMutationOptions } from "@tanstack/react-query";
 
 export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
@@ -14,3 +15,13 @@ export type UseMutationHookOptions<
   TError = Error,
   TVariables = void,
 > = Omit<UseMutationOptions<TData, TError, TVariables>, "mutationFn">;
+
+/**
+ * Custom type for prisma transaction
+ * It's basically just an instance of the PrismaClient without any of the transaction types,
+ * since you can't have nested transactions
+ */
+export type PrismaTransaction = Omit<
+  PrismaClient,
+  "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
+>;
