@@ -12,7 +12,7 @@ import { TypographyMuted } from "./ui/typography";
 import { ForwardIcon, Trash2Icon } from "lucide-react";
 import EditableField from "./EditableField";
 import OptionsMenu from "./OptionsMenu";
-import { useNoteVersion } from "@/contexts/NoteVersionContext";
+import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import { DateTime } from "luxon";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import { Skeleton } from "./ui/skeleton";
@@ -25,9 +25,31 @@ const NoteToolbar = () => {
     selectedVersion,
     setSelectedVersionId,
     isLoading,
-  } = useNoteVersion();
+  } = useNoteVersionContext();
 
   const updateNoteMutation = useUpdateNote();
+
+  /**
+   * Soft delete a note
+   */
+  const handleDeleteNote = () => {
+    if (note) {
+      updateNoteMutation.mutate({ action: "delete", noteId: note.id });
+    }
+  };
+
+  /**
+   * Save the new note title
+   */
+  const handleSaveTitle = (newTitle: string) => {
+    if (note) {
+      updateNoteMutation.mutate({
+        noteId: note.id,
+        action: "update_title",
+        title: newTitle,
+      });
+    }
+  };
 
   if (isLoading || !note) {
     return (
@@ -50,13 +72,7 @@ const NoteToolbar = () => {
         <EditableField
           value={note.title}
           variant="bold"
-          onSave={(newTitle) => {
-            updateNoteMutation.mutate({
-              noteId: note.id,
-              action: "update_title",
-              title: newTitle,
-            });
-          }}
+          onSave={handleSaveTitle}
         />
         {selectedVersion && (
           <DropdownMenu>
@@ -91,7 +107,7 @@ const NoteToolbar = () => {
             {
               label: "Delete",
               icon: <Trash2Icon className="h-4 w-4" />,
-              onClick: () => console.log("TO DO - Delete Note"),
+              onClick: handleDeleteNote,
             },
           ]}
         />

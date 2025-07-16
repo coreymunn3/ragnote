@@ -3,7 +3,7 @@ import { useParams } from "next/navigation";
 import RichTextEditor from "@/components/RichTextEditor";
 import type { BlockNoteEditor } from "@blocknote/core";
 import { useSaveNoteVersionContent } from "@/hooks/note/useSaveNoteVersionContent";
-import { useNoteVersion } from "@/contexts/NoteVersionContext";
+import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { debounce } from "lodash";
 
@@ -11,7 +11,7 @@ const WebNotePageContent = () => {
   const params: { id: string } = useParams();
   const { id: noteId } = params;
   const { selectedVersionId, selectedVersion, isLoading, error } =
-    useNoteVersion();
+    useNoteVersionContext();
   const saveNoteVersionContent = useSaveNoteVersionContent();
 
   // TO DO - save editor content to a draft after debouncing for 3 seconds

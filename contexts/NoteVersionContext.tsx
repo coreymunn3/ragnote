@@ -123,7 +123,7 @@ export function NoteVersionProvider({
   );
 }
 
-export function useNoteVersion() {
+export function useNoteVersionContext() {
   const context = useContext(NoteVersionContext);
   if (context === undefined) {
     throw new Error("useNoteVersion must be used within a NoteVersionProvider");
