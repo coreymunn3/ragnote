@@ -12,6 +12,7 @@ import {
   updateNoteTitleSchema,
   getNoteVersionsSchema,
   getNoteVersionSchema,
+  publishNoteVersionSchema,
 } from "./noteValidators";
 import {
   Note,
@@ -25,6 +26,9 @@ import { transformToNote } from "./noteTransformers";
 import { SYSTEM_FOLDERS } from "@/lib/types/folderTypes";
 import { isSystemFolder } from "@/lib/utils/folderUtils";
 import { NoteTextExtractor } from "./noteTextExtractor";
+import { RagService } from "../rag/ragService";
+
+const ragService = new RagService();
 
 export class NoteService {
   /**
@@ -51,16 +55,16 @@ export class NoteService {
       folderId?: string;
     }): Promise<PrismaNote> => {
       // Validate the request data
-      const validatedData = createNoteSchema.parse(params);
+      const { userId, title, folderId } = createNoteSchema.parse(params);
 
       // Create the base note record and first version in a transaction
       const newNote = await prisma.$transaction(async (tx) => {
         // Validate folder ownership if folderId is provided
-        if (validatedData.folderId) {
+        if (folderId) {
           const folder = await tx.folder.findFirst({
             where: {
-              id: validatedData.folderId,
-              user_id: validatedData.userId,
+              id: folderId,
+              user_id: userId,
               is_deleted: false,
             },
           });
@@ -73,9 +77,9 @@ export class NoteService {
         // Create the note
         const note = await tx.note.create({
           data: {
-            title: validatedData.title,
-            user_id: validatedData.userId,
-            folder_id: validatedData.folderId,
+            title: title,
+            user_id: userId,
+            folder_id: folderId,
             is_deleted: false,
             is_pinned: false,
           },
@@ -235,14 +239,16 @@ export class NoteService {
   // Get all Shared Notes
   public getSharedNotes = withErrorHandling(
     async (userId: string): Promise<Note[]> => {
-      const validatedData = getSystemNotesSchema.parse({ userId });
+      const { userId: validatedUserId } = getSystemNotesSchema.parse({
+        userId,
+      });
 
       // Find all notes that have been shared with this user
       const sharedNotes = await prisma.note.findMany({
         where: {
           permissions: {
             some: {
-              shared_with_user_id: validatedData.userId,
+              shared_with_user_id: validatedUserId,
               active: true,
             },
           },
@@ -271,13 +277,15 @@ export class NoteService {
   // Get all Deleted Notes
   public getDeletedNotes = withErrorHandling(
     async (userId: string): Promise<Note[]> => {
-      const validatedData = getSystemNotesSchema.parse({ userId });
+      const { userId: validatedUserId } = getSystemNotesSchema.parse({
+        userId,
+      });
 
       // find all notes that have been soft deleted by this user
       const deletedNotes = await prisma.note.findMany({
         where: {
           is_deleted: true,
-          user_id: validatedData.userId,
+          user_id: validatedUserId,
         },
         include: {
           current_version: true,
@@ -303,13 +311,13 @@ export class NoteService {
   // toggle the note to pinned/unpinned
   public togglePinNote = withErrorHandling(
     async (params: { noteId: string; userId: string }): Promise<PrismaNote> => {
-      const validatedData = togglePinNoteSchema.parse(params);
+      const { noteId, userId } = togglePinNoteSchema.parse(params);
 
       // Verify the note exists and belongs to the user
       const note = await prisma.note.findFirst({
         where: {
-          id: validatedData.noteId,
-          user_id: validatedData.userId,
+          id: noteId,
+          user_id: userId,
           is_deleted: false,
         },
       });
@@ -321,7 +329,7 @@ export class NoteService {
       // toggle the notes pinned field
       const updatedNote = await prisma.note.update({
         where: {
-          id: validatedData.noteId,
+          id: noteId,
         },
         data: {
           is_pinned: !note.is_pinned,
@@ -346,13 +354,13 @@ export class NoteService {
       folderId: string;
       userId: string;
     }): Promise<PrismaNote> => {
-      const validatedData = moveNoteSchema.parse(params);
+      const { noteId, userId, folderId } = moveNoteSchema.parse(params);
 
       // Verify the note exists and belongs to the user
       const note = await prisma.note.findFirst({
         where: {
-          id: validatedData.noteId,
-          user_id: validatedData.userId,
+          id: noteId,
+          user_id: userId,
           is_deleted: false,
         },
       });
@@ -362,11 +370,11 @@ export class NoteService {
       }
 
       // Verify the target folder exists and belongs to the user (if not null)
-      if (validatedData.folderId) {
+      if (folderId) {
         const folder = await prisma.folder.findFirst({
           where: {
-            id: validatedData.folderId,
-            user_id: validatedData.userId,
+            id: folderId,
+            user_id: userId,
             is_deleted: false,
           },
         });
@@ -379,10 +387,10 @@ export class NoteService {
       // move the note
       const updatedNote = await prisma.note.update({
         where: {
-          id: validatedData.noteId,
+          id: noteId,
         },
         data: {
-          folder_id: validatedData.folderId,
+          folder_id: folderId,
         },
       });
       return updatedNote;
@@ -398,13 +406,13 @@ export class NoteService {
       title: string;
       userId: string;
     }): Promise<PrismaNote> => {
-      const validatedData = updateNoteTitleSchema.parse(params);
+      const { noteId, userId, title } = updateNoteTitleSchema.parse(params);
 
       // Verify the note exists and belongs to the user
       const note = await prisma.note.findFirst({
         where: {
-          id: validatedData.noteId,
-          user_id: validatedData.userId,
+          id: noteId,
+          user_id: userId,
           is_deleted: false,
         },
       });
@@ -416,10 +424,10 @@ export class NoteService {
       // Update the note title
       const updatedNote = await prisma.note.update({
         where: {
-          id: validatedData.noteId,
+          id: noteId,
         },
         data: {
-          title: validatedData.title,
+          title: title,
         },
       });
 
@@ -430,13 +438,13 @@ export class NoteService {
   // soft delete note
   public deleteNote = withErrorHandling(
     async (params: { noteId: string; userId: string }): Promise<PrismaNote> => {
-      const validatedData = deleteNoteSchema.parse(params);
+      const { noteId, userId } = deleteNoteSchema.parse(params);
 
       // Verify the note exists and belongs to the user
       const note = await prisma.note.findFirst({
         where: {
-          id: validatedData.noteId,
-          user_id: validatedData.userId,
+          id: noteId,
+          user_id: userId,
           is_deleted: false, // can't delete already deleted notes
         },
       });
@@ -448,7 +456,7 @@ export class NoteService {
       // Soft delete the note
       const deletedNote = await prisma.note.update({
         where: {
-          id: validatedData.noteId,
+          id: noteId,
         },
         data: {
           is_deleted: true,
@@ -513,13 +521,13 @@ export class NoteService {
       versionId: string;
       userId: string;
     }): Promise<NoteContent> => {
-      const validatedData = getNoteContentSchema.parse(params);
+      const { versionId, userId } = getNoteContentSchema.parse(params);
       const versionContent = await prisma.note_version.findFirst({
         where: {
-          id: validatedData.versionId,
+          id: versionId,
           note: {
             is_deleted: false,
-            user_id: validatedData.userId,
+            user_id: userId,
           },
         },
         select: {
@@ -530,7 +538,7 @@ export class NoteService {
 
       if (!versionContent) {
         throw new NotFoundError(
-          `Note version not found for version ${validatedData.versionId} or access denied`
+          `Note version not found for version ${versionId} or access denied`
         );
       }
 
@@ -546,21 +554,21 @@ export class NoteService {
    */
   public getNoteById = withErrorHandling(
     async (params: { noteId: string; userId: string }): Promise<Note> => {
-      const validatedData = getNoteSchema.parse(params);
+      const { noteId, userId } = getNoteSchema.parse(params);
 
       // Find note that user either owns OR has been shared with them
       const note = await prisma.note.findFirst({
         where: {
-          id: validatedData.noteId,
+          id: noteId,
           is_deleted: false,
           OR: [
             // User owns the note
-            { user_id: validatedData.userId },
+            { user_id: userId },
             // Note has been shared with the user
             {
               permissions: {
                 some: {
-                  shared_with_user_id: validatedData.userId,
+                  shared_with_user_id: userId,
                   active: true,
                 },
               },
@@ -579,7 +587,7 @@ export class NoteService {
 
       if (!note) {
         throw new NotFoundError(
-          `Note not found for note ${validatedData.noteId} or access denied`
+          `Note not found for note ${noteId} or access denied`
         );
       }
 
@@ -599,15 +607,15 @@ export class NoteService {
       noteId: string;
       userId: string;
     }): Promise<PrismaNoteVersion[]> => {
-      const validatedData = getNoteVersionsSchema.parse(params);
+      const { noteId, userId } = getNoteVersionsSchema.parse(params);
 
       // Get all versions of a note
       const noteVersions = await prisma.note_version.findMany({
         where: {
-          note_id: validatedData.noteId,
+          note_id: noteId,
           note: {
             is_deleted: false,
-            user_id: validatedData.userId,
+            user_id: userId,
           },
         },
         orderBy: {
@@ -617,7 +625,7 @@ export class NoteService {
 
       if (!noteVersions) {
         throw new NotFoundError(
-          `Note Versions not found for note ${validatedData.noteId} or access denied`
+          `Note Versions not found for note ${noteId} or access denied`
         );
       }
 
@@ -630,26 +638,47 @@ export class NoteService {
    */
   public getNoteVersion = withErrorHandling(
     async (params: { versionId: string; userId: string }) => {
-      const validatedData = getNoteVersionSchema.parse(params);
+      const { versionId, userId } = getNoteVersionSchema.parse(params);
 
       // get the version of the note
       const noteVersion = await prisma.note_version.findFirst({
         where: {
-          id: validatedData.versionId,
+          id: versionId,
           note: {
             is_deleted: false,
-            user_id: validatedData.userId,
+            user_id: userId,
           },
         },
       });
 
       if (!noteVersion) {
         throw new NotFoundError(
-          `Note Version not found for version ${validatedData.versionId} or access denied`
+          `Note Version not found for version ${versionId} or access denied`
         );
       }
 
       return noteVersion;
     }
   );
+
+  /**
+   * Publish a note version
+   */
+  // public publishNote = withErrorHandling(
+  //   async (params: { versionId: string; userId: string }) => {
+  //     // validate
+  //     const { versionId, userId } = publishNoteVersionSchema.parse(params);
+  //     // get the plain text content for this note version
+  //     const { plainTextContent } = await this.getNoteContent({
+  //       versionId,
+  //       userId,
+  //     });
+  //     // create embeddings using the ragservice
+  //     await ragService.createEmbeddingsForNoteVersion(
+  //       versionId,
+  //       plainTextContent
+  //     );
+  //     // set is_published and published_at in the note_version table
+  //   }
+  // );
 }
