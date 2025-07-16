@@ -27,6 +27,7 @@ import { SYSTEM_FOLDERS } from "@/lib/types/folderTypes";
 import { isSystemFolder } from "@/lib/utils/folderUtils";
 import { NoteTextExtractor } from "./noteTextExtractor";
 import { RagService } from "../rag/ragService";
+import { PrismaTransaction } from "@/lib/types/sharedTypes";
 
 const ragService = new RagService();
 
@@ -662,23 +663,116 @@ export class NoteService {
   );
 
   /**
-   * Publish a note version
+   * Copies the current version, and incriments the version number
    */
-  // public publishNote = withErrorHandling(
-  //   async (params: { versionId: string; userId: string }) => {
-  //     // validate
-  //     const { versionId, userId } = publishNoteVersionSchema.parse(params);
-  //     // get the plain text content for this note version
-  //     const { plainTextContent } = await this.getNoteContent({
-  //       versionId,
-  //       userId,
-  //     });
-  //     // create embeddings using the ragservice
-  //     await ragService.createEmbeddingsForNoteVersion(
-  //       versionId,
-  //       plainTextContent
-  //     );
-  //     // set is_published and published_at in the note_version table
-  //   }
-  // );
+  private incrimentNoteVersion = withErrorHandling(
+    async (
+      currentVersion: PrismaNoteVersion,
+      prismaTransaction?: PrismaTransaction
+    ) => {
+      // Determine which client to use - transaction or global prisma
+      const prismaObj = prismaTransaction || prisma;
+
+      // create a copy of the current version with:
+      // - not published
+      // - version number +1 higher
+      const nextVersion = await prismaObj.note_version.create({
+        data: {
+          note_id: currentVersion.note_id,
+          version_number: currentVersion.version_number + 1,
+          rich_text_content: currentVersion.rich_text_content,
+          plain_text_content: currentVersion.plain_text_content,
+          is_published: false,
+        },
+      });
+      return nextVersion;
+    }
+  );
+
+  /**
+   * Publish a note version and create a new draft version
+   * Returns both the published version and the new draft version
+   */
+  public publishNote = withErrorHandling(
+    async (params: {
+      versionId: string;
+      userId: string;
+    }): Promise<{
+      publishedVersion: PrismaNoteVersion;
+      nextVersion: PrismaNoteVersion;
+    }> => {
+      // Validate input parameters
+      const { versionId, userId } = publishNoteVersionSchema.parse(params);
+
+      // ensure the user has permissions to access this version
+      // (user checks occur within this method)
+      const currentVersion = await this.getNoteVersion({ versionId, userId });
+
+      // Check if the version is already published to prevent duplicate publishing
+      if (currentVersion.is_published) {
+        throw new Error("This version is already published");
+      }
+
+      // Get the plain text content for embedding
+      const { plainTextContent } = await this.getNoteContent({
+        versionId,
+        userId,
+      });
+
+      // Execute all operations in a transaction
+      const result = await prisma.$transaction(async (tx) => {
+        try {
+          // Create embeddings using the RAG service with the transaction
+          await ragService.createEmbeddedChunksForVersion(
+            versionId,
+            plainTextContent,
+            tx
+          );
+
+          // Update the version's published status
+          const publishedVersion = await tx.note_version.update({
+            where: {
+              id: versionId,
+            },
+            data: {
+              is_published: true,
+              published_at: new Date(),
+            },
+          });
+
+          // Create a new incremented version as the next draft
+          const nextVersion = await this.incrimentNoteVersion(
+            publishedVersion,
+            tx
+          );
+
+          // Update the note to point to the published version as current
+          await tx.note.update({
+            where: {
+              id: publishedVersion.note_id,
+            },
+            data: {
+              current_version_id: publishedVersion.id,
+            },
+          });
+
+          return {
+            publishedVersion,
+            nextVersion,
+          };
+        } catch (error) {
+          // If any error occurs, the transaction will automatically roll back
+          // All database operations including embedding inserts will be rolled back
+
+          // Log the error for debugging
+          console.error("Error in publishNote transaction:", error);
+
+          // Re-throw the error to be handled by withErrorHandling
+          throw error;
+        }
+      });
+
+      return result;
+    }
+  );
 }
