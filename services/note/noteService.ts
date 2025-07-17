@@ -693,7 +693,7 @@ export class NoteService {
    * Publish a note version and create a new draft version
    * Returns both the published version and the new draft version
    */
-  public publishNote = withErrorHandling(
+  public publishNoteVersion = withErrorHandling(
     async (params: {
       versionId: string;
       userId: string;
