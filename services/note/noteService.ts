@@ -750,7 +750,7 @@ export class NoteService {
               id: publishedVersion.note_id,
             },
             data: {
-              current_version_id: publishedVersion.id,
+              current_version_id: nextVersion.id,
             },
           });
 
