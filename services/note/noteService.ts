@@ -19,6 +19,7 @@ import {
   NoteContent,
   PrismaNote,
   PrismaNoteVersion,
+  PublishNoteResponse,
 } from "@/lib/types/noteTypes";
 import { NotFoundError } from "@/lib/errors/apiErrors";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
@@ -697,10 +698,7 @@ export class NoteService {
     async (params: {
       versionId: string;
       userId: string;
-    }): Promise<{
-      publishedVersion: PrismaNoteVersion;
-      nextVersion: PrismaNoteVersion;
-    }> => {
+    }): Promise<PublishNoteResponse> => {
       // Validate input parameters
       const { versionId, userId } = publishNoteVersionSchema.parse(params);
 

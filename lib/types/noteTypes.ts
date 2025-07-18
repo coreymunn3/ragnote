@@ -103,3 +103,8 @@ export type NoteContent = {
   plainTextContent: string;
   richTextContent: any;
 };
+
+export type PublishNoteResponse = {
+  publishedVersion: PrismaNoteVersion;
+  nextVersion: PrismaNoteVersion;
+};

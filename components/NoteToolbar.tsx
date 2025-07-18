@@ -16,6 +16,10 @@ import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import { DateTime } from "luxon";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import { Skeleton } from "./ui/skeleton";
+import { Button } from "./ui/button";
+import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
+import { toast } from "sonner";
+import AiButton from "./AiButton";
 
 const NoteToolbar = () => {
   const { id } = useParams();
@@ -23,11 +27,18 @@ const NoteToolbar = () => {
     note,
     noteVersions,
     selectedVersion,
+    selectedVersionId,
     setSelectedVersionId,
     isLoading,
   } = useNoteVersionContext();
 
   const updateNoteMutation = useUpdateNote();
+  const publishNoteVersionMutation = usePublishNoteVersion({
+    onSuccess: (data, variables, context) => {
+      const { nextVersion, publishedVersion } = data;
+      setSelectedVersionId(nextVersion.id);
+    },
+  });
 
   /**
    * Soft delete a note
@@ -35,6 +46,8 @@ const NoteToolbar = () => {
   const handleDeleteNote = () => {
     if (note) {
       updateNoteMutation.mutate({ action: "delete", noteId: note.id });
+    } else {
+      toast.error("Unable to Delete");
     }
   };
 
@@ -48,6 +61,22 @@ const NoteToolbar = () => {
         action: "update_title",
         title: newTitle,
       });
+    } else {
+      toast.error("Unable to Update Title");
+    }
+  };
+
+  /**
+   * Publish the note version
+   */
+  const handlePublishNote = () => {
+    if (note && selectedVersionId) {
+      publishNoteVersionMutation.mutate({
+        versionId: selectedVersionId,
+        noteId: note.id,
+      });
+    } else {
+      toast.error("Unable to Publish");
     }
   };
 
@@ -92,11 +121,16 @@ const NoteToolbar = () => {
           </DropdownMenu>
         )}
       </div>
-      {/* right side - last edited & controls */}
+      {/* right side - last edited, publish & controls */}
       <div className="flex items-center space-x-2">
         {selectedVersion && (
           <TypographyMuted>{`Saved ${DateTime.fromISO(selectedVersion.updated_at.toString()).toRelative()}`}</TypographyMuted>
         )}
+        <AiButton
+          label="Publish"
+          onClick={handlePublishNote}
+          isLoading={publishNoteVersionMutation.isPending}
+        />
         <OptionsMenu
           options={[
             {

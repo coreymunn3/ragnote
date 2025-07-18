@@ -2,6 +2,7 @@ import { Document, Settings, SentenceSplitter } from "llamaindex";
 import { OpenAIEmbedding, openai } from "@llamaindex/openai";
 import { prisma } from "@/lib/prisma";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
+import { RateLimitError } from "@/lib/errors/apiErrors";
 
 export class RagService {
   private static readonly SINGLE_CHUNK_THRESHOLD = 500;
@@ -82,6 +83,18 @@ export class RagService {
       );
     } catch (error) {
       console.error(`Error creating embeddings: ${error}`);
+
+      // Check for OpenAI API quota errors (429)
+      const errorStr = String(error);
+      if (
+        errorStr.includes("429") ||
+        errorStr.toLowerCase().includes("quota exceeded")
+      ) {
+        throw new RateLimitError(
+          "OpenAI API quota exceeded. Please check your plan and billing details."
+        );
+      }
+
       throw new Error(
         `Failed to create embeddings for version ${versionId}: ${error}`
       );
@@ -107,8 +120,8 @@ export class RagService {
       await Settings.embedModel.getTextEmbedding(plainTextContent);
 
     const savedChunk = await prismaObj.$executeRaw`
-      INSERT INTO note_chunk (note_version_id, chunk_index, chunk_text, embedding)
-      VALUES (${versionId}::uuid, 0, ${plainTextContent}, ${embedding}::vector(1536))
+      INSERT INTO note_chunk (id, note_version_id, chunk_index, chunk_text, embedding)
+      VALUES (gen_random_uuid(), ${versionId}::uuid, 0, ${plainTextContent}, ${embedding}::vector(1536))
       RETURNING *
     `;
 
@@ -147,8 +160,8 @@ export class RagService {
     const savedChunks = [];
     for (let i = 0; i < chunks.length; i++) {
       const savedChunk = await prismaObj.$executeRaw`
-        INSERT INTO note_chunk (note_version_id, chunk_index, chunk_text, embedding)
-        VALUES (${versionId}::uuid, ${i}, ${chunks[i]}, ${embeddings[i]}::vector(1536))
+        INSERT INTO note_chunk (id, note_version_id, chunk_index, chunk_text, embedding)
+        VALUES (gen_random_uuid(), ${versionId}::uuid, ${i}, ${chunks[i]}, ${embeddings[i]}::vector(1536))
         RETURNING *
       `;
       savedChunks.push(savedChunk);

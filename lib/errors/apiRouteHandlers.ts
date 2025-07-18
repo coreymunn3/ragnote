@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ApiError, InternalServerError } from "./apiErrors";
+import { ApiError, InternalServerError, RateLimitError } from "./apiErrors";
 
 /**
  * Higher-order function that wraps Next.js route handlers with automatic error handling
@@ -26,9 +26,37 @@ export function withApiErrorHandling<T extends any[]>(
 function handleApiError(error: unknown, context?: string): NextResponse {
   // Handle known API errors
   if (error instanceof ApiError) {
+    // Log more detailed info for certain error types
+    if (error instanceof RateLimitError) {
+      console.error(
+        `Rate limit exceeded in ${context || "unknown context"}:`,
+        error
+      );
+    }
+
     return NextResponse.json(
       { error: error.message },
       { status: error.statusCode }
+    );
+  }
+
+  // Handle errors that might contain "429" or "quota" in their message
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  if (
+    errorMessage.includes("429") ||
+    errorMessage.toLowerCase().includes("quota")
+  ) {
+    const rateLimitError = new RateLimitError(
+      "Rate limit exceeded. Please try again later."
+    );
+    console.error(
+      `Detected rate limit error in ${context || "unknown context"}:`,
+      error
+    );
+
+    return NextResponse.json(
+      { error: rateLimitError.message },
+      { status: rateLimitError.statusCode }
     );
   }
 

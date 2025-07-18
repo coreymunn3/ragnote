@@ -56,6 +56,15 @@ export class ConflictError extends ApiError {
   }
 }
 
+// 429 Too Many Requests / Rate Limit Exceeded
+export class RateLimitError extends ApiError {
+  constructor(message: string = "Rate limit exceeded") {
+    super(message, 429);
+    this.name = "RateLimitError";
+    Object.setPrototypeOf(this, RateLimitError.prototype);
+  }
+}
+
 // 500 Internal Server Error (for unhandled errors)
 export class InternalServerError extends ApiError {
   constructor(message: string = "Internal Server Error") {
