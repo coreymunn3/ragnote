@@ -12,6 +12,8 @@ const WebNotePageContent = () => {
   const { id: noteId } = params;
   const { selectedVersionId, selectedVersion, isLoading, error } =
     useNoteVersionContext();
+
+  console.log("version", selectedVersion);
   const saveNoteVersionContent = useSaveNoteVersionContent();
 
   // TO DO - save editor content to a draft after debouncing for 3 seconds
@@ -69,6 +71,7 @@ const WebNotePageContent = () => {
         key={selectedVersionId} // Force re-render when version changes
         initialContent={selectedVersion.rich_text_content}
         onChange={handleEditorChange}
+        readOnly={selectedVersion.is_published}
       />
     </div>
   );

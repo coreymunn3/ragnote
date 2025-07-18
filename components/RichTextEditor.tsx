@@ -8,6 +8,7 @@ import type { Theme } from "@blocknote/mantine";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
+import { AnimatedContainer } from "@/components/animations/AnimatedContainer";
 
 export interface RichTextEditorProps {
   initialContent?: any; // BlockNote JSON content
@@ -155,7 +156,16 @@ const RichTextEditor = dynamic(
       }, [resolvedTheme, isMounted]);
 
       return (
-        <div className={`h-full w-full ${className}`}>
+        <div className={`h-full w-full ${className} relative`}>
+          {readOnly && (
+            <div className="absolute top-2 right-14 z-10">
+              <AnimatedContainer withPresence>
+                <div className="px-2 py-1 text-xs rounded-md bg-muted text-muted-foreground">
+                  Read-only
+                </div>
+              </AnimatedContainer>
+            </div>
+          )}
           <BlockNoteView
             editor={editor}
             sideMenu={false}

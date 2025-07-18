@@ -89,6 +89,8 @@ const NoteToolbar = () => {
         </div>
         <div className="flex items-center space-x-2">
           <Skeleton className="h-8 w-32" />
+          <Skeleton className="h-8 w-24" />
+          <Skeleton className="h-8 w-10" />
         </div>
       </div>
     );
@@ -130,6 +132,12 @@ const NoteToolbar = () => {
           label="Publish"
           onClick={handlePublishNote}
           isLoading={publishNoteVersionMutation.isPending}
+          disabled={selectedVersion?.is_published}
+          tooltipText={
+            selectedVersion?.is_published
+              ? "This version is already published"
+              : undefined
+          }
         />
         <OptionsMenu
           options={[
