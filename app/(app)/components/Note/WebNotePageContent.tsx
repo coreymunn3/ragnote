@@ -13,7 +13,6 @@ const WebNotePageContent = () => {
   const { selectedVersionId, selectedVersion, isLoading, error } =
     useNoteVersionContext();
 
-  console.log("version", selectedVersion);
   const saveNoteVersionContent = useSaveNoteVersionContent();
 
   // TO DO - save editor content to a draft after debouncing for 3 seconds
