@@ -26,7 +26,7 @@ const WebNotePageContent = () => {
         richTextContent: editor.document,
       });
     }
-  }, 3000);
+  }, 1000);
 
   // Show error state if there's an error loading data
   if (error) {
