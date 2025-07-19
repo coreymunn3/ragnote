@@ -6,6 +6,7 @@ import { useSaveNoteVersionContent } from "@/hooks/note/useSaveNoteVersionConten
 import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { debounce } from "lodash";
+import MessageAlert from "@/components/MessageAlert";
 
 const WebNotePageContent = () => {
   const params: { id: string } = useParams();
@@ -27,19 +28,6 @@ const WebNotePageContent = () => {
     }
   }, 1000);
 
-  // Show error state if there's an error loading data
-  if (error) {
-    return (
-      <div className="pt-8">
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-          <p className="text-red-800 dark:text-red-200">
-            Error loading note versions: {error.message}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   // Show loading state while data is being fetched
   if (isLoading) {
     return (
@@ -49,28 +37,54 @@ const WebNotePageContent = () => {
     );
   }
 
-  // Show message if no version is selected
-  if (!selectedVersion || !selectedVersionId) {
+  // If there's an error in any of our queries, lets show an error alert
+  if (error.noteError || error.selectedVersionError || error.versionsError) {
     return (
       <div className="pt-8">
-        <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
-          <p className="text-yellow-800 dark:text-yellow-200">
-            No version selected
-          </p>
-        </div>
+        <MessageAlert
+          variant="error"
+          title="Error Loading Note"
+          description={`Error loading note versions: ${error.noteError?.message || error.selectedVersionError?.message || error.versionsError?.message}`}
+        />
       </div>
     );
   }
 
-  // Only render the editor when we have a valid selected version
-  // This prevents the double skeleton issue
+  // Show message if no note is loaded
+  // though we should be redirected to notFound before ever seeing this
+  if (!note) {
+    return (
+      <div className="pt-8">
+        <MessageAlert
+          variant="error"
+          title="Error Loading Note"
+          description="Note ID did not resolve to a note."
+        />
+      </div>
+    );
+  }
+
+  // Show message if no version is selected
+  // though we should be redirected to notFound before ever seeing this
+  if (!selectedVersion || !selectedVersionId) {
+    return (
+      <div className="pt-8">
+        <MessageAlert
+          variant="warning"
+          title="No Version Selected"
+          description="No version is currently selected for this note."
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="pt-8">
       <RichTextEditor
         key={selectedVersionId} // Force re-render when version changes
         initialContent={selectedVersion.rich_text_content}
         onChange={handleEditorChange}
-        readOnly={selectedVersion.is_published || note?.is_deleted}
+        readOnly={selectedVersion.is_published || note.is_deleted}
       />
     </div>
   );

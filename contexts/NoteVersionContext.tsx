@@ -6,11 +6,12 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import { useParams } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import { useGetNote } from "@/hooks/note/useGetNote";
 import { useGetNoteVersions } from "@/hooks/note/useGetNoteVersions";
 import { useGetNoteVersion } from "@/hooks/note/useGetNoteVersion";
+import { isNotFoundError } from "@/lib/errors/handleClientSideApiError";
 
 interface NoteVersionContextType {
   selectedVersionId: string | null;
@@ -19,7 +20,11 @@ interface NoteVersionContextType {
   noteVersions: PrismaNoteVersion[];
   note: Note | null;
   isLoading: boolean;
-  error: Error | null;
+  error: {
+    noteError: Error | null;
+    versionsError: Error | null;
+    selectedVersionError: Error | null;
+  };
 }
 
 const NoteVersionContext = createContext<NoteVersionContextType | undefined>(
@@ -44,6 +49,16 @@ export function NoteVersionProvider({
   } = useGetNote(noteId, {
     enabled: !!noteId, // Only fetch if noteId exists
   });
+
+  // Check for 404 errors and redirect to not-found page
+  useEffect(() => {
+    if (!!noteError && isNotFoundError(noteError)) {
+      notFound();
+    }
+    if (!!selectedVersionError && isNotFoundError(selectedVersionError)) {
+      notFound();
+    }
+  }, [noteError]);
 
   // Fetch the note versions using the hook
   const {
@@ -100,7 +115,11 @@ export function NoteVersionProvider({
       noteVersions: noteVersions || [],
       note: note || null,
       isLoading: noteLoading || versionsLoading || selectedVersionLoading,
-      error: noteError || versionsError || selectedVersionError || null,
+      error: {
+        noteError,
+        versionsError,
+        selectedVersionError,
+      },
     }),
     [
       selectedVersionId,
