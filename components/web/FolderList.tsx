@@ -46,9 +46,9 @@ const FolderList = ({
   // show a folder Icon for system folders and home
   const getFolderIcon = (folderId: string) => {
     switch (folderId) {
-      case "system:deleted":
+      case "system_deleted":
         return <Trash2Icon className="h-4 w-4" />;
-      case "system:shared":
+      case "system_shared":
         return <FolderSyncIcon className="h-4 w-4" />;
       case "home":
         return <HouseIcon className="h-4 w-4" />;

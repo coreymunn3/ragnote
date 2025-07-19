@@ -13,7 +13,7 @@ export const createNoteSchema = z.object({
 
 export const getNotesInFolderSchema = z.object({
   userId: z.string().uuid(),
-  folderId: z.string().min(1), // not UUID to allow for system folders "system:shared", "system:deleted", etc
+  folderId: z.string().min(1), // not UUID to allow for system folders "system_shared", "system_deleted", etc
 });
 
 export const getSystemNotesSchema = z.object({
@@ -50,6 +50,7 @@ export const getNoteContentSchema = z.object({
 export const getNoteSchema = z.object({
   noteId: z.string().uuid(),
   userId: z.string().uuid(),
+  includeDeleted: z.boolean().optional(),
 });
 
 export const updateNoteTitleSchema = z.object({

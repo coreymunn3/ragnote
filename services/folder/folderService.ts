@@ -178,6 +178,8 @@ export class FolderService {
   public getFolderById = withErrorHandling(
     async (folderId: string, userId: string): Promise<FolderWithNotes> => {
       const validatedData = getFolderByIdSchema.parse({ folderId, userId });
+      console.log("###", validatedData);
+      console.log(isSystemFolder(validatedData.folderId));
 
       // Check if this is a system folder
       if (isSystemFolder(validatedData.folderId)) {

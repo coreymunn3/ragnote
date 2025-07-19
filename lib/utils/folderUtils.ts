@@ -7,7 +7,7 @@ import { NotFoundError } from "@/lib/errors/apiErrors";
  * @returns True if the folder ID is a system folder
  */
 export function isSystemFolder(folderId: string): folderId is SystemFolderId {
-  return folderId.startsWith("system:");
+  return folderId.startsWith("system_");
 }
 
 /**

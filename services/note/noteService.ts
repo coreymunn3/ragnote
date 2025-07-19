@@ -488,7 +488,7 @@ export class NoteService {
           id: versionId,
           note: {
             user_id: userId,
-            is_deleted: false,
+            is_deleted: false, // Keep this filter to prevent editing deleted notes
           },
         },
       });
@@ -528,7 +528,6 @@ export class NoteService {
         where: {
           id: versionId,
           note: {
-            is_deleted: false,
             user_id: userId,
           },
         },
@@ -562,7 +561,6 @@ export class NoteService {
       const note = await prisma.note.findFirst({
         where: {
           id: noteId,
-          is_deleted: false,
           OR: [
             // User owns the note
             { user_id: userId },
@@ -616,7 +614,6 @@ export class NoteService {
         where: {
           note_id: noteId,
           note: {
-            is_deleted: false,
             user_id: userId,
           },
         },
@@ -647,7 +644,6 @@ export class NoteService {
         where: {
           id: versionId,
           note: {
-            is_deleted: false,
             user_id: userId,
           },
         },

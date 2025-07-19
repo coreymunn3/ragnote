@@ -10,7 +10,7 @@ import { debounce } from "lodash";
 const WebNotePageContent = () => {
   const params: { id: string } = useParams();
   const { id: noteId } = params;
-  const { selectedVersionId, selectedVersion, isLoading, error } =
+  const { selectedVersionId, selectedVersion, note, isLoading, error } =
     useNoteVersionContext();
 
   const saveNoteVersionContent = useSaveNoteVersionContent();
@@ -70,7 +70,7 @@ const WebNotePageContent = () => {
         key={selectedVersionId} // Force re-render when version changes
         initialContent={selectedVersion.rich_text_content}
         onChange={handleEditorChange}
-        readOnly={selectedVersion.is_published}
+        readOnly={selectedVersion.is_published || note?.is_deleted}
       />
     </div>
   );

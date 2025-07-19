@@ -3,15 +3,15 @@ import { Expand } from "./sharedTypes";
 
 export const SYSTEM_FOLDERS = {
   SHARED: {
-    id: "system:shared",
+    id: "system_shared",
     displayName: "Shared With You",
   },
   DELETED: {
-    id: "system:deleted",
+    id: "system_deleted",
     displayName: "Recently Deleted",
   },
 };
-export type SystemFolderId = "system:shared" | "system:deleted";
+export type SystemFolderId = "system_shared" | "system_deleted";
 
 export type PrismaFolder = {
   id: string;
