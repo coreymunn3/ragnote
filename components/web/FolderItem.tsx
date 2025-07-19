@@ -27,8 +27,23 @@ const FolderItem = ({
 }: FolderItemProps) => {
   const containsNotes = notes.length > 0;
 
-  const toggleOpen = () => {
-    if (containsNotes && onToggle) onToggle();
+  // This will toggle the folder open when clicking the folder area,
+  // but won't toggle it closed when clicking again (navigation only)
+  const handleFolderClick = () => {
+    // Only toggle to open if it's not already open
+    // No toggling to close - this lets the folder stay open when navigating
+    if (!isOpen && containsNotes && onToggle) {
+      onToggle();
+    }
+  };
+
+  // Separate handler for chevron click that toggles both ways
+  const handleToggleFolderOpen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    // Always toggle regardless of current state
+    if (onToggle) onToggle();
   };
 
   return (
@@ -36,41 +51,44 @@ const FolderItem = ({
       className={`p-1 rounded-md ${
         isOpen ? "bg-primary/20" : ""
       } hover:bg-primary/20 transition-colors duration-200`}
-      onClick={toggleOpen}
+      onClick={handleFolderClick}
     >
-      <Button
-        className="p-2 flex justify-between items-center w-full hover:bg-transparent dark:hover:bg-transparent"
-        variant={"ghost"}
-        asChild
-      >
-        <Link href={href}>
-          {/* Folder Name and Icon */}
-          <div className="flex items-center space-x-2">
-            {Icon}
-            <span>{`${folder_name} ${showCount ? `(${notes.length})` : ""} `}</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            {allowCreateNote && (
-              <div>
-                <CreateNote
-                  classname="hover:bg-transparent"
-                  folderId={folderId}
-                />
-              </div>
-            )}
-            {/* Expand Icon */}
-            <div>
-              {containsNotes ? (
-                <ChevronRightIcon
-                  className={`h-4 w-4 transition-transform duration-200 ${isOpen && "rotate-90"}`}
-                />
-              ) : (
-                <div className="h-4 w-4"></div>
+      <div className="flex items-center">
+        <Button
+          className="p-2 flex-grow flex justify-between items-center hover:bg-transparent dark:hover:bg-transparent"
+          variant={"ghost"}
+          asChild
+        >
+          <Link href={href}>
+            {/* Folder Name and Icon */}
+            <div className="flex items-center space-x-2">
+              {Icon}
+              <span>{`${folder_name} ${showCount ? `(${notes.length})` : ""} `}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              {allowCreateNote && (
+                <div>
+                  <CreateNote
+                    classname="hover:bg-transparent"
+                    folderId={folderId}
+                  />
+                </div>
               )}
             </div>
+          </Link>
+        </Button>
+
+        {/* Expand Icon - Completely outside Link to prevent navigation */}
+        {containsNotes ? (
+          <div className="p-2 cursor-pointer" onClick={handleToggleFolderOpen}>
+            <ChevronRightIcon
+              className={`h-4 w-4 transition-transform duration-200 ${isOpen && "rotate-90"}`}
+            />
           </div>
-        </Link>
-      </Button>
+        ) : (
+          <div className="p-2 w-8"></div>
+        )}
+      </div>
       <AnimatedExpandable isOpen={isOpen}>
         <div className="p-1 flex flex-col space-y-1">
           {notes.map((note: Note, index) => (
