@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { handleClientSideApiError } from "@/lib/errors/handleClientSideApiError";
+import { handleClientSideMutationError } from "@/lib/errors/handleClientSideMutationError";
 import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
 import axios from "axios";
 import { toast } from "sonner";
@@ -46,9 +46,8 @@ export function usePublishNoteVersion(options?: usePublishNoteVersionOptions) {
       options?.onSuccess?.(updatedNote, variables, context);
     },
     onError: (error, variables, context) => {
-      // Show a generic message to the user
-      toast.error("Failed to publish note version. Please try again later.");
-
+      // handle the error
+      handleClientSideMutationError(error, "Failed to publish note");
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },

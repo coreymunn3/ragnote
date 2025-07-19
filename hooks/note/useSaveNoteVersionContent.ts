@@ -1,10 +1,10 @@
-import { handleClientSideApiError } from "@/lib/errors/handleClientSideApiError";
 import {
   PrismaNoteVersion,
   UpdateNoteVersionContentApiRequest,
 } from "@/lib/types/noteTypes";
 import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { handleClientSideMutationError } from "@/lib/errors/handleClientSideMutationError";
 import axios from "axios";
 import { toast } from "sonner";
 
@@ -45,7 +45,7 @@ export function useSaveNoteVersionContent(options?: useSaveNoteVersionOptions) {
       options?.onSuccess?.(updatedNote, variables, context);
     },
     onError: (error, variables, context) => {
-      handleClientSideApiError(error, "Failed to save note");
+      handleClientSideMutationError(error, "Failed to save note");
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },

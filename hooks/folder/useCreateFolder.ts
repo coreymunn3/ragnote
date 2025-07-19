@@ -3,7 +3,7 @@ import axios from "axios";
 import { CreateFolderApiRequest, PrismaFolder } from "@/lib/types/folderTypes";
 import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
 import { toast } from "sonner";
-import { handleClientSideApiError } from "@/lib/errors/handleClientSideApiError";
+import { handleClientSideMutationError } from "@/lib/errors/handleClientSideMutationError";
 
 async function createFolder(
   data: CreateFolderApiRequest
@@ -33,7 +33,7 @@ export function useCreateFolder(options?: UseCreateFolderOptions) {
       options?.onSuccess?.(newFolder, variables, context);
     },
     onError: (error, variables, context) => {
-      handleClientSideApiError(error, "Failed to create folder");
+      handleClientSideMutationError(error, "Failed to create folder");
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },

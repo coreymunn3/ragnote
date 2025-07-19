@@ -1,7 +1,7 @@
-import { handleClientSideApiError } from "@/lib/errors/handleClientSideApiError";
 import { CreateNoteApiRequest, PrismaNote } from "@/lib/types/noteTypes";
 import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { handleClientSideMutationError } from "@/lib/errors/handleClientSideMutationError";
 import axios from "axios";
 import { toast } from "sonner";
 
@@ -33,7 +33,7 @@ export function useCreateNote(options?: UseCreateNoteOptions) {
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
-      handleClientSideApiError(error, "Failed to create note");
+      handleClientSideMutationError(error, "Failed to create note");
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },

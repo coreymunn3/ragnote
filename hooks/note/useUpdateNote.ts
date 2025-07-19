@@ -1,4 +1,4 @@
-import { handleClientSideApiError } from "@/lib/errors/handleClientSideApiError";
+import { handleClientSideMutationError } from "@/lib/errors/handleClientSideMutationError";
 import { PrismaNote, UpdateNoteApiRequest } from "@/lib/types/noteTypes";
 import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -148,7 +148,7 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
         );
       }
 
-      handleClientSideApiError(error, "Failed to update note");
+      handleClientSideMutationError(error, "Failed to update note");
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },

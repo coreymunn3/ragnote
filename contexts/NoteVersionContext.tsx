@@ -11,7 +11,7 @@ import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import { useGetNote } from "@/hooks/note/useGetNote";
 import { useGetNoteVersions } from "@/hooks/note/useGetNoteVersions";
 import { useGetNoteVersion } from "@/hooks/note/useGetNoteVersion";
-import { isNotFoundError } from "@/lib/errors/handleClientSideApiError";
+import { isNotFoundError } from "@/lib/errors/utils";
 
 interface NoteVersionContextType {
   selectedVersionId: string | null;

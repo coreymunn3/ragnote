@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
 import axios from "axios";
 import { toast } from "sonner";
-import { handleClientSideApiError } from "@/lib/errors/handleClientSideApiError";
+import { handleClientSideMutationError } from "@/lib/errors/handleClientSideMutationError";
 
 async function deleteFolder(data: { folderId: string }): Promise<PrismaFolder> {
   const res = await axios.delete<PrismaFolder>(`/api/folder/${data.folderId}`);
@@ -31,7 +31,7 @@ export function useDeleteFolder(options?: UseDeleteFolderOptions) {
       options?.onSuccess?.(deletedFolder, variables, context);
     },
     onError: (error, variables, context) => {
-      handleClientSideApiError(error, "Failed to delete folder");
+      handleClientSideMutationError(error, "Failed to delete folder");
       // Custom onError callback
       options?.onError?.(error, variables, context);
     },
