@@ -14,7 +14,6 @@ const getHandler = async (
 ) => {
   auth.protect();
   const { folderId } = await params;
-  console.log("api", folderId);
   const dbUser = await getDbUser();
   const folder = await folderService.getFolderById(folderId, dbUser.id);
   return NextResponse.json(folder, { status: 200 });
