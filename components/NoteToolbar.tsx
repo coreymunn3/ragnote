@@ -126,7 +126,19 @@ const NoteToolbar = () => {
       {/* right side - last edited, publish & controls */}
       <div className="flex items-center space-x-2">
         {selectedVersion && (
-          <TypographyMuted>{`Saved ${DateTime.fromISO(selectedVersion.updated_at.toString()).toRelative()}`}</TypographyMuted>
+          // if published show published at time, otherwise use updated_at to get last saved time
+          <TypographyMuted>{`
+            ${selectedVersion.is_published ? "published" : "last saved"} 
+            ${
+              selectedVersion.is_published && selectedVersion.published_at
+                ? DateTime.fromISO(
+                    selectedVersion.published_at.toString()
+                  ).toRelative()
+                : DateTime.fromISO(
+                    selectedVersion.updated_at.toString()
+                  ).toRelative()
+            }
+          `}</TypographyMuted>
         )}
         <AiButton
           label="Publish"
