@@ -8,6 +8,19 @@ import { withApiErrorHandling } from "@/lib/errors/apiRouteHandlers";
 const noteService = new NoteService();
 
 /**
+ * Get all notes for this user
+ */
+const getHandler = async (req: NextRequest) => {
+  auth.protect();
+  const dbUser = await getDbUser();
+  const notes = await noteService.getAllNotesForUser(dbUser.id);
+  return NextResponse.json(notes, {
+    status: 200,
+  });
+};
+export const GET = withApiErrorHandling(getHandler, "GET /api/note");
+
+/**
  * Create a Note
  */
 const postHandler = async (req: NextRequest) => {

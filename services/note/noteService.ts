@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import {
   createNoteSchema,
   getNotesInFolderSchema,
-  getSystemNotesSchema,
+  userIdSchema,
   moveNoteSchema,
   togglePinNoteSchema,
   deleteNoteSchema,
@@ -135,6 +135,40 @@ export class NoteService {
   }
 
   /**
+   * Get all the notes for a user given user id
+   */
+  public getAllNotesForUser = withErrorHandling(
+    async (userId: string): Promise<Note[]> => {
+      const { userId: validatedUserId } = userIdSchema.parse({
+        userId,
+      });
+      // get all notes for this user
+      const notes = await prisma.note.findMany({
+        where: {
+          user_id: validatedUserId,
+          is_deleted: false,
+        },
+        include: {
+          current_version: true,
+          _count: {
+            select: {
+              permissions: true,
+            },
+          },
+        },
+      });
+      // enrich with previews
+      const notesWithPreviews = await this.enrichNotesWithPreviews(notes);
+
+      // transform the notes into the correct type and structure
+      const transformedNotes = notesWithPreviews.map((note) =>
+        transformToNote(note)
+      );
+      return transformedNotes;
+    }
+  );
+
+  /**
    * Get all the notes in a folder
    */
   public getAllNotesInFolder = withErrorHandling(
@@ -174,29 +208,6 @@ export class NoteService {
         transformToNote(note)
       );
       return transformedNotes;
-    }
-  );
-
-  /**
-   * Get the rich text content given a note version
-   */
-  public getNoteVersionContent = withErrorHandling(
-    async (versionId: string): Promise<any> => {
-      // get the note content from the version ID
-      const versionContent = await prisma.note_version.findUnique({
-        where: {
-          id: versionId,
-        },
-        select: {
-          rich_text_content: true,
-        },
-      });
-
-      if (!versionContent) {
-        throw new NotFoundError("Note version not found");
-      }
-
-      return versionContent.rich_text_content;
     }
   );
 
@@ -241,7 +252,7 @@ export class NoteService {
   // Get all Shared Notes
   public getSharedNotes = withErrorHandling(
     async (userId: string): Promise<Note[]> => {
-      const { userId: validatedUserId } = getSystemNotesSchema.parse({
+      const { userId: validatedUserId } = userIdSchema.parse({
         userId,
       });
 
@@ -279,7 +290,7 @@ export class NoteService {
   // Get all Deleted Notes
   public getDeletedNotes = withErrorHandling(
     async (userId: string): Promise<Note[]> => {
-      const { userId: validatedUserId } = getSystemNotesSchema.parse({
+      const { userId: validatedUserId } = userIdSchema.parse({
         userId,
       });
 

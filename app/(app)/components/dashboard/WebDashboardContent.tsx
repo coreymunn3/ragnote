@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardDescription,
@@ -7,92 +9,12 @@ import {
 import WidgetList from "@/components/web/WidgetList";
 import NoteWidget from "@/components/web/NoteWidget";
 import ConversationWidget from "@/components/web/ConversationWidget";
-import { currentUser } from "@clerk/nextjs/server";
 import { Calendar1Icon, MessageSquareIcon, PinIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
+import { useGetNotes } from "@/hooks/note/useGetNotes";
 
-const WebDashboardContent = async () => {
-  const user = await currentUser();
-
-  // TO DO - get all notes in the folder ordered by most recent
-  // ...and eventually, all files as a separate folder
-  const notes = [
-    {
-      id: "1",
-      title: "Trips I want to take in 2025",
-      current_version: {
-        id: "abcd",
-        version_number: 7,
-        is_published: true,
-        published_at: new Date(),
-      },
-      is_pinned: true,
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      shared_with_count: 1,
-    },
-    {
-      id: "2",
-      title: "Beef Stew Recipe",
-      current_version: {
-        id: "abcd",
-        version_number: 2,
-        is_published: true,
-        published_at: new Date(),
-      },
-      is_pinned: false,
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      shared_with_count: 1,
-    },
-    {
-      id: "3",
-      title: "Groceries",
-      current_version: {
-        id: "abcd",
-        version_number: 4,
-        is_published: false,
-        published_at: null,
-      },
-      is_pinned: false,
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      shared_with_count: 3,
-    },
-    {
-      id: "4",
-      title: "Test Note",
-      current_version: {
-        id: "abcd",
-        version_number: 1,
-        is_published: false,
-        published_at: null,
-      },
-      is_pinned: false,
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      shared_with_count: 3,
-    },
-    {
-      id: "5",
-      title: "Test Note 2",
-      current_version: {
-        id: "abcd",
-        version_number: 1,
-        is_published: false,
-        published_at: null,
-      },
-      is_pinned: false,
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      shared_with_count: 3,
-    },
-  ];
+const WebDashboardContent = () => {
+  const { data: notes, isLoading, error } = useGetNotes();
 
   const conversations = [
     {
@@ -117,9 +39,10 @@ const WebDashboardContent = async () => {
   return (
     // TO DO - transfer this max w and margin auto into a layout. that should be universal
     <div>
-      <AnimatedTypography variant="h1">{`Welcome, ${user?.firstName}!`}</AnimatedTypography>
+      <AnimatedTypography variant="h1">{`Welcome!`}</AnimatedTypography>
       <div className="flex flex-col space-y-12">
         {/* global chat input */}
+        {/* TO DO */}
         <AnimatedListItem index={0} animation="fadeIn">
           <Card className="min-h-[200px]">
             <CardHeader>
@@ -134,8 +57,8 @@ const WebDashboardContent = async () => {
         <AnimatedListItem index={1} animation="fadeIn">
           <div>
             <WidgetList
-              items={notes}
-              renderItem={(note) => <NoteWidget note={note} />}
+              items={notes?.filter((note) => note.is_pinned) || []}
+              renderItem={(note) => <NoteWidget note={note} pinned={false} />}
               title={"Pinned"}
               icon={<PinIcon className="h-6 w-6 text-muted-foreground" />}
               delay={1}
@@ -146,7 +69,13 @@ const WebDashboardContent = async () => {
         <AnimatedListItem index={2} animation="fadeIn">
           <div>
             <WidgetList
-              items={notes}
+              items={
+                notes?.sort(
+                  (a, b) =>
+                    new Date(b.current_version.updated_at).getTime() -
+                    new Date(a.current_version.updated_at).getTime()
+                ) || []
+              }
               renderItem={(note) => <NoteWidget note={note} />}
               title={"Recent"}
               icon={<Calendar1Icon className="h-6 w-6 text-muted-foreground" />}

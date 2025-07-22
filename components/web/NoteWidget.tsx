@@ -23,6 +23,7 @@ import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import SelectDialog, { SelectOption } from "../dialogs/SelectDialog";
 import { useState } from "react";
+import { DateTime } from "luxon";
 
 interface NoteWidgetProps {
   note: Note;
@@ -153,7 +154,11 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
             <div className="flex justify-between w-full">
               {/* Last Edited */}
               <div className="flex items-center text-muted-foreground">
-                <TypographySmall>3 days ago</TypographySmall>
+                <TypographySmall>
+                  {DateTime.fromJSDate(
+                    new Date(note.current_version.updated_at)
+                  ).toRelative()}
+                </TypographySmall>
               </div>
               {/* Shared With */}
               {note.shared_with_count > 0 && (

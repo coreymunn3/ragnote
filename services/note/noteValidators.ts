@@ -11,13 +11,13 @@ export const createNoteSchema = z.object({
     .refine((name) => name.length > 0, "Note name cannot be just whitespace"),
 });
 
+export const userIdSchema = z.object({
+  userId: z.string().uuid(),
+});
+
 export const getNotesInFolderSchema = z.object({
   userId: z.string().uuid(),
   folderId: z.string().min(1), // not UUID to allow for system folders "system_shared", "system_deleted", etc
-});
-
-export const getSystemNotesSchema = z.object({
-  userId: z.string().uuid(),
 });
 
 export const togglePinNoteSchema = z.object({

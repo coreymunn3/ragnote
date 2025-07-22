@@ -5,6 +5,7 @@ export type Note = {
   title: string;
   current_version: {
     id: string;
+    updated_at: Date;
     version_number: number;
     is_published: boolean;
     published_at: Date | null;
@@ -89,6 +90,7 @@ export type PrismaNoteWithVersionPreview = {
   updated_at: Date;
   current_version: {
     id: string;
+    updated_at: Date;
     version_number: number;
     is_published: boolean;
     published_at: Date | null;

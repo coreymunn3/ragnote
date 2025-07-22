@@ -13,6 +13,7 @@ export const transformToNote = (note: PrismaNoteWithVersionPreview): Note => {
     title: note.title,
     current_version: {
       id: note.current_version.id,
+      updated_at: note.current_version.updated_at,
       version_number: note.current_version.version_number,
       is_published: note.current_version.is_published,
       published_at: note.current_version.published_at,
