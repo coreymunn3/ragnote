@@ -7,6 +7,9 @@ import { withApiErrorHandling } from "@/lib/errors/apiRouteHandlers";
 
 const folderService = new FolderService();
 
+/**
+ * Create a new folder
+ */
 const postHandler = async (req: NextRequest) => {
   auth.protect();
   const dbUser = await getDbUser();
@@ -20,6 +23,9 @@ const postHandler = async (req: NextRequest) => {
 
 export const POST = withApiErrorHandling(postHandler, "POST /api/folder");
 
+/**
+ * Get all folders for this user
+ */
 const getHandler = async (req: NextRequest) => {
   auth.protect();
   const dbUser = await getDbUser();
