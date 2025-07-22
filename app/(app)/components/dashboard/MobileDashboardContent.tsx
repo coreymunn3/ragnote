@@ -1,4 +1,11 @@
-const MobileDashboardContent = () => {
+"use client";
+import { Note } from "@/lib/types/noteTypes";
+
+interface MobileDashboardContentProps {
+  notes: Note[];
+}
+
+const MobileDashboardContent = ({ notes }: MobileDashboardContentProps) => {
   return (
     <div>
       {/* TO DO - render recent notes */}

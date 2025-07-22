@@ -23,7 +23,7 @@ export default async function FolderPage({
   }
   // get the database user
   const dbUser = await getDbUser();
-  // get the folder
+  // get the folder - initial data for folder page
   let folder;
   try {
     folder = await folderService.getFolderById(id, dbUser.id);

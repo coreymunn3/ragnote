@@ -12,9 +12,18 @@ import ConversationWidget from "@/components/web/ConversationWidget";
 import { Calendar1Icon, MessageSquareIcon, PinIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetNotes } from "@/hooks/note/useGetNotes";
+import { Note } from "@/lib/types/noteTypes";
 
-const WebDashboardContent = () => {
-  const { data: notes, isLoading, error } = useGetNotes();
+interface WebDashboardContentProps {
+  notes: Note[];
+}
+
+const WebDashboardContent = ({ notes }: WebDashboardContentProps) => {
+  const userNotes = useGetNotes({
+    initialData: notes,
+    staleTime: 0,
+    refetchOnMount: true,
+  });
 
   const conversations = [
     {
@@ -37,7 +46,6 @@ const WebDashboardContent = () => {
     },
   ];
   return (
-    // TO DO - transfer this max w and margin auto into a layout. that should be universal
     <div>
       <AnimatedTypography variant="h1">{`Welcome!`}</AnimatedTypography>
       <div className="flex flex-col space-y-12">
@@ -57,7 +65,7 @@ const WebDashboardContent = () => {
         <AnimatedListItem index={1} animation="fadeIn">
           <div>
             <WidgetList
-              items={notes?.filter((note) => note.is_pinned) || []}
+              items={userNotes.data?.filter((note) => note.is_pinned) || []}
               renderItem={(note) => <NoteWidget note={note} pinned={false} />}
               title={"Pinned"}
               icon={<PinIcon className="h-6 w-6 text-muted-foreground" />}
@@ -70,7 +78,7 @@ const WebDashboardContent = () => {
           <div>
             <WidgetList
               items={
-                notes?.sort(
+                userNotes.data?.sort(
                   (a, b) =>
                     new Date(b.current_version.updated_at).getTime() -
                     new Date(a.current_version.updated_at).getTime()
