@@ -51,7 +51,7 @@ const WebNotePageContent = () => {
   }
 
   // Show message if no note is loaded
-  // though we should be redirected to notFound before ever seeing this
+  // With initial data, this should rarely happen since server-side fetching handles not found
   if (!note) {
     return (
       <div className="pt-8">

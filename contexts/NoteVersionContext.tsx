@@ -6,12 +6,11 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import { useParams, notFound } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import { useGetNote } from "@/hooks/note/useGetNote";
 import { useGetNoteVersions } from "@/hooks/note/useGetNoteVersions";
 import { useGetNoteVersion } from "@/hooks/note/useGetNoteVersion";
-import { isNotFoundError } from "@/lib/errors/utils";
 
 interface NoteVersionContextType {
   selectedVersionId: string | null;
@@ -33,12 +32,17 @@ const NoteVersionContext = createContext<NoteVersionContextType | undefined>(
 
 export function NoteVersionProvider({
   children,
+  initialNote,
+  initialNoteVersions,
 }: {
   children: React.ReactNode;
+  initialNote?: Note;
+  initialNoteVersions?: PrismaNoteVersion[];
 }) {
   const { id: noteId }: { id: string } = useParams();
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
-    null
+    // Initialize with current version ID if we have initial note data
+    initialNote?.current_version?.id || null
   );
 
   // Fetch the note data using the hook
@@ -48,17 +52,10 @@ export function NoteVersionProvider({
     error: noteError,
   } = useGetNote(noteId, {
     enabled: !!noteId, // Only fetch if noteId exists
+    initialData: initialNote,
+    staleTime: 0,
+    refetchOnMount: true,
   });
-
-  // Check for 404 errors and redirect to not-found page
-  useEffect(() => {
-    if (!!noteError && isNotFoundError(noteError)) {
-      notFound();
-    }
-    if (!!selectedVersionError && isNotFoundError(selectedVersionError)) {
-      notFound();
-    }
-  }, [noteError]);
 
   // Fetch the note versions using the hook
   const {
@@ -67,6 +64,9 @@ export function NoteVersionProvider({
     error: versionsError,
   } = useGetNoteVersions(noteId, {
     enabled: !!noteId, // Only fetch if noteId exists
+    initialData: initialNoteVersions,
+    staleTime: 0,
+    refetchOnMount: true,
   });
 
   // Fetch the selected note version data using the hook
