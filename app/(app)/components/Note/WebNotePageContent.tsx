@@ -11,7 +11,7 @@ import MessageAlert from "@/components/MessageAlert";
 const WebNotePageContent = () => {
   const params: { id: string } = useParams();
   const { id: noteId } = params;
-  const { selectedVersionId, selectedVersion, note, isLoading, error } =
+  const { selectedVersionId, selectedVersion, note, loading, error } =
     useNoteVersionContext();
 
   const saveNoteVersionContent = useSaveNoteVersionContent();
@@ -28,8 +28,11 @@ const WebNotePageContent = () => {
     }
   }, 1000);
 
-  // Show loading state while data is being fetched
-  if (isLoading) {
+  // Only show loading if we don't have the essential data (note)
+  // With initial data, this should almost never happen
+  const shouldShowLoading = loading.noteLoading && !note;
+
+  if (shouldShowLoading) {
     return (
       <div className="pt-10">
         <Skeleton className="h-64 w-full" />
@@ -38,13 +41,13 @@ const WebNotePageContent = () => {
   }
 
   // If there's an error in any of our queries, lets show an error alert
-  if (error.noteError || error.selectedVersionError || error.versionsError) {
+  if (error.noteError || error.versionsError) {
     return (
       <div className="pt-8">
         <MessageAlert
           variant="error"
           title="Error Loading Note"
-          description={`Error loading note versions: ${error.noteError?.message || error.selectedVersionError?.message || error.versionsError?.message}`}
+          description={`Error loading note versions: ${error.noteError?.message || error.versionsError?.message}`}
         />
       </div>
     );

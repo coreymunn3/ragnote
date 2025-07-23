@@ -18,11 +18,13 @@ interface NoteVersionContextType {
   selectedVersion: PrismaNoteVersion | null;
   noteVersions: PrismaNoteVersion[];
   note: Note | null;
-  isLoading: boolean;
+  loading: {
+    noteLoading: boolean;
+    versionsLoading: boolean;
+  };
   error: {
     noteError: Error | null;
     versionsError: Error | null;
-    selectedVersionError: Error | null;
   };
 }
 
@@ -40,8 +42,12 @@ export function NoteVersionProvider({
   initialNoteVersions?: PrismaNoteVersion[];
 }) {
   const { id: noteId }: { id: string } = useParams();
+
+  /**
+   * The selected Version ID
+   * Initialize with current version ID if we have initial note data
+   */
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
-    // Initialize with current version ID if we have initial note data
     initialNote?.current_version?.id || null
   );
 
@@ -69,43 +75,16 @@ export function NoteVersionProvider({
     refetchOnMount: true,
   });
 
-  // Fetch the selected note version data using the hook
-  const {
-    data: selectedVersion,
-    isLoading: selectedVersionLoading,
-    error: selectedVersionError,
-  } = useGetNoteVersion(noteId, selectedVersionId);
-
-  // Set default selected version when note data is loaded
-  useEffect(() => {
-    if (note?.current_version?.id && !selectedVersionId) {
-      setSelectedVersionId(note.current_version.id);
+  /**
+   * The selected Version - full object
+   * Initialize with the version matching the current version ID
+   */
+  const selectedVersion = useMemo(() => {
+    if (selectedVersionId && noteVersions) {
+      return noteVersions.find((v) => v.id === selectedVersionId) || null;
     }
-  }, [note, selectedVersionId]);
-
-  // Fallback logic: if selected version fails to load and we have versions available,
-  // fall back to current version or first available version
-  useEffect(() => {
-    if (
-      selectedVersionId &&
-      selectedVersionError &&
-      noteVersions &&
-      noteVersions.length > 0
-    ) {
-      const fallbackVersion = note?.current_version?.id
-        ? noteVersions.find((v) => v.id === note.current_version.id)
-        : noteVersions[0];
-      // set the selected version to the fallback version above
-      if (fallbackVersion && fallbackVersion.id !== selectedVersionId) {
-        setSelectedVersionId(fallbackVersion.id);
-      }
-    }
-  }, [
-    selectedVersionId,
-    selectedVersionError,
-    noteVersions,
-    note?.current_version?.id,
-  ]);
+    return null;
+  }, [selectedVersionId, noteVersions]);
 
   const contextValue: NoteVersionContextType = useMemo(
     () => ({
@@ -114,11 +93,13 @@ export function NoteVersionProvider({
       selectedVersion: selectedVersion || null,
       noteVersions: noteVersions || [],
       note: note || null,
-      isLoading: noteLoading || versionsLoading || selectedVersionLoading,
+      loading: {
+        noteLoading,
+        versionsLoading,
+      },
       error: {
         noteError,
         versionsError,
-        selectedVersionError,
       },
     }),
     [
@@ -128,10 +109,8 @@ export function NoteVersionProvider({
       note,
       noteLoading,
       versionsLoading,
-      selectedVersionLoading,
       noteError,
       versionsError,
-      selectedVersionError,
     ]
   );
 

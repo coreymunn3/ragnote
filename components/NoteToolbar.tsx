@@ -16,7 +16,6 @@ import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import { DateTime } from "luxon";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import { Skeleton } from "./ui/skeleton";
-import { Button } from "./ui/button";
 import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
 import { toast } from "sonner";
 import AiButton from "./AiButton";
@@ -29,7 +28,7 @@ const NoteToolbar = () => {
     selectedVersion,
     selectedVersionId,
     setSelectedVersionId,
-    isLoading,
+    loading,
   } = useNoteVersionContext();
 
   const updateNoteMutation = useUpdateNote();
@@ -80,7 +79,10 @@ const NoteToolbar = () => {
     }
   };
 
-  if (isLoading || !note) {
+  // Only show loading if we don't have the essential data (note + versions)
+  const shouldShowLoading = loading.noteLoading || loading.versionsLoading;
+
+  if (shouldShowLoading || !note) {
     return (
       <div className="flex items-center justify-between px-14 py-2">
         <div className="flex items-end space-x-2">
