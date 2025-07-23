@@ -77,7 +77,9 @@ const WidgetList = <T extends { id: string }>({
                 animation="fadeInUp"
                 delay={delay * STAGGER_DELAY}
               >
-                <div className="flex-shrink-0">{renderItem(item, index)}</div>
+                <div className="flex-shrink-0 w-[300px]">
+                  {renderItem(item, index)}
+                </div>
               </AnimatedListItem>
             ))}
           </ScrollableContainer>
