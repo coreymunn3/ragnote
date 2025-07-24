@@ -121,8 +121,26 @@ export async function POST(req: Request) {
           }
         );
       }
+      // 2. Create the user subscription
       try {
-        // 2. now we will need the database ID to award the bonus credits
+        await prisma.user_subscription.create({
+          data: {
+            user_id: newUser.id,
+            tier: "FREE",
+            status: "ACTIVE",
+            start_date: new Date(),
+            monthly_credits_awarded: 0,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        return new NextResponse(
+          `Unable to ${evt.type} user ${email_address} (failed to create subscription): ${error}`,
+          { status: 500 }
+        );
+      }
+      // 2. now we will need the database ID to award the bonus credits
+      try {
         if (!newUser) {
           return new NextResponse(
             `Unable to find newly created user with clerkId ${id}`,
@@ -177,14 +195,90 @@ export async function POST(req: Request) {
       break;
     case "user.deleted":
       try {
-        await prisma.app_user.delete({ where: { clerk_id: id } });
+        /**
+         * 1. Find the user by clerk_id
+         */
+        const user = await prisma.app_user.findUnique({
+          where: { clerk_id: id },
+          select: { id: true },
+        });
+
+        if (!user) {
+          console.error(`User with clerk_id ${id} not found`);
+          return new NextResponse(`User with clerk_id ${id} not found`, {
+            status: 404,
+          });
+        }
+
+        /**
+         *  2. Delete user content while preserving the user record
+         */
+        // Delete folders (cascades to notes, versions, chunks, files)
+        await prisma.folder.deleteMany({
+          where: { user_id: user.id },
+        });
+
+        // Delete notes not in folders
+        await prisma.note.deleteMany({
+          where: {
+            user_id: user.id,
+            folder_id: null,
+          },
+        });
+
+        // Delete chat sessions (cascades to messages)
+        await prisma.chat_session.deleteMany({
+          where: { user_id: user.id },
+        });
+
+        // Delete permissions
+        await prisma.note_permission.deleteMany({
+          where: {
+            OR: [
+              { shared_by_user_id: user.id },
+              { shared_with_user_id: user.id },
+            ],
+          },
+        });
+
+        // Delete any files not in folders (file_content_chunks will cascade)
+        await prisma.file.deleteMany({
+          where: {
+            user_id: user.id,
+            folder_id: null,
+          },
+        });
+
+        /**
+         * 3. Update subscription status to cancelled
+         */
+        await prisma.user_subscription.updateMany({
+          where: { user_id: user.id },
+          data: {
+            status: "CANCELLED",
+            end_date: new Date(),
+          },
+        });
+
+        /**
+         *  4. Mark the user as deleted
+         */
+        await prisma.app_user.update({
+          where: { id: user.id },
+          data: {
+            is_deleted: true,
+          },
+        });
+
+        console.log(
+          `User ${id} marked as deleted, subscription cancelled, and content removed`
+        );
       } catch (error) {
         console.error(error);
-        return new NextResponse(`Unable to ${evt.type} user: ${error}`, {
+        return new NextResponse(`Unable to process ${evt.type}: ${error}`, {
           status: 500,
         });
       }
-
       break;
     default:
       throw new Error(`Unhandled Event Type from Clerk webhook: ${evt.type}`);
