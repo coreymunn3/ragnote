@@ -1,5 +1,8 @@
 import { Expand } from "./sharedTypes";
 
+/**
+ * Simplified & Safe types for frontend
+ */
 export type Note = {
   id: string;
   title: string;
@@ -33,6 +36,16 @@ export type NoteVersionWithContent = Expand<
   }
 >;
 
+export type NoteContent = {
+  plainTextContent: string;
+  richTextContent: any;
+};
+
+export type PublishNoteResponse = {
+  publishedVersion: PrismaNoteVersion;
+  nextVersion: PrismaNoteVersion;
+};
+
 /**
  * Request Types for Notes API
  */
@@ -52,7 +65,7 @@ export type UpdateNoteVersionContentApiRequest = {
 };
 
 /**
- * Response Types for Note Service
+ * Prisma Types - full schema-identical prisma objects
  */
 export type PrismaNote = {
   id: string;
@@ -99,14 +112,4 @@ export type PrismaNoteWithVersionPreview = {
     permissions: number;
   };
   preview: string;
-};
-
-export type NoteContent = {
-  plainTextContent: string;
-  richTextContent: any;
-};
-
-export type PublishNoteResponse = {
-  publishedVersion: PrismaNoteVersion;
-  nextVersion: PrismaNoteVersion;
 };
