@@ -19,6 +19,7 @@ import { Skeleton } from "./ui/skeleton";
 import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
 import { toast } from "sonner";
 import AiButton from "./AiButton";
+import { Button } from "./ui/button";
 
 const NoteToolbar = () => {
   const { id } = useParams();
@@ -101,7 +102,7 @@ const NoteToolbar = () => {
   return (
     <div className="flex items-center justify-between px-14 py-2">
       {/* left side - title and version */}
-      <div className="flex items-end  space-x-2">
+      <div className="flex items-center space-x-2">
         <EditableField
           value={note.title}
           variant="bold"
@@ -109,8 +110,10 @@ const NoteToolbar = () => {
         />
         {selectedVersion && (
           <DropdownMenu>
-            <DropdownMenuTrigger className="p-1">
-              <VersionBadge version={selectedVersion} />
+            <DropdownMenuTrigger className="p-1" asChild>
+              <Button variant="ghost" disabled>
+                <VersionBadge version={selectedVersion} />
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-0">
               {noteVersions.map((version: PrismaNoteVersion) => (
