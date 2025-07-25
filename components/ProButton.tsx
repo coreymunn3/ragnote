@@ -16,14 +16,14 @@ import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 interface ProButtonProps
   extends React.ComponentProps<"button">,
     VariantProps<typeof buttonVariants> {
-  label: string;
+  label?: string;
   isLoading?: boolean;
   showIcon?: boolean;
   tooltipText?: string;
+  isAiFeature?: boolean;
 }
 
 /**
- * A reusable AI button component with a sparkles icon
  * Extends all standard button props and supports all Button component variants
  */
 const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
@@ -34,8 +34,10 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
       variant = "default",
       size = "sm",
       isLoading = false,
+      isAiFeature = false,
       tooltipText,
       disabled,
+      children,
       ...props
     },
     ref
@@ -50,7 +52,7 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
     const userIsPro =
       userSubscription?.tier === "PRO" && userSubscription?.status === "ACTIVE";
 
-    const lockMessage = `This is a Pro feature! Upgrade to ${label}`;
+    const lockMessage = `Upgrade to pro to gain access to this feature!`;
 
     // First and foremost - if user is not pro or if we can't tell, we lock & disable this element
     if (!userIsPro || subscriptionError) {
@@ -68,6 +70,7 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
                   {...props}
                 >
                   {label}
+                  {children}
                   {subscriptionLoading ? (
                     <Loader2Icon className="h-4 w-4 animate-spin" />
                   ) : (
@@ -98,10 +101,11 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
                   {...props}
                 >
                   {label}
+                  {children}
                   {isLoading ? (
                     <Loader2Icon className="h-4 w-4 animate-spin" />
                   ) : (
-                    <SparkleIcon className="h-4 w-4" />
+                    isAiFeature && <SparkleIcon className="h-4 w-4" />
                   )}
                 </Button>
               </span>
@@ -123,10 +127,11 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
         {...props}
       >
         {label}
+        {children}
         {isLoading ? (
           <Loader2Icon className="h-4 w-4 animate-spin" />
         ) : (
-          <SparkleIcon className="h-4 w-4" />
+          isAiFeature && <SparkleIcon className="h-4 w-4" />
         )}
       </Button>
     );

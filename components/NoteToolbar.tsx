@@ -19,7 +19,6 @@ import { Skeleton } from "./ui/skeleton";
 import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
 import { toast } from "sonner";
 import ProButton from "./ProButton";
-import { Button } from "./ui/button";
 
 const NoteToolbar = () => {
   const { id } = useParams();
@@ -111,9 +110,9 @@ const NoteToolbar = () => {
         {selectedVersion && (
           <DropdownMenu>
             <DropdownMenuTrigger className="p-1" asChild>
-              <Button variant="ghost">
+              <ProButton variant="ghost">
                 <VersionBadge version={selectedVersion} />
-              </Button>
+              </ProButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-0">
               {noteVersions.map((version: PrismaNoteVersion) => (
@@ -147,6 +146,7 @@ const NoteToolbar = () => {
         )}
         <ProButton
           label="Publish"
+          isAiFeature
           onClick={handlePublishNote}
           isLoading={publishNoteVersionMutation.isPending}
           disabled={selectedVersion?.is_published}
