@@ -18,7 +18,7 @@ import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import { Skeleton } from "./ui/skeleton";
 import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
 import { toast } from "sonner";
-import AiButton from "./AiButton";
+import ProButton from "./ProButton";
 import { Button } from "./ui/button";
 
 const NoteToolbar = () => {
@@ -111,7 +111,7 @@ const NoteToolbar = () => {
         {selectedVersion && (
           <DropdownMenu>
             <DropdownMenuTrigger className="p-1" asChild>
-              <Button variant="ghost" disabled>
+              <Button variant="ghost">
                 <VersionBadge version={selectedVersion} />
               </Button>
             </DropdownMenuTrigger>
@@ -145,7 +145,7 @@ const NoteToolbar = () => {
             }
           `}</TypographyMuted>
         )}
-        <AiButton
+        <ProButton
           label="Publish"
           onClick={handlePublishNote}
           isLoading={publishNoteVersionMutation.isPending}
