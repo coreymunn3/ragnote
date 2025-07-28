@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2Icon, LockIcon, SparkleIcon } from "lucide-react";
+import { Loader2Icon, LockIcon } from "lucide-react";
 import { Button, buttonVariants } from "./ui/button";
 import {
   Tooltip,
@@ -17,10 +17,11 @@ interface ProButtonProps
   extends React.ComponentProps<"button">,
     VariantProps<typeof buttonVariants> {
   label?: string;
+  icon?: React.ReactNode;
+  className?: string;
   isLoading?: boolean;
   showIcon?: boolean;
   tooltipText?: string;
-  isAiFeature?: boolean;
 }
 
 /**
@@ -30,11 +31,11 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
   (
     {
       label,
+      icon: IconComponent,
       className,
       variant = "default",
       size = "sm",
       isLoading = false,
-      isAiFeature = false,
       tooltipText,
       disabled,
       children,
@@ -102,11 +103,10 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
                 >
                   {label}
                   {children}
-                  {isLoading ? (
+                  {isLoading && (
                     <Loader2Icon className="h-4 w-4 animate-spin" />
-                  ) : (
-                    isAiFeature && <SparkleIcon className="h-4 w-4" />
                   )}
+                  {IconComponent && IconComponent}
                 </Button>
               </span>
             </TooltipTrigger>
@@ -128,11 +128,8 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
       >
         {label}
         {children}
-        {isLoading ? (
-          <Loader2Icon className="h-4 w-4 animate-spin" />
-        ) : (
-          isAiFeature && <SparkleIcon className="h-4 w-4" />
-        )}
+        {isLoading && <Loader2Icon className="h-4 w-4 animate-spin" />}
+        {IconComponent && IconComponent}
       </Button>
     );
   }

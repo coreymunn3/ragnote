@@ -9,7 +9,12 @@ import {
 import { PrismaNoteVersion } from "@/lib/types/noteTypes";
 import VersionBadge from "./VersionBadge";
 import { TypographyMuted } from "./ui/typography";
-import { ForwardIcon, Trash2Icon } from "lucide-react";
+import {
+  ForwardIcon,
+  MessageCircleIcon,
+  SparkleIcon,
+  Trash2Icon,
+} from "lucide-react";
 import EditableField from "./EditableField";
 import OptionsMenu from "./OptionsMenu";
 import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
@@ -108,23 +113,31 @@ const NoteToolbar = () => {
           onSave={handleSaveTitle}
         />
         {selectedVersion && (
-          <DropdownMenu>
-            <DropdownMenuTrigger className="p-1" asChild>
-              <ProButton variant="ghost">
-                <VersionBadge version={selectedVersion} />
-              </ProButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="min-w-0">
-              {noteVersions.map((version: PrismaNoteVersion) => (
-                <DropdownMenuItem
-                  key={version.id}
-                  onClick={() => setSelectedVersionId(version.id)}
-                >
-                  <VersionBadge version={version} />
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="p-1" asChild>
+                <ProButton
+                  variant="ghost"
+                  icon={<VersionBadge version={selectedVersion} />}
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-0">
+                {noteVersions.map((version: PrismaNoteVersion) => (
+                  <DropdownMenuItem
+                    key={version.id}
+                    onClick={() => setSelectedVersionId(version.id)}
+                  >
+                    <VersionBadge version={version} />
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <ProButton
+              variant={"ghost"}
+              icon={<MessageCircleIcon className="h-4 w-4" />}
+              tooltipText="Ask anything about this note"
+            />
+          </>
         )}
       </div>
       {/* right side - last edited, publish & controls */}
@@ -146,7 +159,7 @@ const NoteToolbar = () => {
         )}
         <ProButton
           label="Publish"
-          isAiFeature
+          icon={<SparkleIcon className="h-4 w-4" />}
           onClick={handlePublishNote}
           isLoading={publishNoteVersionMutation.isPending}
           disabled={selectedVersion?.is_published}
