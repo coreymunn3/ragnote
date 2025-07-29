@@ -7,7 +7,7 @@ import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { debounce } from "lodash";
 import MessageAlert from "@/components/MessageAlert";
-import ChatPanel from "@/components/ChatPanel";
+import ChatPanel from "@/components/chat/ChatPanel";
 
 const WebNotePageContent = () => {
   const params: { id: string } = useParams();
@@ -99,7 +99,11 @@ const WebNotePageContent = () => {
         readOnly={selectedVersion.is_published || note.is_deleted}
       />
       {/* Chat with your Note */}
-      <ChatPanel open={chatOpen} onOpenChange={handleToggleChat} />
+      <ChatPanel
+        open={chatOpen}
+        onOpenChange={handleToggleChat}
+        title={`${note.title}`}
+      />
     </div>
   );
 };
