@@ -1,7 +1,7 @@
 "use client";
 import { HistoryIcon } from "lucide-react";
 import { Button } from "../ui/button";
-import { Sheet, SheetContent } from "../ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { TypographyLead, TypographyMuted } from "../ui/typography";
 import ChatInput from "./ChatInput";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,9 @@ const ChatPanel = ({
   // MUTATION to send a chat message
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetHeader className="hidden">
+        <SheetTitle>Hidden Title</SheetTitle>
+      </SheetHeader>
       <SheetContent
         className={cn(
           "p-2 pb-6",
@@ -48,7 +51,6 @@ const ChatPanel = ({
             {/* Conversation messages will go here */}
             <div className="flex items-center justify-center h-full text-center text-muted-foreground">
               <div>
-                <TypographyLead>Start a conversation</TypographyLead>
                 <TypographyMuted>
                   Ask questions about your note using the input below
                 </TypographyMuted>
