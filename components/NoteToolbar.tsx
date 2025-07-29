@@ -117,11 +117,17 @@ const NoteToolbar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger className="p-1" asChild>
                 <ProButton
-                  variant="ghost"
-                  icon={<VersionBadge version={selectedVersion} />}
-                />
+                  label={`v${selectedVersion.version_number}`}
+                  className={`px-3 ${
+                    selectedVersion.is_published
+                      ? "bg-primary text-primary-foreground shadow hover:bg-primary/80"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                  }`}
+                >
+                  {/* <VersionBadge version={selectedVersion} /> */}
+                </ProButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="min-w-0">
+              <DropdownMenuContent align="center" className="min-w-0">
                 {noteVersions.map((version: PrismaNoteVersion) => (
                   <DropdownMenuItem
                     key={version.id}
