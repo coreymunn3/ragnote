@@ -7,12 +7,20 @@ import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { debounce } from "lodash";
 import MessageAlert from "@/components/MessageAlert";
+import ChatPanel from "@/components/ChatPanel";
 
 const WebNotePageContent = () => {
   const params: { id: string } = useParams();
   const { id: noteId } = params;
-  const { selectedVersionId, selectedVersion, note, loading, error } =
-    useNoteVersionContext();
+  const {
+    selectedVersionId,
+    selectedVersion,
+    note,
+    loading,
+    error,
+    chatOpen,
+    handleToggleChat,
+  } = useNoteVersionContext();
 
   const saveNoteVersionContent = useSaveNoteVersionContent();
 
@@ -83,12 +91,15 @@ const WebNotePageContent = () => {
 
   return (
     <div className="pt-8">
+      {/* Note Editor */}
       <RichTextEditor
         key={selectedVersionId} // Force re-render when version changes
         initialContent={selectedVersion.rich_text_content}
         onChange={handleEditorChange}
         readOnly={selectedVersion.is_published || note.is_deleted}
       />
+      {/* Chat with your Note */}
+      <ChatPanel open={chatOpen} onOpenChange={handleToggleChat} />
     </div>
   );
 };

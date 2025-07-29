@@ -34,6 +34,7 @@ const NoteToolbar = () => {
     selectedVersionId,
     setSelectedVersionId,
     loading,
+    handleToggleChat,
   } = useNoteVersionContext();
 
   const updateNoteMutation = useUpdateNote();
@@ -142,6 +143,7 @@ const NoteToolbar = () => {
               variant={"ghost"}
               icon={<MessageCircleIcon className="h-4 w-4" />}
               tooltipText="Ask anything about this note"
+              onClick={handleToggleChat}
             />
           </>
         )}

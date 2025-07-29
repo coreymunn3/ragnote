@@ -5,6 +5,7 @@ import React, {
   useState,
   useEffect,
   useMemo,
+  MouseEventHandler,
 } from "react";
 import { useParams } from "next/navigation";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
@@ -26,6 +27,8 @@ interface NoteVersionContextType {
     noteError: Error | null;
     versionsError: Error | null;
   };
+  chatOpen: boolean;
+  handleToggleChat: () => void;
 }
 
 const NoteVersionContext = createContext<NoteVersionContextType | undefined>(
@@ -50,6 +53,18 @@ export function NoteVersionProvider({
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
     initialNote?.current_version?.id || null
   );
+
+  /**
+   * If the chat window is open or not
+   */
+  const [chatOpen, setChatOpen] = useState(false);
+
+  /**
+   * Open or close the chat window
+   */
+  const handleToggleChat = () => {
+    setChatOpen((prev) => !prev);
+  };
 
   // Fetch the note data using the hook
   const {
@@ -101,6 +116,8 @@ export function NoteVersionProvider({
         noteError,
         versionsError,
       },
+      chatOpen,
+      handleToggleChat,
     }),
     [
       selectedVersionId,
@@ -111,6 +128,8 @@ export function NoteVersionProvider({
       versionsLoading,
       noteError,
       versionsError,
+      chatOpen,
+      handleToggleChat,
     ]
   );
 
