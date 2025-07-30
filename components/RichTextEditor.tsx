@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import "@blocknote/mantine/style.css";
-// import "../styles/blocknote-custom.css";
 import type { BlockNoteEditor } from "@blocknote/core";
 import type { Theme } from "@blocknote/mantine";
 import { useTheme } from "next-themes";
@@ -146,13 +145,8 @@ const RichTextEditor = dynamic(
       // Set up theme based on dark/light mode
       useEffect(() => {
         if (!isMounted) return;
-
-        const timer = setTimeout(() => {
-          const isDarkMode = resolvedTheme === "dark";
-          setCustomTheme(createCustomTheme(isDarkMode, isMounted));
-        }, 50);
-
-        return () => clearTimeout(timer);
+        const isDarkMode = resolvedTheme === "dark";
+        setCustomTheme(createCustomTheme(isDarkMode, isMounted));
       }, [resolvedTheme, isMounted]);
 
       return (
@@ -170,7 +164,6 @@ const RichTextEditor = dynamic(
             editor={editor}
             sideMenu={false}
             theme={customTheme || undefined}
-            className="custom-blocknote"
             editable={!readOnly}
             onChange={onChange}
           >
