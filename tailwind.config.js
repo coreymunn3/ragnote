@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 import tailwindcssAnimate from "tailwindcss-animate";
+import daisyui from "daisyui";
 
 export default {
   content: [
@@ -72,5 +73,15 @@ export default {
     },
   },
   darkMode: "class",
-  plugins: [tailwindcssAnimate],
+  plugins: [tailwindcssAnimate, daisyui],
+  daisyui: {
+    themes: false, // Disable daisyUI's built-in themes to avoid conflicts
+    darkTheme: false, // Don't auto-switch themes
+    base: false, // Don't apply background/foreground colors (let your CSS variables handle this)
+    styled: true, // Keep daisyUI component styles
+    utils: true, // Keep utility classes
+    prefix: "", // No prefix needed
+    logs: false, // Disable console logs
+    themeRoot: ":root",
+  },
 };
