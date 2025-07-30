@@ -116,6 +116,11 @@ export const createStaggerAnimation = (
         hidden: { opacity: 0, y: 10 },
         visible: { opacity: 1, y: 0, transition },
       };
+    case "fadeInLeft":
+      return {
+        hidden: { opacity: 0, x: -10 },
+        visible: { opacity: 1, x: 0, transition },
+      };
     case "fadeInRight":
     default:
       return {
