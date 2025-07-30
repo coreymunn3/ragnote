@@ -97,7 +97,7 @@ const WebDashboardContent = ({ notes }: WebDashboardContentProps) => {
             <WidgetList
               items={conversations}
               renderItem={(conversation) => (
-                <ConversationWidget conversation={conversation} />
+                <ConversationWidget chatSession={conversation} />
               )}
               title={"Chats & Conversations"}
               icon={

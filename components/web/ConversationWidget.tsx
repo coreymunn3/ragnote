@@ -1,13 +1,13 @@
-import { Conversation } from "@/lib/types/conversationTypes";
+import { ChatSession } from "@/lib/types/chatTypes";
 import { TypographySmall } from "../ui/typography";
 import { MessageSquareIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface ConversationWidgetProps {
-  conversation: Conversation;
+  chatSession: ChatSession;
 }
 
-const ConversationWidget = ({ conversation }: ConversationWidgetProps) => {
+const ConversationWidget = ({ chatSession }: ConversationWidgetProps) => {
   return (
     <Card
       variant="dense"
@@ -15,7 +15,7 @@ const ConversationWidget = ({ conversation }: ConversationWidgetProps) => {
     >
       <CardHeader>
         <CardTitle className="text-base font-semibold line-clamp-1 overflow-ellipsis">
-          {conversation.title}
+          {chatSession.title}
         </CardTitle>
       </CardHeader>
 
@@ -23,7 +23,7 @@ const ConversationWidget = ({ conversation }: ConversationWidgetProps) => {
         <div className="flex items-center text-muted-foreground">
           <MessageSquareIcon className="h-4 w-4 mr-1.5" />
           <TypographySmall>
-            {conversation.messages_count} messages
+            {chatSession.messages_count} messages
           </TypographySmall>
         </div>
       </CardContent>
