@@ -142,11 +142,20 @@ const RichTextEditor = dynamic(
         setIsMounted(true);
       }, []);
 
-      // Set up theme based on dark/light mode
+      /**
+       * This useEffect ensures the RichTextEditor theme dark/light mode gets updated when the overall app theme gets updated
+       * I've found that putting it on a very small timer is necessary to ensure we are successfully setting it due to the asynchronous nature of setState
+       * without the timer, I oberseved that when you changed the app theme, the rich text editor theme would not seem to update, and text was unreadable.
+       */
       useEffect(() => {
         if (!isMounted) return;
-        const isDarkMode = resolvedTheme === "dark";
-        setCustomTheme(createCustomTheme(isDarkMode, isMounted));
+
+        const timer = setTimeout(() => {
+          const isDarkMode = resolvedTheme === "dark";
+          setCustomTheme(createCustomTheme(isDarkMode, isMounted));
+        }, 20);
+
+        return () => clearTimeout(timer);
       }, [resolvedTheme, isMounted]);
 
       return (
