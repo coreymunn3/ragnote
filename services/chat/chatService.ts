@@ -1,7 +1,17 @@
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { prisma } from "@/lib/prisma";
-import { ChatScope, ChatScopeObject } from "@/lib/types/chatTypes";
-import { createChatScopeSchema } from "./chatValidators";
+import {
+  ChatScope,
+  ChatScopeObject,
+  PrismaChatMessage,
+  PrismaChatSession,
+} from "@/lib/types/chatTypes";
+import {
+  createChatScopeSchema,
+  getChatSessionSchema,
+  getChatMessagesSchema,
+} from "./chatValidators";
+import { NotFoundError } from "@/lib/errors/apiErrors";
 
 export class ChatService {
   /**
@@ -36,7 +46,7 @@ export class ChatService {
       scope: ChatScope;
       noteId?: string;
       folderId?: string;
-    }) => {
+    }): Promise<ChatScopeObject> => {
       const validatedData = createChatScopeSchema.parse(params);
       // create an initial chatScope with an empty noteVersions array
       const chatScope: ChatScopeObject = {
@@ -75,6 +85,59 @@ export class ChatService {
       // 2 - scope is folder (TO DO)
       // 3 - scope is global (TO DO)
       return chatScope;
+    }
+  );
+
+  public getChatSession = withErrorHandling(
+    async (params: {
+      userId: string;
+      sessionId: string;
+    }): Promise<PrismaChatSession> => {
+      const { userId: validatedUserId, sessionId: validatedSessionId } =
+        getChatSessionSchema.parse(params);
+      // get the session for this user that isn't deleted (no messages)
+      const session = await prisma.chat_session.findFirst({
+        where: {
+          id: validatedSessionId,
+          user_id: validatedUserId,
+          is_deleted: false,
+        },
+      });
+      if (!session) {
+        throw new NotFoundError("Chat session not found or access denied");
+      }
+
+      // Cast the session to our expected type
+      return {
+        ...session,
+        chat_scope: session.chat_scope as ChatScopeObject,
+      };
+    }
+  );
+
+  /**
+   * Get messages for a chat session
+   */
+  public getChatMessages = withErrorHandling(
+    async (params: {
+      sessionId: string;
+      userId: string;
+      limit?: number;
+      offset?: number;
+    }): Promise<PrismaChatMessage[]> => {
+      const validatedData = getChatMessagesSchema.parse(params);
+
+      // Get messages for the session
+      const messages = await prisma.chat_message.findMany({
+        where: {
+          chat_session_id: validatedData.sessionId,
+        },
+        orderBy: { created_at: "asc" },
+        take: validatedData.limit,
+        skip: validatedData.offset,
+      });
+
+      return messages;
     }
   );
 

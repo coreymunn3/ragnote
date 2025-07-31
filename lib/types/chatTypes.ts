@@ -33,8 +33,8 @@ export type PrismaChatSession = {
   user_id: string;
   title: string | null;
   chat_scope: ChatScopeObject;
-  noteId: string | null;
-  folderId: string | null;
+  note_id: string | null;
+  folder_id: string | null;
   is_pinned: boolean;
   is_deleted: boolean;
   created_at: Date;
