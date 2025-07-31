@@ -286,6 +286,7 @@ model chat_message {
   chat_session_id           String                @db.Uuid
   sender_type               ChatMessageSenderType
   content                   String
+  llm_response              Json? // to store the entire response object coming from the AI which includes object and response metadata like token usage
   // `referenced_note_chunk_ids` and `referenced_file_chunk_ids` are arrays of IDs that point to the chunks used as context.
   // This helps in sourcing the AI's response.
   referenced_note_chunk_ids String[]              @map("referenced_note_chunk_ids")
