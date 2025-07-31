@@ -4,10 +4,17 @@ import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { TypographyLead, TypographyMuted } from "../ui/typography";
 import ChatInput from "./ChatInput";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { SimpleChat } from "@/lib/types/chatTypes";
 import ChatMessages from "./ChatMessages";
+import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
+import VersionBadge from "../VersionBadge";
 
 interface ChatPanelProps {
   open: boolean;
@@ -26,8 +33,13 @@ const ChatPanel = ({
   // MUTATION to send a chat message (this create a new session & will hold the conversation)
   const [chatSessionId, setChatSessionId] = useState<string | undefined>();
   const [conversation, setConversation] = useState<SimpleChat[]>([]);
+  const { noteVersions } = useNoteVersionContext();
 
-  console.log(conversation);
+  const mostRecentPublishedVersion = noteVersions.filter(
+    (version) => version.is_published
+  )[0];
+
+  console.log("most recent", mostRecentPublishedVersion);
 
   const handleSendChat = (input: string) => {
     // send the human message
@@ -66,24 +78,50 @@ const ChatPanel = ({
         <div className="flex-1 flex flex-col">
           {/* Top Banner - title and history */}
           <div className="p-1 flex justify-between items-center border-b border-sidebar-border">
-            <TypographyLead className="font-semibold text-foreground">
-              {title} Chat
-            </TypographyLead>
+            {/* left side: title and active version */}
+            <div className="flex flex-row space-x-2 items-center">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TypographyLead className="font-semibold text-foreground">
+                    {title} Chat
+                  </TypographyLead>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    You are chatting with the most recently published version of
+                    this note
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+
+              {!!mostRecentPublishedVersion && (
+                <VersionBadge version={mostRecentPublishedVersion} />
+              )}
+            </div>
+            {/* right side: chat history button */}
             <Button variant={"ghost"}>
               <HistoryIcon className="h-4 w-4" />
             </Button>
           </div>
           {/* Middle area - space for conversation bubbles */}
           <div className="flex-1 overflow-y-auto p-3">
-            {conversation.length > 0 ? (
-              <div>
-                <ChatMessages messages={conversation} />
+            {!mostRecentPublishedVersion && (
+              <div className="flex items-center justify-center h-full text-center">
+                <TypographyMuted>
+                  Publish this note to begin chatting!
+                </TypographyMuted>
               </div>
-            ) : (
+            )}
+            {!!mostRecentPublishedVersion && conversation.length === 0 && (
               <div className="flex items-center justify-center h-full text-center">
                 <TypographyMuted>
                   Ask questions about your note using the input below
                 </TypographyMuted>
+              </div>
+            )}
+            {conversation.length > 0 && (
+              <div>
+                <ChatMessages messages={conversation} />
               </div>
             )}
           </div>
@@ -96,6 +134,7 @@ const ChatPanel = ({
                 console.log("Sending message:", message);
                 handleSendChat(message);
               }}
+              disabled={!mostRecentPublishedVersion}
               placeholder={`Ask about ${title}...`}
             />
           </div>

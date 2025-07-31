@@ -1,6 +1,11 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { SendIcon, MicIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import WidgetList from "../web/WidgetList";
@@ -143,69 +148,81 @@ const ChatInput = ({
       </div>
 
       {/* Input Area - Integrated Design */}
-      <div
-        className={cn(
-          "flex flex-row, items-center",
-          "relative rounded-2xl border border-input bg-background",
-          "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
-          disabled && "opacity-50 cursor-not-allowed"
-        )}
-      >
-        <textarea
-          ref={textareaRef}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={handleKeyPress}
-          placeholder={placeholder}
-          disabled={disabled}
-          rows={1}
-          className={cn(
-            "w-full resize-none bg-transparent border-none p-2 pr-20 text-sm",
-            "placeholder:text-muted-foreground",
-            "focus:outline-none",
-            "disabled:cursor-not-allowed",
-            "max-h-[120px]" // 1-5 lines
-          )}
-        />
-
-        {/* Buttons positioned inside the input */}
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-          {/* Voice Input Button */}
-          <Button
-            onClick={startListening}
-            disabled={disabled || isListening}
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 hover:bg-muted/50"
-            title={isListening ? "Listening..." : "Voice input"}
-          >
-            {isListening ? (
-              <div className="h-4 w-4 bg-red-500 rounded-full animate-pulse" />
-            ) : (
-              <MicIcon className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className={cn(
+              "flex flex-row, items-center",
+              "relative rounded-2xl border border-input bg-background",
+              "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
+              disabled && "opacity-50 cursor-not-allowed"
             )}
-          </Button>
-
-          {/* Send Button */}
-          <Button
-            onClick={handleSend}
-            disabled={!message.trim() || disabled}
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 hover:bg-muted/50"
-            title="Send message"
           >
-            <SendIcon
+            <textarea
+              ref={textareaRef}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={handleKeyPress}
+              placeholder={placeholder}
+              disabled={disabled}
+              rows={1}
               className={cn(
-                "h-4 w-4 transition-colors",
-                message.trim() && !disabled
-                  ? "text-primary hover:text-primary/80"
-                  : "text-muted-foreground"
+                "w-full resize-none bg-transparent border-none p-2 pr-20 text-sm",
+                "placeholder:text-muted-foreground",
+                "focus:outline-none",
+                "disabled:cursor-not-allowed",
+                "max-h-[120px]" // 1-5 lines
               )}
             />
-          </Button>
-        </div>
-      </div>
+
+            {/* Buttons positioned inside the input */}
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              {/* Voice Input Button */}
+              <Button
+                onClick={startListening}
+                disabled={disabled || isListening}
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 hover:bg-muted/50"
+                title={isListening ? "Listening..." : "Voice input"}
+              >
+                {isListening ? (
+                  <div className="h-4 w-4 bg-red-500 rounded-full animate-pulse" />
+                ) : (
+                  <MicIcon className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                )}
+              </Button>
+
+              {/* Send Button */}
+              <Button
+                onClick={handleSend}
+                disabled={!message.trim() || disabled}
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 hover:bg-muted/50"
+                title="Send message"
+              >
+                <SendIcon
+                  className={cn(
+                    "h-4 w-4 transition-colors",
+                    message.trim() && !disabled
+                      ? "text-primary hover:text-primary/80"
+                      : "text-muted-foreground"
+                  )}
+                />
+              </Button>
+            </div>
+          </div>
+        </TooltipTrigger>
+        {disabled && (
+          <TooltipContent>
+            <p>
+              Chat functionality requires at least 1 published version of this
+              note
+            </p>
+          </TooltipContent>
+        )}
+      </Tooltip>
     </div>
   );
 };
