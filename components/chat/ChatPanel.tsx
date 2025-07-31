@@ -39,8 +39,6 @@ const ChatPanel = ({
     (version) => version.is_published
   )[0];
 
-  console.log("most recent", mostRecentPublishedVersion);
-
   const handleSendChat = (input: string) => {
     // send the human message
     const newChat: SimpleChat = {
