@@ -34,7 +34,7 @@ const ChatPanel = ({
   const [chatSessionId, setChatSessionId] = useState<string | undefined>();
   const [conversation, setConversation] = useState<SimpleChat[]>([]);
   const { noteVersions } = useNoteVersionContext();
-
+  // the user must chat with only the most recently published version
   const mostRecentPublishedVersion = noteVersions.filter(
     (version) => version.is_published
   )[0];

@@ -1,12 +1,8 @@
-import { withErrorHandling } from "@/lib/errors/errorHandlers";
-import { prisma } from "@/lib/prisma";
+import { object, z } from "zod";
 
-export class ChatService {
-  public createChatSession = withErrorHandling(async (params) => {
-    // TO DO - create a chat session for the user given a scope
-  });
-
-  public createChatMessage = withErrorHandling(async (params) => {
-    // TO DO - create a chat message given a session
-  });
-}
+export const createChatScopeSchema = z.object({
+  userId: z.string().uuid(),
+  scope: z.union([z.literal("note"), z.literal("folder"), z.literal("global")]),
+  noteId: z.string().uuid().optional(),
+  folderId: z.string().uuid().optional(),
+});
