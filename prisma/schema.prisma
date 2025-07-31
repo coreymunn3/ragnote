@@ -154,7 +154,7 @@ model note {
   versions        note_version[]    @relation("NoteVersions") // All versions of this note
   current_version note_version?     @relation("CurrentNoteVersion", fields: [current_version_id], references: [id], onDelete: SetNull)
   permissions     note_permission[] // Shares related to this note
-  chat_sessions   chat_session[]    @relation("NoteChatSessions") // Chat sessions specific to this note
+  chat_session    chat_session[]
 }
 
 model note_version {
@@ -258,24 +258,26 @@ model file_content_chunk {
 // Chat Sessions & Messages 
 // -----------------------------------------------------------
 model chat_session {
-  id              String  @id @default(uuid()) @db.Uuid
-  user_id         String  @db.Uuid
-  title           String? // Auto-generated title for the conversation
-  scope_note_id   String? @map("scope_note_id") @db.Uuid // FK to note if chat is note-specific
-  scope_folder_id String? @map("scope_folder_id") @db.Uuid // FK to folder if chat is folder-specific
-  is_pinned       Boolean @default(false) // For pinning conversations in UI
-  is_deleted      Boolean @default(false) // Soft delete for V1
+  id         String  @id @default(uuid()) @db.Uuid
+  user_id    String  @db.Uuid
+  title      String? // Auto-generated title for the conversation
+  chat_scope Json    @db.JsonB // JSON structure: { scope: "note"|"folder"|"global", scopeId: string|null, noteVersions: [{noteId, versionId}] }
+  is_pinned  Boolean @default(false) // For pinning conversations in UI
+  is_deleted Boolean @default(false) // Soft delete for V1
+  note_id    String? @db.Uuid // along with the chat_scope this makes it easier to query chat sessions for a note
+  folder_id  String? @db.Uuid // along with the chat_scope this makes it easier to query chat sessions for a folder
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
   updated_at DateTime @updatedAt @db.Timestamptz(3)
 
   user     app_user       @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  note     note?          @relation("NoteChatSessions", fields: [scope_note_id], references: [id], onDelete: SetNull)
-  folder   folder?        @relation(fields: [scope_folder_id], references: [id], onDelete: SetNull) // (Note: folder-scoped chat is V2, but field is here)
   messages chat_message[] // Individual messages within this session
+  note     note?          @relation(fields: [note_id], references: [id])
+  folder   folder?        @relation(fields: [folder_id], references: [id])
 
   @@index([user_id, is_deleted]) // Optimize for retrieving user's active/deleted chats
   @@index([user_id, is_pinned]) // Optimize for pinned chats
+  @@index([chat_scope]) // Optimize for scope-based queries
   @@map("chat_session")
 }
 
