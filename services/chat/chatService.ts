@@ -10,6 +10,7 @@ import {
   createChatScopeSchema,
   getChatSessionSchema,
   getChatMessagesSchema,
+  createChatMessageSchema,
 } from "./chatValidators";
 import { NotFoundError } from "@/lib/errors/apiErrors";
 
@@ -141,7 +142,50 @@ export class ChatService {
     }
   );
 
-  public createChatMessage = withErrorHandling(async (params) => {
-    // TO DO - create a chat message given a session
-  });
+  public createChatMessage = withErrorHandling(
+    async (params: {
+      sessionId: string;
+      userId: string;
+      sender: "USER" | "AI";
+      message: string;
+      llmResponse?: any;
+      referencedNoteChunkIds?: string[];
+      referencedFileChunkIds?: string[];
+    }): Promise<PrismaChatMessage> => {
+      const validatedData = createChatMessageSchema.parse(params);
+      // verify the session exists and the user owns it
+      const session = await prisma.chat_session.findFirst({
+        where: {
+          user_id: validatedData.userId,
+          id: validatedData.sessionId,
+          is_deleted: false,
+        },
+      });
+      if (!session) {
+        throw new NotFoundError("Chat session not found or access denied");
+      }
+      // create the message
+      const message = await prisma.chat_message.create({
+        data: {
+          chat_session_id: validatedData.sessionId,
+          sender_type: validatedData.sender,
+          content: validatedData.message,
+          llm_response: validatedData.llmResponse,
+          referenced_note_chunk_ids: validatedData.referencedNoteChunkIds,
+          referenced_file_chunk_ids: validatedData.referencedFileChunkIds,
+        },
+      });
+      // update the sessions updated_at ts
+      await prisma.chat_session.update({
+        where: {
+          id: validatedData.sessionId,
+        },
+        data: {
+          updated_at: new Date(),
+        },
+      });
+
+      return message;
+    }
+  );
 }

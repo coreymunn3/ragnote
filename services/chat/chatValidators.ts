@@ -18,3 +18,17 @@ export const getChatMessagesSchema = z.object({
   limit: z.number().int().min(1).max(100).optional().default(50),
   offset: z.number().int().min(0).optional().default(0),
 });
+
+export const createChatMessageSchema = z.object({
+  sessionId: z.string().uuid(),
+  userId: z.string().uuid(),
+  sender: z.union([z.literal("USER"), z.literal("AI")]),
+  message: z
+    .string()
+    .min(1, "Message must contain at least 1 character")
+    .trim()
+    .refine((message) => message.length > 0, "Message cannot be whitespace."),
+  llmResponse: z.any().optional(),
+  referencedNoteChunkIds: z.array(z.string()).optional(),
+  referencedFileChunkIds: z.array(z.string()).optional(),
+});
