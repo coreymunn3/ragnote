@@ -21,7 +21,6 @@ export const getChatMessagesSchema = z.object({
 
 export const createChatMessageSchema = z.object({
   sessionId: z.string().uuid(),
-  userId: z.string().uuid(),
   sender: z.union([z.literal("USER"), z.literal("AI")]),
   message: z
     .string()
@@ -29,6 +28,19 @@ export const createChatMessageSchema = z.object({
     .trim()
     .refine((message) => message.length > 0, "Message cannot be whitespace."),
   llmResponse: z.any().optional(),
-  referencedNoteChunkIds: z.array(z.string()).optional(),
-  referencedFileChunkIds: z.array(z.string()).optional(),
+  referencedNoteChunkIds: z.array(z.string()).optional().default([]),
+  referencedFileChunkIds: z.array(z.string()).optional().default([]),
+});
+
+export const sendChatSchema = z.object({
+  userId: z.string().uuid(),
+  message: z
+    .string()
+    .min(1, "Message must contain at least 1 character")
+    .trim()
+    .refine((message) => message.length > 0, "Message cannot be whitespace."),
+  scope: z.union([z.literal("note"), z.literal("folder"), z.literal("global")]),
+  noteId: z.string().uuid().optional(),
+  folderId: z.string().uuid().optional(),
+  sessionId: z.string().optional(),
 });

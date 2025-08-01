@@ -11,6 +11,7 @@ import {
   getChatSessionSchema,
   getChatMessagesSchema,
   createChatMessageSchema,
+  sendChatSchema,
 } from "./chatValidators";
 import { NotFoundError } from "@/lib/errors/apiErrors";
 
@@ -19,7 +20,10 @@ export class ChatService {
    * Create a new chat session
    */
   public createChatSession = withErrorHandling(
-    async (params: { userId: string; chatScope: ChatScopeObject }) => {
+    async (params: {
+      userId: string;
+      chatScope: ChatScopeObject;
+    }): Promise<PrismaChatSession> => {
       // at this point, data has already been validated!
       const { userId, chatScope } = params;
 
@@ -34,7 +38,11 @@ export class ChatService {
         },
       });
 
-      return session;
+      // Cast the session to our expected type
+      return {
+        ...session,
+        chat_scope: session.chat_scope as ChatScopeObject,
+      };
     }
   );
 
@@ -142,28 +150,21 @@ export class ChatService {
     }
   );
 
-  public createChatMessage = withErrorHandling(
+  /**
+   * Adds a new chat message given the session ID
+   */
+  private createChatMessage = withErrorHandling(
     async (params: {
       sessionId: string;
-      userId: string;
       sender: "USER" | "AI";
       message: string;
       llmResponse?: any;
       referencedNoteChunkIds?: string[];
       referencedFileChunkIds?: string[];
     }): Promise<PrismaChatMessage> => {
+      // validate - this private method is downstream of the session ID
+      // so at this point we know the session ID is valid and exists and belongs to the user
       const validatedData = createChatMessageSchema.parse(params);
-      // verify the session exists and the user owns it
-      const session = await prisma.chat_session.findFirst({
-        where: {
-          user_id: validatedData.userId,
-          id: validatedData.sessionId,
-          is_deleted: false,
-        },
-      });
-      if (!session) {
-        throw new NotFoundError("Chat session not found or access denied");
-      }
       // create the message
       const message = await prisma.chat_message.create({
         data: {
@@ -186,6 +187,85 @@ export class ChatService {
       });
 
       return message;
+    }
+  );
+
+  /**
+   * Entry point for sending a chat
+   * This method will orchestrate the entire pipeline of recieving the message from the API
+   * and subsequently deciding what to do with it
+   */
+  public sendChat = withErrorHandling(
+    async (params: {
+      userId: string;
+      message: string;
+      scope: ChatScope;
+      noteId?: string;
+      folderId?: string;
+      sessionId?: string;
+    }) => {
+      const {
+        userId: validatedUserId,
+        message: validatedMessage,
+        scope: validatedScope,
+        noteId: validatedNoteId,
+        folderId: validatedFolderId,
+        sessionId: validatedSessionId,
+      } = sendChatSchema.parse(params);
+
+      /**
+       * Get or create the chat session to use
+       */
+      let currentSession: PrismaChatSession;
+
+      if (validatedSessionId) {
+        // Use existing session
+        currentSession = await this.getChatSession({
+          userId: validatedUserId,
+          sessionId: validatedSessionId,
+        });
+      } else {
+        // Create new session - first create the chat scope
+        const currentChatScope = await this.createChatScope({
+          userId: validatedUserId,
+          scope: validatedScope,
+          noteId: validatedNoteId,
+          folderId: validatedFolderId,
+        });
+
+        currentSession = await this.createChatSession({
+          userId: validatedUserId,
+          chatScope: currentChatScope,
+        });
+      }
+
+      /**
+       * Create the user's chat message
+       */
+      const userMessage = await this.createChatMessage({
+        sessionId: currentSession.id,
+        sender: "USER",
+        message: validatedMessage,
+      });
+
+      /**
+       * Generate the AI Response
+       * for now...a dummy response
+       */
+      const dummyResponse =
+        "Hi, Im your AI Assistant, but I havent been implemented yet! Hope you are having a great day.";
+      // save the AI response
+      const aiMessage = await this.createChatMessage({
+        sessionId: currentSession.id,
+        sender: "AI",
+        message: dummyResponse,
+      });
+      // return
+      return {
+        session: currentSession,
+        userMessage,
+        aiMessage,
+      };
     }
   );
 }
