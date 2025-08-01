@@ -5,6 +5,7 @@ import {
   ChatScopeObject,
   PrismaChatMessage,
   PrismaChatSession,
+  SendChatResponse,
 } from "@/lib/types/chatTypes";
 import {
   createChatScopeSchema,
@@ -203,7 +204,7 @@ export class ChatService {
       noteId?: string;
       folderId?: string;
       sessionId?: string;
-    }) => {
+    }): Promise<SendChatResponse> => {
       const {
         userId: validatedUserId,
         message: validatedMessage,

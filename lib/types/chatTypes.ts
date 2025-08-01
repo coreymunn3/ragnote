@@ -25,6 +25,20 @@ export type ChatScopeObject = {
   }>;
 };
 
+export type SendChatResponse = {
+  session: PrismaChatSession;
+  userMessage: PrismaChatMessage;
+  aiMessage: PrismaChatMessage;
+};
+
+/**
+ * Request Types for Chat related APIs
+ */
+export type SendChatWithNoteApiRequest = {
+  message: string;
+  sessionId?: string;
+};
+
 /**
  * Prisma Types - full schema-identical prisma objects
  */
