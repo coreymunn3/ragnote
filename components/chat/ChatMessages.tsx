@@ -1,11 +1,11 @@
 "use client";
 
-import { SimpleChat } from "@/lib/types/chatTypes";
+import { PrismaChatMessage } from "@/lib/types/chatTypes";
 import { AnimatedListItem } from "@/components/animations";
 import ChatMessage from "./ChatMessage";
 
 interface ChatMessagesProps {
-  messages: SimpleChat[];
+  messages: PrismaChatMessage[];
 }
 
 const ChatMessages = ({ messages }: ChatMessagesProps) => {
@@ -13,7 +13,7 @@ const ChatMessages = ({ messages }: ChatMessagesProps) => {
     <div className="flex flex-col space-y-2 overflow-y-auto">
       {messages.map((message, index) => (
         <AnimatedListItem
-          key={`${message.sender_type}-${message.created_at.getTime()}-${index}`}
+          key={message.id}
           index={index}
           animation={
             message.sender_type === "USER" ? "fadeInRight" : "fadeInLeft"

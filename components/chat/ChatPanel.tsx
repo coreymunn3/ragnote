@@ -11,10 +11,11 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { SimpleChat } from "@/lib/types/chatTypes";
+import { PrismaChatMessage } from "@/lib/types/chatTypes";
 import ChatMessages from "./ChatMessages";
 import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import VersionBadge from "../VersionBadge";
+import { useChatWithNote } from "@/hooks/chat/useChatWithNote";
 
 interface ChatPanelProps {
   open: boolean;
@@ -32,30 +33,34 @@ const ChatPanel = ({
   // GET the chat session history for this note version
   // MUTATION to send a chat message (this create a new session & will hold the conversation)
   const [chatSessionId, setChatSessionId] = useState<string | undefined>();
-  const [conversation, setConversation] = useState<SimpleChat[]>([]);
-  const { noteVersions } = useNoteVersionContext();
+  const [conversation, setConversation] = useState<PrismaChatMessage[]>([]);
+  const { noteVersions, note } = useNoteVersionContext();
   // the user must chat with only the most recently published version
   const mostRecentPublishedVersion = noteVersions.filter(
     (version) => version.is_published
   )[0];
 
-  const handleSendChat = (input: string) => {
-    // send the human message
-    const newChat: SimpleChat = {
-      sender_type: "USER",
-      content: input,
-      created_at: new Date(),
-    };
-    setConversation((prev) => [...prev, newChat]);
-    // mock the AI response, after a short delay
-    const simpleResponse: SimpleChat = {
-      sender_type: "AI",
-      content: "This is the AI Response!",
-      created_at: new Date(),
-    };
-    setTimeout(() => {
-      setConversation((prev) => [...prev, simpleResponse]);
-    }, 300);
+  // Hook for sending chat messages
+  const sendChatMutation = useChatWithNote({
+    onSuccess: (response) => {
+      setChatSessionId(response.session.id);
+      // Add both user and AI messages to conversation
+      setConversation((prev) => [
+        ...prev,
+        response.userMessage,
+        response.aiMessage,
+      ]);
+    },
+  });
+
+  const handleSendChat = (message: string) => {
+    if (!note?.id) return;
+    // Send message using the API
+    sendChatMutation.mutate({
+      noteId: note.id,
+      message,
+      sessionId: chatSessionId,
+    });
   };
 
   return (
@@ -127,12 +132,10 @@ const ChatPanel = ({
           {/* Bottom area - message input */}
           <div className="flex-shrink-0">
             <ChatInput
-              onSend={(message) => {
-                // TODO: Handle sending message to AI service
-                console.log("Sending message:", message);
-                handleSendChat(message);
-              }}
-              disabled={!mostRecentPublishedVersion}
+              onSend={handleSendChat}
+              disabled={
+                !mostRecentPublishedVersion || sendChatMutation.isPending
+              }
               placeholder={`Ask about ${title}...`}
             />
           </div>

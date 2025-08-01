@@ -1,11 +1,12 @@
 "use client";
 
-import { SimpleChat } from "@/lib/types/chatTypes";
+import { PrismaChatMessage } from "@/lib/types/chatTypes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@clerk/nextjs";
+import { DateTime } from "luxon";
 
 interface ChatMessageProps {
-  message: SimpleChat;
+  message: PrismaChatMessage;
 }
 
 const ChatMessage = ({ message }: ChatMessageProps) => {
@@ -32,10 +33,9 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
       <div className="chat-header">
         <span className="text-xs opacity-50">{isUser ? "You" : "AI"}</span>
         <time className="text-xs opacity-50 ml-1">
-          {message.created_at.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {DateTime.fromISO(message.created_at.toString()).toLocaleString(
+            DateTime.TIME_SIMPLE
+          )}
         </time>
       </div>
       {/* Message content */}
