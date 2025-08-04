@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
 import { RateLimitError } from "@/lib/errors/apiErrors";
 
-export class RagService {
+export class AiService {
   private static readonly SINGLE_CHUNK_THRESHOLD = 500;
 
   constructor() {
@@ -68,7 +68,7 @@ export class RagService {
   ) {
     try {
       // for shorter notes, just embed as single chunk
-      if (plainTextContent.length <= RagService.SINGLE_CHUNK_THRESHOLD) {
+      if (plainTextContent.length <= AiService.SINGLE_CHUNK_THRESHOLD) {
         return await this.createSingleChunk(
           versionId,
           plainTextContent,

@@ -27,10 +27,10 @@ import { transformToNote } from "./noteTransformers";
 import { SYSTEM_FOLDERS } from "@/lib/types/folderTypes";
 import { isSystemFolder } from "@/lib/utils/folderUtils";
 import { NoteTextExtractor } from "./noteTextExtractor";
-import { RagService } from "../rag/ragService";
+import { AiService } from "../ai/aiService";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
 
-const ragService = new RagService();
+const aiService = new AiService();
 
 export class NoteService {
   /**
@@ -728,7 +728,7 @@ export class NoteService {
       const result = await prisma.$transaction(async (tx) => {
         try {
           // Create embeddings using the RAG service with the transaction
-          await ragService.createEmbeddedChunksForVersion(
+          await aiService.createEmbeddedChunksForVersion(
             versionId,
             plainTextContent,
             tx
