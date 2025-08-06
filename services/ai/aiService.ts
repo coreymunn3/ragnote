@@ -3,9 +3,11 @@ import { OpenAIEmbedding, openai } from "@llamaindex/openai";
 import { prisma } from "@/lib/prisma";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
 import { RateLimitError } from "@/lib/errors/apiErrors";
+import { PGVectorStore } from "@llamaindex/postgres";
 
 export class AiService {
   private static readonly SINGLE_CHUNK_THRESHOLD = 500;
+  private vectorStore: PGVectorStore;
 
   constructor() {
     if (!process.env.OPENAI_API_KEY) {
@@ -20,6 +22,15 @@ export class AiService {
     Settings.llm = openai({
       apiKey: process.env.OPENAI_API_KEY,
       model: "gpt-4o",
+    });
+
+    this.vectorStore = new PGVectorStore({
+      clientConfig: {
+        connectionString: process.env.DATABASE_URL,
+      },
+      tableName: "llamaindex_embedding",
+      performSetup: false,
+      dimensions: 1536,
     });
   }
 
