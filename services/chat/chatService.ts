@@ -15,6 +15,9 @@ import {
   sendChatSchema,
 } from "./chatValidators";
 import { NotFoundError } from "@/lib/errors/apiErrors";
+import { AiService } from "../ai/aiService";
+
+const aiService = new AiService();
 
 export class ChatService {
   /**
@@ -49,6 +52,7 @@ export class ChatService {
 
   /**
    * Creates a chatScope from the API passthrough data
+   * TO DO - add the user ID to the chat scope
    */
   public createChatScope = withErrorHandling(
     async (params: {
@@ -253,6 +257,7 @@ export class ChatService {
        * Generate the AI Response
        * for now...a dummy response
        */
+
       const dummyResponse =
         "Hi, Im your AI Assistant, but I havent been implemented yet! Hope you are having a great day.";
       // save the AI response
@@ -261,6 +266,16 @@ export class ChatService {
         sender: "AI",
         message: dummyResponse,
       });
+
+      // Instantiate the agent
+      // const agent = await aiService.createChatAgend(
+      //   validatedUserId,
+      //   currentChatScope,
+      // )
+      // call the agent - eventually setup streaming (streamChat)
+      // const resp = await agent.chat(validatedMessage)
+      // return resp
+
       // return
       return {
         session: currentSession,
