@@ -1,4 +1,3 @@
-import { createAgent } from "../index";
 import { ChatScopeObject } from "@/lib/types/chatTypes";
 import { prisma } from "@/lib/prisma";
 import { AiService } from "../../aiService";
@@ -6,7 +5,7 @@ import { AiService } from "../../aiService";
 async function testAgent() {
   try {
     // Initialize AiService to set up Settings (embeddings, etc.)
-    new AiService();
+    const aiService = new AiService();
 
     // TODO: Fill in your test data
     const userId = "d3c13a7b-5630-4e0f-afa5-ef7f560e65b4";
@@ -22,13 +21,13 @@ async function testAgent() {
     };
 
     // Create and test the agent
-    const agent = await createAgent("noteChat", userId, chatScope);
+    const agent = await aiService.createAgentFromScope(userId, chatScope);
     console.log("✅ Agent created successfully");
 
-    const query = "whats in my diet plan?";
+    const query = "whats are some of my favorite things?";
     console.log(`💬 Testing query: "${query}"`);
 
-    const response = await agent.run(query);
+    const response = await agent!.run(query);
 
     console.log("🤖 Response:", JSON.stringify(response.data, null, 2));
   } catch (error) {

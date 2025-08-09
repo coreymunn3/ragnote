@@ -1,8 +1,6 @@
 import { ChatScopeObject } from "@/lib/types/chatTypes";
 import { PGVectorStore } from "@llamaindex/postgres";
-import { similarity, tool, VectorStoreIndex } from "llamaindex";
-import { z } from "zod";
-import { ChatScopeFilter } from "./chatScopeFilter";
+import { MetadataFilters, VectorStoreIndex } from "llamaindex";
 
 export const createRagTool = async (
   userId: string,
@@ -20,8 +18,7 @@ export const createRagTool = async (
   vectorStore.setCollection(userId);
 
   // create the filters
-  const chatScopeFIlters = new ChatScopeFilter(userId, chatScope);
-  const filters = await chatScopeFIlters.buildFilters();
+  const vectorStoreFilters = await createVectorStoreFilters(chatScope);
 
   // create an index and retriever
   const index = await VectorStoreIndex.fromVectorStore(vectorStore);
@@ -34,7 +31,54 @@ export const createRagTool = async (
     },
     options: {
       similarityTopK: 5,
-      filters: filters,
+      filters: vectorStoreFilters,
     },
   });
+};
+
+const createVectorStoreFilters = async (
+  scope: ChatScopeObject
+): Promise<MetadataFilters | undefined> => {
+  if (scope.scope === "note") {
+    const versionIds = scope.noteVersions.map((version) => version.versionId);
+    return {
+      filters: [
+        {
+          key: "note_version_id",
+          operator: "in",
+          value: versionIds,
+        },
+      ],
+    };
+  }
+  // TO DO
+  // else if (this.chatScope.scope === "folder") {
+  // Get most recent published versions for notes in this folder
+  // const validVersionIds = await this.getMostRecentPublishedVersionIds(
+  //   this.userId,
+  //   this.chatScope.scopeId
+  // );
+  // return {
+  //   filters: {
+  //     metadata: {
+  //       note_version_id: { $in: validVersionIds },
+  //       folder_id: this.chatScope.scopeId
+  //     }
+  //   }
+  // };
+  // }
+
+  // TO DO
+  // else if (this.chatScope.scope === 'global') {
+  //   // Get most recent published versions for all user's notes
+  //   const validVersionIds = await this.getMostRecentPublishedVersionIds(userId);
+
+  //   return {
+  //     filters: {
+  //       metadata: {
+  //         note_version_id: { $in: validVersionIds }
+  //       }
+  //     }
+  //   };
+  // }
 };
