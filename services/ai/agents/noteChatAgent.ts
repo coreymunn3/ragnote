@@ -11,6 +11,7 @@ export const createNoteChatAgent = async (
   return agent({
     tools,
     llm: openai({ model: "gpt-4o-mini" }),
+    // systemPrompt: ''
   });
 };
 

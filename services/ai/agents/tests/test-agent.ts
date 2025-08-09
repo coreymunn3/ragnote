@@ -1,6 +1,7 @@
 import { ChatScopeObject } from "@/lib/types/chatTypes";
 import { prisma } from "@/lib/prisma";
 import { AiService } from "../../aiService";
+import fs from "fs";
 
 async function testAgent() {
   try {
@@ -29,7 +30,11 @@ async function testAgent() {
 
     const response = await agent!.run(query);
 
-    console.log("🤖 Response:", JSON.stringify(response.data, null, 2));
+    fs.writeFileSync(
+      "agent-response.json",
+      JSON.stringify(response.data, null, 2)
+    );
+    console.log("✅ Response written to agent-response.json");
   } catch (error) {
     console.error("❌ Test failed:", error);
   } finally {

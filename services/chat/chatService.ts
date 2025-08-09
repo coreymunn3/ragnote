@@ -14,8 +14,9 @@ import {
   createChatMessageSchema,
   sendChatSchema,
 } from "./chatValidators";
-import { NotFoundError } from "@/lib/errors/apiErrors";
+import { InternalServerError, NotFoundError } from "@/lib/errors/apiErrors";
 import { AiService } from "../ai/aiService";
+import { AgentResultData, WorkflowEventData } from "@llamaindex/workflow";
 
 const aiService = new AiService();
 
@@ -219,6 +220,16 @@ export class ChatService {
       } = sendChatSchema.parse(params);
 
       /**
+       * Create the chat scope from the args
+       */
+      const currentChatScope = await this.createChatScope({
+        userId: validatedUserId,
+        scope: validatedScope,
+        noteId: validatedNoteId,
+        folderId: validatedFolderId,
+      });
+
+      /**
        * Get or create the chat session to use
        */
       let currentSession: PrismaChatSession;
@@ -230,14 +241,7 @@ export class ChatService {
           sessionId: validatedSessionId,
         });
       } else {
-        // Create new session - first create the chat scope
-        const currentChatScope = await this.createChatScope({
-          userId: validatedUserId,
-          scope: validatedScope,
-          noteId: validatedNoteId,
-          folderId: validatedFolderId,
-        });
-
+        // create the new session
         currentSession = await this.createChatSession({
           userId: validatedUserId,
           chatScope: currentChatScope,
@@ -254,27 +258,29 @@ export class ChatService {
       });
 
       /**
-       * Generate the AI Response
-       * for now...a dummy response
+       * Create & call the agent to get a response
        */
+      const agent = await aiService.createAgentFromScope(
+        validatedUserId,
+        currentChatScope
+      );
+      if (!agent) {
+        throw new InternalServerError(
+          `Unable to create/init chat agent with scope: ${JSON.stringify(currentChatScope)}`
+        );
+      }
+      // call the agent - TO DO eventually setup streaming (agent.runStream)
+      const aiResponse = await agent.run(validatedMessage);
 
-      const dummyResponse =
-        "Hi, Im your AI Assistant, but I havent been implemented yet! Hope you are having a great day.";
-      // save the AI response
+      /**
+       * Create the ai chat response
+       */
       const aiMessage = await this.createChatMessage({
         sessionId: currentSession.id,
         sender: "AI",
-        message: dummyResponse,
+        message: aiResponse.data.message.content.toString(),
+        llmResponse: JSON.parse(JSON.stringify(aiResponse.data)),
       });
-
-      // Instantiate the agent
-      // const agent = await aiService.createChatAgend(
-      //   validatedUserId,
-      //   currentChatScope,
-      // )
-      // call the agent - eventually setup streaming (streamChat)
-      // const resp = await agent.chat(validatedMessage)
-      // return resp
 
       // return
       return {

@@ -33,6 +33,8 @@ export const createRagTool = async (
       similarityTopK: 5,
       filters: vectorStoreFilters,
     },
+    // setting to true will return source nodes used and their scores
+    includeSourceNodes: false,
   });
 };
 
