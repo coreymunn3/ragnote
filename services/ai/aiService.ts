@@ -5,6 +5,8 @@ import { PrismaTransaction } from "@/lib/types/sharedTypes";
 import { RateLimitError } from "@/lib/errors/apiErrors";
 import { ChatScopeObject } from "@/lib/types/chatTypes";
 import { createNoteChatAgent } from "./agents/noteChatAgent";
+import { AgentWorkflow } from "@llamaindex/workflow";
+import { EmbeddedChunks } from "./aiTypes";
 
 export class AiService {
   private static readonly SINGLE_CHUNK_THRESHOLD = 500;
@@ -67,7 +69,7 @@ export class AiService {
     versionId: string,
     plainTextContent: string,
     prismaTransaction?: PrismaTransaction
-  ) {
+  ): Promise<EmbeddedChunks> {
     try {
       // for shorter notes, just embed as single chunk
       if (plainTextContent.length <= AiService.SINGLE_CHUNK_THRESHOLD) {
@@ -113,7 +115,7 @@ export class AiService {
     versionId: string,
     plainTextContent: string,
     prismaTransaction?: PrismaTransaction
-  ) {
+  ): Promise<EmbeddedChunks> {
     // figure out which client instance we will use - prismaTransaction but fall back to regular prisma instance otherwise
     const prismaObj = prismaTransaction || prisma;
 
@@ -144,7 +146,7 @@ export class AiService {
     versionId: string,
     plainTextContent: string,
     prismaTransaction?: PrismaTransaction
-  ) {
+  ): Promise<EmbeddedChunks> {
     // figure out which client instance we will use - prismaTransaction but fall back to regular prisma instance otherwise
     const prismaObj = prismaTransaction || prisma;
 
@@ -179,7 +181,7 @@ export class AiService {
   public async createAgentFromScope(
     userId: string,
     chatScope: ChatScopeObject
-  ) {
+  ): Promise<AgentWorkflow | undefined> {
     switch (chatScope.scope) {
       case "note":
         const agent = await createNoteChatAgent(userId, chatScope);
