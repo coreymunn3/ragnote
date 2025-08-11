@@ -3,7 +3,7 @@ import { OpenAIEmbedding, openai } from "@llamaindex/openai";
 import { prisma } from "@/lib/prisma";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
 import { RateLimitError } from "@/lib/errors/apiErrors";
-import { ChatScopeObject } from "@/lib/types/chatTypes";
+import { ChatScopeObject, PrismaChatMessage } from "@/lib/types/chatTypes";
 import { createNoteChatAgent } from "./agents/noteChatAgent";
 import { AgentWorkflow } from "@llamaindex/workflow";
 import { EmbeddedChunks } from "./aiTypes";
@@ -180,11 +180,16 @@ export class AiService {
 
   public async createAgentFromScope(
     userId: string,
-    chatScope: ChatScopeObject
+    chatScope: ChatScopeObject,
+    messageHistory?: PrismaChatMessage[]
   ): Promise<AgentWorkflow | undefined> {
     switch (chatScope.scope) {
       case "note":
-        const agent = await createNoteChatAgent(userId, chatScope);
+        const agent = await createNoteChatAgent(
+          userId,
+          chatScope,
+          messageHistory
+        );
         return agent;
       // TO DO
       case "folder":

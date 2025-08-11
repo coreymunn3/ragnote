@@ -247,6 +247,15 @@ export class ChatService {
           chatScope: currentChatScope,
         });
       }
+      /**
+       * Get message history for context (excluding the current message)
+       */
+      const messageHistory = await this.getChatMessages({
+        sessionId: currentSession.id,
+        userId: validatedUserId,
+        limit: 50, // Last 50 messages for context
+      });
+      console.log("MESSAGE HISTORY", messageHistory);
 
       /**
        * Create the user's chat message
@@ -258,17 +267,19 @@ export class ChatService {
       });
 
       /**
-       * Create & call the agent to get a response
+       * Create the agent with conversation context
        */
       const agent = await aiService.createAgentFromScope(
         validatedUserId,
-        currentChatScope
+        currentChatScope,
+        messageHistory
       );
       if (!agent) {
         throw new InternalServerError(
           `Unable to create/init chat agent with scope: ${JSON.stringify(currentChatScope)}`
         );
       }
+
       // call the agent - TO DO eventually setup streaming (agent.runStream)
       const aiResponse = await agent.run(validatedMessage);
 

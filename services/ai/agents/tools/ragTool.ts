@@ -27,7 +27,7 @@ export const createRagTool = async (
     metadata: {
       name: "search_notes",
       description:
-        "Search through the users notes to find relevant information and answer questions. This tool enables retrieval augmented generation.",
+        "Search through the user's notes to find specific information, facts, details, or content that can help answer questions. Use this tool when the user is asking about something that might be contained in their notes, needs specific information retrieved, or wants to find relevant content. This tool performs semantic search across note content.",
     },
     options: {
       similarityTopK: 5,
