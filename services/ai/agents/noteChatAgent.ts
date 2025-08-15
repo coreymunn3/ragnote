@@ -34,8 +34,6 @@ Remember: You are working with the user's personal notes and should respect thei
     systemPrompt += `\n\n--- Previous Conversation ---\n${conversationContext}\n\nUse this conversation history to provide contextually aware responses and maintain conversation continuity.`;
   }
 
-  console.log("SYSTEM PROMPT", systemPrompt);
-
   return agent({
     tools,
     llm: openai({ model: "gpt-4o-mini" }),
