@@ -60,7 +60,7 @@ export type PrismaChatMessage = {
   chat_session_id: string;
   sender_type: "USER" | "AI";
   content: string;
-  referenced_note_chunk_ids: string[];
-  referenced_file_chunk_ids: string[];
   created_at: Date;
+  llm_response: any;
+  llm_sources: any;
 };

@@ -178,8 +178,6 @@ export class ChatService {
           sender_type: validatedData.sender,
           content: validatedData.message,
           llm_response: validatedData.llmResponse,
-          referenced_note_chunk_ids: validatedData.referencedNoteChunkIds,
-          referenced_file_chunk_ids: validatedData.referencedFileChunkIds,
         },
       });
       // update the sessions updated_at ts
@@ -255,7 +253,6 @@ export class ChatService {
         userId: validatedUserId,
         limit: 50, // Last 50 messages for context
       });
-      console.log("MESSAGE HISTORY", messageHistory);
 
       /**
        * Create the user's chat message
@@ -282,6 +279,7 @@ export class ChatService {
 
       // call the agent - TO DO eventually setup streaming (agent.runStream)
       const aiResponse = await agent.run(validatedMessage);
+      console.log("response", JSON.stringify(aiResponse));
 
       /**
        * Create the ai chat response

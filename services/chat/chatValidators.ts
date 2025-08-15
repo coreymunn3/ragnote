@@ -28,8 +28,7 @@ export const createChatMessageSchema = z.object({
     .trim()
     .refine((message) => message.length > 0, "Message cannot be whitespace."),
   llmResponse: z.any().optional(),
-  referencedNoteChunkIds: z.array(z.string()).optional().default([]),
-  referencedFileChunkIds: z.array(z.string()).optional().default([]),
+  llmSources: z.any().optional(),
 });
 
 export const sendChatSchema = z.object({
