@@ -31,6 +31,16 @@ export type SendChatResponse = {
   aiMessage: PrismaChatMessage;
 };
 
+export type LlmSource = {
+  chunkId: string; // node.id_
+  noteId: string; // node.metadata.note_id
+  noteTitle: string; // node.metadata.note_title
+  chunkIndex: number; // node.metadata.chunk_index
+  noteVersionId: string; // node.metadata.note_version_id
+  textSnippet: string; // node.text (maybe truncated)
+  relevanceScore: number; // score
+};
+
 /**
  * Request Types for Chat related APIs
  */
@@ -61,6 +71,6 @@ export type PrismaChatMessage = {
   sender_type: "USER" | "AI";
   content: string;
   created_at: Date;
-  llm_response: any;
-  llm_sources: any;
+  llm_response?: any;
+  llm_sources?: LlmSource[];
 };

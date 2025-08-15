@@ -6,6 +6,7 @@ import {
   PrismaChatMessage,
   PrismaChatSession,
   SendChatResponse,
+  LlmSource,
 } from "@/lib/types/chatTypes";
 import {
   createChatScopeSchema,
@@ -14,6 +15,7 @@ import {
   createChatMessageSchema,
   sendChatSchema,
 } from "./chatValidators";
+import { transformToChatMessage } from "./chatTransformers";
 import { InternalServerError, NotFoundError } from "@/lib/errors/apiErrors";
 import { AiService } from "../ai/aiService";
 import { AgentResultData, WorkflowEventData } from "@llamaindex/workflow";
@@ -152,7 +154,7 @@ export class ChatService {
         skip: validatedData.offset,
       });
 
-      return messages;
+      return messages.map(transformToChatMessage);
     }
   );
 
@@ -165,8 +167,7 @@ export class ChatService {
       sender: "USER" | "AI";
       message: string;
       llmResponse?: any;
-      referencedNoteChunkIds?: string[];
-      referencedFileChunkIds?: string[];
+      llmSources?: LlmSource[];
     }): Promise<PrismaChatMessage> => {
       // validate - this private method is downstream of the session ID
       // so at this point we know the session ID is valid and exists and belongs to the user
@@ -178,6 +179,7 @@ export class ChatService {
           sender_type: validatedData.sender,
           content: validatedData.message,
           llm_response: validatedData.llmResponse,
+          llm_sources: validatedData.llmSources,
         },
       });
       // update the sessions updated_at ts
@@ -190,7 +192,7 @@ export class ChatService {
         },
       });
 
-      return message;
+      return transformToChatMessage(message);
     }
   );
 
