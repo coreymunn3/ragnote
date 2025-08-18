@@ -11,7 +11,6 @@ interface ChatMessagesProps {
 
 const ChatMessages = ({ messages }: ChatMessagesProps) => {
   const messagesEnd = useRef<null | HTMLDivElement>(null);
-  console.log(messagesEnd);
 
   const scrollToBottom = () => {
     if (messagesEnd.current) {
