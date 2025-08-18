@@ -31,6 +31,17 @@ export type SendChatResponse = {
   aiMessage: PrismaChatMessage;
 };
 
+/**
+ * Frontend-optimized message type for chat UI
+ */
+export type ChatDisplayMessage = {
+  id: string;
+  sender_type: "USER" | "AI";
+  content: string;
+  created_at: Date;
+  status?: "optimistic" | "thinking" | "sent" | "error";
+};
+
 export type LlmSource = {
   chunkId: string; // node.id_
   noteId: string; // node.metadata.note_id

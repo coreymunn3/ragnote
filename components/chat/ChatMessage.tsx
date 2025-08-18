@@ -1,13 +1,31 @@
 "use client";
 
-import { PrismaChatMessage } from "@/lib/types/chatTypes";
+import { ChatDisplayMessage } from "@/lib/types/chatTypes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@clerk/nextjs";
 import { DateTime } from "luxon";
+import { isThinkingMessage } from "@/lib/utils/chatMessageHelpers";
 
 interface ChatMessageProps {
-  message: PrismaChatMessage;
+  message: ChatDisplayMessage;
 }
+
+/**
+ * This thinking indicator is a way of showing the AI is thinking about the response.
+ * It is 3 dots slowly moving up and down
+ */
+const ThinkingIndicator = () => {
+  return (
+    <div className="flex items-center space-x-1">
+      <span className="text-sm opacity-70">AI is thinking</span>
+      <div className="flex space-x-1">
+        <div className="w-1 h-1 bg-current rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+        <div className="w-1 h-1 bg-current rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+        <div className="w-1 h-1 bg-current rounded-full animate-bounce"></div>
+      </div>
+    </div>
+  );
+};
 
 const ChatMessage = ({ message }: ChatMessageProps) => {
   const { user, isLoaded } = useUser();
@@ -46,7 +64,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             : "bg-muted text-muted-foreground"
         }`}
       >
-        {message.content}
+        {isThinkingMessage(message) ? <ThinkingIndicator /> : message.content}
       </div>
     </div>
   );

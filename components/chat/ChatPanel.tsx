@@ -11,11 +11,17 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { PrismaChatMessage } from "@/lib/types/chatTypes";
+import { ChatDisplayMessage } from "@/lib/types/chatTypes";
 import ChatMessages from "./ChatMessages";
 import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import VersionBadge from "../VersionBadge";
 import { useChatWithNote } from "@/hooks/chat/useChatWithNote";
+import {
+  fromPrismaMessage,
+  createOptimisticUserMessage,
+  createThinkingMessage,
+  isTemporaryMessage,
+} from "@/lib/utils/chatMessageHelpers";
 
 interface ChatPanelProps {
   open: boolean;
@@ -33,7 +39,7 @@ const ChatPanel = ({
   // GET the chat session history for this note version
   // MUTATION to send a chat message (this create a new session & will hold the conversation)
   const [chatSessionId, setChatSessionId] = useState<string | undefined>();
-  const [conversation, setConversation] = useState<PrismaChatMessage[]>([]);
+  const [conversation, setConversation] = useState<ChatDisplayMessage[]>([]);
   const { noteVersions, note } = useNoteVersionContext();
   // the user must chat with only the most recently published version
   const mostRecentPublishedVersion = noteVersions.filter(
@@ -44,17 +50,41 @@ const ChatPanel = ({
   const sendChatMutation = useChatWithNote({
     onSuccess: (response) => {
       setChatSessionId(response.session.id);
-      // Add both user and AI messages to conversation
-      setConversation((prev) => [
-        ...prev,
-        response.userMessage,
-        response.aiMessage,
-      ]);
+
+      // Remove thinking message and add real AI response
+      setConversation((prev) => {
+        // Filter out temporary messages (optimistic user message and thinking message)
+        const withoutTempMessages = prev.filter(
+          (msg) => !isTemporaryMessage(msg)
+        );
+
+        // Add the real user and AI messages from the API
+        return [
+          ...withoutTempMessages,
+          fromPrismaMessage(response.userMessage),
+          fromPrismaMessage(response.aiMessage),
+        ];
+      });
+    },
+    onError: (error) => {
+      // Remove optimistic and thinking messages on error
+      setConversation((prev) => prev.filter((msg) => !isTemporaryMessage(msg)));
     },
   });
 
   const handleSendChat = (message: string) => {
     if (!note?.id) return;
+
+    // Immediately add optimistic user message
+    const optimisticUserMessage = createOptimisticUserMessage(message);
+    const thinkingMessage = createThinkingMessage();
+
+    setConversation((prev) => [
+      ...prev,
+      optimisticUserMessage,
+      thinkingMessage,
+    ]);
+
     // Send message using the API
     sendChatMutation.mutate({
       noteId: note.id,
@@ -70,7 +100,7 @@ const ChatPanel = ({
       </SheetHeader>
       <SheetContent
         className={cn(
-          "p-2 pb-8",
+          "p-1 pb-8",
           isMobile
             ? "h-[80vh] rounded-t-lg flex flex-col"
             : "min-w-[500px] flex flex-col",
@@ -78,7 +108,7 @@ const ChatPanel = ({
         )}
         side={isMobile ? "bottom" : "right"}
       >
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col max-h-screen">
           {/* Top Banner - title and history */}
           <div className="p-1 flex justify-between items-center border-b border-sidebar-border">
             {/* left side: title and active version */}
@@ -107,7 +137,8 @@ const ChatPanel = ({
             </Button>
           </div>
           {/* Middle area - space for conversation bubbles */}
-          <div className="flex-1 overflow-y-auto p-3">
+          <div className="flex-1 overflow-y-scroll p-3 ">
+            hello
             {!mostRecentPublishedVersion && (
               <div className="flex items-center justify-center h-full text-center">
                 <TypographyMuted>
@@ -130,7 +161,7 @@ const ChatPanel = ({
           </div>
 
           {/* Bottom area - message input */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 p-2 pb-4">
             <ChatInput
               onSend={handleSendChat}
               disabled={

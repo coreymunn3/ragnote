@@ -281,7 +281,6 @@ export class ChatService {
 
       // call the agent - TO DO eventually setup streaming (agent.runStream)
       const aiResponse = await agent.run(validatedMessage);
-      console.log("response", JSON.stringify(aiResponse));
 
       /**
        * Create the ai chat response
@@ -291,6 +290,7 @@ export class ChatService {
         sender: "AI",
         message: aiResponse.data.message.content.toString(),
         llmResponse: JSON.parse(JSON.stringify(aiResponse.data)),
+        // llmSources TO DO later - eventually we want to try to use the retrieved sources.
       });
 
       // return

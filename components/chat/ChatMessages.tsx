@@ -1,11 +1,11 @@
 "use client";
 
-import { PrismaChatMessage } from "@/lib/types/chatTypes";
+import { ChatDisplayMessage } from "@/lib/types/chatTypes";
 import { AnimatedListItem } from "@/components/animations";
 import ChatMessage from "./ChatMessage";
 
 interface ChatMessagesProps {
-  messages: PrismaChatMessage[];
+  messages: ChatDisplayMessage[];
 }
 
 const ChatMessages = ({ messages }: ChatMessagesProps) => {
