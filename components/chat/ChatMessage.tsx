@@ -4,6 +4,7 @@ import { ChatDisplayMessage } from "@/lib/types/chatTypes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@clerk/nextjs";
 import { DateTime } from "luxon";
+import Markdown from "react-markdown";
 import { isThinkingMessage } from "@/lib/utils/chatMessageHelpers";
 
 interface ChatMessageProps {
@@ -17,7 +18,7 @@ interface ChatMessageProps {
 const ThinkingIndicator = () => {
   return (
     <div className="flex items-center space-x-1">
-      <span className="text-sm opacity-70">AI is thinking</span>
+      <span className="text-sm opacity-70">I'm thinking</span>
       <div className="flex space-x-1">
         <div className="w-1 h-1 bg-current rounded-full animate-bounce [animation-delay:-0.3s]"></div>
         <div className="w-1 h-1 bg-current rounded-full animate-bounce [animation-delay:-0.15s]"></div>
@@ -64,7 +65,11 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             : "bg-muted text-muted-foreground"
         }`}
       >
-        {isThinkingMessage(message) ? <ThinkingIndicator /> : message.content}
+        {isThinkingMessage(message) ? (
+          <ThinkingIndicator />
+        ) : (
+          <Markdown>{message.content}</Markdown>
+        )}
       </div>
     </div>
   );
