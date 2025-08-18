@@ -12,6 +12,7 @@ import WidgetList from "../web/WidgetList";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
+  showSuggestions?: boolean;
   disabled?: boolean;
   placeholder?: string;
 }
@@ -25,11 +26,11 @@ declare global {
 
 const ChatInput = ({
   onSend,
+  showSuggestions: showSuggestionsProp,
   disabled = false,
   placeholder = "Ask about this note...",
 }: ChatInputProps) => {
   const [message, setMessage] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(true);
   const [isListening, setIsListening] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -73,7 +74,6 @@ const ChatInput = ({
   // Handle suggestion click
   const handleSuggestionClick = (suggestion: string) => {
     setMessage(suggestion);
-    setShowSuggestions(false);
     textareaRef.current?.focus();
   };
 
@@ -121,16 +121,14 @@ const ChatInput = ({
     adjustTextareaHeight();
   }, [message]);
 
-  // Hide suggestions when user starts typing
-  useEffect(() => {
-    setShowSuggestions(message.length === 0);
-  }, [message]);
+  // Calculate if we should show suggestions based on both prop and message state
+  const shouldShowSuggestions = showSuggestionsProp && message.length === 0;
 
   return (
     <div className="flex flex-col space-y-2">
       {/* Quick Suggestions */}
       <div className="min-h-10">
-        {showSuggestions && (
+        {shouldShowSuggestions && (
           <div className="flex gap-2 overflow-scroll">
             {suggestions.map((suggestion) => (
               <Button

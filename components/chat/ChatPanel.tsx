@@ -100,7 +100,7 @@ const ChatPanel = ({
       </SheetHeader>
       <SheetContent
         className={cn(
-          "p-1 pb-8",
+          "p-1",
           isMobile
             ? "h-[80vh] rounded-t-lg flex flex-col"
             : "min-w-[500px] flex flex-col",
@@ -138,7 +138,6 @@ const ChatPanel = ({
           </div>
           {/* Middle area - space for conversation bubbles */}
           <div className="flex-1 overflow-y-scroll p-3 ">
-            hello
             {!mostRecentPublishedVersion && (
               <div className="flex items-center justify-center h-full text-center">
                 <TypographyMuted>
@@ -161,9 +160,10 @@ const ChatPanel = ({
           </div>
 
           {/* Bottom area - message input */}
-          <div className="flex-shrink-0 p-2 pb-4">
+          <div className="flex-shrink-0 p-2">
             <ChatInput
               onSend={handleSendChat}
+              showSuggestions={conversation.length === 0 ? true : false}
               disabled={
                 !mostRecentPublishedVersion || sendChatMutation.isPending
               }
