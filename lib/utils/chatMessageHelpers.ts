@@ -1,4 +1,5 @@
 import { ChatDisplayMessage, PrismaChatMessage } from "@/lib/types/chatTypes";
+import { DateTime } from "luxon";
 
 /**
  * Convert Prisma message to display message
@@ -10,7 +11,9 @@ export function fromPrismaMessage(
     id: prismaMessage.id,
     sender_type: prismaMessage.sender_type,
     content: prismaMessage.content,
-    created_at: prismaMessage.created_at,
+    created_at:
+      DateTime.fromJSDate(prismaMessage.created_at).toISO() ||
+      new Date().toISOString(),
     status: "sent",
   };
 }
@@ -25,7 +28,7 @@ export function createOptimisticUserMessage(
     id: `temp-user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     sender_type: "USER",
     content,
-    created_at: new Date(),
+    created_at: DateTime.now().toISO() || new Date().toISOString(),
     status: "optimistic",
   };
 }
@@ -38,7 +41,7 @@ export function createThinkingMessage(): ChatDisplayMessage {
     id: `thinking-ai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     sender_type: "AI",
     content: "",
-    created_at: new Date(),
+    created_at: DateTime.now().toISO() || new Date().toISOString(),
     status: "thinking",
   };
 }

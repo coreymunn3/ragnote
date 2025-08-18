@@ -38,7 +38,7 @@ export type ChatDisplayMessage = {
   id: string;
   sender_type: "USER" | "AI";
   content: string;
-  created_at: Date;
+  created_at: string; // serialized datetime string
   status?: "optimistic" | "thinking" | "sent" | "error";
 };
 
