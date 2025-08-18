@@ -127,8 +127,8 @@ const ChatInput = ({
   return (
     <div className="flex flex-col space-y-2">
       {/* Quick Suggestions */}
-      <div className="min-h-10">
-        {shouldShowSuggestions && (
+      {shouldShowSuggestions && (
+        <div className="min-h-10">
           <div className="flex gap-2 overflow-scroll">
             {suggestions.map((suggestion) => (
               <Button
@@ -142,8 +142,8 @@ const ChatInput = ({
               </Button>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Input Area - Integrated Design */}
       <Tooltip>
