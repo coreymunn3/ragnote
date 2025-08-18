@@ -40,7 +40,7 @@ const ChatPanel = ({
   // MUTATION to send a chat message (this create a new session & will hold the conversation)
   const [chatSessionId, setChatSessionId] = useState<string | undefined>();
   const [conversation, setConversation] = useState<ChatDisplayMessage[]>([]);
-  console.log(conversation);
+
   const { noteVersions, note } = useNoteVersionContext();
   // the user must chat with only the most recently published version
   const mostRecentPublishedVersion = noteVersions.filter(
