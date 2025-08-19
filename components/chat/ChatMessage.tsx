@@ -61,8 +61,8 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
       <div
         className={`chat-bubble rounded-lg ${
           isUser
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-muted-foreground"
+            ? `${message.status === "sent" ? "bg-primary" : "bg-primary/50"} text-primary-foreground`
+            : `${message.status === "sent" ? "bg-muted" : "bg-muted/50"} text-muted-foreground`
         }`}
       >
         {isThinkingMessage(message) ? (
