@@ -3,28 +3,54 @@ import {
   LlmSource,
   PrismaChatSession,
   ChatScopeObject,
+  ChatMessage,
+  ChatSession,
 } from "@/lib/types/chatTypes";
+import { prisma } from "@/lib/prisma";
 
 /**
- * Transforms a Prisma chat message result to the PrismaChatMessage type expected by the application
- * Handles type casting for JSON fields like llm_sources
+ * Transforms a PrismaChatMessage to the application ChatMessage type
+ * Properly types the JSON fields
  */
-export const transformToChatMessage = (rawMessage: any): PrismaChatMessage => {
+export const transformToChatMessage = (
+  prismaChatMessage: PrismaChatMessage
+): ChatMessage => {
   return {
-    ...rawMessage,
-    llm_sources: rawMessage.llm_sources as LlmSource[] | undefined,
+    id: prismaChatMessage.id,
+    chat_session_id: prismaChatMessage.chat_session_id,
+    sender_type: prismaChatMessage.sender_type,
+    content: prismaChatMessage.content,
+    created_at: prismaChatMessage.created_at,
+    llm_response: prismaChatMessage.llm_response,
+    llm_sources: prismaChatMessage.llm_sources as LlmSource[] | undefined,
   };
 };
 
 /**
- * Transforms a raw prisma chat session to the refined PrismaChatSesson type expected by the application
- * by casting the chat_scope json field to ChatScopeObject
- * @param session
- * @returns
+ * Transforms a PrismaChatSession to the application ChatSession type
+ * Properly types the JSON fields and adds the messages_count property
  */
-export const transformToChatSession = (session: any): PrismaChatSession => {
+export const transformToChatSession = async (
+  prismaChatSession: PrismaChatSession
+): Promise<ChatSession> => {
+  // Get message count for this session
+  const messagesCount = await prisma.chat_message.count({
+    where: {
+      chat_session_id: prismaChatSession.id,
+    },
+  });
+
   return {
-    ...session,
-    chat_scope: session.chat_scope as ChatScopeObject,
+    id: prismaChatSession.id,
+    user_id: prismaChatSession.user_id,
+    title: prismaChatSession.title,
+    chat_scope: prismaChatSession.chat_scope as ChatScopeObject,
+    note_id: prismaChatSession.note_id,
+    folder_id: prismaChatSession.folder_id,
+    is_pinned: prismaChatSession.is_pinned,
+    is_deleted: prismaChatSession.is_deleted,
+    created_at: prismaChatSession.created_at,
+    updated_at: prismaChatSession.updated_at,
+    messages_count: messagesCount,
   };
 };

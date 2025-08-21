@@ -17,7 +17,7 @@ import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import VersionBadge from "../VersionBadge";
 import { useChatWithNote } from "@/hooks/chat/useChatWithNote";
 import {
-  fromPrismaMessage,
+  toDisplayMessage,
   createOptimisticUserMessage,
   createThinkingMessage,
   isTemporaryMessage,
@@ -72,8 +72,8 @@ const ChatPanel = ({
         // Add the real user and AI messages from the API
         return [
           ...withoutTempMessages,
-          fromPrismaMessage(response.userMessage),
-          fromPrismaMessage(response.aiMessage),
+          toDisplayMessage(response.userMessage),
+          toDisplayMessage(response.aiMessage),
         ];
       });
     },

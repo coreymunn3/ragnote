@@ -1,4 +1,4 @@
-import { ChatScopeObject, PrismaChatMessage } from "@/lib/types/chatTypes";
+import { ChatScopeObject, ChatMessage } from "@/lib/types/chatTypes";
 import { openai } from "@llamaindex/openai";
 import { agent } from "@llamaindex/workflow";
 import { createRagTool } from "./tools/ragTool";
@@ -6,7 +6,7 @@ import { createRagTool } from "./tools/ragTool";
 export const createNoteChatAgent = async (
   userId: string,
   scope: ChatScopeObject,
-  messageHistory?: PrismaChatMessage[]
+  messageHistory?: ChatMessage[]
 ) => {
   const tools = await getNoteChatTools(userId, scope);
 

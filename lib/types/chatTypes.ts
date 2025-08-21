@@ -1,17 +1,25 @@
 export type ChatSession = {
   id: string;
-  title: string;
+  user_id: string;
+  title: string | null;
+  chat_scope: ChatScopeObject;
+  note_id: string | null;
+  folder_id: string | null;
   is_pinned: boolean;
   is_deleted: boolean;
-  updated_at: Date;
   created_at: Date;
+  updated_at: Date;
   messages_count: number;
 };
 
-export type SimpleChat = {
+export type ChatMessage = {
+  id: string;
+  chat_session_id: string;
   sender_type: "USER" | "AI";
   content: string;
   created_at: Date;
+  llm_response?: any;
+  llm_sources?: LlmSource[];
 };
 
 export type ChatScope = "note" | "folder" | "global";
@@ -26,9 +34,9 @@ export type ChatScopeObject = {
 };
 
 export type SendChatResponse = {
-  session: PrismaChatSession;
-  userMessage: PrismaChatMessage;
-  aiMessage: PrismaChatMessage;
+  session: ChatSession;
+  userMessage: ChatMessage;
+  aiMessage: ChatMessage;
 };
 
 /**
@@ -67,7 +75,7 @@ export type PrismaChatSession = {
   id: string;
   user_id: string;
   title: string | null;
-  chat_scope: ChatScopeObject;
+  chat_scope: any; // Raw JSON from database
   note_id: string | null;
   folder_id: string | null;
   is_pinned: boolean;
@@ -82,6 +90,6 @@ export type PrismaChatMessage = {
   sender_type: "USER" | "AI";
   content: string;
   created_at: Date;
-  llm_response?: any;
-  llm_sources?: LlmSource[];
+  llm_response?: any; // Raw JSON from database
+  llm_sources?: any; // Raw JSON from database
 };

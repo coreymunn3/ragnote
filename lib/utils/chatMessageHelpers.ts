@@ -1,18 +1,16 @@
-import { ChatDisplayMessage, PrismaChatMessage } from "@/lib/types/chatTypes";
+import { ChatDisplayMessage, ChatMessage } from "@/lib/types/chatTypes";
 import { DateTime } from "luxon";
 
 /**
- * Convert Prisma message to display message
+ * Convert ChatMessage to display message format for UI
  */
-export function fromPrismaMessage(
-  prismaMessage: PrismaChatMessage
-): ChatDisplayMessage {
+export function toDisplayMessage(message: ChatMessage): ChatDisplayMessage {
   return {
-    id: prismaMessage.id,
-    sender_type: prismaMessage.sender_type,
-    content: prismaMessage.content,
+    id: message.id,
+    sender_type: message.sender_type,
+    content: message.content,
     created_at:
-      DateTime.fromJSDate(prismaMessage.created_at).toISO() ||
+      DateTime.fromJSDate(message.created_at).toISO() ||
       new Date().toISOString(),
     status: "sent",
   };
@@ -47,12 +45,12 @@ export function createThinkingMessage(): ChatDisplayMessage {
 }
 
 /**
- * Convert array of Prisma messages to display messages
+ * Convert array of ChatMessages to display messages
  */
-export function fromPrismaMessageArray(
-  prismaMessages: PrismaChatMessage[]
+export function toDisplayMessageArray(
+  messages: ChatMessage[]
 ): ChatDisplayMessage[] {
-  return prismaMessages.map(fromPrismaMessage);
+  return messages.map(toDisplayMessage);
 }
 
 /**

@@ -5,6 +5,8 @@ import {
   ChatScopeObject,
   PrismaChatMessage,
   PrismaChatSession,
+  ChatMessage,
+  ChatSession,
   SendChatResponse,
   LlmSource,
 } from "@/lib/types/chatTypes";
@@ -34,7 +36,7 @@ export class ChatService {
     async (params: {
       userId: string;
       chatScope: ChatScopeObject;
-    }): Promise<PrismaChatSession> => {
+    }): Promise<ChatSession> => {
       // at this point, data has already been validated!
       const { userId, chatScope } = params;
 
@@ -49,8 +51,8 @@ export class ChatService {
         },
       });
 
-      // Cast the session to our expected type
-      return transformToChatSession(session);
+      // Transform the raw session to our application type
+      return await transformToChatSession(session);
     }
   );
 
@@ -113,7 +115,7 @@ export class ChatService {
     async (params: {
       userId: string;
       sessionId: string;
-    }): Promise<PrismaChatSession> => {
+    }): Promise<ChatSession> => {
       const { userId: validatedUserId, sessionId: validatedSessionId } =
         getChatSessionSchema.parse(params);
       // get the session for this user that isn't deleted (no messages)
@@ -128,8 +130,8 @@ export class ChatService {
         throw new NotFoundError("Chat session not found or access denied");
       }
 
-      // Cast the session to our expected type
-      return transformToChatSession(session);
+      // Transform the session to our application type
+      return await transformToChatSession(session);
     }
   );
 
@@ -142,7 +144,7 @@ export class ChatService {
       userId: string;
       limit?: number;
       offset?: number;
-    }): Promise<PrismaChatMessage[]> => {
+    }): Promise<ChatMessage[]> => {
       const validatedData = getChatMessagesSchema.parse(params);
 
       // Get messages for the session
@@ -155,6 +157,7 @@ export class ChatService {
         skip: validatedData.offset,
       });
 
+      // Transform each message to the application type
       return messages.map(transformToChatMessage);
     }
   );
@@ -169,7 +172,7 @@ export class ChatService {
       message: string;
       llmResponse?: any;
       llmSources?: LlmSource[];
-    }): Promise<PrismaChatMessage> => {
+    }): Promise<ChatMessage> => {
       // validate - this private method is downstream of the session ID
       // so at this point we know the session ID is valid and exists and belongs to the user
       const validatedData = createChatMessageSchema.parse(params);
@@ -193,6 +196,7 @@ export class ChatService {
         },
       });
 
+      // Transform to application type
       return transformToChatMessage(message);
     }
   );
@@ -233,7 +237,7 @@ export class ChatService {
       /**
        * Get or create the chat session to use
        */
-      let currentSession: PrismaChatSession;
+      let currentSession: ChatSession;
 
       if (validatedSessionId) {
         // Use existing session
@@ -307,7 +311,10 @@ export class ChatService {
    * Gets all chat sessions for the note and user
    */
   public getChatSessionsForNote = withErrorHandling(
-    async (params: { userId: string; noteId?: string }) => {
+    async (params: {
+      userId: string;
+      noteId?: string;
+    }): Promise<ChatSession[]> => {
       // validate the args
       const { userId: validatedUserId, noteId: validatedNoteId } =
         getChatSessionsForNoteSchema.parse(params);
@@ -322,9 +329,13 @@ export class ChatService {
           updated_at: "desc",
         },
       });
-      // transform the sessions to usable objects
-      const tranformedSessions = sessions.map((s) => transformToChatSession(s));
-      return tranformedSessions;
+
+      // Transform all sessions to application types
+      const transformedSessions = await Promise.all(
+        sessions.map((s) => transformToChatSession(s))
+      );
+
+      return transformedSessions;
     }
   );
 }

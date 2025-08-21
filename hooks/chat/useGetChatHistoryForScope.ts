@@ -1,6 +1,6 @@
-import { ChatScope, PrismaChatSession } from "@/lib/types/chatTypes";
+import { ChatScope, ChatSession } from "@/lib/types/chatTypes";
 import { UseQueryHookOptions } from "@/lib/types/sharedTypes";
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 const getChatHistoryForScope = async (scope: ChatScope, scopeId?: string) => {
@@ -21,7 +21,7 @@ const getChatHistoryForScope = async (scope: ChatScope, scopeId?: string) => {
 };
 
 export type UseGetChatHistoryForScopeOptions = UseQueryHookOptions<
-  PrismaChatSession[]
+  ChatSession[]
 >;
 
 export function useGetChatHistoryForScope(
@@ -29,7 +29,7 @@ export function useGetChatHistoryForScope(
   scopeId?: string,
   options?: UseGetChatHistoryForScopeOptions
 ) {
-  return useQuery<PrismaChatSession[]>({
+  return useQuery<ChatSession[]>({
     queryKey: ["chatHistory", scope, scopeId],
     queryFn: () => getChatHistoryForScope(scope, scopeId),
     ...options,
