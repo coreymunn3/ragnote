@@ -14,8 +14,12 @@ import {
   getChatMessagesSchema,
   createChatMessageSchema,
   sendChatSchema,
+  getChatSessionsForNoteSchema,
 } from "./chatValidators";
-import { transformToChatMessage } from "./chatTransformers";
+import {
+  transformToChatMessage,
+  transformToChatSession,
+} from "./chatTransformers";
 import { InternalServerError, NotFoundError } from "@/lib/errors/apiErrors";
 import { AiService } from "../ai/aiService";
 import { AgentResultData, WorkflowEventData } from "@llamaindex/workflow";
@@ -46,10 +50,7 @@ export class ChatService {
       });
 
       // Cast the session to our expected type
-      return {
-        ...session,
-        chat_scope: session.chat_scope as ChatScopeObject,
-      };
+      return transformToChatSession(session);
     }
   );
 
@@ -105,6 +106,9 @@ export class ChatService {
     }
   );
 
+  /**
+   * Get the full session with chat scope correctly typed given a session ID
+   */
   public getChatSession = withErrorHandling(
     async (params: {
       userId: string;
@@ -125,10 +129,7 @@ export class ChatService {
       }
 
       // Cast the session to our expected type
-      return {
-        ...session,
-        chat_scope: session.chat_scope as ChatScopeObject,
-      };
+      return transformToChatSession(session);
     }
   );
 
@@ -299,6 +300,31 @@ export class ChatService {
         userMessage,
         aiMessage,
       };
+    }
+  );
+
+  /**
+   * Gets all chat sessions for the note and user
+   */
+  public getChatSessionsForNote = withErrorHandling(
+    async (params: { userId: string; noteId?: string }) => {
+      // validate the args
+      const { userId: validatedUserId, noteId: validatedNoteId } =
+        getChatSessionsForNoteSchema.parse(params);
+      // get all chat sessions for the note and user
+      const sessions = await prisma.chat_session.findMany({
+        where: {
+          user_id: validatedUserId,
+          note_id: validatedNoteId,
+          is_deleted: false,
+        },
+        orderBy: {
+          updated_at: "desc",
+        },
+      });
+      // transform the sessions to usable objects
+      const tranformedSessions = sessions.map((s) => transformToChatSession(s));
+      return tranformedSessions;
     }
   );
 }

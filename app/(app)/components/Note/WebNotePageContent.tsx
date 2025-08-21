@@ -103,6 +103,8 @@ const WebNotePageContent = () => {
         open={chatOpen}
         onOpenChange={handleToggleChat}
         title={`${note.title}`}
+        scope="note"
+        scopeId={noteId}
       />
     </div>
   );

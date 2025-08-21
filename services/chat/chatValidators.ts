@@ -43,3 +43,8 @@ export const sendChatSchema = z.object({
   folderId: z.string().uuid().optional(),
   sessionId: z.string().optional(),
 });
+
+export const getChatSessionsForNoteSchema = z.object({
+  userId: z.string().uuid(),
+  noteId: z.string().uuid(),
+});
