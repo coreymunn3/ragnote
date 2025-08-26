@@ -63,7 +63,11 @@ const ChatHistory = ({
   isError = false,
 }: ChatHistoryProps) => {
   return (
-    <div className={`max-h-[80%] p-1 gap-1 border-b border-sidebar-border`}>
+    <div
+      className={`max-h-[40%] py-2 px-1 mx-2 transition-all duration-200 overflow-hidden overflow-y-scroll ${
+        isOpen ? "bg-sidebar rounded-lg" : ""
+      }`}
+    >
       {/* top - 'recent conversations (3)' and toggle */}
       <div className="flex items-center">
         <ChatHistoryHeader
@@ -76,7 +80,7 @@ const ChatHistory = ({
       </div>
       {/* body - chat history items */}
       <AnimatedExpandable isOpen={isOpen}>
-        <div className="space-y-1">
+        <div className="space-y-1 pt-2">
           {/* isError State */}
           {isError && (
             <div className="p-2">
