@@ -1,6 +1,5 @@
 "use client";
-import { HistoryIcon } from "lucide-react";
-import { Button } from "../ui/button";
+
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { TypographyLead, TypographyMuted } from "../ui/typography";
 import ChatInput from "./ChatInput";
@@ -23,6 +22,7 @@ import {
   isTemporaryMessage,
 } from "@/lib/utils/chatMessageHelpers";
 import { useGetChatHistoryForScope } from "@/hooks/chat/useGetChatHistoryForScope";
+import ChatHistory from "./ChatHistory";
 
 interface ChatPanelProps {
   open: boolean;
@@ -45,6 +45,7 @@ const ChatPanel = ({
   // MUTATION to send a chat message (this create a new session & will hold the conversation)
   const [chatSessionId, setChatSessionId] = useState<string | undefined>();
   const [conversation, setConversation] = useState<ChatDisplayMessage[]>([]);
+  const [historyExpanded, setHistoryExpanded] = useState<boolean>(false);
 
   const { noteVersions, note, loading } = useNoteVersionContext();
   // the user must chat with only the most recently published version
@@ -106,6 +107,11 @@ const ChatPanel = ({
     });
   };
 
+  // expands or collapses the history section
+  const handleToggleHistoryExpanded = () => {
+    setHistoryExpanded((prev) => !prev);
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetHeader className="hidden">
@@ -123,7 +129,7 @@ const ChatPanel = ({
       >
         <div className="flex-1 flex flex-col max-h-screen">
           {/* Top Banner - title and history */}
-          <div className="p-1 flex justify-between items-center border-b border-sidebar-border">
+          <div className="p-1 flex justify-between items-center">
             {/* left side: title and active version */}
             <div className="flex flex-row space-x-2 items-center">
               <Tooltip>
@@ -144,11 +150,16 @@ const ChatPanel = ({
                 <VersionBadge version={mostRecentPublishedVersion} />
               )}
             </div>
-            {/* right side: chat history button */}
-            <Button variant={"ghost"} onClick={() => console.log("history")}>
-              <HistoryIcon className="h-4 w-4" />
-            </Button>
           </div>
+          {/* Second Banner - Chat History */}
+          <ChatHistory
+            isOpen={historyExpanded}
+            onOpenChange={handleToggleHistoryExpanded}
+            sessionHistory={chatHistoryForScope.data || []}
+            isLoading={chatHistoryForScope.isLoading}
+            isError={chatHistoryForScope.isError}
+          />
+
           {/* Middle area - space for conversation bubbles */}
           <div className="flex-1 overflow-y-scroll p-3 ">
             {!mostRecentPublishedVersion && (
