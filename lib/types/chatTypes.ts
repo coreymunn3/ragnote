@@ -10,6 +10,7 @@ export type ChatSession = {
   created_at: string;
   updated_at: string;
   messages_count: number;
+  preview: string | null;
 };
 
 export type ChatMessage = {

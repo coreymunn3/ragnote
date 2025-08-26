@@ -40,6 +40,17 @@ export const transformToChatSession = async (
     },
   });
 
+  // get first user message for preview
+  const firstUserMessage = await prisma.chat_message.findFirst({
+    where: {
+      chat_session_id: prismaChatSession.id,
+      sender_type: "USER",
+    },
+    orderBy: {
+      created_at: "asc",
+    },
+  });
+
   return {
     id: prismaChatSession.id,
     user_id: prismaChatSession.user_id,
@@ -52,5 +63,6 @@ export const transformToChatSession = async (
     created_at: prismaChatSession.created_at.toISOString(),
     updated_at: prismaChatSession.updated_at.toISOString(),
     messages_count: messagesCount,
+    preview: firstUserMessage?.content.substring(0, 50) || "",
   };
 };
