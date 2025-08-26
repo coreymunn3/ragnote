@@ -3,6 +3,7 @@ import { TypographyMuted, TypographySmall } from "../ui/typography";
 import { Button } from "../ui/button";
 import { ChatSession } from "@/lib/types/chatTypes";
 import { ChevronRight, HistoryIcon, Loader2Icon } from "lucide-react";
+import { AnimatedExpandable, AnimatedListItem } from "@/components/animations";
 import ChatHistoryItem from "./ChatHistoryItem";
 
 // Small header component for the chat history section
@@ -74,8 +75,8 @@ const ChatHistory = ({
         />
       </div>
       {/* body - chat history items */}
-      {isOpen && (
-        <div className="">
+      <AnimatedExpandable isOpen={isOpen}>
+        <div className="space-y-1">
           {/* isError State */}
           {isError && (
             <div className="p-2">
@@ -93,13 +94,19 @@ const ChatHistory = ({
           {/* Session History Items */}
           {!isLoading && !isError && sessionHistory.length > 0 && (
             <>
-              {sessionHistory.map((session) => (
-                <ChatHistoryItem key={session.id} session={session} />
+              {sessionHistory.map((session, index) => (
+                <AnimatedListItem
+                  key={session.id}
+                  index={index}
+                  animation="fadeInRight"
+                >
+                  <ChatHistoryItem session={session} />
+                </AnimatedListItem>
               ))}
             </>
           )}
         </div>
-      )}
+      </AnimatedExpandable>
     </div>
   );
 };
