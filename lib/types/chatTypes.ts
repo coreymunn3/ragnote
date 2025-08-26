@@ -7,8 +7,8 @@ export type ChatSession = {
   folder_id: string | null;
   is_pinned: boolean;
   is_deleted: boolean;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   messages_count: number;
 };
 

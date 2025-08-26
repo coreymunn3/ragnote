@@ -49,8 +49,8 @@ export const transformToChatSession = async (
     folder_id: prismaChatSession.folder_id,
     is_pinned: prismaChatSession.is_pinned,
     is_deleted: prismaChatSession.is_deleted,
-    created_at: prismaChatSession.created_at,
-    updated_at: prismaChatSession.updated_at,
+    created_at: prismaChatSession.created_at.toISOString(),
+    updated_at: prismaChatSession.updated_at.toISOString(),
     messages_count: messagesCount,
   };
 };
