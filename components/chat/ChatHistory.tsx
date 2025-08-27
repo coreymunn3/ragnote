@@ -21,29 +21,30 @@ const ChatHistoryHeader = ({
   isError: boolean;
 }) => {
   return (
-    <div className="flex items-center gap-2">
-      <HistoryIcon className={`h-4 w-4 ${isError ? "text-destructive" : ""}`} />
+    <Button
+      className="flex items-center gap-2 hover:bg-sidebar"
+      variant={"ghost"}
+      onClick={onToggle}
+    >
       {isLoading ? (
-        <div className="flex items-center gap-1">
-          <TypographySmall>Recent Conversations</TypographySmall>
-          <Loader2Icon className="animate-spin h-4 w-4" />
-        </div>
+        <Loader2Icon className="h-4 w-4 animate-spin" />
       ) : (
-        <>
-          <TypographySmall>{`Recent Conversations (${sessionCount})`}</TypographySmall>
-          {!isError && (
-            <Button variant={"ghost"} onClick={onToggle}>
-              <ChevronRight
-                className={
-                  "w-4 h-4 transition-all duration-200 " +
-                  (isOpen ? "rotate-90" : "")
-                }
-              />
-            </Button>
-          )}
-        </>
+        <HistoryIcon
+          className={`h-4 w-4 ${isError ? "text-destructive" : ""}`}
+        />
       )}
-    </div>
+      <TypographySmall>{`Recent Conversations (${sessionCount})`}</TypographySmall>
+      {!isError && (
+        <div>
+          <ChevronRight
+            className={
+              "w-4 h-4 transition-all duration-200 " +
+              (isOpen ? "rotate-90" : "")
+            }
+          />
+        </div>
+      )}
+    </Button>
   );
 };
 
@@ -64,7 +65,7 @@ const ChatHistory = ({
 }: ChatHistoryProps) => {
   return (
     <div
-      className={`max-h-[40%] py-2 px-1 mx-2 transition-all duration-200 overflow-hidden overflow-y-scroll ${
+      className={`max-h-[40%] w-full transition-all duration-200 overflow-hidden overflow-y-scroll ${
         isOpen ? "bg-sidebar rounded-lg" : ""
       }`}
     >
@@ -80,7 +81,7 @@ const ChatHistory = ({
       </div>
       {/* body - chat history items */}
       <AnimatedExpandable isOpen={isOpen}>
-        <div className="space-y-1 pt-2">
+        <div className="space-y-1">
           {/* isError State */}
           {isError && (
             <div className="p-2">
@@ -97,7 +98,7 @@ const ChatHistory = ({
           )}
           {/* Session History Items */}
           {!isLoading && !isError && sessionHistory.length > 0 && (
-            <>
+            <div className="pl-2">
               {sessionHistory.map((session, index) => (
                 <AnimatedListItem
                   key={session.id}
@@ -107,7 +108,7 @@ const ChatHistory = ({
                   <ChatHistoryItem session={session} />
                 </AnimatedListItem>
               ))}
-            </>
+            </div>
           )}
         </div>
       </AnimatedExpandable>
