@@ -12,7 +12,7 @@ export const getChatSessionSchema = z.object({
   sessionId: z.string().uuid(),
 });
 
-export const getChatMessagesSchema = z.object({
+export const getChatMessagesForSessionSchema = z.object({
   sessionId: z.string().uuid(),
   userId: z.string().uuid(),
   limit: z.number().int().min(1).max(100).optional().default(50),

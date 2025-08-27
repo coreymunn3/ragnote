@@ -13,7 +13,7 @@ import {
 import {
   createChatScopeSchema,
   getChatSessionSchema,
-  getChatMessagesSchema,
+  getChatMessagesForSessionSchema,
   createChatMessageSchema,
   sendChatSchema,
   getChatSessionsForNoteSchema,
@@ -25,6 +25,7 @@ import {
 import { InternalServerError, NotFoundError } from "@/lib/errors/apiErrors";
 import { AiService } from "../ai/aiService";
 import { AgentResultData, WorkflowEventData } from "@llamaindex/workflow";
+import { Session } from "inspector/promises";
 
 const aiService = new AiService();
 
@@ -138,19 +139,23 @@ export class ChatService {
   /**
    * Get messages for a chat session
    */
-  public getChatMessages = withErrorHandling(
+  public getChatMessagesForSession = withErrorHandling(
     async (params: {
       sessionId: string;
       userId: string;
       limit?: number;
       offset?: number;
     }): Promise<ChatMessage[]> => {
-      const validatedData = getChatMessagesSchema.parse(params);
-
+      const validatedData = getChatMessagesForSessionSchema.parse(params);
+      // Get the chat session - ensure it belongs to this user and isn't deleted
+      const validatedChatSession = await this.getChatSession({
+        userId: validatedData.userId,
+        sessionId: validatedData.sessionId,
+      });
       // Get messages for the session
       const messages = await prisma.chat_message.findMany({
         where: {
-          chat_session_id: validatedData.sessionId,
+          chat_session_id: validatedChatSession.id,
         },
         orderBy: { created_at: "asc" },
         take: validatedData.limit,
@@ -255,7 +260,7 @@ export class ChatService {
       /**
        * Get message history for context (excluding the current message)
        */
-      const messageHistory = await this.getChatMessages({
+      const messageHistory = await this.getChatMessagesForSession({
         sessionId: currentSession.id,
         userId: validatedUserId,
         limit: 50, // Last 50 messages for context
