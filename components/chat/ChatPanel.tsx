@@ -91,6 +91,8 @@ const ChatPanel = ({
     setConversation([]);
     // Set the chat session to the selected one
     setChatSessionId(sessionId);
+    // close history
+    setHistoryExpanded(false);
   };
 
   // Hook for sending chat messages
