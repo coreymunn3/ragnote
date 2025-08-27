@@ -6,13 +6,18 @@ import { Button } from "../ui/button";
 
 interface ChatHistoryItemProps {
   session: ChatSession;
+  onSelectSession: (sessionId: string) => void;
 }
 
-const ChatHistoryItem = ({ session }: ChatHistoryItemProps) => {
+const ChatHistoryItem = ({
+  session,
+  onSelectSession,
+}: ChatHistoryItemProps) => {
   return (
     <Button
       variant={"ghost"}
       className="flex flex-row items-center justify-between px-4 py-0 w-full"
+      onClick={() => onSelectSession(session.id)}
     >
       <div className="flex gap-4 items-center flex-1 min-w-0">
         <TypographySmall className="flex-shrink-0">

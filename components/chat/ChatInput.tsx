@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/tooltip";
 import { SendIcon, MicIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import WidgetList from "../web/WidgetList";
 
 interface ChatInputProps {
   onSend: (message: string) => void;

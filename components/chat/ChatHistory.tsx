@@ -52,6 +52,7 @@ const ChatHistoryHeader = ({
 interface ChatHistoryProps {
   isOpen: boolean;
   onOpenChange: () => void;
+  onChatHistorySelect: (sessionId: string) => void;
   sessionHistory: ChatSession[];
   isLoading?: boolean;
   isError?: boolean | null;
@@ -60,6 +61,7 @@ interface ChatHistoryProps {
 const ChatHistory = ({
   isOpen,
   onOpenChange,
+  onChatHistorySelect,
   sessionHistory = [],
   isLoading = false,
   isError = false,
@@ -108,7 +110,10 @@ const ChatHistory = ({
                   index={index}
                   animation="fadeInRight"
                 >
-                  <ChatHistoryItem session={session} />
+                  <ChatHistoryItem
+                    session={session}
+                    onSelectSession={onChatHistorySelect}
+                  />
                 </AnimatedListItem>
               ))}
             </div>

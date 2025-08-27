@@ -23,6 +23,7 @@ import {
 } from "@/lib/utils/chatMessageHelpers";
 import { useGetChatHistoryForScope } from "@/hooks/chat/useGetChatHistoryForScope";
 import ChatHistory from "./ChatHistory";
+import { useGetChatMessagesForSessionScope } from "@/hooks/chat/useGetChatMessagesForSessionScope";
 
 interface ChatPanelProps {
   open: boolean;
@@ -47,6 +48,8 @@ const ChatPanel = ({
   const [conversation, setConversation] = useState<ChatDisplayMessage[]>([]);
   const [historyExpanded, setHistoryExpanded] = useState<boolean>(false);
 
+  console.log(chatSessionId);
+
   const { noteVersions, note, loading } = useNoteVersionContext();
   // the user must chat with only the most recently published version
   const mostRecentPublishedVersion = noteVersions.filter(
@@ -57,6 +60,26 @@ const ChatPanel = ({
   const chatHistoryForScope = useGetChatHistoryForScope(scope, scopeId, {
     enabled: open,
   });
+
+  // Hook for getting chat messages for the current session
+  const chatConversation = useGetChatMessagesForSessionScope(
+    chatSessionId || "",
+    scope,
+    scopeId,
+    {
+      enabled: open && !!chatSessionId,
+    }
+  );
+
+  /**
+   * Change the selected chat session ID
+   * called when the user clicks a chat history item to view an older conversation
+   * @param sessionId the session ID
+   */
+  const handleSelectChatSession = (sessionId: string) => {
+    console.log("here");
+    setChatSessionId(sessionId);
+  };
 
   // Hook for sending chat messages
   const sendChatMutation = useChatWithNote({
@@ -155,6 +178,7 @@ const ChatPanel = ({
           <ChatHistory
             isOpen={historyExpanded}
             onOpenChange={handleToggleHistoryExpanded}
+            onChatHistorySelect={handleSelectChatSession}
             sessionHistory={chatHistoryForScope.data || []}
             isLoading={chatHistoryForScope.isLoading}
             isError={chatHistoryForScope.isError}
