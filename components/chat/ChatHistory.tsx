@@ -22,7 +22,7 @@ const ChatHistoryHeader = ({
 }) => {
   return (
     <Button
-      className="flex items-center gap-2 hover:bg-sidebar"
+      className="flex items-center gap-2 hover:bg-sidebar ring-0 outline-none focus:ring-0"
       variant={"ghost"}
       onClick={onToggle}
     >
@@ -39,7 +39,8 @@ const ChatHistoryHeader = ({
           <ChevronRight
             className={
               "w-4 h-4 transition-all duration-200 " +
-              (isOpen ? "rotate-90" : "")
+              (isOpen ? "rotate-90" : "") +
+              (isLoading ? "text-muted" : "")
             }
           />
         </div>
@@ -66,7 +67,9 @@ const ChatHistory = ({
   return (
     <div
       className={`max-h-[40%] w-full transition-all duration-200 overflow-hidden overflow-y-scroll ${
-        isOpen ? "bg-sidebar rounded-lg" : ""
+        isOpen
+          ? "bg-sidebar rounded-lg text-foreground"
+          : "text-muted-foreground"
       }`}
     >
       {/* top - 'recent conversations (3)' and toggle */}
