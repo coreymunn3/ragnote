@@ -20,7 +20,7 @@ export const transformToChatMessage = (
     chat_session_id: prismaChatMessage.chat_session_id,
     sender_type: prismaChatMessage.sender_type,
     content: prismaChatMessage.content,
-    created_at: prismaChatMessage.created_at,
+    created_at: prismaChatMessage.created_at.toISOString(),
     llm_response: prismaChatMessage.llm_response,
     llm_sources: prismaChatMessage.llm_sources as LlmSource[] | undefined,
   };

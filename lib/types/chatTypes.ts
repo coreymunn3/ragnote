@@ -18,7 +18,7 @@ export type ChatMessage = {
   chat_session_id: string;
   sender_type: "USER" | "AI";
   content: string;
-  created_at: Date;
+  created_at: string;
   llm_response?: any;
   llm_sources?: LlmSource[];
 };
