@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChatDisplayMessage, ChatScope } from "@/lib/types/chatTypes";
 import ChatMessages from "./ChatMessages";
 import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
@@ -17,6 +17,7 @@ import VersionBadge from "../VersionBadge";
 import { useChatWithNote } from "@/hooks/chat/useChatWithNote";
 import {
   toDisplayMessage,
+  toDisplayMessageArray,
   createOptimisticUserMessage,
   createThinkingMessage,
   isTemporaryMessage,
@@ -71,13 +72,24 @@ const ChatPanel = ({
     }
   );
 
+  // Populate conversation state from API data when historical session is loaded
+  useEffect(() => {
+    if (chatConversation.data && chatSessionId) {
+      // Convert API data to DisplayMessages and set as conversation
+      const historicalMessages = toDisplayMessageArray(chatConversation.data);
+      setConversation(historicalMessages);
+    }
+  }, [chatConversation.data, chatSessionId]);
+
   /**
    * Change the selected chat session ID
    * called when the user clicks a chat history item to view an older conversation
    * @param sessionId the session ID
    */
   const handleSelectChatSession = (sessionId: string) => {
-    console.log("here");
+    // Clear current conversation - it will be populated by useEffect when API data loads
+    setConversation([]);
+    // Set the chat session to the selected one
     setChatSessionId(sessionId);
   };
 

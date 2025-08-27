@@ -9,9 +9,7 @@ export function toDisplayMessage(message: ChatMessage): ChatDisplayMessage {
     id: message.id,
     sender_type: message.sender_type,
     content: message.content,
-    created_at:
-      DateTime.fromJSDate(message.created_at).toISO() ||
-      new Date().toISOString(),
+    created_at: message.created_at || new Date().toISOString(),
     status: "sent",
   };
 }

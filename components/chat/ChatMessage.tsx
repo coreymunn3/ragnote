@@ -52,9 +52,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
       <div className="chat-header">
         <span className="text-xs opacity-50">{isUser ? "You" : "AI"}</span>
         <time className="text-xs opacity-50 ml-1">
-          {DateTime.fromISO(message.created_at).toLocaleString(
-            DateTime.TIME_SIMPLE
-          )}
+          {DateTime.fromISO(message.created_at).toRelative()}
         </time>
       </div>
       {/* Message content */}
