@@ -36,6 +36,7 @@ export function useChatWithNote(options?: chatWithNoteOptions) {
     ...options,
     mutationFn: chatWithNote,
     onError: (error, variables, context) => {
+      toast.error("Failed to send chat");
       handleClientSideMutationError(
         error,
         `Failed to send chat with note ${variables.noteId}`
