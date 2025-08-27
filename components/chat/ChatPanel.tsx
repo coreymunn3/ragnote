@@ -48,9 +48,7 @@ const ChatPanel = ({
   const [chatSessionId, setChatSessionId] = useState<string | undefined>();
   const [conversation, setConversation] = useState<ChatDisplayMessage[]>([]);
   const [historyExpanded, setHistoryExpanded] = useState<boolean>(false);
-
-  console.log(chatSessionId);
-
+  // get values from context
   const { noteVersions, note, loading } = useNoteVersionContext();
   // the user must chat with only the most recently published version
   const mostRecentPublishedVersion = noteVersions.filter(
