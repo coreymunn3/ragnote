@@ -3,7 +3,6 @@ import { getDbUser } from "@/lib/getDbUser";
 import { auth } from "@clerk/nextjs/server";
 import { ChatService } from "@/services/chat/chatService";
 import { NextRequest, NextResponse } from "next/server";
-import { SendChatWithNoteApiRequest } from "@/lib/types/chatTypes";
 
 const chatService = new ChatService();
 
