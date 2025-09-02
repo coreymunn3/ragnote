@@ -3,6 +3,37 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
+/**
+ * ScrollableContainer - A reusable component that provides scrolling with fade effects
+ *
+ * HIGH-LEVEL OVERVIEW:
+ * This component wraps content in a scrollable container and conditionally renders gradient fade overlays
+ * to indicate when there's more content to scroll in different directions.
+ *
+ * HOW IT WORKS:
+ * 1. SCROLL DETECTION: Uses scroll event listeners and ResizeObserver to detect:
+ *    - Whether content overflows the container bounds
+ *    - Current scroll position relative to start/end positions
+ *    - Updates state variables (canScrollUp/Down/Left/Right) based on scroll state
+ *
+ * 2. DIRECTION SUPPORT: Supports both horizontal and vertical scrolling:
+ *    - Horizontal: flex layout with overflow-x-auto (default, for backward compatibility)
+ *    - Vertical: block layout with overflow-y-auto and h-full
+ *
+ * 3. FADE OVERLAYS: Conditionally renders gradient fade effects:
+ *    - Top/Bottom fades: Use bg-gradient-to-b/t from-background to-transparent
+ *    - Left/Right fades: Use bg-gradient-to-r/l from-background to-transparent
+ *    - Positioned absolutely over the scrollable content with pointer-events-none
+ *    - Only visible when there's actually content to scroll in that direction
+ *
+ * 4. PERFORMANCE: Uses debounced scroll handlers and ResizeObserver for efficient updates
+ *
+ * USAGE EXAMPLES:
+ * - Horizontal scrolling widget lists with left/right fade indicators
+ * - Vertical scrolling chat messages with top fade when scrolled down
+ * - Any scrollable content that needs visual indication of overflow
+ */
+
 interface ScrollableContainerProps {
   children: React.ReactNode;
   className?: string;
