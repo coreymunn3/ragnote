@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { ChatDisplayMessage, ChatScope } from "@/lib/types/chatTypes";
 import ChatMessages from "./ChatMessages";
+import { ScrollableContainer } from "@/components/ui/scrollable-container";
 import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import VersionBadge from "../VersionBadge";
 import { useChatWithNote } from "@/hooks/chat/useChatWithNote";
@@ -196,8 +197,8 @@ const ChatPanel = ({
             isError={chatHistoryForScope.isError}
           />
 
-          {/* Middle area - space for conversation bubbles */}
-          <div className="flex-1 overflow-y-scroll p-3 ">
+          {/* Middle area - space for conversation bubbles with top fade */}
+          <div className="flex-1 min-h-0 p-3">
             {!mostRecentPublishedVersion && (
               <div className="flex items-center justify-center h-full text-center">
                 <TypographyMuted>
@@ -213,9 +214,16 @@ const ChatPanel = ({
               </div>
             )}
             {conversation.length > 0 && (
-              <div>
+              <ScrollableContainer
+                className="h-full"
+                direction="vertical"
+                showTopFade={true}
+                showBottomFade={false}
+                showLeftFade={false}
+                showRightFade={false}
+              >
                 <ChatMessages messages={conversation} />
-              </div>
+              </ScrollableContainer>
             )}
           </div>
 

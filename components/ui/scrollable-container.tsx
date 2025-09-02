@@ -8,7 +8,11 @@ interface ScrollableContainerProps {
   className?: string;
   containerClassName?: string;
   fadeClassName?: string;
-  showFade?: boolean;
+  direction?: "horizontal" | "vertical";
+  showTopFade?: boolean;
+  showBottomFade?: boolean;
+  showLeftFade?: boolean;
+  showRightFade?: boolean;
 }
 
 export function ScrollableContainer({
@@ -16,27 +20,49 @@ export function ScrollableContainer({
   className,
   containerClassName,
   fadeClassName,
-  showFade = true,
+  direction = "horizontal",
+  showTopFade = false,
+  showBottomFade = false,
+  showLeftFade = true,
+  showRightFade = true,
 }: ScrollableContainerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
 
   // Check scroll position and update state
   const checkScrollPosition = useCallback(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    // Calculate if there's content overflow and current scroll position
-    const hasOverflow = container.scrollWidth > container.clientWidth;
-    const isAtStart = container.scrollLeft <= 10; // Small buffer for rounding errors
-    const isAtEnd =
-      container.scrollLeft + container.clientWidth >=
-      container.scrollWidth - 10;
+    // Horizontal scroll detection
+    if (direction === "horizontal") {
+      const hasHorizontalOverflow =
+        container.scrollWidth > container.clientWidth;
+      const isAtStart = container.scrollLeft <= 10; // Small buffer for rounding errors
+      const isAtEnd =
+        container.scrollLeft + container.clientWidth >=
+        container.scrollWidth - 10;
 
-    setCanScrollLeft(hasOverflow && !isAtStart);
-    setCanScrollRight(hasOverflow && !isAtEnd);
-  }, []);
+      setCanScrollLeft(hasHorizontalOverflow && !isAtStart);
+      setCanScrollRight(hasHorizontalOverflow && !isAtEnd);
+    }
+
+    // Vertical scroll detection
+    if (direction === "vertical") {
+      const hasVerticalOverflow =
+        container.scrollHeight > container.clientHeight;
+      const isAtTop = container.scrollTop <= 10; // Small buffer for rounding errors
+      const isAtBottom =
+        container.scrollTop + container.clientHeight >=
+        container.scrollHeight - 10;
+
+      setCanScrollUp(hasVerticalOverflow && !isAtTop);
+      setCanScrollDown(hasVerticalOverflow && !isAtBottom);
+    }
+  }, [direction]);
 
   // Set up scroll event listeners and initial check
   useEffect(() => {
@@ -75,17 +101,44 @@ export function ScrollableContainer({
     };
   }, [checkScrollPosition]);
 
+  const getContainerClasses = () => {
+    const baseClasses = "scroll-smooth";
+    if (direction === "horizontal") {
+      return cn("flex overflow-x-auto", baseClasses, containerClassName);
+    } else if (direction === "vertical") {
+      return cn("overflow-y-auto h-full", baseClasses, containerClassName);
+    }
+    return cn("flex overflow-x-auto", baseClasses, containerClassName);
+  };
+
   return (
     <div className={cn("relative", className)}>
-      <div
-        ref={scrollContainerRef}
-        className={cn("flex overflow-x-auto scroll-smooth", containerClassName)}
-      >
+      <div ref={scrollContainerRef} className={getContainerClasses()}>
         {children}
       </div>
 
+      {/* Top fade - only visible when scrolled down and there's content above */}
+      {showTopFade && canScrollUp && (
+        <div
+          className={cn(
+            "absolute top-[-4px] left-0 right-0 h-16 pointer-events-none bg-gradient-to-b from-background to-transparent",
+            fadeClassName
+          )}
+        />
+      )}
+
+      {/* Bottom fade - only visible when there's more content below */}
+      {showBottomFade && canScrollDown && (
+        <div
+          className={cn(
+            "absolute bottom-[-4px] left-0 right-0 h-16 pointer-events-none bg-gradient-to-t from-background to-transparent",
+            fadeClassName
+          )}
+        />
+      )}
+
       {/* Left fade - only visible when scrolled right */}
-      {showFade && canScrollLeft && (
+      {showLeftFade && canScrollLeft && (
         <div
           className={cn(
             "absolute top-0 left-[-4px] bottom-0 w-16 pointer-events-none bg-gradient-to-r from-background to-transparent",
@@ -95,7 +148,7 @@ export function ScrollableContainer({
       )}
 
       {/* Right fade - only visible when more content to scroll */}
-      {showFade && canScrollRight && (
+      {showRightFade && canScrollRight && (
         <div
           className={cn(
             "absolute top-0 right-[-4px] bottom-0 w-16 pointer-events-none bg-gradient-to-l from-background to-transparent",
