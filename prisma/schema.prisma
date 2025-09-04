@@ -47,6 +47,11 @@ enum FileType {
   // Add other types as needed, e.g., VIDEO, CSV, JSON
 }
 
+enum LLMOperationType {
+  CHAT_COMPLETION
+  EMBEDDING
+}
+
 // -----------------------------------------------------------
 // Core User & Authentication
 // -----------------------------------------------------------
@@ -71,6 +76,7 @@ model app_user {
   subscription        user_subscription? // One-to-one relation
   credit_transactions credit_transaction[]
   chat_sessions       chat_session[]
+  llm_usage_log       llm_usage_log[]
 }
 
 // -----------------------------------------------------------
@@ -162,9 +168,10 @@ model note_version {
   created_at         DateTime  @default(now()) @db.Timestamptz(3)
   updated_at         DateTime  @updatedAt @db.Timestamptz(3)
 
-  note               note         @relation("NoteVersions", fields: [note_id], references: [id], onDelete: Cascade)
+  note               note            @relation("NoteVersions", fields: [note_id], references: [id], onDelete: Cascade)
   chunks             note_chunk[] // Chunks and embeddings for this version
-  current_version_of note?        @relation("CurrentNoteVersion")
+  current_version_of note?           @relation("CurrentNoteVersion")
+  llm_usage_log      llm_usage_log[]
 
   @@index([note_id, is_published, published_at]) // Optimize for retrieving published versions
   @@index([note_id, version_number]) // For fetching specific versions
@@ -286,8 +293,36 @@ model chat_message {
 
   created_at DateTime @default(now()) @db.Timestamptz(3)
 
-  chat_session chat_session @relation(fields: [chat_session_id], references: [id], onDelete: Cascade)
+  chat_session chat_session    @relation(fields: [chat_session_id], references: [id], onDelete: Cascade)
+  llm_usage    llm_usage_log[] // Token usage logs related to this chat message
 
   @@index([chat_session_id]) // Optimize for retrieving messages for a specific session
   @@map("chat_message")
+}
+
+// -----------------------------------------------------------
+// LLM Token Usage Tracking
+// -----------------------------------------------------------
+model llm_usage_log {
+  id                String           @id @default(uuid()) @db.Uuid
+  user_id           String           @db.Uuid
+  model_name        String // "gpt-4o", "gpt-4o-mini", "text-embedding-3-small"
+  operation_type    LLMOperationType
+  prompt_tokens     Int
+  completion_tokens Int? // null for embeddings
+  total_tokens      Int
+
+  // Optional associations
+  chat_message_id String? @db.Uuid
+  note_version_id String? @db.Uuid
+
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+
+  user         app_user      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  chat_message chat_message? @relation(fields: [chat_message_id], references: [id], onDelete: SetNull)
+  note_version note_version? @relation(fields: [note_version_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id, created_at]) // Optimize for user usage queries
+  @@index([chat_message_id]) // Optimize for chat-related usage
+  @@map("llm_usage_log")
 }
