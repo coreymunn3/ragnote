@@ -1,4 +1,4 @@
-import { Document, Settings, SentenceSplitter, tool } from "llamaindex";
+import { Settings, SentenceSplitter, CallbackManager } from "llamaindex";
 import { OpenAIEmbedding, openai } from "@llamaindex/openai";
 import { prisma } from "@/lib/prisma";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
@@ -6,12 +6,18 @@ import { RateLimitError } from "@/lib/errors/apiErrors";
 import { ChatScopeObject, ChatMessage } from "@/lib/types/chatTypes";
 import { createNoteChatAgent } from "./agents/noteChatAgent";
 import { AgentWorkflow } from "@llamaindex/workflow";
-import { EmbeddedChunks } from "./aiTypes";
+import { tokenTrackingService } from "../tokenTracking/tokenTrackingService";
+import { OpenAIResponse, EmbeddedChunks } from "@/lib/types/aiTypes";
 
 export class AiService {
   private static readonly SINGLE_CHUNK_THRESHOLD = 500;
+  private userId: string;
+  private noteVersionId?: string;
+  private pendingTokenRecordId?: string;
 
-  constructor() {
+  constructor(userId: string) {
+    this.userId = userId;
+
     if (!process.env.OPENAI_API_KEY) {
       throw new Error("OPENAI_API_KEY is not set");
     }
@@ -25,6 +31,64 @@ export class AiService {
       apiKey: process.env.OPENAI_API_KEY,
       model: "gpt-4o",
     });
+
+    // Set up callback manager for token tracking
+    const callbackManager = new CallbackManager();
+
+    callbackManager.on("llm-end", async (event) => {
+      // Only track if there's usage data available
+      const rawResponse = event.detail.response.raw as OpenAIResponse;
+      const usage = rawResponse?.usage;
+      if (usage) {
+        try {
+          // Phase 1: Record token usage without chatMessageId
+          const tokenRecord =
+            await tokenTrackingService.recordTokenUsageFromOpenAI({
+              userId: this.userId,
+              modelName: rawResponse?.model || "gpt-4o",
+              operationType: "CHAT_COMPLETION",
+              usage: usage,
+              chatMessageId: null, // Don't have it yet
+              noteVersionId: this.noteVersionId || null,
+            });
+
+          // Store the record ID for later update
+          this.pendingTokenRecordId = tokenRecord.id;
+
+          console.log("📊 Recorded token usage (phase 1):", {
+            recordId: tokenRecord.id,
+            model: rawResponse?.model,
+            tokens: usage.total_tokens,
+          });
+        } catch (error) {
+          console.error("Token tracking failed:", error);
+        }
+      }
+    });
+
+    Settings.callbackManager = callbackManager;
+  }
+
+  /**
+   * Set the note version ID for token tracking context
+   */
+  public setNoteVersionId(noteVersionId: string): this {
+    this.noteVersionId = noteVersionId;
+    return this;
+  }
+
+  /**
+   * Get the pending token record ID from the callback
+   */
+  public getPendingTokenRecordId(): string | undefined {
+    return this.pendingTokenRecordId;
+  }
+
+  /**
+   * Clear the pending token record ID after processing
+   */
+  public clearPendingTokenRecord(): void {
+    this.pendingTokenRecordId = undefined;
   }
 
   /**

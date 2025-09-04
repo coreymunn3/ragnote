@@ -24,10 +24,9 @@ import {
 } from "./chatTransformers";
 import { InternalServerError, NotFoundError } from "@/lib/errors/apiErrors";
 import { AiService } from "../ai/aiService";
+import { tokenTrackingService } from "../tokenTracking/tokenTrackingService";
 import { AgentResultData, WorkflowEventData } from "@llamaindex/workflow";
 import { Session } from "inspector/promises";
-
-const aiService = new AiService();
 
 export class ChatService {
   /**
@@ -240,6 +239,16 @@ export class ChatService {
       });
 
       /**
+       * Create user-scoped AI service for token tracking
+       */
+      const aiService = new AiService(validatedUserId);
+
+      // Set note version context for token tracking
+      if (currentChatScope.noteVersions[0]) {
+        aiService.setNoteVersionId(currentChatScope.noteVersions[0].versionId);
+      }
+
+      /**
        * Get or create the chat session to use
        */
       let currentSession: ChatSession;
@@ -302,6 +311,27 @@ export class ChatService {
         llmResponse: JSON.parse(JSON.stringify(aiResponse.data)),
         // llmSources TO DO later - eventually we want to try to use the retrieved sources.
       });
+
+      /**
+       * Token Tracking: Update token record with chatMessageId
+       */
+      const pendingRecordId = aiService.getPendingTokenRecordId();
+      if (pendingRecordId) {
+        try {
+          await tokenTrackingService.updateTokenRecord({
+            recordId: pendingRecordId,
+            chatMessageId: aiMessage.id,
+          });
+          aiService.clearPendingTokenRecord();
+          // debugging
+          console.log("📊 Updated token record (phase 2):", {
+            recordId: pendingRecordId,
+            chatMessageId: aiMessage.id,
+          });
+        } catch (error) {
+          console.error("Failed to update token record:", error);
+        }
+      }
 
       // return
       return {

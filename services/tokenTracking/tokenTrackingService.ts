@@ -71,4 +71,36 @@ export class TokenTrackingService {
       });
     }
   );
+
+  /**
+   * Update an existing token usage record
+   * Used for two-phase recording when chatMessageId is available later
+   */
+  public updateTokenRecord = withErrorHandling(
+    async (params: {
+      recordId: string;
+      chatMessageId?: string;
+      noteVersionId?: string;
+    }): Promise<TokenUsageLog> => {
+      const { recordId, chatMessageId, noteVersionId } = params;
+
+      const record = await prisma.llm_usage_log.update({
+        where: { id: recordId },
+        data: {
+          ...(chatMessageId !== undefined && {
+            chat_message_id: chatMessageId,
+          }),
+          ...(noteVersionId !== undefined && {
+            note_version_id: noteVersionId,
+          }),
+        },
+      });
+
+      return transformToTokenUsageLog(record);
+    }
+  );
 }
+
+// Create and export shared instance
+const tokenTrackingService = new TokenTrackingService();
+export { tokenTrackingService };
