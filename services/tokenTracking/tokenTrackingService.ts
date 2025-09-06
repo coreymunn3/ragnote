@@ -24,6 +24,7 @@ export class TokenTrackingService {
       completionTokens: number | null;
       totalTokens: number;
       chatMessageId?: string | null;
+      chatSessionId?: string | null;
       noteVersionId?: string | null;
     }): Promise<TokenUsageLog> => {
       const validatedData = recordTokenUsageSchema.parse(params);
@@ -37,6 +38,7 @@ export class TokenTrackingService {
           completion_tokens: validatedData.completionTokens,
           total_tokens: validatedData.totalTokens,
           chat_message_id: validatedData.chatMessageId || null,
+          chat_session_id: validatedData.chatSessionId || null,
           note_version_id: validatedData.noteVersionId || null,
         },
       });
@@ -55,6 +57,7 @@ export class TokenTrackingService {
       operationType: LLMOperationType;
       usage: OpenAIUsageData;
       chatMessageId?: string | null;
+      chatSessionId?: string | null;
       noteVersionId?: string | null;
     }): Promise<TokenUsageLog> => {
       const validatedData = recordTokenUsageFromOpenAISchema.parse(params);
@@ -67,6 +70,7 @@ export class TokenTrackingService {
         completionTokens: validatedData.usage.completion_tokens || null,
         totalTokens: validatedData.usage.total_tokens,
         chatMessageId: validatedData.chatMessageId,
+        chatSessionId: validatedData.chatSessionId,
         noteVersionId: validatedData.noteVersionId,
       });
     }
@@ -80,15 +84,19 @@ export class TokenTrackingService {
     async (params: {
       recordId: string;
       chatMessageId?: string;
+      chatSessionId?: string;
       noteVersionId?: string;
     }): Promise<TokenUsageLog> => {
-      const { recordId, chatMessageId, noteVersionId } = params;
+      const { recordId, chatMessageId, chatSessionId, noteVersionId } = params;
 
       const record = await prisma.llm_usage_log.update({
         where: { id: recordId },
         data: {
           ...(chatMessageId !== undefined && {
             chat_message_id: chatMessageId,
+          }),
+          ...(chatSessionId !== undefined && {
+            chat_session_id: chatSessionId,
           }),
           ...(noteVersionId !== undefined && {
             note_version_id: noteVersionId,

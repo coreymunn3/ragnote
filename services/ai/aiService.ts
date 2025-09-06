@@ -48,7 +48,8 @@ export class AiService {
               modelName: rawResponse?.model || "gpt-4o",
               operationType: "CHAT_COMPLETION",
               usage: usage,
-              chatMessageId: null, // Don't have it yet
+              chatMessageId: null, // will add later in sendChat
+              chatSessionId: null, // will add later in sendChat
               noteVersionId: this.noteVersionId || null,
             });
 

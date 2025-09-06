@@ -313,7 +313,7 @@ export class ChatService {
       });
 
       /**
-       * Token Tracking: Update token record with chatMessageId
+       * Token Tracking: Update token record with chatMessageId and sessionId
        */
       const pendingRecordId = aiService.getPendingTokenRecordId();
       if (pendingRecordId) {
@@ -321,12 +321,14 @@ export class ChatService {
           await tokenTrackingService.updateTokenRecord({
             recordId: pendingRecordId,
             chatMessageId: aiMessage.id,
+            chatSessionId: currentSession.id,
           });
           aiService.clearPendingTokenRecord();
           // debugging
           console.log("📊 Updated token record (phase 2):", {
             recordId: pendingRecordId,
             chatMessageId: aiMessage.id,
+            chatSessionId: currentSession.id,
           });
         } catch (error) {
           console.error("Failed to update token record:", error);

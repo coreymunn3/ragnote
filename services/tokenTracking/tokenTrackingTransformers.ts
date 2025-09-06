@@ -19,6 +19,7 @@ export const transformToTokenUsageLog = (
     completion_tokens: record.completion_tokens,
     total_tokens: record.total_tokens,
     chat_message_id: record.chat_message_id,
+    chat_session_id: record.chat_session_id,
     note_version_id: record.note_version_id,
     created_at: record.created_at.toISOString(),
   };

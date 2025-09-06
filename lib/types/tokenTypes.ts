@@ -15,8 +15,9 @@ export type TokenUsageLog = {
   completion_tokens: number | null;
   total_tokens: number;
   chat_message_id: string | null;
+  chat_session_id: string | null;
   note_version_id: string | null;
-  created_at: string; // serialized datetime string
+  created_at: string;
 };
 
 /**
@@ -66,6 +67,7 @@ export type PrismaTokenUsageLog = {
   completion_tokens: number | null;
   total_tokens: number;
   chat_message_id: string | null;
+  chat_session_id: string | null;
   note_version_id: string | null;
   created_at: Date;
 };

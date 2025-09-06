@@ -15,6 +15,7 @@ export const recordTokenUsageSchema = z.object({
     .nullable(),
   totalTokens: z.number().int().min(0, "Total tokens must be non-negative"),
   chatMessageId: z.string().uuid().optional().nullable(),
+  chatSessionId: z.string().uuid().optional().nullable(),
   noteVersionId: z.string().uuid().optional().nullable(),
 });
 
@@ -52,5 +53,6 @@ export const recordTokenUsageFromOpenAISchema = z.object({
       .optional(),
   }),
   chatMessageId: z.string().uuid().optional().nullable(),
+  chatSessionId: z.string().uuid().optional().nullable(),
   noteVersionId: z.string().uuid().optional().nullable(),
 });
