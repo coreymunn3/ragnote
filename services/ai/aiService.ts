@@ -55,14 +55,14 @@ export class AiService {
 
           // Store the record ID for later update
           this.pendingTokenRecordId = tokenRecord.id;
-
-          console.log("📊 Recorded token usage (phase 1):", {
-            recordId: tokenRecord.id,
-            model: rawResponse?.model,
-            tokens: usage.total_tokens,
-          });
+          // for logging...
+          // console.log("📊 Recorded token usage (phase 1):", {
+          //   recordId: tokenRecord.id,
+          //   model: rawResponse?.model,
+          //   tokens: usage.total_tokens,
+          // });
         } catch (error) {
-          console.error("Token tracking failed:", error);
+          console.error("Token tracking failed in callback manager:", error);
         }
       }
     });
@@ -184,9 +184,28 @@ export class AiService {
     // figure out which client instance we will use - prismaTransaction but fall back to regular prisma instance otherwise
     const prismaObj = prismaTransaction || prisma;
 
+    // Calculate token count for tracking
+    const tokenCount =
+      tokenTrackingService.calculateEmbeddingTokens(plainTextContent);
+
     // create the embedding
     const embedding =
       await Settings.embedModel.getTextEmbedding(plainTextContent);
+
+    // Record token usage for this embedding operation
+    try {
+      await tokenTrackingService.recordTokenUsage({
+        userId: this.userId,
+        modelName: "text-embedding-3-small",
+        operationType: "EMBEDDING",
+        promptTokens: tokenCount,
+        completionTokens: 0, // embeddings only have input tokens
+        totalTokens: tokenCount,
+        noteVersionId: versionId,
+      });
+    } catch (error) {
+      console.error("Failed to record embedding token usage:", error);
+    }
 
     const savedChunk = await prismaObj.$executeRaw`
       INSERT INTO note_chunk (id, note_version_id, chunk_index, chunk_text, embedding)
@@ -223,7 +242,30 @@ export class AiService {
     });
 
     const chunks = sentenceSplitter.splitText(plainTextContent);
+
+    // Calculate total token count for all chunks
+    const totalTokens = chunks.reduce(
+      (total, chunk) =>
+        total + tokenTrackingService.calculateEmbeddingTokens(chunk),
+      0
+    );
+
     const embeddings = await Settings.embedModel.getTextEmbeddings(chunks);
+
+    // Record token usage for this embedding operation
+    try {
+      await tokenTrackingService.recordTokenUsage({
+        userId: this.userId,
+        modelName: "text-embedding-3-small",
+        operationType: "EMBEDDING",
+        promptTokens: totalTokens,
+        completionTokens: 0, // embeddings only have input tokens
+        totalTokens: totalTokens,
+        noteVersionId: versionId,
+      });
+    } catch (error) {
+      console.error("Failed to record embedding token usage:", error);
+    }
 
     // Save chunks to database using raw SQL
     const savedChunks = [];

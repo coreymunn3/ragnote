@@ -107,6 +107,15 @@ export class TokenTrackingService {
       return transformToTokenUsageLog(record);
     }
   );
+
+  /**
+   * Calculate token count for embedding operations using simple character-based estimation
+   * Uses ~4 characters per token estimation which is reasonable for cost tracking
+   */
+  public calculateEmbeddingTokens(text: string): number {
+    // Simple estimation: ~4 characters per token for OpenAI models
+    return Math.ceil(text.length / 4);
+  }
 }
 
 // Create and export shared instance

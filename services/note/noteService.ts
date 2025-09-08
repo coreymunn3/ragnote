@@ -30,8 +30,6 @@ import { NoteTextExtractor } from "./noteTextExtractor";
 import { AiService } from "../ai/aiService";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
 
-const aiService = new AiService();
-
 export class NoteService {
   /**
    * Private helper method to enrich notes with preview text
@@ -707,11 +705,18 @@ export class NoteService {
       userId: string;
     }): Promise<PublishNoteResponse> => {
       // Validate input parameters
-      const { versionId, userId } = publishNoteVersionSchema.parse(params);
+      const { versionId: validatedVersionId, userId: validatedUserId } =
+        publishNoteVersionSchema.parse(params);
+
+      // create instance of AiService for embeddings, later
+      const aiService = new AiService(validatedUserId);
 
       // ensure the user has permissions to access this version
       // (user checks occur within this method)
-      const currentVersion = await this.getNoteVersion({ versionId, userId });
+      const currentVersion = await this.getNoteVersion({
+        versionId: validatedVersionId,
+        userId: validatedUserId,
+      });
 
       // Check if the version is already published to prevent duplicate publishing
       if (currentVersion.is_published) {
@@ -720,8 +725,8 @@ export class NoteService {
 
       // Get the plain text content for embedding
       const { plainTextContent } = await this.getNoteContent({
-        versionId,
-        userId,
+        versionId: validatedVersionId,
+        userId: validatedUserId,
       });
 
       // Execute all operations in a transaction
@@ -729,7 +734,7 @@ export class NoteService {
         try {
           // Create embeddings using the RAG service with the transaction
           await aiService.createEmbeddedChunksForVersion(
-            versionId,
+            validatedVersionId,
             plainTextContent,
             tx
           );
@@ -737,7 +742,7 @@ export class NoteService {
           // Update the version's published status
           const publishedVersion = await tx.note_version.update({
             where: {
-              id: versionId,
+              id: validatedVersionId,
             },
             data: {
               is_published: true,
