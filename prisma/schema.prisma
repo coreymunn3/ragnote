@@ -49,6 +49,7 @@ enum FileType {
 
 enum LLMOperationType {
   CHAT_COMPLETION
+  TITLE_GENERATION
   EMBEDDING
 }
 

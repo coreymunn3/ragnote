@@ -1,7 +1,10 @@
 /**
  * LLM Operation Types - matches schema enum
  */
-export type LLMOperationType = "CHAT_COMPLETION" | "EMBEDDING";
+export type LLMOperationType =
+  | "CHAT_COMPLETION"
+  | "EMBEDDING"
+  | "TITLE_GENERATION";
 
 /**
  * Application Types - used throughout the app

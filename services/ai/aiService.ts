@@ -1,5 +1,6 @@
 import { Settings, SentenceSplitter, CallbackManager } from "llamaindex";
 import { OpenAIEmbedding, openai } from "@llamaindex/openai";
+import OpenAI from "openai";
 import { prisma } from "@/lib/prisma";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
 import { RateLimitError } from "@/lib/errors/apiErrors";
@@ -90,6 +91,73 @@ export class AiService {
    */
   public clearPendingTokenRecord(): void {
     this.pendingTokenRecordId = undefined;
+  }
+
+  /**
+   * Generate a concise title for a chat session based on the user's initial message
+   * Uses a direct OpenAI client to ensure the call is isolated and does not trigger global callbacks.
+   * @param userMessage The first message from the user
+   * @returns A promise that resolves to a generated title
+   */
+  public async generateChatTitle(userMessage: string): Promise<string> {
+    try {
+      // Use a focused prompt to generate a concise title
+      const prompt = `Generate a concise, descriptive title (3-8 words) for a chat conversation based on this user's question or topic. Only return the title, no quotes or extra text.
+
+      User message: "${userMessage}"
+
+      Title:`;
+
+      // 1. Create a direct, isolated OpenAI client
+      const openaiClient = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+
+      // 2. Make a direct API call
+      const response = await openaiClient.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7,
+        max_tokens: 20, // Limit the output for a title
+      });
+
+      const title = response.choices[0].message.content || "";
+      const usage = response.usage;
+
+      // 3. Record usage with the correct type
+      if (usage) {
+        await tokenTrackingService.recordTokenUsageFromOpenAI({
+          userId: this.userId,
+          modelName: "gpt-4o",
+          operationType: "TITLE_GENERATION",
+          usage: {
+            prompt_tokens: usage.prompt_tokens,
+            completion_tokens: usage.completion_tokens,
+            total_tokens: usage.total_tokens,
+          },
+        });
+      }
+
+      // Clean up the response - remove quotes and trim whitespace
+      let cleanedTitle = title.trim();
+      cleanedTitle = cleanedTitle.replace(/^["']|["']$/g, ""); // Remove surrounding quotes
+      cleanedTitle = cleanedTitle.replace(/^Title:\s*/i, ""); // Remove "Title:" prefix if present
+
+      // Limit title length and ensure it's reasonable
+      if (cleanedTitle.length > 60) {
+        cleanedTitle = cleanedTitle.substring(0, 60) + "...";
+      }
+
+      // Fallback if title is empty or too short
+      if (!cleanedTitle || cleanedTitle.length < 3) {
+        return "New Conversation";
+      }
+
+      return cleanedTitle;
+    } catch (error) {
+      console.error("Failed to generate chat title:", error);
+      return "New Conversation";
+    }
   }
 
   /**

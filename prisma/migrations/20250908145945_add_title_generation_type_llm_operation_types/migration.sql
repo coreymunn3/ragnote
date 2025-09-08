@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "LLMOperationType" ADD VALUE 'TITLE_GENERATION';

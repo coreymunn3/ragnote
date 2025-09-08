@@ -206,9 +206,22 @@ export class ChatService {
   );
 
   /**
-   * Entry point for sending a chat
-   * This method will orchestrate the entire pipeline of recieving the message from the API
-   * and subsequently deciding what to do with it
+   * Entry point for sending a chat message. This method orchestrates the entire
+   * pipeline, from receiving the user's message to returning the AI's response.
+   *
+   * Workflow:
+   * 1. Validates the incoming request parameters.
+   * 2. Creates a `ChatScopeObject` to define the context for the conversation (e.g., specific note, folder).
+   * 3. Initializes a user-scoped `AiService` for handling LLM interactions and token tracking.
+   * 4. Retrieves an existing `ChatSession` or creates a new one if it's the start of a conversation.
+   * 5. Fetches the recent message history to provide context for the LLM.
+   * 6. Creates and persists the user's incoming message in the database.
+   * 7. Constructs the appropriate AI agent based on the chat scope and injects the conversation history.
+   * 8. Executes the agent with the user's message to get the AI response.
+   * 9. Creates and persists the AI's response message in the database.
+   * 10. Finalizes the token tracking record, linking it to the session and message IDs.
+   * 11. **Asynchronously (non-blocking)**, if it's a new session, generates a descriptive title for the chat based on the user's first message.
+   * 12. Returns the session, user message, and AI message to the client.
    */
   public sendChat = withErrorHandling(
     async (params: {
@@ -314,6 +327,10 @@ export class ChatService {
 
       /**
        * Token Tracking: Update token record with chatMessageId and sessionId
+       * Token Tracking is a 2 part process here.
+       * Part 1 is when the initial token tracking record is created, which happens in the callback manager automatically
+       * upon completion of the agent's workflow. At that stage we have the basic tracking info but are missing key data linkages
+       * Here in part 2, we add those data linkages
        */
       const pendingRecordId = aiService.getPendingTokenRecordId();
       if (pendingRecordId) {
@@ -325,14 +342,42 @@ export class ChatService {
           });
           aiService.clearPendingTokenRecord();
           // debugging
-          console.log("📊 Updated token record (phase 2):", {
-            recordId: pendingRecordId,
-            chatMessageId: aiMessage.id,
-            chatSessionId: currentSession.id,
-          });
+          // console.log("📊 Updated token record (phase 2):", {
+          //   recordId: pendingRecordId,
+          //   chatMessageId: aiMessage.id,
+          //   chatSessionId: currentSession.id,
+          // });
         } catch (error) {
           console.error("Failed to update token record:", error);
         }
+      }
+
+      /**
+       * Generate chat title for new sessions (non-blocking)
+       * Only generate title if this is the first message in the session
+       */
+      if (messageHistory.length === 0) {
+        console.log("generating title...");
+        // Fire-and-forget title generation - don't await to avoid blocking response
+        aiService
+          .generateChatTitle(validatedMessage)
+          .then((generatedTitle) => {
+            return this.updateChatSessionTitle({
+              sessionId: currentSession.id,
+              title: generatedTitle,
+            });
+          })
+          .then(() => {
+            console.log(
+              `Generated chat title for session ${currentSession.id}`
+            );
+          })
+          .catch((error) => {
+            console.error(
+              `Failed to generate/update chat title for session ${currentSession.id}:`,
+              error
+            );
+          });
       }
 
       // return
@@ -373,6 +418,24 @@ export class ChatService {
       );
 
       return transformedSessions;
+    }
+  );
+
+  /**
+   * Update the title of a chat session
+   */
+  public updateChatSessionTitle = withErrorHandling(
+    async (params: { sessionId: string; title: string }): Promise<void> => {
+      const { sessionId, title } = params;
+
+      await prisma.chat_session.update({
+        where: {
+          id: sessionId,
+        },
+        data: {
+          title: title,
+        },
+      });
     }
   );
 }

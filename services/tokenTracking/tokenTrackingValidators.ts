@@ -6,6 +6,7 @@ export const recordTokenUsageSchema = z.object({
   operationType: z.union([
     z.literal("CHAT_COMPLETION"),
     z.literal("EMBEDDING"),
+    z.literal("TITLE_GENERATION"),
   ]),
   promptTokens: z.number().int().min(0, "Prompt tokens must be non-negative"),
   completionTokens: z
@@ -25,6 +26,7 @@ export const recordTokenUsageFromOpenAISchema = z.object({
   operationType: z.union([
     z.literal("CHAT_COMPLETION"),
     z.literal("EMBEDDING"),
+    z.literal("TITLE_GENERATION"),
   ]),
   usage: z.object({
     prompt_tokens: z
