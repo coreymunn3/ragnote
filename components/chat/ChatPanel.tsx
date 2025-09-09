@@ -26,6 +26,8 @@ import {
 import { useGetChatHistoryForScope } from "@/hooks/chat/useGetChatHistoryForScope";
 import ChatHistory from "./ChatHistory";
 import { useGetChatMessagesForSessionScope } from "@/hooks/chat/useGetChatMessagesForSessionScope";
+import { Button } from "../ui/button";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ChatPanelProps {
   open: boolean;
@@ -44,6 +46,7 @@ const ChatPanel = ({
   scope,
   scopeId,
 }: ChatPanelProps) => {
+  const queryClient = useQueryClient();
   // GET the chat session history for this note version
   // MUTATION to send a chat message (this create a new session & will hold the conversation)
   const [chatSessionId, setChatSessionId] = useState<string | undefined>();
@@ -97,6 +100,11 @@ const ChatPanel = ({
     onSuccess: (response) => {
       setChatSessionId(response.session.id);
 
+      // Invalidate the chat history query
+      queryClient.invalidateQueries({
+        queryKey: ["chatHistory", scope, scopeId],
+      });
+
       // Remove thinking message and add real AI response
       setConversation((prev) => {
         // Filter out temporary messages (optimistic user message and thinking message)
@@ -146,6 +154,15 @@ const ChatPanel = ({
     setHistoryExpanded((prev) => !prev);
   };
 
+  /**
+   * Called by New Chat button - clear the existing conversation and session
+   */
+  const handleBeginNewChat = () => {
+    setHistoryExpanded(false);
+    setChatSessionId(undefined);
+    setConversation([]);
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetHeader className="hidden">
@@ -165,24 +182,30 @@ const ChatPanel = ({
           {/* Top Banner - title and history */}
           <div className="flex justify-between items-center mt-2">
             {/* left side: title and active version */}
-            <div className="flex flex-row space-x-2 items-center">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <TypographyLead className="font-semibold text-foreground">
-                    {title} Chat
-                  </TypographyLead>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>
-                    You are chatting with the most recently published version of
-                    this note
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-
-              {!!mostRecentPublishedVersion && (
-                <VersionBadge version={mostRecentPublishedVersion} />
-              )}
+            <div className="flex flex-row justify-between items-center w-full">
+              <div className="flex flex-row space-x-2 items-center">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <TypographyLead className="font-semibold text-foreground">
+                      {title} Chat
+                    </TypographyLead>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      You are chatting with the most recently published version
+                      of this note
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+                {!!mostRecentPublishedVersion && (
+                  <VersionBadge version={mostRecentPublishedVersion} />
+                )}
+              </div>
+              <div>
+                <Button variant={"outline"} onClick={handleBeginNewChat}>
+                  New Chat
+                </Button>
+              </div>
             </div>
           </div>
           {/* Second Banner - Chat History */}
