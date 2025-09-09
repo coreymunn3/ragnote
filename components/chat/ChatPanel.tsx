@@ -86,8 +86,6 @@ const ChatPanel = ({
    * @param sessionId the session ID
    */
   const handleSelectChatSession = (sessionId: string) => {
-    // Clear current conversation - it will be populated by useEffect when API data loads
-    setConversation([]);
     // Set the chat session to the selected one
     setChatSessionId(sessionId);
     // close history
