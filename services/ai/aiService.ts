@@ -36,7 +36,7 @@ export class AiService {
     const callbackManager = new CallbackManager();
 
     callbackManager.on("llm-end", async (event) => {
-      console.log("event detail", JSON.stringify(event.detail));
+      // console.log("event detail", JSON.stringify(event.detail));
       // Only track if there's usage data available
       const rawResponse = event.detail.response.raw as OpenAIResponse;
       const usage = rawResponse?.usage;
