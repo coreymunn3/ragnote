@@ -77,6 +77,43 @@ export class TokenTrackingService {
   );
 
   /**
+   * uses a message to record estimated token usage
+   */
+  public recordEstimatedTokenUsageFromMessage = withErrorHandling(
+    async (params: {
+      userId: string;
+      modelName: string;
+      operationType: LLMOperationType;
+      chatMessageId?: string | null;
+      chatSessionId?: string | null;
+      noteVersionId?: string | null;
+      imputMessage: string;
+      outputMessage: string;
+    }) => {
+      // estimate token used based on messages
+      const approximateInputTokens = this.estimateTokensFromText(
+        params.imputMessage
+      );
+      const approximateOutputTokens = this.estimateTokensFromText(
+        params.outputMessage
+      );
+      const totalTokens = approximateInputTokens + approximateOutputTokens;
+      // record the estimated tokens
+      return this.recordTokenUsage({
+        userId: params.userId,
+        modelName: params.modelName,
+        operationType: params.operationType,
+        promptTokens: approximateInputTokens,
+        completionTokens: approximateOutputTokens,
+        totalTokens: totalTokens,
+        chatMessageId: params.chatMessageId,
+        chatSessionId: params.chatSessionId,
+        noteVersionId: params.noteVersionId,
+      });
+    }
+  );
+
+  /**
    * Update an existing token usage record
    * Used for two-phase recording when chatMessageId is available later
    */
@@ -112,7 +149,7 @@ export class TokenTrackingService {
    * Calculate token count for embedding operations using simple character-based estimation
    * Uses ~4 characters per token estimation which is reasonable for cost tracking
    */
-  public calculateEmbeddingTokens(text: string): number {
+  public estimateTokensFromText(text: string): number {
     // Simple estimation: ~4 characters per token for OpenAI models
     return Math.ceil(text.length / 4);
   }

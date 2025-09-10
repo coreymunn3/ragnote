@@ -32,14 +32,16 @@ export class AiService {
       apiKey: process.env.OPENAI_API_KEY,
       model: "gpt-4o",
     });
-
     // Set up callback manager for token tracking
     const callbackManager = new CallbackManager();
 
     callbackManager.on("llm-end", async (event) => {
+      console.log("event detail", JSON.stringify(event.detail));
       // Only track if there's usage data available
       const rawResponse = event.detail.response.raw as OpenAIResponse;
       const usage = rawResponse?.usage;
+      const messageResponse = event.detail.response.message;
+      // try to record based on the usage provided (it may not exist)
       if (usage) {
         try {
           // Phase 1: Record token usage without chatMessageId
@@ -62,6 +64,25 @@ export class AiService {
           //   model: rawResponse?.model,
           //   tokens: usage.total_tokens,
           // });
+        } catch (error) {
+          console.error("Token tracking failed in callback manager:", error);
+        }
+      }
+      // otherwise, estimate tokens based on the response message if usage isn't directly available
+      else {
+        // TO DO - record the estimated token useage based on the response message.
+        try {
+          const tokenRecord =
+            await tokenTrackingService.recordEstimatedTokenUsageFromMessage({
+              userId: this.userId,
+              modelName: "gpt-4o",
+              operationType: "CHAT_COMPLETION",
+              imputMessage: "", // we cant get this here...TO DO
+              outputMessage: messageResponse.content.toString(),
+              chatMessageId: null,
+              chatSessionId: null,
+              noteVersionId: this.noteVersionId || null,
+            });
         } catch (error) {
           console.error("Token tracking failed in callback manager:", error);
         }
@@ -100,6 +121,7 @@ export class AiService {
    * @returns A promise that resolves to a generated title
    */
   public async generateChatTitle(userMessage: string): Promise<string> {
+    const GENERATE_TITLE_MODEL = "gpt-4o-mini";
     try {
       // Use a focused prompt to generate a concise title
       const prompt = `Generate a concise, descriptive title (3-8 words) for a chat conversation based on this user's question or topic. Only return the title, no quotes or extra text.
@@ -115,7 +137,7 @@ export class AiService {
 
       // 2. Make a direct API call
       const response = await openaiClient.chat.completions.create({
-        model: "gpt-4o",
+        model: GENERATE_TITLE_MODEL,
         messages: [{ role: "user", content: prompt }],
         temperature: 0.7,
         max_tokens: 20, // Limit the output for a title
@@ -128,7 +150,7 @@ export class AiService {
       if (usage) {
         await tokenTrackingService.recordTokenUsageFromOpenAI({
           userId: this.userId,
-          modelName: "gpt-4o",
+          modelName: GENERATE_TITLE_MODEL,
           operationType: "TITLE_GENERATION",
           usage: {
             prompt_tokens: usage.prompt_tokens,
@@ -254,7 +276,7 @@ export class AiService {
 
     // Calculate token count for tracking
     const tokenCount =
-      tokenTrackingService.calculateEmbeddingTokens(plainTextContent);
+      tokenTrackingService.estimateTokensFromText(plainTextContent);
 
     // create the embedding
     const embedding =
@@ -314,7 +336,7 @@ export class AiService {
     // Calculate total token count for all chunks
     const totalTokens = chunks.reduce(
       (total, chunk) =>
-        total + tokenTrackingService.calculateEmbeddingTokens(chunk),
+        total + tokenTrackingService.estimateTokensFromText(chunk),
       0
     );
 
