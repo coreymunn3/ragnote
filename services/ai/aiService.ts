@@ -83,6 +83,8 @@ export class AiService {
               chatSessionId: null,
               noteVersionId: this.noteVersionId || null,
             });
+          // Store the record ID for later update
+          this.pendingTokenRecordId = tokenRecord.id;
         } catch (error) {
           console.error("Token tracking failed in callback manager:", error);
         }
