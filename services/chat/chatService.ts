@@ -3,8 +3,6 @@ import { prisma } from "@/lib/prisma";
 import {
   ChatScope,
   ChatScopeObject,
-  PrismaChatMessage,
-  PrismaChatSession,
   ChatMessage,
   ChatSession,
   SendChatResponse,
@@ -313,6 +311,9 @@ export class ChatService {
 
       // call the agent - TO DO eventually setup streaming (agent.runStream)
       const aiResponse = await agent.run(validatedMessage);
+      // console.log("=== FULL AGENT RESPONSE ===");
+      // console.log(JSON.stringify(aiResponse, null, 2));
+      // console.log("=== END FULL AGENT RESPONSE ===");
 
       /**
        * Create the ai chat response
