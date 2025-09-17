@@ -21,7 +21,7 @@ const WidgetList = <T extends { id: string }>({
   title,
   icon,
   className,
-  emptyMessage = "No Notes Yet :(",
+  emptyMessage = "",
   delay = 0, // Default to no delay
   displayMode = "horizontal", // Default to horizontal for backward compatibility
 }: WidgetListProps<T>) => {
