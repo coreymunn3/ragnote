@@ -13,38 +13,31 @@ import { Calendar1Icon, MessageSquareIcon, PinIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetNotes } from "@/hooks/note/useGetNotes";
 import { Note } from "@/lib/types/noteTypes";
+import { ChatSession } from "@/lib/types/chatTypes";
+import { useGetChatSessionsForUser } from "@/hooks/chat/useGetChatSessionsForUser";
 
 interface WebDashboardContentProps {
   notes: Note[];
+  chatSessions: ChatSession[];
 }
 
-const WebDashboardContent = ({ notes }: WebDashboardContentProps) => {
+const WebDashboardContent = ({
+  notes,
+  chatSessions,
+}: WebDashboardContentProps) => {
+  // re-fetch the user's notes
   const userNotes = useGetNotes({
     initialData: notes,
     staleTime: 0,
     refetchOnMount: true,
   });
+  // re-fetch the user's chat sessions
+  const userChatSessions = useGetChatSessionsForUser({
+    initialData: chatSessions,
+    staleTime: 0,
+    refetchOnMount: true,
+  });
 
-  const conversations = [
-    {
-      id: "1",
-      title: "What can I ask about?",
-      is_pinned: false,
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      messages_count: 3,
-    },
-    {
-      id: "2",
-      title: "What is my wifi password?",
-      is_pinned: false,
-      is_deleted: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      messages_count: 8,
-    },
-  ];
   return (
     <div>
       <AnimatedTypography variant="h1">{`Welcome!`}</AnimatedTypography>
@@ -67,7 +60,7 @@ const WebDashboardContent = ({ notes }: WebDashboardContentProps) => {
             <WidgetList
               items={userNotes.data?.filter((note) => note.is_pinned) || []}
               renderItem={(note) => <NoteWidget note={note} pinned={false} />}
-              title={"Pinned"}
+              title={"Pinned Notes"}
               icon={<PinIcon className="h-6 w-6 text-muted-foreground" />}
               delay={1}
             />
@@ -85,7 +78,7 @@ const WebDashboardContent = ({ notes }: WebDashboardContentProps) => {
                 ) || []
               }
               renderItem={(note) => <NoteWidget note={note} />}
-              title={"Recent"}
+              title={"Recent Notes"}
               icon={<Calendar1Icon className="h-6 w-6 text-muted-foreground" />}
               delay={2}
             />
@@ -95,11 +88,11 @@ const WebDashboardContent = ({ notes }: WebDashboardContentProps) => {
         <AnimatedListItem index={3} animation="fadeIn">
           <div>
             <WidgetList
-              items={conversations}
+              items={userChatSessions.data || []}
               renderItem={(conversation) => (
                 <ConversationWidget chatSession={conversation} />
               )}
-              title={"Chats & Conversations"}
+              title={"AI Chats"}
               icon={
                 <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
               }

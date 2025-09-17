@@ -27,7 +27,7 @@ const WidgetList = <T extends { id: string }>({
 }: WidgetListProps<T>) => {
   if (!items || items.length === 0) {
     return (
-      <div className="text-muted-foreground text-sm py-4 text-center">
+      <div className="text-muted-foreground text-sm py-0 text-center">
         {emptyMessage}
       </div>
     );
