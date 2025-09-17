@@ -15,6 +15,7 @@ import {
   createChatMessageSchema,
   sendChatSchema,
   getChatSessionsForNoteSchema,
+  getChatSessionForUserSchema,
 } from "./chatValidators";
 import {
   transformToChatMessage,
@@ -130,6 +131,28 @@ export class ChatService {
 
       // Transform the session to our application type
       return await transformToChatSession(session);
+    }
+  );
+
+  /**
+   * Get all chat sessions for the user
+   */
+  public getChatSessionsForUser = withErrorHandling(
+    async (params: { userId: string }): Promise<ChatSession[]> => {
+      const { userId: validatedUserId } =
+        getChatSessionForUserSchema.parse(params);
+      // get all chat sessions for this user
+      const sessions = await prisma.chat_session.findMany({
+        where: {
+          user_id: validatedUserId,
+          is_deleted: false,
+        },
+      });
+      // Transform all sessions to application types
+      const transformedSessions = await Promise.all(
+        sessions.map((s) => transformToChatSession(s))
+      );
+      return transformedSessions;
     }
   );
 
