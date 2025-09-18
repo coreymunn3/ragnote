@@ -10,11 +10,11 @@ export default function WebSidebarWrapper({
   return (
     <SidebarProvider>
       <WebSidebar />
-      <main className="w-full relative">
+      <main className="w-full relative min-w-0 flex-1">
         <div className="absolute top-0 left-0 p-2">
           <WebSidebarExternalTrigger />
         </div>
-        {children}
+        <div className="w-full min-w-0 overflow-hidden">{children}</div>
       </main>
     </SidebarProvider>
   );
