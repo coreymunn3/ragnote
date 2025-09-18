@@ -7,37 +7,57 @@ import {
 } from "./folderValidators";
 import {
   PrismaFolder,
-  FolderWithNotes,
+  FolderWithItems,
+  FolderItemType,
   SYSTEM_FOLDERS,
   SystemFolderId,
 } from "@/lib/types/folderTypes";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { NoteService } from "../note/noteService";
+import { ChatService } from "../chat/chatService";
 import { ForbiddenError, NotFoundError } from "@/lib/errors/apiErrors";
 import { isSystemFolder, getSystemFolderKey } from "@/lib/utils/folderUtils";
 
 const noteService = new NoteService();
+const chatService = new ChatService();
 export class FolderService {
   /**
-   * Enriches an array of folders with their associated notes and href properties
+   * Enriches an array of folders with their associated items and href properties
    * @param folders - Array of PrismaFolder objects to enrich
-   * @param userId - User ID for fetching notes
-   * @returns Promise resolving to array of FolderWithNotes
+   * @param userId - User ID for fetching items
+   * @param itemType - Type of items to fetch ('note' or 'chat')
+   * @returns Promise resolving to array of FolderWithItems
    */
-  private enrichFoldersWithNotes = async (
+  private enrichFoldersWithItems = async (
     folders: PrismaFolder[],
-    userId: string
-  ): Promise<FolderWithNotes[]> => {
-    // Get notes for each folder using noteService
+    userId: string,
+    itemType: FolderItemType
+  ): Promise<FolderWithItems[]> => {
     return Promise.all(
       folders.map(async (folder) => {
-        const notes = await noteService.getAllNotesInFolder(folder.id, userId);
+        let items: any[];
+        let href: string;
+
+        switch (itemType) {
+          case "note":
+            items = await noteService.getAllNotesInFolder(folder.id, userId);
+            href = `/folder/${folder.id}`;
+            break;
+          case "chat":
+            items = await chatService.getChatSessionsForUser({ userId });
+            href = `/chat`;
+            break;
+          default:
+            items = [];
+            href = `/folder/${folder.id}`;
+        }
 
         return {
           ...folder,
-          href: `/folder/${folder.id}`,
-          notes,
-        } as FolderWithNotes;
+          href,
+          items,
+          itemType,
+        } as FolderWithItems;
       })
     );
   };
@@ -143,7 +163,7 @@ export class FolderService {
 
   /** Get All Folders created by the user */
   public getUserCreatedFolders = withErrorHandling(
-    async (userId: string): Promise<FolderWithNotes[]> => {
+    async (userId: string): Promise<FolderWithItems[]> => {
       // Get all folders for this user that are not deleted
       const folders = await prisma.folder.findMany({
         where: {
@@ -153,41 +173,61 @@ export class FolderService {
       });
 
       // Get notes for each folder using the helper method
-      return await this.enrichFoldersWithNotes(folders, userId);
+      return await this.enrichFoldersWithItems(folders, userId, "note");
     }
   );
 
   public getUserSystemFolders = withErrorHandling(
-    async (userId: string): Promise<FolderWithNotes[]> => {
+    async (userId: string): Promise<FolderWithItems[]> => {
       /**
        * System folders are not "real" folders like the user created folders.
-       * Instead, they are artificial folders, just groups of notes presented to the user the same way a folder would be.
+       * Instead, they are artificial folders, just groups of items presented to the user the same way a folder would be.
        */
 
-      const systemFolders: PrismaFolder[] = [
-        this.createSystemFolder("SHARED", userId),
-        this.createSystemFolder("DELETED", userId),
-      ];
+      // Handle each system folder separately since they need different enrichment types
+      const sharedFolder = await this.enrichFoldersWithItems(
+        [this.createSystemFolder("SHARED", userId)],
+        userId,
+        "note"
+      );
 
-      // get notes for each of the system folders using the helper method
-      return await this.enrichFoldersWithNotes(systemFolders, userId);
+      const deletedFolder = await this.enrichFoldersWithItems(
+        [this.createSystemFolder("DELETED", userId)],
+        userId,
+        "note"
+      );
+
+      const chatsFolder = await this.enrichFoldersWithItems(
+        [this.createSystemFolder("CHATS", userId)],
+        userId,
+        "chat"
+      );
+
+      return [...sharedFolder, ...deletedFolder, ...chatsFolder];
     }
   );
 
-  /** Get a single folder by ID with its notes */
+  /** Get a single folder by ID with its items */
   public getFolderById = withErrorHandling(
-    async (folderId: string, userId: string): Promise<FolderWithNotes> => {
+    async (folderId: string, userId: string): Promise<FolderWithItems> => {
       const validatedData = getFolderByIdSchema.parse({ folderId, userId });
 
       // Check if this is a system folder
       if (isSystemFolder(validatedData.folderId)) {
+        const systemFolderKey = getSystemFolderKey(validatedData.folderId);
         const systemFolder = this.createSystemFolder(
-          getSystemFolderKey(validatedData.folderId),
+          systemFolderKey,
           validatedData.userId
         );
-        const enrichedFolders = await this.enrichFoldersWithNotes(
+
+        // Determine item type based on system folder
+        const itemType: FolderItemType =
+          systemFolderKey === "CHATS" ? "chat" : "note";
+
+        const enrichedFolders = await this.enrichFoldersWithItems(
           [systemFolder],
-          validatedData.userId
+          validatedData.userId,
+          itemType
         );
         return enrichedFolders[0];
       }
@@ -206,9 +246,10 @@ export class FolderService {
       }
 
       // Use existing helper to enrich with notes
-      const enrichedFolders = await this.enrichFoldersWithNotes(
+      const enrichedFolders = await this.enrichFoldersWithItems(
         [folder],
-        validatedData.userId
+        validatedData.userId,
+        "note"
       );
       return enrichedFolders[0];
     }

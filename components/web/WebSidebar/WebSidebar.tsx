@@ -55,11 +55,12 @@ const WebSidebar = () => {
               id: "home",
               folder_name: "Home",
               href: "/dashboard",
-              notes: [],
-              user_id: "",
-              is_deleted: false,
-              created_at: new Date(),
-              updated_at: new Date(),
+              items: [],
+              itemType: "note", // does not matter, no items to expand in this folder list
+              user_id: "", // does not matter
+              is_deleted: false, // does not matter
+              created_at: new Date(), // does not matter
+              updated_at: new Date(), // does not matter
             },
           ]}
           showCount={false}

@@ -82,7 +82,7 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
         .filter((folder) => folder.id !== folderId) // Exclude current folder
         .map((folder) => ({
           value: folder.id,
-          label: `${folder.folder_name} (${folder.notes.length} notes)`,
+          label: `${folder.folder_name} (${folder.items.length} items)`,
         }))
     : [];
 

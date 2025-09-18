@@ -5,9 +5,10 @@ import {
   FolderIcon,
   FolderSyncIcon,
   HouseIcon,
+  MessageSquare,
   Trash2Icon,
 } from "lucide-react";
-import FolderItem from "./FolderItem";
+import FolderListItem from "./FolderListItem";
 import { AnimatedListItem } from "@/components/animations";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -50,6 +51,8 @@ const FolderList = ({
         return <Trash2Icon className="h-4 w-4" />;
       case "system_shared":
         return <FolderSyncIcon className="h-4 w-4" />;
+      case "system_chats":
+        return <MessageSquare className="h-4 w-4" />;
       case "home":
         return <HouseIcon className="h-4 w-4" />;
       default:
@@ -81,7 +84,7 @@ const FolderList = ({
         folders.map((folder: FolderWithNotes, index) => (
           <SidebarMenuItem key={folder.id}>
             <AnimatedListItem index={index} animation="fadeInRight">
-              <FolderItem
+              <FolderListItem
                 folder={folder}
                 Icon={getFolderIcon(folder.id)}
                 showCount={showCount}

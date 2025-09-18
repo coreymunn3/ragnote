@@ -4,10 +4,10 @@ import {
   SidebarGroupContent,
 } from "@/components/ui/sidebar";
 import FolderList from "../FolderList";
-import { FolderWithNotes } from "@/lib/types/folderTypes";
+import { FolderWithItems } from "@/lib/types/folderTypes";
 
 interface WebSidebarFolderGroupProps {
-  folders: FolderWithNotes[] | undefined;
+  folders: FolderWithItems[] | undefined;
   isLoading?: boolean;
   groupName: string;
   showCount?: boolean;

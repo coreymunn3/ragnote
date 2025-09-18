@@ -1,4 +1,5 @@
 import { Note } from "./noteTypes";
+import { ChatSession } from "./chatTypes";
 import { Expand } from "./sharedTypes";
 
 export const SYSTEM_FOLDERS = {
@@ -10,8 +11,15 @@ export const SYSTEM_FOLDERS = {
     id: "system_deleted",
     displayName: "Recently Deleted",
   },
+  CHATS: {
+    id: "system_chats",
+    displayName: "Chats",
+  },
 };
-export type SystemFolderId = "system_shared" | "system_deleted";
+export type SystemFolderId =
+  | "system_shared"
+  | "system_deleted"
+  | "system_chats";
 
 export type PrismaFolder = {
   id: string;
@@ -22,12 +30,17 @@ export type PrismaFolder = {
   updated_at: Date;
 };
 
-export type FolderWithNotes = Expand<
+export type FolderItemType = "note" | "chat";
+export type FolderWithItems = Expand<
   PrismaFolder & {
     href: string;
-    notes: Note[];
+    items: (Note | ChatSession)[];
+    itemType: FolderItemType;
   }
 >;
+
+// Keep backward compatibility alias
+export type FolderWithNotes = FolderWithItems;
 
 /**
  * Request Types for Folder APIs

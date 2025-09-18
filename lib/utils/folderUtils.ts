@@ -23,6 +23,8 @@ export function getSystemFolderKey(
       return "SHARED";
     case SYSTEM_FOLDERS.DELETED.id:
       return "DELETED";
+    case SYSTEM_FOLDERS.CHATS.id:
+      return "CHATS";
     default:
       throw new NotFoundError(`Unknown system folder: ${systemFolderId}`);
   }
