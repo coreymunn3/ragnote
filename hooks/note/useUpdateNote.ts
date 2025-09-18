@@ -80,9 +80,12 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
           break;
 
         case "toggle_pin":
-          // For pin/unpin, invalidate folders and specific folder if known
+          // For pin/unpin, invalidate notes, folders and specific folder if known
           queryClient.invalidateQueries({
             queryKey: ["folders"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["notes"],
           });
           if (variables.folderId) {
             queryClient.invalidateQueries({
@@ -102,9 +105,12 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
           break;
 
         case "delete":
-          // For delete, invalidate folders and specific folder if known
+          // For delete, invalidate notes, folders and specific folder if known
           queryClient.invalidateQueries({
             queryKey: ["folders"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["notes"],
           });
           if (variables.folderId) {
             queryClient.invalidateQueries({
@@ -114,9 +120,12 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
           break;
 
         default:
-          // Fallback: invalidate folders
+          // Fallback: invalidate folders and notes
           queryClient.invalidateQueries({
             queryKey: ["folders"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["notes"],
           });
           break;
       }
