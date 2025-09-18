@@ -1,7 +1,13 @@
 import { ChatSession } from "@/lib/types/chatTypes";
-import { TypographySmall } from "../ui/typography";
+import { TypographyMuted, TypographySmall } from "../ui/typography";
 import { MessageSquareIcon } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { DateTime } from "luxon";
 
 interface ConversationWidgetProps {
@@ -18,28 +24,31 @@ const ConversationWidget = ({ chatSession }: ConversationWidgetProps) => {
         <CardTitle className="text-base font-semibold line-clamp-1 overflow-ellipsis">
           {chatSession.title}
         </CardTitle>
-        <TypographySmall className="overflow-ellipsis">
-          {chatSession.preview}
-        </TypographySmall>
       </CardHeader>
 
       <CardContent>
-        <div className="flex justify-between w-full text-muted-foreground">
+        <TypographyMuted className="line-clamp-2 overflow-ellipsis h-10">
+          {chatSession.preview}
+        </TypographyMuted>
+      </CardContent>
+
+      <CardFooter>
+        <div className="flex justify-between w-full">
           {/* number of messages in this session */}
-          <div className="flex items-center">
+          <div className="flex items-center text-muted-foreground">
             <MessageSquareIcon className="h-4 w-4 mr-1.5" />
             <TypographySmall>
               {chatSession.messages_count} messages
             </TypographySmall>
           </div>
-          {/* last  */}
-          <div>
+          {/* last updated */}
+          <div className="flex items-center text-muted-foreground">
             <TypographySmall>
               {DateTime.fromISO(chatSession.updated_at).toRelative()}
             </TypographySmall>
           </div>
         </div>
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 };
