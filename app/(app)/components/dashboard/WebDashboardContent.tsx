@@ -59,7 +59,9 @@ const WebDashboardContent = ({
           <div>
             <WidgetList
               items={userNotes.data?.filter((note) => note.is_pinned) || []}
-              renderItem={(note) => <NoteWidget note={note} pinned={false} />}
+              renderItem={(note) => (
+                <NoteWidget note={note} pinned={note.is_pinned} />
+              )}
               title={"Pinned Notes"}
               icon={<PinIcon className="h-6 w-6 text-muted-foreground" />}
               delay={1}
@@ -71,11 +73,13 @@ const WebDashboardContent = ({
           <div>
             <WidgetList
               items={
-                userNotes.data?.sort(
-                  (a, b) =>
-                    new Date(b.current_version.updated_at).getTime() -
-                    new Date(a.current_version.updated_at).getTime()
-                ) || []
+                userNotes.data
+                  ?.filter((note) => !note.is_pinned)
+                  .sort(
+                    (a, b) =>
+                      new Date(b.current_version.updated_at).getTime() -
+                      new Date(a.current_version.updated_at).getTime()
+                  ) || []
               }
               renderItem={(note) => <NoteWidget note={note} />}
               title={"Recent Notes"}
