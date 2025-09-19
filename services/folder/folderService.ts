@@ -203,7 +203,7 @@ export class FolderService {
         "chat"
       );
 
-      return [...sharedFolder, ...deletedFolder, ...chatsFolder];
+      return [...chatsFolder, ...sharedFolder, ...deletedFolder];
     }
   );
 
