@@ -25,7 +25,6 @@ interface WebFolderPageContentProps {
 }
 
 const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
-  console.log(folder);
   const router = useRouter();
   // dialog state management
   const [renameOpen, setRenameOpen] = useState(false);
