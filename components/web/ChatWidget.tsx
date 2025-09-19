@@ -18,7 +18,7 @@ const ChatWidget = ({ chatSession }: ChatWidgetProps) => {
   return (
     <Card
       variant="dense"
-      className="w-[300px] cursor-pointer hover:shadow-md hover:text-primary transition-all duration-200"
+      className="cursor-pointer hover:shadow-md hover:text-primary transition-all duration-200"
     >
       <CardHeader>
         <CardTitle className="text-base font-semibold line-clamp-1 overflow-ellipsis">
