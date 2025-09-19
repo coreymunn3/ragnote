@@ -17,6 +17,8 @@ import { NoteService } from "../note/noteService";
 import { ChatService } from "../chat/chatService";
 import { ForbiddenError, NotFoundError } from "@/lib/errors/apiErrors";
 import { isSystemFolder, getSystemFolderKey } from "@/lib/utils/folderUtils";
+import { DateTime } from "luxon";
+import { Note } from "@/lib/types/noteTypes";
 
 const noteService = new NoteService();
 const chatService = new ChatService();
@@ -40,11 +42,36 @@ export class FolderService {
 
         switch (itemType) {
           case "note":
-            items = await noteService.getAllNotesInFolder(folder.id, userId);
+            const allNotes = await noteService.getAllNotesInFolder(
+              folder.id,
+              userId
+            );
+            // Sort notes by most recent edit time (note.updated_at or current_version.updated_at)
+            items = allNotes.sort((a, b) => {
+              const getNoteMostRecentDateTime = (note: Note) => {
+                const noteUpdated = DateTime.fromJSDate(note.updated_at);
+                const versionUpdated = note.current_version
+                  ? DateTime.fromJSDate(note.current_version.updated_at)
+                  : DateTime.fromMillis(0);
+                return DateTime.max(noteUpdated, versionUpdated);
+              };
+
+              const aTime = getNoteMostRecentDateTime(a);
+              const bTime = getNoteMostRecentDateTime(b);
+              return bTime.toMillis() - aTime.toMillis(); // Descending order (most recent first)
+            });
             href = `/folder/${folder.id}`;
             break;
           case "chat":
-            items = await chatService.getChatSessionsForUser({ userId });
+            const allItems = await chatService.getChatSessionsForUser({
+              userId,
+            });
+            // Sort chats by most recent update time
+            items = allItems.sort((a, b) => {
+              const aTime = DateTime.fromISO(a.updated_at);
+              const bTime = DateTime.fromISO(b.updated_at);
+              return bTime.toMillis() - aTime.toMillis(); // Descending order (most recent first)
+            });
             href = `/folder/${folder.id}`;
             break;
           default:
