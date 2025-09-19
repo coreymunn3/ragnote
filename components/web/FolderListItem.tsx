@@ -1,5 +1,5 @@
 "use client";
-import { FolderWithNotes } from "@/lib/types/folderTypes";
+import { FolderWithItems } from "@/lib/types/folderTypes";
 import { Note } from "@/lib/types/noteTypes";
 import { ChevronRightIcon, FilePlus2Icon } from "lucide-react";
 import { Button } from "../ui/button";
@@ -10,7 +10,7 @@ import CreateNote from "../CreateNote";
 import { ChatSession } from "@/lib/types/chatTypes";
 
 interface FolderListItemProps {
-  folder: FolderWithNotes;
+  folder: FolderWithItems;
   Icon: React.ReactNode;
   showCount?: boolean;
   isOpen?: boolean;
@@ -92,7 +92,7 @@ const FolderListItem = ({
       </div>
       <AnimatedExpandable isOpen={isOpen}>
         <div className="p-1 flex flex-col space-y-1">
-          {items.map((item: Note | ChatSession, index) => {
+          {items.map((item: Note | ChatSession, index: number) => {
             const routePrefix = itemType === "note" ? "/note" : "/chat";
 
             return (

@@ -1,7 +1,7 @@
-import { FolderWithNotes } from "@/lib/types/folderTypes";
+import { FolderWithItems } from "@/lib/types/folderTypes";
 
 interface MobileFolderPageContentProps {
-  folder: FolderWithNotes;
+  folder: FolderWithItems;
 }
 
 const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {

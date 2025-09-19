@@ -1,5 +1,5 @@
 "use client";
-import { FolderWithNotes } from "@/lib/types/folderTypes";
+import { FolderWithItems } from "@/lib/types/folderTypes";
 import { SidebarMenu, SidebarMenuItem } from "../ui/sidebar";
 import {
   FolderIcon,
@@ -16,7 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import CreateFolder from "../CreateFolder";
 
 interface FolderListProps {
-  folders: FolderWithNotes[] | undefined;
+  folders: FolderWithItems[] | undefined;
   isLoading?: boolean;
   showCount?: boolean;
   allowCreateNote?: boolean;
@@ -81,7 +81,7 @@ const FolderList = ({
   return (
     <SidebarMenu>
       {folders &&
-        folders.map((folder: FolderWithNotes, index) => (
+        folders.map((folder: FolderWithItems, index) => (
           <SidebarMenuItem key={folder.id}>
             <AnimatedListItem index={index} animation="fadeInRight">
               <FolderListItem

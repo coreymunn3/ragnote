@@ -1,20 +1,20 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import axios from "axios";
-import { FolderWithNotes } from "@/lib/types/folderTypes";
+import { FolderWithItems } from "@/lib/types/folderTypes";
 import { UseQueryHookOptions } from "@/lib/types/sharedTypes";
 
-const getFolderById = async (folderId: string): Promise<FolderWithNotes> => {
+const getFolderById = async (folderId: string): Promise<FolderWithItems> => {
   const res = await axios.get(`/api/folder/${folderId}`);
   return res.data;
 };
 
-export type UseGetFolderByIdOptions = UseQueryHookOptions<FolderWithNotes>;
+export type UseGetFolderByIdOptions = UseQueryHookOptions<FolderWithItems>;
 
 export function useGetFolderById(
   folderId: string,
   options?: UseGetFolderByIdOptions
 ) {
-  return useQuery<FolderWithNotes>({
+  return useQuery<FolderWithItems>({
     queryKey: ["folder", folderId],
     queryFn: () => getFolderById(folderId),
     ...options,

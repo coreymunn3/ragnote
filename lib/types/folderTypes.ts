@@ -39,9 +39,6 @@ export type FolderWithItems = Expand<
   }
 >;
 
-// Keep backward compatibility alias
-export type FolderWithNotes = FolderWithItems;
-
 /**
  * Request Types for Folder APIs
  */

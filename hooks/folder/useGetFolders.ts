@@ -1,11 +1,11 @@
-import { FolderWithNotes } from "@/lib/types/folderTypes";
+import { FolderWithItems } from "@/lib/types/folderTypes";
 import { useQuery } from "@tanstack/react-query";
 import { Expand, UseQueryHookOptions } from "@/lib/types/sharedTypes";
 import axios from "axios";
 
 export type GetUserFoldersData = Expand<{
-  user: FolderWithNotes[];
-  system: FolderWithNotes[];
+  user: FolderWithItems[];
+  system: FolderWithItems[];
 }>;
 
 const getFolders = async (): Promise<GetUserFoldersData> => {

@@ -45,7 +45,7 @@ export class FolderService {
             break;
           case "chat":
             items = await chatService.getChatSessionsForUser({ userId });
-            href = `/chat`;
+            href = `/folder/${folder.id}`;
             break;
           default:
             items = [];

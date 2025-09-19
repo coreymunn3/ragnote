@@ -8,7 +8,7 @@ import NoteWidget from "@/components/web/NoteWidget";
 import { Button } from "@/components/ui/button";
 import { FilePlus2Icon, FolderPenIcon, Trash2Icon } from "lucide-react";
 import OptionsMenu from "@/components/OptionsMenu";
-import { FolderWithNotes } from "@/lib/types/folderTypes";
+import { FolderWithItems } from "@/lib/types/folderTypes";
 import { Note } from "@/lib/types/noteTypes";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
@@ -18,12 +18,15 @@ import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 import InputDialog from "@/components/dialogs/InputDialog";
 import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
 import CreateNote from "@/components/CreateNote";
+import { ChatSession } from "@/lib/types/chatTypes";
+import ConversationWidget from "@/components/web/ConversationWidget";
 
 interface WebFolderPageContentProps {
-  folder: FolderWithNotes;
+  folder: FolderWithItems;
 }
 
 const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
+  console.log(folder);
   const router = useRouter();
   // dialog state management
   const [renameOpen, setRenameOpen] = useState(false);
@@ -37,13 +40,55 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
   // hooks for folder operations
   const renameFolder = useRenameFolder();
   const deleteFolder = useDeleteFolder();
-  // separate pinned and unpinned notes to render them in different lists
-  const unpinnedNotes = folderData.data!.notes.filter(
-    (note: Note) => !note.is_pinned
+
+  // Separate pinned and unpinned items - both Note and ChatSession have is_pinned
+  const unpinnedItems = folderData.data!.items.filter(
+    (item: Note | ChatSession) => !item.is_pinned
   );
-  const pinnedNotes = folderData.data!.notes.filter(
-    (note: Note) => note.is_pinned
+  const pinnedItems = folderData.data!.items.filter(
+    (item: Note | ChatSession) => item.is_pinned
   );
+
+  // Render method that handles both Note and ChatSession types based on folder.itemType
+  const renderItemWidgetList = (
+    items: (Note | ChatSession)[],
+    displayMode: "vertical" | "grid",
+    delay: number
+  ) => {
+    if (items.length === 0) return null;
+
+    if (folder.itemType === "note") {
+      const notes = items as Note[];
+      return (
+        <WidgetList<Note>
+          items={notes}
+          renderItem={(note) => (
+            <NoteWidget
+              note={note}
+              folderId={folder.id}
+              pinned={displayMode === "vertical"}
+            />
+          )}
+          displayMode={displayMode}
+          delay={delay}
+        />
+      );
+    } else if (folder.itemType === "chat") {
+      const chatSessions = items as ChatSession[];
+      return (
+        <WidgetList<ChatSession>
+          items={chatSessions}
+          renderItem={(chatSession) => (
+            <ConversationWidget chatSession={chatSession} />
+          )}
+          displayMode={displayMode}
+          delay={delay}
+        />
+      );
+    }
+
+    return null;
+  };
 
   return (
     <div>
@@ -52,7 +97,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
           {folderData.data!.folder_name}
         </AnimatedTypography>
         <div className="flex space-x-2 items-center">
-          <TypographyMuted>{`${folderData.data!.notes.length} Items`}</TypographyMuted>
+          <TypographyMuted>{`${folderData.data!.items.length} Items`}</TypographyMuted>
           {/* convert this into a CreateFile component similar to CreateFolder */}
           <CreateNote folderId={folder.id} />
           <OptionsMenu
@@ -74,31 +119,19 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
       <Separator orientation="horizontal" className="mb-6" />
 
       <div className="flex flex-col space-y-4">
-        {/* Display pinned notes prominently */}
-        {pinnedNotes.length > 0 && (
+        {/* Display pinned items prominently */}
+        {pinnedItems.length > 0 && (
           <AnimatedListItem index={1} animation="fadeIn">
-            <WidgetList<Note>
-              items={pinnedNotes}
-              renderItem={(note) => (
-                <NoteWidget note={note} folderId={folder.id} pinned />
-              )}
-              displayMode="vertical"
-              delay={1}
-            />
+            {renderItemWidgetList(pinnedItems, "vertical", 1)}
           </AnimatedListItem>
         )}
 
-        {/* Display notes in a responsive grid layout */}
-        <AnimatedListItem index={2} animation="fadeIn">
-          <WidgetList<Note>
-            items={unpinnedNotes}
-            renderItem={(note) => (
-              <NoteWidget note={note} folderId={folder.id} />
-            )}
-            displayMode="grid"
-            delay={2}
-          />
-        </AnimatedListItem>
+        {/* Display unpinned items in a responsive grid layout */}
+        {unpinnedItems.length > 0 && (
+          <AnimatedListItem index={2} animation="fadeIn">
+            {renderItemWidgetList(unpinnedItems, "grid", 2)}
+          </AnimatedListItem>
+        )}
       </div>
 
       {/* Rename Dialog */}
