@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import WidgetList from "@/components/web/WidgetList";
 import NoteWidget from "@/components/web/NoteWidget";
-import ConversationWidget from "@/components/web/ConversationWidget";
+import ChatWidget from "@/components/web/ChatWidget";
 import { Calendar1Icon, MessageSquareIcon, PinIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetNotes } from "@/hooks/note/useGetNotes";
@@ -94,7 +94,7 @@ const WebDashboardContent = ({
             <WidgetList
               items={userChatSessions.data || []}
               renderItem={(conversation) => (
-                <ConversationWidget chatSession={conversation} />
+                <ChatWidget chatSession={conversation} />
               )}
               title={"AI Chats"}
               icon={

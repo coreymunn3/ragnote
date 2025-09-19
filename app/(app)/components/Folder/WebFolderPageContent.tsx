@@ -5,9 +5,9 @@ import { Separator } from "@/components/ui/separator";
 import { TypographyMuted } from "@/components/ui/typography";
 import WidgetList from "@/components/web/WidgetList";
 import NoteWidget from "@/components/web/NoteWidget";
-import { Button } from "@/components/ui/button";
-import { FilePlus2Icon, FolderPenIcon, Trash2Icon } from "lucide-react";
+import ChatWidget from "@/components/web/ChatWidget";
 import OptionsMenu from "@/components/OptionsMenu";
+import { FilePlus2Icon, FolderPenIcon, Trash2Icon } from "lucide-react";
 import { FolderWithItems } from "@/lib/types/folderTypes";
 import { Note } from "@/lib/types/noteTypes";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
@@ -19,7 +19,6 @@ import InputDialog from "@/components/dialogs/InputDialog";
 import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
 import CreateNote from "@/components/CreateNote";
 import { ChatSession } from "@/lib/types/chatTypes";
-import ConversationWidget from "@/components/web/ConversationWidget";
 
 interface WebFolderPageContentProps {
   folder: FolderWithItems;
@@ -78,9 +77,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
       return (
         <WidgetList<ChatSession>
           items={chatSessions}
-          renderItem={(chatSession) => (
-            <ConversationWidget chatSession={chatSession} />
-          )}
+          renderItem={(chatSession) => <ChatWidget chatSession={chatSession} />}
           displayMode={displayMode}
           delay={delay}
         />

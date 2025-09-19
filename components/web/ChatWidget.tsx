@@ -10,11 +10,11 @@ import {
 } from "../ui/card";
 import { DateTime } from "luxon";
 
-interface ConversationWidgetProps {
+interface ChatWidgetProps {
   chatSession: ChatSession;
 }
 
-const ConversationWidget = ({ chatSession }: ConversationWidgetProps) => {
+const ChatWidget = ({ chatSession }: ChatWidgetProps) => {
   return (
     <Card
       variant="dense"
@@ -53,4 +53,4 @@ const ConversationWidget = ({ chatSession }: ConversationWidgetProps) => {
   );
 };
 
-export default ConversationWidget;
+export default ChatWidget;
