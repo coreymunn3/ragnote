@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import MobileNotePageContent from "@/app/(app)/components/Note/MobileNotePageContent";
 import WebNotePageContent from "@/app/(app)/components/Note/WebNotePageContent";
-import ResponsiveView from "@/components/ResponsiveView";
+import ResponsivePage from "@/components/ResponsivePage";
 
 export default async function NotePage() {
   const { userId } = await auth();
@@ -15,5 +15,5 @@ export default async function NotePage() {
   const mobileView = <MobileNotePageContent />;
   const webView = <WebNotePageContent />;
 
-  return <ResponsiveView mobileView={mobileView} webView={webView} />;
+  return <ResponsivePage mobileView={mobileView} webView={webView} />;
 }

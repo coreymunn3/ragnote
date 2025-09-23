@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import WebDashboardContent from "../components/Dashboard/WebDashboardContent";
 import MobileDashboardContent from "../components/Dashboard/MobileDashboardContent";
-import ResponsiveView from "@/components/ResponsiveView";
+import ResponsivePage from "@/components/ResponsivePage";
 import { NoteService } from "@/services/note/noteService";
 import { getDbUser } from "@/lib/getDbUser";
 import { Note } from "@/lib/types/noteTypes";
@@ -46,5 +46,5 @@ export default async function Dashboard() {
     <WebDashboardContent notes={notes} chatSessions={chatSessions} />
   );
 
-  return <ResponsiveView mobileView={mobileView} webView={webView} />;
+  return <ResponsivePage mobileView={mobileView} webView={webView} />;
 }

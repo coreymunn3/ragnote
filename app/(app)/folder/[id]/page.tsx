@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import MobileFolderPageContent from "../../components/Folder/MobileFolderPageContent";
 import WebFolderPageContent from "../../components/Folder/WebFolderPageContent";
-import ResponsiveView from "@/components/ResponsiveView";
+import ResponsivePage from "@/components/ResponsivePage";
 import { FolderService } from "@/services/folder/folderService";
 import { getDbUser } from "@/lib/getDbUser";
 
@@ -36,5 +36,5 @@ export default async function FolderPage({
   const mobileView = <MobileFolderPageContent folder={folder} />;
   const webView = <WebFolderPageContent folder={folder} />;
 
-  return <ResponsiveView mobileView={mobileView} webView={webView} />;
+  return <ResponsivePage mobileView={mobileView} webView={webView} />;
 }

@@ -1,6 +1,6 @@
 import React from "react";
 
-// Similar to ResponsiveView but specifically for layouts
+// Similar to ResponsivePage but specifically for layouts
 interface ResponsiveLayoutProps {
   MobileLayout: React.ComponentType<{ children: React.ReactNode }>;
   WebLayout: React.ComponentType<{ children: React.ReactNode }>;
