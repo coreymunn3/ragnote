@@ -145,7 +145,7 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
           </CardHeader>
           <CardContent>
             <TypographyMuted
-              className={`line-clamp-2 ${pinned && "line-clamp-4"} overflow-ellipsis`}
+              className={`line-clamp-2 h-10 ${pinned && "line-clamp-4 h-20"} overflow-ellipsis`}
             >
               {note.preview}
             </TypographyMuted>
