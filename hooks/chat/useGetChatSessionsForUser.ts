@@ -16,7 +16,7 @@ export function useGetChatSessionsForUser(
   options?: UseGetChatSessionsForUserOptions
 ) {
   return useQuery<ChatSession[]>({
-    queryKey: ["chatSessions"],
+    queryKey: ["user-chat-sessions"],
     queryFn: getChatSessionsForUser,
     ...options,
   });
