@@ -1,17 +1,9 @@
 "use client";
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useMemo,
-  MouseEventHandler,
-} from "react";
+import React, { createContext, useContext, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import { useGetNote } from "@/hooks/note/useGetNote";
 import { useGetNoteVersions } from "@/hooks/note/useGetNoteVersions";
-import { useGetNoteVersion } from "@/hooks/note/useGetNoteVersion";
 
 interface NoteVersionContextType {
   selectedVersionId: string | null;
