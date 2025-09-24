@@ -3,7 +3,7 @@ import { ChatMessage, ChatSession } from "@/lib/types/chatTypes";
 interface MobileChatPageContentProps {
   chatSessionId: string;
   chatSession: ChatSession;
-  chatMessages?: ChatMessage[];
+  chatMessages: ChatMessage[];
 }
 
 const MobileChatPageContent = ({

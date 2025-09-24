@@ -1,5 +1,6 @@
 import ResponsivePage from "@/components/ResponsivePage";
 import { getDbUser } from "@/lib/getDbUser";
+import { ChatMessage } from "@/lib/types/chatTypes";
 import { ChatService } from "@/services/chat/chatService";
 import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
@@ -33,7 +34,7 @@ export default async function ChatPage({
   }
 
   // get the chat messages for this session
-  let chatMessages;
+  let chatMessages: ChatMessage[] = [];
   if (chatSession) {
     try {
       chatMessages = await chatService.getChatMessagesForSession({
@@ -43,6 +44,7 @@ export default async function ChatPage({
     } catch (error) {
       console.error(`Unable to get chat messages for session ${chatSessionId}`);
       console.error(error);
+      // chatMessages remains [] on error
     }
   }
 
