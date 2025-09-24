@@ -1,12 +1,16 @@
 "use client";
 
-import { ChatSession } from "@/lib/types/chatTypes";
+import { ChatMessage, ChatSession } from "@/lib/types/chatTypes";
 
 interface WebChatPageContentProps {
   chatSession: ChatSession;
+  chatMessages?: ChatMessage[];
 }
 
-const WebChatPageContent = ({ chatSession }: WebChatPageContentProps) => {
+const WebChatPageContent = ({
+  chatSession,
+  chatMessages,
+}: WebChatPageContentProps) => {
   // chat panel here?
   return (
     <div>

@@ -32,8 +32,29 @@ export default async function ChatPage({
     notFound();
   }
 
-  const mobileView = <MobileChatPageContent chatSession={chatSession} />;
-  const webView = <WebChatPageContent chatSession={chatSession} />;
+  // get the chat messages for this session
+  let chatMessages;
+  if (chatSession) {
+    try {
+      chatMessages = await chatService.getChatMessagesForSession({
+        sessionId: chatSessionId,
+        userId: dbUser.id,
+      });
+    } catch (error) {
+      console.error(`Unable to get chat messages for session ${chatSessionId}`);
+      console.error(error);
+    }
+  }
+
+  const mobileView = (
+    <MobileChatPageContent
+      chatSession={chatSession}
+      chatMessages={chatMessages}
+    />
+  );
+  const webView = (
+    <WebChatPageContent chatSession={chatSession} chatMessages={chatMessages} />
+  );
 
   return <ResponsivePage mobileView={mobileView} webView={webView} />;
 }

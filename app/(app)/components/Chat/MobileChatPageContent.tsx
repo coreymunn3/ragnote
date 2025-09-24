@@ -1,10 +1,14 @@
-import { ChatSession } from "@/lib/types/chatTypes";
+import { ChatMessage, ChatSession } from "@/lib/types/chatTypes";
 
 interface MobileChatPageContentProps {
   chatSession: ChatSession;
+  chatMessages?: ChatMessage[];
 }
 
-const MobileChatPageContent = ({ chatSession }: MobileChatPageContentProps) => {
+const MobileChatPageContent = ({
+  chatSession,
+  chatMessages,
+}: MobileChatPageContentProps) => {
   return <div>MobileChatPageContent</div>;
 };
 
