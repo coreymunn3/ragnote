@@ -48,12 +48,17 @@ export default async function ChatPage({
 
   const mobileView = (
     <MobileChatPageContent
+      chatSessionId={chatSessionId}
       chatSession={chatSession}
       chatMessages={chatMessages}
     />
   );
   const webView = (
-    <WebChatPageContent chatSession={chatSession} chatMessages={chatMessages} />
+    <WebChatPageContent
+      chatSessionId={chatSessionId}
+      chatSession={chatSession}
+      chatMessages={chatMessages}
+    />
   );
 
   return <ResponsivePage mobileView={mobileView} webView={webView} />;
