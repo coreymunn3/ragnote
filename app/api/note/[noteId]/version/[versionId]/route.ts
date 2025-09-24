@@ -54,11 +54,3 @@ export const PUT = withApiErrorHandling(
   putHandler,
   "PUT /api/note/[noteId]/version/[versionId]"
 );
-
-/**
- * POST publish this note version, which creates a new draft version entirely
- */
-const postHandler = async (
-  req: NextRequest,
-  { params }: { params: Promise<{ noteId: string; versionId: string }> }
-) => {};
