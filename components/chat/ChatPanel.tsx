@@ -197,19 +197,10 @@ const ChatPanel = ({
                 </TypographyMuted>
               </div>
             ) : (
-              <ScrollableContainer
-                className="h-full"
-                direction="vertical"
-                showTopFade={true}
-                showBottomFade={false}
-                showLeftFade={false}
-                showRightFade={false}
-              >
-                <ChatMessages
-                  messages={chatConversation.data || []}
-                  pendingUserMessage={pendingUserMessage}
-                />
-              </ScrollableContainer>
+              <ChatMessages
+                messages={chatConversation.data || []}
+                pendingUserMessage={pendingUserMessage}
+              />
             )}
           </div>
 

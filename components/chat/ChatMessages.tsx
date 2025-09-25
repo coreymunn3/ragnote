@@ -13,6 +13,7 @@ import {
   createThinkingMessage,
 } from "@/lib/utils/chatMessageHelpers";
 import { TypographyMuted } from "@/components/ui/typography";
+import { ScrollableContainer } from "../ui/scrollable-container";
 
 interface ChatMessagesProps {
   messages: ChatMessageType[];
@@ -60,23 +61,32 @@ const ChatMessages = ({ messages, pendingUserMessage }: ChatMessagesProps) => {
   }
 
   return (
-    <div className="flex flex-col space-y-2">
-      {/* Messages in the conversation */}
-      {displayMessages.map((message, index) => (
-        <AnimatedListItem
-          key={message.id}
-          index={index}
-          animation={
-            message.sender_type === "USER" ? "fadeInRight" : "fadeInLeft"
-          }
-          delay={0.05}
-        >
-          <ChatMessage message={message} />
-        </AnimatedListItem>
-      ))}
-      {/* Messages end - used to scroll into view */}
-      <div ref={messagesEnd}></div>
-    </div>
+    <ScrollableContainer
+      className="h-full"
+      direction="vertical"
+      showTopFade={true}
+      showBottomFade={false}
+      showLeftFade={false}
+      showRightFade={false}
+    >
+      <div className="flex flex-col space-y-2">
+        {/* Messages in the conversation */}
+        {displayMessages.map((message, index) => (
+          <AnimatedListItem
+            key={message.id}
+            index={index}
+            animation={
+              message.sender_type === "USER" ? "fadeInRight" : "fadeInLeft"
+            }
+            delay={0.05}
+          >
+            <ChatMessage message={message} />
+          </AnimatedListItem>
+        ))}
+        {/* Messages end - used to scroll into view */}
+        <div ref={messagesEnd}></div>
+      </div>
+    </ScrollableContainer>
   );
 };
 
