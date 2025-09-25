@@ -1,8 +1,11 @@
 "use client";
 
+import ChatToolbar from "@/components/ChatToolbar";
 import { useGetChatMessagesForSession } from "@/hooks/chat/useGetChatMessagesForSession";
 import { useGetChatSession } from "@/hooks/chat/useGetChatSession";
 import { ChatMessage, ChatSession } from "@/lib/types/chatTypes";
+import ChatMessages from "@/components/chat/ChatMessages";
+import ChatInput from "@/components/chat/ChatInput";
 
 interface WebChatPageContentProps {
   chatSessionId: string;
@@ -29,10 +32,13 @@ const WebChatPageContent = ({
   });
   return (
     <div>
-      <p>Hello, Chat Page</p>
-      <p>{chatSession.data?.title}</p>
-      {/* Chat Toolbar (TO DO) */}
+      {/* Toolbar */}
+      <ChatToolbar
+        chatSession={chatSession.data ?? initialChatSession}
+        isLoading={chatSession.isLoading}
+      />
       {/* Chat Messages */}
+      <ChatMessages messages={chatMessages.data ?? initialChatMessages} />
       {/* Chat Input */}
     </div>
   );
