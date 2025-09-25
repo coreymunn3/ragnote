@@ -9,20 +9,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
-import { ChatDisplayMessage, ChatScope } from "@/lib/types/chatTypes";
+import { useState } from "react";
+import { ChatScope } from "@/lib/types/chatTypes";
 import ChatMessages from "./ChatMessages";
 import { ScrollableContainer } from "@/components/ui/scrollable-container";
 import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import VersionBadge from "../VersionBadge";
 import { useChatWithNote } from "@/hooks/chat/useChatWithNote";
-import {
-  toDisplayMessage,
-  toDisplayMessageArray,
-  createOptimisticUserMessage,
-  createThinkingMessage,
-  isTemporaryMessage,
-} from "@/lib/utils/chatMessageHelpers";
 import { useGetChatHistoryForScope } from "@/hooks/chat/useGetChatHistoryForScope";
 import ChatHistory from "./ChatHistory";
 import { useGetChatMessagesForSessionScope } from "@/hooks/chat/useGetChatMessagesForSessionScope";
@@ -50,7 +43,7 @@ const ChatPanel = ({
   // GET the chat session history for this note version
   // MUTATION to send a chat message (this create a new session & will hold the conversation)
   const [chatSessionId, setChatSessionId] = useState<string | undefined>();
-  const [conversation, setConversation] = useState<ChatDisplayMessage[]>([]);
+  const [pendingUserMessage, setPendingUserMessage] = useState<string>("");
   const [historyExpanded, setHistoryExpanded] = useState<boolean>(false);
   // get values from context
   const { noteVersions, note, loading } = useNoteVersionContext();
@@ -74,15 +67,6 @@ const ChatPanel = ({
     }
   );
 
-  // Populate conversation state from API data when historical session is loaded
-  useEffect(() => {
-    if (chatConversation.data && chatSessionId) {
-      // Convert API data to DisplayMessages and set as conversation
-      const historicalMessages = toDisplayMessageArray(chatConversation.data);
-      setConversation(historicalMessages);
-    }
-  }, [chatConversation.data, chatSessionId]);
-
   /**
    * Change the selected chat session ID
    * called when the user clicks a chat history item to view an older conversation
@@ -104,25 +88,17 @@ const ChatPanel = ({
       queryClient.invalidateQueries({
         queryKey: ["chatHistory", scope, scopeId],
       });
-
-      // Remove thinking message and add real AI response
-      setConversation((prev) => {
-        // Filter out temporary messages (optimistic user message and thinking message)
-        const withoutTempMessages = prev.filter(
-          (msg) => !isTemporaryMessage(msg)
-        );
-
-        // Add the real user and AI messages from the API
-        return [
-          ...withoutTempMessages,
-          toDisplayMessage(response.userMessage),
-          toDisplayMessage(response.aiMessage),
-        ];
+      // Invalidate the chat conversation query
+      queryClient.invalidateQueries({
+        queryKey: ["chatConversation", response.session.id, scope, scopeId],
       });
+
+      // Clear optimistic messages since real messages are now in the API data
+      setPendingUserMessage("");
     },
     onError: (error) => {
       // Remove optimistic and thinking messages on error
-      setConversation((prev) => prev.filter((msg) => !isTemporaryMessage(msg)));
+      setPendingUserMessage("");
     },
   });
 
@@ -133,14 +109,8 @@ const ChatPanel = ({
    */
   const handleSendChat = (message: string) => {
     if (!note?.id) return;
-    // Immediately add optimistic user message
-    const optimisticUserMessage = createOptimisticUserMessage(message);
-    const thinkingMessage = createThinkingMessage();
-    setConversation((prev) => [
-      ...prev,
-      optimisticUserMessage,
-      thinkingMessage,
-    ]);
+    // Set optimistic message state - ChatMessages will automatically show thinking
+    setPendingUserMessage(message);
     // Send message using the API
     sendChatMutation.mutate({
       noteId: note.id,
@@ -160,7 +130,7 @@ const ChatPanel = ({
   const handleBeginNewChat = () => {
     setHistoryExpanded(false);
     setChatSessionId(undefined);
-    setConversation([]);
+    setPendingUserMessage("");
   };
 
   return (
@@ -220,21 +190,13 @@ const ChatPanel = ({
 
           {/* Middle area - space for conversation bubbles with top fade */}
           <div className="flex-1 min-h-0 p-3">
-            {!mostRecentPublishedVersion && (
+            {!mostRecentPublishedVersion ? (
               <div className="flex items-center justify-center h-full text-center">
                 <TypographyMuted>
                   Publish this note to begin chatting!
                 </TypographyMuted>
               </div>
-            )}
-            {!!mostRecentPublishedVersion && conversation.length === 0 && (
-              <div className="flex items-center justify-center h-full text-center">
-                <TypographyMuted>
-                  Ask questions about your note using the input below
-                </TypographyMuted>
-              </div>
-            )}
-            {conversation.length > 0 && (
+            ) : (
               <ScrollableContainer
                 className="h-full"
                 direction="vertical"
@@ -243,7 +205,10 @@ const ChatPanel = ({
                 showLeftFade={false}
                 showRightFade={false}
               >
-                <ChatMessages messages={conversation} />
+                <ChatMessages
+                  messages={chatConversation.data || []}
+                  pendingUserMessage={pendingUserMessage}
+                />
               </ScrollableContainer>
             )}
           </div>
@@ -252,7 +217,7 @@ const ChatPanel = ({
           <div className="flex-shrink-0 p-2">
             <ChatInput
               onSend={handleSendChat}
-              showSuggestions={conversation.length === 0 ? true : false}
+              showSuggestions={false} // disable for now - need to make these dynamic first
               disabled={
                 !mostRecentPublishedVersion || sendChatMutation.isPending
               }
