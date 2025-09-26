@@ -28,7 +28,7 @@ const ChatInput = ({
   onSend,
   showSuggestions: showSuggestionsProp,
   disabled = false,
-  placeholder = "Ask about this note...",
+  placeholder = "Ask Anything...",
 }: ChatInputProps) => {
   const [message, setMessage] = useState("");
   const [isListening, setIsListening] = useState(false);
