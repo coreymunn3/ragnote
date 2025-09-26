@@ -92,7 +92,16 @@ const WebDashboardContent = ({
         <AnimatedListItem index={3} animation="fadeIn">
           <div>
             <WidgetList
-              items={userChatSessions.data || []}
+              items={
+                // sort the chat sessions by last updated time, and only show the first 10
+                userChatSessions.data
+                  ?.sort(
+                    (a, b) =>
+                      new Date(b.updated_at).getTime() -
+                      new Date(a.updated_at).getTime()
+                  )
+                  .slice(0, 10) || []
+              }
               renderItem={(conversation) => (
                 <ChatWidget chatSession={conversation} />
               )}
