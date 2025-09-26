@@ -12,13 +12,14 @@ import { FolderWithItems } from "@/lib/types/folderTypes";
 import { Note } from "@/lib/types/noteTypes";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 import InputDialog from "@/components/dialogs/InputDialog";
 import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
 import CreateNote from "@/components/CreateNote";
 import { ChatSession } from "@/lib/types/chatTypes";
+import { isSystemFolder } from "@/lib/utils/folderUtils";
 
 interface WebFolderPageContentProps {
   folder: FolderWithItems;
@@ -35,10 +36,11 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
     staleTime: 0,
     refetchOnMount: true,
   });
+  // determine if this is a system folder or user folder
+  const isUserFolder = !isSystemFolder(folderData.data!.id);
   // hooks for folder operations
   const renameFolder = useRenameFolder();
   const deleteFolder = useDeleteFolder();
-
   // Separate pinned and unpinned items - both Note and ChatSession have is_pinned
   const unpinnedItems = folderData.data!.items.filter(
     (item: Note | ChatSession) => !item.is_pinned
@@ -94,22 +96,26 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
         </AnimatedTypography>
         <div className="flex space-x-2 items-center">
           <TypographyMuted>{`${folderData.data!.items.length} Items`}</TypographyMuted>
-          {/* convert this into a CreateFile component similar to CreateFolder */}
-          <CreateNote folderId={folder.id} />
-          <OptionsMenu
-            options={[
-              {
-                label: "Rename",
-                icon: <FolderPenIcon className="h-4 w-4" />,
-                onClick: () => setRenameOpen(true),
-              },
-              {
-                label: "Delete",
-                icon: <Trash2Icon className="h-4 w-4" />,
-                onClick: () => setDeleteOpen(true),
-              },
-            ]}
-          />
+          {/* additinal actions/options for user created folders only */}
+          {isUserFolder && (
+            <Fragment>
+              <CreateNote folderId={folder.id} />
+              <OptionsMenu
+                options={[
+                  {
+                    label: "Rename",
+                    icon: <FolderPenIcon className="h-4 w-4" />,
+                    onClick: () => setRenameOpen(true),
+                  },
+                  {
+                    label: "Delete",
+                    icon: <Trash2Icon className="h-4 w-4" />,
+                    onClick: () => setDeleteOpen(true),
+                  },
+                ]}
+              />
+            </Fragment>
+          )}
         </div>
       </div>
       <Separator orientation="horizontal" className="mb-6" />
