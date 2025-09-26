@@ -70,6 +70,17 @@ export type SendChatWithNoteApiRequest = {
 };
 
 /**
+ * Unified Chat API Request Type
+ * Used for all chat scopes (note, folder, global)
+ */
+export type SendChatApiRequest = {
+  message: string;
+  sessionId?: string;
+  scope: ChatScope;
+  scopeId?: string; // Required for note/folder scopes, not needed for global
+};
+
+/**
  * Prisma Types - full schema-identical prisma objects
  */
 export type PrismaChatSession = {

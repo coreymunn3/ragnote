@@ -12,10 +12,9 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { ChatScope } from "@/lib/types/chatTypes";
 import ChatMessages from "./ChatMessages";
-import { ScrollableContainer } from "@/components/ui/scrollable-container";
 import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import VersionBadge from "../VersionBadge";
-import { useChatWithNote } from "@/hooks/chat/useChatWithNote";
+import { useChat } from "@/hooks/chat/useChat";
 import { useGetChatHistoryForScope } from "@/hooks/chat/useGetChatHistoryForScope";
 import ChatHistory from "./ChatHistory";
 import { useGetChatMessagesForSessionScope } from "@/hooks/chat/useGetChatMessagesForSessionScope";
@@ -80,7 +79,7 @@ const ChatPanel = ({
   };
 
   // Hook for sending chat messages
-  const sendChatMutation = useChatWithNote({
+  const sendChatMutation = useChat({
     onSuccess: (response) => {
       setChatSessionId(response.session.id);
 
@@ -113,7 +112,8 @@ const ChatPanel = ({
     setPendingUserMessage(message);
     // Send message using the API
     sendChatMutation.mutate({
-      noteId: note.id,
+      scope,
+      scopeId: note.id,
       message,
       sessionId: chatSessionId,
     });
