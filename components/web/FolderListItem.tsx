@@ -26,14 +26,14 @@ const FolderListItem = ({
   onToggle,
   allowCreateNote,
 }: FolderListItemProps) => {
-  const containsNotes = items.length > 0;
+  const containsItems = items.length > 0;
 
   // This will toggle the folder open when clicking the folder area,
   // but won't toggle it closed when clicking again (navigation only)
   const handleFolderClick = () => {
     // Only toggle to open if it's not already open
     // No toggling to close - this lets the folder stay open when navigating
-    if (!isOpen && containsNotes && onToggle) {
+    if (!isOpen && containsItems && onToggle) {
       onToggle();
     }
   };
@@ -80,7 +80,7 @@ const FolderListItem = ({
         </Button>
 
         {/* Expand Icon - Completely outside Link to prevent navigation */}
-        {containsNotes ? (
+        {containsItems ? (
           <div className="p-2 cursor-pointer" onClick={handleToggleFolderOpen}>
             <ChevronRightIcon
               className={`h-4 w-4 transition-transform duration-200 ${isOpen && "rotate-90"}`}
@@ -93,15 +93,13 @@ const FolderListItem = ({
       <AnimatedExpandable isOpen={isOpen}>
         <div className="p-1 flex flex-col space-y-1">
           {items.map((item: Note | ChatSession, index: number) => {
-            const routePrefix = itemType === "note" ? "/note" : "/chat";
-
             return (
               <AnimatedListItem
                 key={item.id}
                 index={index}
                 animation="fadeInRight"
               >
-                <FolderItemRenderer item={item} routePrefix={routePrefix} />
+                <FolderItemRenderer item={item} itemType={itemType} />
               </AnimatedListItem>
             );
           })}

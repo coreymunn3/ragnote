@@ -1,6 +1,7 @@
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { FileIcon } from "lucide-react";
+import { FileIcon, MessageSquare } from "lucide-react";
+import { FolderItemType } from "@/lib/types/folderTypes";
 
 interface ListItem {
   id: string;
@@ -9,10 +10,12 @@ interface ListItem {
 
 interface FolderItemRendererProps {
   item: ListItem;
-  routePrefix: string;
+  itemType: FolderItemType;
 }
 
-const FolderItemRenderer = ({ item, routePrefix }: FolderItemRendererProps) => {
+const FolderItemRenderer = ({ item, itemType }: FolderItemRendererProps) => {
+  const routePrefix = itemType === "note" ? "/note" : "/chat";
+
   return (
     <Button
       variant={"ghost"}
@@ -23,7 +26,12 @@ const FolderItemRenderer = ({ item, routePrefix }: FolderItemRendererProps) => {
         href={`${routePrefix}/${item.id}`}
         className="flex items-center space-x-2 min-w-0 flex-1"
       >
-        <FileIcon className="h-4 w-4 flex-shrink-0" />
+        {itemType === "note" ? (
+          <FileIcon className="h-4 w-4 flex-shrink-0" />
+        ) : (
+          <MessageSquare className="h-4 w-4 flex-shrink-0" />
+        )}
+
         <p className="truncate" title={item.title || undefined}>
           {item.title}
         </p>
