@@ -7,6 +7,18 @@ import { NextRequest, NextResponse } from "next/server";
 const chatService = new ChatService();
 
 /**
+ * Gets the user's recent sessions
+ */
+const getHandler = async (req: NextRequest) => {
+  auth.protect();
+  const dbUser = await getDbUser();
+  const sessions = await chatService.getChatSessionsForUser({
+    userId: dbUser.id,
+  });
+  return NextResponse.json(sessions, { status: 200 });
+};
+export const GET = withApiErrorHandling(getHandler, "GET /api/chat");
+/**
  * Unified chat endpoint that handles all scope types (note, folder, global)
  */
 const postHandler = async (req: NextRequest) => {
