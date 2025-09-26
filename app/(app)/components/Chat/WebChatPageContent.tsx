@@ -31,15 +31,27 @@ const WebChatPageContent = ({
     refetchOnMount: true,
   });
   return (
-    <div>
+    <div className="flex flex-col h-screen">
       {/* Toolbar */}
-      <ChatToolbar
-        chatSession={chatSession.data ?? initialChatSession}
-        isLoading={chatSession.isLoading}
-      />
+      <div className="flex-shrink-0">
+        <ChatToolbar
+          chatSession={chatSession.data ?? initialChatSession}
+          isLoading={chatSession.isLoading}
+        />
+      </div>
       {/* Chat Messages */}
-      <ChatMessages messages={chatMessages.data ?? initialChatMessages} />
+      <div className="flex-1 overflow-hidden">
+        <ChatMessages messages={chatMessages.data ?? initialChatMessages} />
+      </div>
       {/* Chat Input */}
+      <div className="flex-shrink-0 p-4">
+        <ChatInput
+          onSend={(message) => {
+            // TODO: Implement send functionality
+            console.log("Message sent:", message);
+          }}
+        />
+      </div>
     </div>
   );
 };
