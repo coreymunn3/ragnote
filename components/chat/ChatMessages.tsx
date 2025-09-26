@@ -65,7 +65,7 @@ const ChatMessages = ({ messages, pendingUserMessage }: ChatMessagesProps) => {
       className="h-full"
       direction="vertical"
       showTopFade={true}
-      showBottomFade={false}
+      showBottomFade={true}
       showLeftFade={false}
       showRightFade={false}
     >
