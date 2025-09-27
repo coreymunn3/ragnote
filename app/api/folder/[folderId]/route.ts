@@ -54,11 +54,13 @@ const deleteHandler = async (
   auth.protect();
   const { folderId } = await params;
   const dbUser = await getDbUser();
-  const deletedFolder = await folderService.softDeleteFolder(
-    folderId,
-    dbUser.id
+  await folderService.softDeleteFolder(folderId, dbUser.id);
+  return NextResponse.json(
+    {
+      success: true,
+    },
+    { status: 200 }
   );
-  return NextResponse.json(deletedFolder, { status: 200 });
 };
 
 export const DELETE = withApiErrorHandling(
