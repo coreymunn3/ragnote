@@ -105,7 +105,7 @@ const WebDashboardContent = ({
               renderItem={(conversation) => (
                 <ChatWidget chatSession={conversation} />
               )}
-              title={"AI Chats"}
+              title={"Recent Chats"}
               icon={
                 <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
               }
