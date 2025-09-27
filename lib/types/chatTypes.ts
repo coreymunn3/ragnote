@@ -77,7 +77,7 @@ export type SendChatApiRequest = {
 };
 
 export type UpdateChatApiRequest = {
-  action: "toggle_pin" | "delete" | "update_title";
+  action: "delete" | "update_title";
   title?: string;
 };
 
