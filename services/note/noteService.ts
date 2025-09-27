@@ -448,7 +448,7 @@ export class NoteService {
 
   // soft delete note
   public softDeleteNote = withErrorHandling(
-    async (params: { noteId: string; userId: string }): Promise<PrismaNote> => {
+    async (params: { noteId: string; userId: string }): Promise<void> => {
       const { noteId, userId } = softDeleteNoteSchema.parse(params);
 
       // Verify the note exists and belongs to the user
@@ -465,7 +465,7 @@ export class NoteService {
       }
 
       // Soft delete the note
-      const deletedNote = await prisma.note.update({
+      await prisma.note.update({
         where: {
           id: noteId,
         },
@@ -473,8 +473,6 @@ export class NoteService {
           is_deleted: true,
         },
       });
-
-      return deletedNote;
     }
   );
 

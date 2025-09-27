@@ -65,11 +65,16 @@ const putHandler = async (
       });
       return NextResponse.json(movedNote, { status: 200 });
     case "delete":
-      const deletedNote = await noteService.softDeleteNote({
+      await noteService.softDeleteNote({
         noteId,
         userId: dbUser.id,
       });
-      return NextResponse.json(deletedNote, { status: 200 });
+      return NextResponse.json(
+        {
+          success: true,
+        },
+        { status: 200 }
+      );
     case "update_title":
       // ensure title is present in request
       if (!body.title) {
