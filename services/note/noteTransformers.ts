@@ -10,6 +10,7 @@ export const transformToNote = (note: PrismaNoteWithVersionPreview): Note => {
 
   return {
     id: note.id,
+    folder_id: note.folder_id!,
     title: note.title,
     current_version: {
       id: note.current_version.id,

@@ -5,6 +5,7 @@ import { Expand } from "./sharedTypes";
  */
 export type Note = {
   id: string;
+  folder_id: string;
   title: string;
   current_version: {
     id: string;
