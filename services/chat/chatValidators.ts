@@ -58,3 +58,8 @@ export const updateChatSessionTitleSchema = z.object({
   userId: z.string().uuid(),
   title: z.string().optional(),
 });
+
+export const softDeleteChatSessionSchema = z.object({
+  sessionId: z.string().uuid(),
+  userId: z.string().uuid(),
+});

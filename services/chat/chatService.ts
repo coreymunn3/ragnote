@@ -17,6 +17,7 @@ import {
   getChatSessionsForNoteSchema,
   getChatSessionForUserSchema,
   updateChatSessionTitleSchema,
+  softDeleteChatSessionSchema,
 } from "./chatValidators";
 import {
   transformToChatMessage,
@@ -463,11 +464,12 @@ export class ChatService {
         userId: validatedUserId,
       } = updateChatSessionTitleSchema.parse(params);
 
-      // verify the chat session exists and belongs to the user
+      // verify the chat session exists and belongs to the user and not deleted
       const chatSession = await prisma.chat_session.findFirst({
         where: {
           id: validatedSessionId,
           user_id: validatedUserId,
+          is_deleted: false,
         },
       });
       if (!chatSession) {
@@ -486,6 +488,38 @@ export class ChatService {
       // transform and return
       const transformedSession = await transformToChatSession(updatedChat);
       return transformedSession;
+    }
+  );
+
+  /**
+   * Soft delete a chat session
+   */
+  public softDeleteChatSession = withErrorHandling(
+    async (params: { sessionId: string; userId: string }): Promise<void> => {
+      // validate args
+      const { sessionId: validatedSessionId, userId: validatedUserId } =
+        softDeleteChatSessionSchema.parse(params);
+      // verfiy the chat session exists and belongs to the user
+      const chatSession = await prisma.chat_session.findFirst({
+        where: {
+          id: validatedSessionId,
+          user_id: validatedUserId,
+          is_deleted: false,
+        },
+      });
+      if (!chatSession) {
+        throw new NotFoundError("Chat session not found or access denied");
+      }
+      // soft delete
+      await prisma.chat_session.update({
+        where: {
+          id: validatedSessionId,
+          user_id: validatedUserId,
+        },
+        data: {
+          is_deleted: true,
+        },
+      });
     }
   );
 }
