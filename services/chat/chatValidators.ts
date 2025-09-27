@@ -52,3 +52,9 @@ export const getChatSessionsForNoteSchema = z.object({
   userId: z.string().uuid(),
   noteId: z.string().uuid(),
 });
+
+export const updateChatSessionTitleSchema = z.object({
+  sessionId: z.string().uuid(),
+  userId: z.string().uuid(),
+  title: z.string().optional(),
+});

@@ -16,6 +16,7 @@ import {
   sendChatSchema,
   getChatSessionsForNoteSchema,
   getChatSessionForUserSchema,
+  updateChatSessionTitleSchema,
 } from "./chatValidators";
 import {
   transformToChatMessage,
@@ -389,6 +390,7 @@ export class ChatService {
             return this.updateChatSessionTitle({
               sessionId: currentSession.id,
               title: generatedTitle,
+              userId: validatedUserId,
             });
           })
           .then(() => {
@@ -449,17 +451,41 @@ export class ChatService {
    * Update the title of a chat session
    */
   public updateChatSessionTitle = withErrorHandling(
-    async (params: { sessionId: string; title: string }): Promise<void> => {
-      const { sessionId, title } = params;
+    async (params: {
+      sessionId: string;
+      title: string;
+      userId: string;
+    }): Promise<ChatSession> => {
+      const {
+        // validate args
+        sessionId: validatedSessionId,
+        title: validatedTitle,
+        userId: validatedUserId,
+      } = updateChatSessionTitleSchema.parse(params);
 
-      await prisma.chat_session.update({
+      // verify the chat session exists and belongs to the user
+      const chatSession = await prisma.chat_session.findFirst({
         where: {
-          id: sessionId,
-        },
-        data: {
-          title: title,
+          id: validatedSessionId,
+          user_id: validatedUserId,
         },
       });
+      if (!chatSession) {
+        throw new NotFoundError("Chat session not found or access denied");
+      }
+      // update the session title
+      const updatedChat = await prisma.chat_session.update({
+        where: {
+          id: validatedSessionId,
+          user_id: validatedUserId,
+        },
+        data: {
+          title: validatedTitle,
+        },
+      });
+      // transform and return
+      const transformedSession = await transformToChatSession(updatedChat);
+      return transformedSession;
     }
   );
 }
