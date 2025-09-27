@@ -1,5 +1,5 @@
 "use client";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import EditableField from "./EditableField";
 import { ChatSession } from "@/lib/types/chatTypes";
 import { Skeleton } from "./ui/skeleton";
@@ -7,6 +7,8 @@ import OptionsMenu from "./OptionsMenu";
 import { Trash2Icon } from "lucide-react";
 import { TypographyMuted } from "./ui/typography";
 import { DateTime } from "luxon";
+import { useUpdateChat } from "@/hooks/chat/useUpdateChat";
+import { toast } from "sonner";
 
 interface ChatToolbarProps {
   chatSession: ChatSession;
@@ -15,9 +17,38 @@ interface ChatToolbarProps {
 
 const ChatToolbar = ({ chatSession, isLoading }: ChatToolbarProps) => {
   const { id } = useParams();
+  const router = useRouter();
+  const updateChatMutation = useUpdateChat();
 
+  /**
+   * Save the new chat title
+   */
   const handleSaveTitle = (newTitle: string) => {
-    console.log(newTitle);
+    if (chatSession) {
+      updateChatMutation.mutate({
+        sessionId: chatSession.id,
+        action: "update_title",
+        title: newTitle,
+      });
+    } else {
+      toast.error("Unable to Update Title");
+    }
+  };
+
+  /**
+   * Soft delete a chat session
+   */
+  const handleDeleteChatSession = () => {
+    if (chatSession) {
+      updateChatMutation.mutate({
+        sessionId: chatSession.id,
+        action: "delete",
+      });
+      // route user back to the system_chats folder
+      router.push(`/folder/system_chats`);
+    } else {
+      toast.error("Unable to Delete");
+    }
   };
 
   if (isLoading) {
@@ -53,7 +84,7 @@ const ChatToolbar = ({ chatSession, isLoading }: ChatToolbarProps) => {
             {
               label: "Delete",
               icon: <Trash2Icon className="h-4 w-4" />,
-              onClick: () => console.log("delete"),
+              onClick: handleDeleteChatSession,
             },
           ]}
         />
