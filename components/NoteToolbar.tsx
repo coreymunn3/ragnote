@@ -47,20 +47,6 @@ const NoteToolbar = () => {
   });
 
   /**
-   * Soft delete a note
-   */
-  const handleDeleteNote = () => {
-    if (note) {
-      // soft delete
-      updateNoteMutation.mutate({ action: "delete", noteId: note.id });
-      // route user back to the folder
-      router.push(`/folder/${note.folder_id}`);
-    } else {
-      toast.error("Unable to Delete");
-    }
-  };
-
-  /**
    * Save the new note title
    */
   const handleSaveTitle = (newTitle: string) => {
@@ -72,6 +58,20 @@ const NoteToolbar = () => {
       });
     } else {
       toast.error("Unable to Update Title");
+    }
+  };
+
+  /**
+   * Soft delete a note
+   */
+  const handleDeleteNote = () => {
+    if (note) {
+      // soft delete
+      updateNoteMutation.mutate({ action: "delete", noteId: note.id });
+      // route user back to the folder
+      router.push(`/folder/${note.folder_id}`);
+    } else {
+      toast.error("Unable to Delete");
     }
   };
 
@@ -92,6 +92,7 @@ const NoteToolbar = () => {
   // Only show loading if we don't have the essential data (note + versions)
   const shouldShowLoading = loading.noteLoading || loading.versionsLoading;
 
+  // loading state
   if (shouldShowLoading || !note) {
     return (
       <div className="flex items-center justify-between px-14 py-2">
