@@ -5,6 +5,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
 
+// Response type for delete action
+type DeleteResponse = { success: boolean };
+
+// Union type for all possible response types
+type UpdateNoteResponse = PrismaNote | DeleteResponse;
+
 interface UpdateNoteArg extends UpdateNoteApiRequest {
   noteId: string;
 }
@@ -14,7 +20,7 @@ async function updateNote({
   action,
   folderId,
   title,
-}: UpdateNoteArg): Promise<PrismaNote> {
+}: UpdateNoteArg): Promise<UpdateNoteResponse> {
   const res = await axios.put(`/api/note/${noteId}`, {
     action,
     folderId,
@@ -24,7 +30,7 @@ async function updateNote({
 }
 
 export type useUpdateNoteOptions = UseMutationHookOptions<
-  PrismaNote,
+  UpdateNoteResponse,
   Error,
   UpdateNoteArg
 >;
@@ -65,7 +71,7 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
       // Call custom onMutate if provided
       return options?.onMutate?.(variables);
     },
-    onSuccess: (updatedNote, variables, context) => {
+    onSuccess: (response, variables, context) => {
       // Handle cache invalidation based on action type
       switch (variables.action) {
         case "update_title":
@@ -132,7 +138,12 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
 
       // Show appropriate success message based on action
       const actionMessages = {
-        toggle_pin: updatedNote.is_pinned ? "Note pinned" : "Note unpinned",
+        toggle_pin:
+          variables.action === "toggle_pin" && "is_pinned" in response
+            ? response.is_pinned
+              ? "Note pinned"
+              : "Note unpinned"
+            : "Note updated",
         move: "Note moved successfully",
         delete: "Note deleted",
         update_title: "Note title updated",
@@ -141,7 +152,7 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
       toast.success(actionMessages[variables.action] || "Note updated");
 
       // Custom onSuccess callback
-      options?.onSuccess?.(updatedNote, variables, context);
+      options?.onSuccess?.(response, variables, context);
     },
     onError: (error, variables, context) => {
       // Rollback optimistic update for title changes
