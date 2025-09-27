@@ -34,15 +34,6 @@ export type ChatScopeObject = {
   }>;
 };
 
-export type SendChatResponse = {
-  session: ChatSession;
-  userMessage: ChatMessage;
-  aiMessage: ChatMessage;
-};
-
-/**
- * Frontend-optimized message type for chat UI
- */
 export type ChatDisplayMessage = {
   id: string;
   sender_type: "USER" | "AI";
@@ -62,6 +53,15 @@ export type LlmSource = {
 };
 
 /**
+ * Response types
+ */
+export type SendChatResponse = {
+  session: ChatSession;
+  userMessage: ChatMessage;
+  aiMessage: ChatMessage;
+};
+
+/**
  * Request Types for Chat related APIs
  */
 export type SendChatWithNoteApiRequest = {
@@ -69,15 +69,16 @@ export type SendChatWithNoteApiRequest = {
   sessionId?: string;
 };
 
-/**
- * Unified Chat API Request Type
- * Used for all chat scopes (note, folder, global)
- */
 export type SendChatApiRequest = {
   message: string;
   sessionId?: string;
   scope: ChatScope;
   scopeId?: string; // Required for note/folder scopes, not needed for global
+};
+
+export type UpdateChatApiRequest = {
+  action: "toggle_pin" | "delete" | "update_title";
+  title?: string;
 };
 
 /**
