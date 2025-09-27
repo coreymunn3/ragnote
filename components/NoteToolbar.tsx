@@ -1,5 +1,5 @@
 "use client";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +27,7 @@ import ProButton from "./ProButton";
 
 const NoteToolbar = () => {
   const { id } = useParams();
+  const router = useRouter();
   const {
     note,
     noteVersions,
@@ -50,7 +51,10 @@ const NoteToolbar = () => {
    */
   const handleDeleteNote = () => {
     if (note) {
+      // soft delete
       updateNoteMutation.mutate({ action: "delete", noteId: note.id });
+      // route user back to the folder
+      router.push(`/folder/${note.folder_id}`);
     } else {
       toast.error("Unable to Delete");
     }
