@@ -57,8 +57,8 @@ export type CreateNoteApiRequest = {
 
 export type UpdateNoteApiRequest = {
   action: "toggle_pin" | "move" | "delete" | "update_title";
-  folderId?: string;
-  title?: string;
+  folderId?: string; // required for the 'move' operation
+  title?: string; // required for the 'rename' operation
 };
 
 export type UpdateNoteVersionContentApiRequest = {
