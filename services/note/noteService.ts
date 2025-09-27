@@ -5,7 +5,7 @@ import {
   userIdSchema,
   moveNoteSchema,
   togglePinNoteSchema,
-  deleteNoteSchema,
+  softDeleteNoteSchema,
   updateNoteVersionContentSchema,
   getNoteContentSchema,
   getNoteSchema,
@@ -447,9 +447,9 @@ export class NoteService {
   );
 
   // soft delete note
-  public deleteNote = withErrorHandling(
+  public softDeleteNote = withErrorHandling(
     async (params: { noteId: string; userId: string }): Promise<PrismaNote> => {
-      const { noteId, userId } = deleteNoteSchema.parse(params);
+      const { noteId, userId } = softDeleteNoteSchema.parse(params);
 
       // Verify the note exists and belongs to the user
       const note = await prisma.note.findFirst({

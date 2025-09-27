@@ -26,6 +26,7 @@ export const GET = withApiErrorHandling(getHandler, "GET /api/note/[noteId]");
 /**
  * Update a note
  * - pin/unpin
+ * - change title
  * - move to different folder
  * - delete (soft)
  */
@@ -64,7 +65,7 @@ const putHandler = async (
       });
       return NextResponse.json(movedNote, { status: 200 });
     case "delete":
-      const deletedNote = await noteService.deleteNote({
+      const deletedNote = await noteService.softDeleteNote({
         noteId,
         userId: dbUser.id,
       });

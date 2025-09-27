@@ -31,7 +31,7 @@ export const moveNoteSchema = z.object({
   userId: z.string().uuid(),
 });
 
-export const deleteNoteSchema = z.object({
+export const softDeleteNoteSchema = z.object({
   noteId: z.string().uuid(),
   userId: z.string().uuid(),
 });
