@@ -9,6 +9,7 @@ import { TypographyMuted } from "./ui/typography";
 import { DateTime } from "luxon";
 import { useUpdateChat } from "@/hooks/chat/useUpdateChat";
 import { toast } from "sonner";
+import ScopeBadge from "./ScopeBadge";
 
 interface ChatToolbarProps {
   chatSession: ChatSession;
@@ -66,13 +67,16 @@ const ChatToolbar = ({ chatSession, isLoading }: ChatToolbarProps) => {
 
   return (
     <div className="flex items-center justify-between py-2">
-      {/* left side - title */}
-      <div className="flex items-center">
+      {/* left side - title and scope badge */}
+      <div className="flex items-center space-x-2">
         <EditableField
           value={chatSession.title || "Chat Session..."}
           variant="bold"
           onSave={handleSaveTitle}
         />
+        {chatSession.chat_scope && (
+          <ScopeBadge chatScope={chatSession.chat_scope} />
+        )}
       </div>
       {/* right side - last activity, controls */}
       <div className="flex items-center space-x-2">
