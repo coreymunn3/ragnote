@@ -11,8 +11,8 @@ export function handleClientSideMutationError(
   toast.error(toastMessage);
   if (axios.isAxiosError(error)) {
     const errorMessage = error.response?.data?.error || error.message;
-    console.error("Failed to create folder:", errorMessage);
+    console.error("Failed:", errorMessage);
   } else {
-    console.error("Failed to create folder:", error);
+    console.error("Failed:", error);
   }
 }
