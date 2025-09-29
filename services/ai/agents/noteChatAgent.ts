@@ -1,9 +1,7 @@
 import { ChatScopeObject, ChatMessage } from "@/lib/types/chatTypes";
-import { openai } from "@llamaindex/openai";
 import { agent } from "@llamaindex/workflow";
 import { createRagTool } from "./tools/ragTool";
 import { createGetNotesTool } from "./tools/getNotesTool";
-import { Settings } from "llamaindex";
 
 export const createNoteChatAgent = async (
   userId: string,
