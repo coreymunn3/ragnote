@@ -15,6 +15,7 @@ import { useGetNotes } from "@/hooks/note/useGetNotes";
 import { Note } from "@/lib/types/noteTypes";
 import { ChatSession } from "@/lib/types/chatTypes";
 import { useGetChatSessionsForUser } from "@/hooks/chat/useGetChatSessionsForUser";
+import IntegratedSearch from "@/components/search/IntegratedSearch";
 
 interface WebDashboardContentProps {
   notes: Note[];
@@ -41,18 +42,10 @@ const WebDashboardContent = ({
   return (
     <div>
       <AnimatedTypography variant="h1">{`Welcome!`}</AnimatedTypography>
-      <div className="flex flex-col space-y-12">
+      <div className="flex flex-col space-y-4">
         {/* global chat input */}
-        {/* TO DO */}
         <AnimatedListItem index={0} animation="fadeIn">
-          <Card className="min-h-[200px]">
-            <CardHeader>
-              <CardTitle>Chat with your notes</CardTitle>
-              <CardDescription>
-                Here we will show an input to chat with all your notes
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          <IntegratedSearch />
         </AnimatedListItem>
         {/* Pinned Notes */}
         <AnimatedListItem index={1} animation="fadeIn">
