@@ -1,28 +1,16 @@
 import { ChatScopeObject } from "@/lib/types/chatTypes";
-import { PGVectorStore } from "@llamaindex/postgres";
-import { MetadataFilters, VectorStoreIndex } from "llamaindex";
+import { MetadataFilters } from "llamaindex";
+import { createVectorStoreIndex } from "../utils/vectorStoreUtils";
 
 export const createRagTool = async (
   userId: string,
   chatScope: ChatScopeObject
 ) => {
-  const vectorStore = new PGVectorStore({
-    clientConfig: {
-      connectionString: process.env.DATABASE_URL,
-    },
-    tableName: "llamaindex_embedding",
-    performSetup: false,
-    dimensions: 1536,
-  });
-  // limit the vector store to only search this user's collection of notes
-  vectorStore.setCollection(userId);
-
+  // create an index using the utility
+  const index = await createVectorStoreIndex(userId);
   // create the filters
   const vectorStoreFilters = await createVectorStoreFilters(chatScope);
-
-  // create an index and retriever
-  const index = await VectorStoreIndex.fromVectorStore(vectorStore);
-
+  // create the query tool
   return index.queryTool({
     metadata: {
       name: "search_notes",

@@ -1,9 +1,4 @@
-import {
-  Settings,
-  SentenceSplitter,
-  CallbackManager,
-  VectorStoreIndex,
-} from "llamaindex";
+import { Settings, SentenceSplitter, CallbackManager } from "llamaindex";
 import { OpenAIEmbedding, openai } from "@llamaindex/openai";
 import OpenAI from "openai";
 import { prisma } from "@/lib/prisma";
@@ -14,7 +9,7 @@ import { createNoteChatAgent } from "./agents/noteChatAgent";
 import { AgentWorkflow } from "@llamaindex/workflow";
 import { tokenTrackingService } from "../tokenTracking/tokenTrackingService";
 import { OpenAIResponse, EmbeddedChunks } from "@/lib/types/aiTypes";
-import { PGVectorStore } from "@llamaindex/postgres";
+import { createVectorStoreIndex } from "./agents/utils/vectorStoreUtils";
 
 export class AiService {
   private static readonly SINGLE_CHUNK_THRESHOLD = 500;
@@ -428,22 +423,9 @@ export class AiService {
       topK?: number;
     } = {}
   ) {
-    Settings.embedModel = new OpenAIEmbedding({
-      model: "text-embedding-3-small",
-      dimensions: 1536,
-    });
-    // setup the vector store
-    const vectorStore = new PGVectorStore({
-      clientConfig: {
-        connectionString: process.env.DATABASE_URL,
-      },
-      tableName: "llamaindex_embedding",
-      performSetup: false,
-      dimensions: 1536,
-    });
-    vectorStore.setCollection(this.userId);
-    // create index and retriever
-    const index = await VectorStoreIndex.fromVectorStore(vectorStore);
+    // create index using the utility
+    const index = await createVectorStoreIndex(this.userId);
+    // create retriever
     const retriever = index.asRetriever({
       similarityTopK: options.topK || 10,
     });
