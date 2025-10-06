@@ -15,7 +15,7 @@ const getHandler = async (req: NextRequest) => {
     return NextResponse.json({ error: "No query provided" }, { status: 400 });
   }
   // get the results
-  const results = await aiService.semanticSearch(query, {
+  const results = await aiService.semanticSearch(query, dbUser.id, {
     topK: 3,
   });
   return NextResponse.json(results, { status: 200 });

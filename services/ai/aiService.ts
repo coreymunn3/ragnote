@@ -10,6 +10,7 @@ import { AgentWorkflow } from "@llamaindex/workflow";
 import { tokenTrackingService } from "../tokenTracking/tokenTrackingService";
 import { OpenAIResponse, EmbeddedChunks } from "@/lib/types/aiTypes";
 import { createVectorStoreIndex } from "./agents/utils/vectorStoreUtils";
+import { transformNodesToSearchResult } from "./aiTransformers";
 
 export class AiService {
   private static readonly SINGLE_CHUNK_THRESHOLD = 500;
@@ -419,6 +420,7 @@ export class AiService {
    */
   public async semanticSearch(
     query: string,
+    userId: string,
     options: {
       topK?: number;
     } = {}
@@ -431,6 +433,12 @@ export class AiService {
     });
     // perform search
     const retrievedNodes = await retriever.retrieve(query);
-    return retrievedNodes;
+    // return if no results
+    if (retrievedNodes.length === 0) {
+      return [];
+    }
+    // transform result
+    const searchResult = transformNodesToSearchResult(retrievedNodes, userId);
+    return searchResult;
   }
 }
