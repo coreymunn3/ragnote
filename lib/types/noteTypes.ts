@@ -22,16 +22,16 @@ export type Note = {
   preview: string;
 };
 
-export type NoteVersion = {
+export type NoteVersionWithoutContent = {
   id: string;
   version_number: number;
   is_published: boolean;
-  published_at: Date;
+  published_at: Date | null;
   created_at: Date;
 };
 
 export type NoteVersionWithContent = Expand<
-  NoteVersion & {
+  NoteVersionWithoutContent & {
     rich_text_content: any;
     plain_text_content: string;
   }
