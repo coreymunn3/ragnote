@@ -43,7 +43,6 @@ export function useChat(options?: UseChatOptions) {
     ...options,
     mutationFn: sendChat,
     onError: (error, variables, context) => {
-      toast.error("Failed to send chat");
       handleClientSideMutationError(
         error,
         `Failed to send chat with scope ${variables.scope}`
