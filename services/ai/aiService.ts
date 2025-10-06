@@ -415,6 +415,7 @@ export class AiService {
   /**
    *
    * @param query user search query
+   * @param userId user ID for transformation
    * @param options retrieval options
    * @returns retrieved nodes
    */
@@ -423,7 +424,10 @@ export class AiService {
     userId: string,
     options: {
       topK?: number;
-    } = {}
+      minScore?: number;
+    } = {
+      minScore: 0.2,
+    }
   ) {
     // create index using the utility
     const index = await createVectorStoreIndex(this.userId);
@@ -433,12 +437,24 @@ export class AiService {
     });
     // perform search
     const retrievedNodes = await retriever.retrieve(query);
-    // return if no results
-    if (retrievedNodes.length === 0) {
+
+    // filter by minimum score if specified
+    const filteredNodes = options.minScore
+      ? retrievedNodes.filter(
+          (node) => node.score != null && node.score >= options.minScore!
+        )
+      : retrievedNodes;
+
+    // return if no results after filtering
+    if (filteredNodes.length === 0) {
       return [];
     }
-    // transform result
-    const searchResult = transformNodesToSearchResult(retrievedNodes, userId);
+
+    // transform filtered results
+    const searchResult = await transformNodesToSearchResult(
+      filteredNodes,
+      userId
+    );
     return searchResult;
   }
 }
