@@ -20,8 +20,6 @@ import { isSystemFolder, getSystemFolderKey } from "@/lib/utils/folderUtils";
 import { DateTime } from "luxon";
 import { Note } from "@/lib/types/noteTypes";
 
-const noteService = new NoteService();
-const chatService = new ChatService();
 export class FolderService {
   /**
    * Enriches an array of folders with their associated items and href properties
@@ -42,12 +40,13 @@ export class FolderService {
 
         switch (itemType) {
           case "note":
+            const noteService = new NoteService();
             const allNotes = await noteService.getAllNotesInFolder(
               folder.id,
               userId
             );
             // Sort notes by most recent edit time (note.updated_at or current_version.updated_at)
-            items = allNotes.sort((a, b) => {
+            items = allNotes.sort((a: Note, b: Note) => {
               const getNoteMostRecentDateTime = (note: Note) => {
                 const noteUpdated = DateTime.fromJSDate(note.updated_at);
                 const versionUpdated = note.current_version
@@ -63,11 +62,12 @@ export class FolderService {
             href = `/folder/${folder.id}`;
             break;
           case "chat":
+            const chatService = new ChatService();
             const allItems = await chatService.getChatSessionsForUser({
               userId,
             });
             // Sort chats by most recent update time
-            items = allItems.sort((a, b) => {
+            items = allItems.sort((a: any, b: any) => {
               const aTime = DateTime.fromISO(a.updated_at);
               const bTime = DateTime.fromISO(b.updated_at);
               return bTime.toMillis() - aTime.toMillis(); // Descending order (most recent first)
