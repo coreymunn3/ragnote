@@ -36,6 +36,6 @@ export type SearchResultNote = {
   note: Note;
   folderId: string;
   folderName: string;
-  displayedVersion: SearchResultVersion;
-  additionalVersions: SearchResultVersion[];
+  versions: SearchResultVersion[]; // All matching versions sorted by score (highest first)
+  score: number; // Highest score among all versions of this note for sorting
 };
