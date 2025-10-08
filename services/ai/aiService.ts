@@ -221,11 +221,13 @@ export class AiService {
    * Create embedded chunks
    * used when publishing a note version
    * @param versionId
+   * @param noteTitle - title of the note - will be included with each chunk
    * @param plainTextContent
    * @param prismaTransaction
    */
   public async createEmbeddedChunksForVersion(
     versionId: string,
+    noteTitle: string,
     plainTextContent: string,
     prismaTransaction?: PrismaTransaction
   ): Promise<EmbeddedChunks> {
@@ -234,6 +236,7 @@ export class AiService {
       if (plainTextContent.length <= AiService.SINGLE_CHUNK_THRESHOLD) {
         return await this.createSingleChunk(
           versionId,
+          noteTitle,
           plainTextContent,
           prismaTransaction
         );
@@ -241,6 +244,7 @@ export class AiService {
       // for longer notes, chunk & embed
       return await this.createSentenceBasedChunks(
         versionId,
+        noteTitle,
         plainTextContent,
         prismaTransaction
       );
@@ -267,11 +271,13 @@ export class AiService {
   /**
    * Create a single chunk - when note content is very short
    * @param versionId
+   * @param noteTitle
    * @param plainTextContent
    * @param prismaTransaction
    */
   private async createSingleChunk(
     versionId: string,
+    noteTitle: string,
     plainTextContent: string,
     prismaTransaction?: PrismaTransaction
   ): Promise<EmbeddedChunks> {
@@ -281,10 +287,11 @@ export class AiService {
     // Calculate token count for tracking
     const tokenCount =
       tokenTrackingService.estimateTokensFromText(plainTextContent);
-
-    // create the embedding
+    // enhance the content by adding the title - this makes the title searchable and in the context
+    const embeddedContent = `([TITLE]: ${noteTitle})\n${plainTextContent}`;
+    // create the embedding with the title
     const embedding =
-      await Settings.embedModel.getTextEmbedding(plainTextContent);
+      await Settings.embedModel.getTextEmbedding(embeddedContent);
 
     // Record token usage for this embedding operation
     try {
@@ -303,7 +310,7 @@ export class AiService {
 
     const savedChunk = await prismaObj.$executeRaw`
       INSERT INTO note_chunk (id, note_version_id, chunk_index, chunk_text, embedding)
-      VALUES (gen_random_uuid(), ${versionId}::uuid, 0, ${plainTextContent}, ${embedding}::vector(1536))
+      VALUES (gen_random_uuid(), ${versionId}::uuid, 0, ${embeddedContent}, ${embedding}::vector(1536))
       RETURNING *
     `;
 
@@ -317,11 +324,13 @@ export class AiService {
   /**
    * Create multiple chunks, using sentence splitter
    * @param versionId
+   * @param noteTitle
    * @param plainTextContent
    * @param prismaTransaction
    */
   private async createSentenceBasedChunks(
     versionId: string,
+    noteTitle: string,
     plainTextContent: string,
     prismaTransaction?: PrismaTransaction
   ): Promise<EmbeddedChunks> {
@@ -335,16 +344,20 @@ export class AiService {
       paragraphSeparator: "\n\n",
     });
 
-    const chunks = sentenceSplitter.splitText(plainTextContent);
+    const rawChunks = sentenceSplitter.splitText(plainTextContent);
+    const enhancedChunks = rawChunks.map(
+      (chunk) => `([TITLE]: ${noteTitle})\n${chunk}`
+    );
 
     // Calculate total token count for all chunks
-    const totalTokens = chunks.reduce(
+    const totalTokens = enhancedChunks.reduce(
       (total, chunk) =>
         total + tokenTrackingService.estimateTokensFromText(chunk),
       0
     );
 
-    const embeddings = await Settings.embedModel.getTextEmbeddings(chunks);
+    const embeddings =
+      await Settings.embedModel.getTextEmbeddings(enhancedChunks);
 
     // Record token usage for this embedding operation
     try {
@@ -363,10 +376,10 @@ export class AiService {
 
     // Save chunks to database using raw SQL
     const savedChunks = [];
-    for (let i = 0; i < chunks.length; i++) {
+    for (let i = 0; i < enhancedChunks.length; i++) {
       const savedChunk = await prismaObj.$executeRaw`
         INSERT INTO note_chunk (id, note_version_id, chunk_index, chunk_text, embedding)
-        VALUES (gen_random_uuid(), ${versionId}::uuid, ${i}, ${chunks[i]}, ${embeddings[i]}::vector(1536))
+        VALUES (gen_random_uuid(), ${versionId}::uuid, ${i}, ${enhancedChunks[i]}, ${embeddings[i]}::vector(1536))
         RETURNING *
       `;
       savedChunks.push(savedChunk);

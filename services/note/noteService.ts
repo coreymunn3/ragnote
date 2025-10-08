@@ -715,6 +715,11 @@ export class NoteService {
         versionId: validatedVersionId,
         userId: validatedUserId,
       });
+      // get the note
+      const note = await this.getNoteById({
+        noteId: currentVersion.note_id,
+        userId: validatedUserId,
+      });
 
       // Check if the version is already published to prevent duplicate publishing
       if (currentVersion.is_published) {
@@ -733,6 +738,7 @@ export class NoteService {
           // Create embeddings using the RAG service with the transaction
           await aiService.createEmbeddedChunksForVersion(
             validatedVersionId,
+            note.title,
             plainTextContent,
             tx
           );
