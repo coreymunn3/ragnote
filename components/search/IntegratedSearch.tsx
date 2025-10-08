@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import { CornerDownLeft } from "lucide-react";
+import { CornerDownLeft, FileIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { useSearch } from "@/hooks/search/useSearch";
 import { AnimatedExpandable } from "../animations";
 import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
+import { SearchResultNote } from "@/lib/types/aiTypes";
+import SearchResultItem from "./SearchResultItem";
 
 interface IntegratedSearchProps {
   onSearch?: (query: string) => void;
@@ -16,14 +18,23 @@ interface IntegratedSearchProps {
 const IntegratedSearch = (props: IntegratedSearchProps) => {
   const { onSearch } = props;
   const [query, setQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  // mutation to execute the search
-  const searchMutation = useSearch();
+  const [searchResults, setSearchResults] = useState<SearchResultNote[]>([]);
+
+  console.log(searchResults);
+
+  /**
+   * Mutation to execute the search
+   * when it completes, we save the results in local state
+   */
+  const searchMutation = useSearch({
+    onSuccess: (data) => setSearchResults(data),
+  });
 
   /**
    * Run when the search is submitted
    */
   const handleSearch = () => {
+    // ensure there is text in the input
     if (!(query.trim().length > 0)) {
       toast.info("Please enter a search query");
       return;
@@ -73,14 +84,24 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
           searchMutation.isPending ||
           (searchMutation.isSuccess && searchResults.length > 0)
         }
-        // isOpen={true}
       >
+        {/* show loading if mutation pending */}
         {searchMutation.isPending && (
           <div className="p-2 flex space-x-2">
-            <Skeleton className="w-36 h-40" />
-            <Skeleton className="w-36 h-40" />
-            <Skeleton className="w-36 h-40" />
-            <Skeleton className="w-36 h-40" />
+            <Skeleton className="w-[250px] h-20" />
+            <Skeleton className="w-[250px] h-20" />
+            <Skeleton className="w-[250px] h-20" />
+          </div>
+        )}
+        {/* show the items if search results exist */}
+        {searchMutation.isSuccess && searchResults.length > 0 && (
+          <div className="p-2 flex space-x-2">
+            {searchResults.map((searchResult) => (
+              <SearchResultItem
+                key={searchResult.note.id}
+                searchResult={searchResult}
+              />
+            ))}
           </div>
         )}
       </AnimatedExpandable>
