@@ -1,8 +1,8 @@
-import { PrismaNoteVersion } from "@/lib/types/noteTypes";
+import { NoteVersionWithoutContent } from "@/lib/types/noteTypes";
 import { Badge } from "./ui/badge";
 
 interface VersionBadgeProps {
-  version: PrismaNoteVersion;
+  version: NoteVersionWithoutContent;
   withBorder?: boolean;
 }
 
