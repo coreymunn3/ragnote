@@ -13,85 +13,84 @@ export const transformNodesToSearchResult = async (
 ): Promise<SearchResultNote[]> => {
   const noteService = new NoteService();
   const folderService = new FolderService();
-  // console.log("metadata", retrievedNodes[0].node.metadata);
-  // group nodes (version) by note ID
-  const groupedNodes: { [key: string]: NodeWithScore<Metadata>[] } = {};
 
+  // Step 1: Group nodes by note ID
+  const groupedByNote: { [noteId: string]: NodeWithScore<Metadata>[] } = {};
   retrievedNodes.forEach((node) => {
-    // extract the node Id
     const noteId = (node.node.metadata as CustomNodeMetadata).note_id;
-    // push it to the object
-    if (!(noteId in groupedNodes)) {
-      groupedNodes[noteId] = [];
+    if (!(noteId in groupedByNote)) {
+      groupedByNote[noteId] = [];
     }
-    groupedNodes[noteId].push(node);
+    groupedByNote[noteId].push(node);
   });
 
-  // create the final retuned object
   const searchResult: SearchResultNote[] = [];
 
-  // TODO
-  // - get note title & current version, folder name
-  // - get the curernt and other version of the note
-  for (let [noteId, nodes] of Object.entries(groupedNodes)) {
-    // get the note data
-    const note = await noteService.getNoteById({ noteId, userId });
-    // get the folder data
-    const folder = await folderService.getFolderById(note.folder_id, userId);
-    // map through nodes creating the search result version
-    const searchResultNoteVersions = await Promise.all(
-      nodes.map(async ({ node, score }) => {
-        const noteVersion = await noteService.getNoteVersion({
-          versionId: (node.metadata as CustomNodeMetadata).note_version_id,
-          userId,
-        });
-        return {
-          id: noteVersion.id,
-          version_number: noteVersion.version_number,
-          is_published: noteVersion.is_published,
-          published_at: noteVersion.published_at,
-          created_at: noteVersion.created_at,
-          score: score!,
-        };
-      })
-    );
+  for (let [noteId, noteNodes] of Object.entries(groupedByNote)) {
+    // Step 2: Within each note, group by version ID to handle multiple chunks per version
+    const groupedByVersion: { [versionId: string]: NodeWithScore<Metadata>[] } =
+      {};
+    noteNodes.forEach((node) => {
+      const versionId = (node.node.metadata as CustomNodeMetadata)
+        .note_version_id;
+      if (!(versionId in groupedByVersion)) {
+        groupedByVersion[versionId] = [];
+      }
+      groupedByVersion[versionId].push(node);
+    });
 
-    if (searchResultNoteVersions.length === 0) {
+    // Get note and folder data
+    const note = await noteService.getNoteById({ noteId, userId });
+    const folder = await folderService.getFolderById(note.folder_id, userId);
+
+    // Step 3: Create SearchResultVersion for each unique version
+    const searchResultVersions: SearchResultVersion[] = [];
+
+    for (let [versionId, versionNodes] of Object.entries(groupedByVersion)) {
+      // Get version data once per version (not once per chunk)
+      const noteVersion = await noteService.getNoteVersion({
+        versionId,
+        userId,
+      });
+
+      // Determine version-level score from multiple chunks (use max for best relevance)
+      const versionScore = Math.max(...versionNodes.map((n) => n.score ?? 0));
+
+      searchResultVersions.push({
+        id: noteVersion.id,
+        version_number: noteVersion.version_number,
+        is_published: noteVersion.is_published,
+        published_at: noteVersion.published_at,
+        created_at: noteVersion.created_at,
+        score: versionScore,
+      });
+    }
+
+    if (searchResultVersions.length === 0) {
       throw new Error(
         `Semantic Search Transformation Error - No valid versions found for note ${noteId} given retrieved nodes`
       );
     }
 
-    let displayedVersion: SearchResultVersion;
-    let additionalVersions: SearchResultVersion[] = [];
-
-    const currentVersionInResults = searchResultNoteVersions.find(
-      (nv) => nv.id === note.current_version.id
+    // Step 4: Sort versions by score and calculate note-level score
+    // Since only published versions are embedded and searchable, we simply
+    // sort all matching versions by score (highest first)
+    const sortedVersions = searchResultVersions.sort(
+      (a, b) => (b.score ?? 0) - (a.score ?? 0)
     );
-    // figure out which version is the display version
-    if (currentVersionInResults) {
-      // Use current version as display if it is in results
-      displayedVersion = currentVersionInResults;
-      additionalVersions = searchResultNoteVersions.filter(
-        (nv) => nv.id !== note.current_version.id
-      );
-    } else {
-      // Use highest scoring version as display if current version not in results
-      const sortedByScore = searchResultNoteVersions.sort(
-        (a, b) => (b.score ?? 0) - (a.score ?? 0)
-      );
-      displayedVersion = sortedByScore[0];
-      additionalVersions = sortedByScore.slice(1);
-    }
 
-    // build final result
+    const noteScore = sortedVersions[0]?.score ?? 0;
+
+    // Build final result with note-level score
     searchResult.push({
       note,
       folderId: folder.id,
       folderName: folder.folder_name,
-      displayedVersion,
-      additionalVersions,
+      versions: sortedVersions, // All matching versions sorted by score
+      score: noteScore, // Note-level score for sorting (highest version score)
     });
   }
-  return searchResult;
+
+  // Step 5: Sort by note-level score (highest first)
+  return searchResult.sort((a, b) => b.score - a.score);
 };
