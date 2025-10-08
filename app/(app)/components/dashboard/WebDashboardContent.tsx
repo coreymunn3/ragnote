@@ -9,7 +9,12 @@ import {
 import WidgetList from "@/components/web/WidgetList";
 import NoteWidget from "@/components/web/NoteWidget";
 import ChatWidget from "@/components/web/ChatWidget";
-import { Calendar1Icon, MessageSquareIcon, PinIcon } from "lucide-react";
+import {
+  Calendar1Icon,
+  FileIcon,
+  MessageSquareIcon,
+  PinIcon,
+} from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetNotes } from "@/hooks/note/useGetNotes";
 import { Note } from "@/lib/types/noteTypes";
@@ -76,7 +81,7 @@ const WebDashboardContent = ({
               }
               renderItem={(note) => <NoteWidget note={note} />}
               title={"Recent Notes"}
-              icon={<Calendar1Icon className="h-6 w-6 text-muted-foreground" />}
+              icon={<FileIcon className="h-6 w-6 text-muted-foreground" />}
               delay={2}
             />
           </div>
