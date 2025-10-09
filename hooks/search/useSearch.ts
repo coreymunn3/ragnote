@@ -1,5 +1,5 @@
 import { handleClientSideMutationError } from "@/lib/errors/handleClientSideMutationError";
-import { SearchResult } from "@/lib/types/aiTypes";
+import { SearchResult } from "@/lib/types/searchTypes";
 import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";

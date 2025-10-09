@@ -1,9 +1,9 @@
+import { CustomNodeMetadata } from "@/lib/types/aiTypes";
 import {
-  CustomNodeMetadata,
   SearchResult,
   SearchResultNote,
   SearchResultVersion,
-} from "@/lib/types/aiTypes";
+} from "@/lib/types/searchTypes";
 import { Metadata, NodeWithScore } from "llamaindex";
 import { NoteService } from "../note/noteService";
 import { FolderService } from "../folder/folderService";
@@ -73,7 +73,6 @@ export const transformNodesToSearchResult = async (
         version_number: noteVersion.version_number,
         is_published: noteVersion.is_published,
         published_at: noteVersion.published_at,
-        created_at: noteVersion.created_at,
         score: versionScore,
       });
     }
@@ -93,14 +92,19 @@ export const transformNodesToSearchResult = async (
 
     const noteScore = sortedVersions[0]?.score ?? 0;
 
-    // Build final result with note-level score
-    searchResult.push({
-      note,
+    // Build final result with minimal BaseSearchResultItem properties
+    const searchResultNote: SearchResultNote = {
+      // BaseSearchResultItem properties
+      type: "note",
+      score: noteScore, // Note-level score for sorting (highest version score)
       folderId: folder.id,
       folderName: folder.folder_name,
+      // SearchResultNote-specific properties
+      note,
       versions: sortedVersions, // All matching versions sorted by score
-      score: noteScore, // Note-level score for sorting (highest version score)
-    });
+    };
+
+    searchResult.push(searchResultNote);
   }
 
   // Step 5: Sort by note-level score (highest first)

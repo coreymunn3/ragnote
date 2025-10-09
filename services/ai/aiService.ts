@@ -119,6 +119,27 @@ export class AiService {
   }
 
   /**
+   * Check if user has any embedded chunks (published notes)
+   */
+  public async checkUserHasEmbeddings(userId: string): Promise<boolean> {
+    try {
+      const chunkCount = await prisma.note_chunk.count({
+        where: {
+          note_version: {
+            note: {
+              user_id: userId,
+            },
+          },
+        },
+      });
+      return chunkCount > 0;
+    } catch (error) {
+      console.error("Error checking user embeddings:", error);
+      return false; // Default to false if there's an error
+    }
+  }
+
+  /**
    * Generate a concise title for a chat session based on the user's initial message
    * Uses a direct OpenAI client to ensure the call is isolated and does not trigger global callbacks.
    * @param userMessage The first message from the user

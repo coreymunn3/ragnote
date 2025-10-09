@@ -2,7 +2,7 @@
 import { Button } from "../ui/button";
 import { FileIcon } from "lucide-react";
 
-import { SearchResultNote } from "@/lib/types/aiTypes";
+import { SearchResultNote } from "@/lib/types/searchTypes";
 import VersionBadge from "../VersionBadge";
 import Link from "next/link";
 import { TypographyMuted, TypographySmall } from "../ui/typography";

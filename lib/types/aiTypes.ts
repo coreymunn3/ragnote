@@ -1,6 +1,3 @@
-import { Note, NoteVersionWithoutContent } from "./noteTypes";
-import { Expand } from "./sharedTypes";
-
 export type EmbeddedChunks = {
   success: boolean;
   chunksCreated: number;
@@ -24,24 +21,4 @@ export type CustomNodeMetadata = {
   note_id: string;
   note_title: string;
   note_version_id: string;
-};
-
-export type SearchResultVersion = Expand<
-  NoteVersionWithoutContent & {
-    score: number | undefined;
-  }
->;
-
-export type SearchResultNote = {
-  note: Note;
-  folderId: string;
-  folderName: string;
-  versions: SearchResultVersion[]; // All matching versions sorted by score (highest first)
-  score: number; // Highest score among all versions of this note for sorting
-};
-
-export type SearchResult = {
-  query: string;
-  numResults: number;
-  searchResults: SearchResultNote[];
 };

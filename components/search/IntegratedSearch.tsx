@@ -8,7 +8,7 @@ import { useSearch } from "@/hooks/search/useSearch";
 import { AnimatedExpandable } from "../animations";
 import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
-import { SearchResult } from "@/lib/types/aiTypes";
+import { SearchResult, isSearchResultNote } from "@/lib/types/searchTypes";
 import SearchResultItem from "./SearchResultItem";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
@@ -122,12 +122,14 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
           <div className="p-2 flex space-x-2">
             {/* if we have more than 0 results, show them */}
             {searchResults.numResults > 0 &&
-              searchResults.searchResults.map((searchResult) => (
-                <SearchResultItem
-                  key={searchResult.note.id}
-                  searchResult={searchResult}
-                />
-              ))}
+              searchResults.searchResults
+                .filter(isSearchResultNote)
+                .map((searchResult) => (
+                  <SearchResultItem
+                    key={searchResult.note.id}
+                    searchResult={searchResult}
+                  />
+                ))}
             {/* if we have 0 results, notify the user */}
             {searchResults.numResults === 0 && (
               <Alert className="border-none bg-slate-50 dark:bg-slate-800">
