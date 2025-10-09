@@ -39,3 +39,9 @@ export type SearchResultNote = {
   versions: SearchResultVersion[]; // All matching versions sorted by score (highest first)
   score: number; // Highest score among all versions of this note for sorting
 };
+
+export type SearchResult = {
+  query: string;
+  numResults: number;
+  searchResults: SearchResultNote[];
+};

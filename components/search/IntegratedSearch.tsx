@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { CornerDownLeft, FileIcon } from "lucide-react";
+import { CircleAlertIcon, CornerDownLeft } from "lucide-react";
 import { Button } from "../ui/button";
 import { useSearch } from "@/hooks/search/useSearch";
 import { AnimatedExpandable } from "../animations";
 import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
-import { SearchResultNote } from "@/lib/types/aiTypes";
+import { SearchResult } from "@/lib/types/aiTypes";
 import SearchResultItem from "./SearchResultItem";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 interface IntegratedSearchProps {
   onSearch?: (query: string) => void;
@@ -18,16 +19,20 @@ interface IntegratedSearchProps {
 const IntegratedSearch = (props: IntegratedSearchProps) => {
   const { onSearch } = props;
   const [query, setQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchResultNote[]>([]);
-
-  console.log(searchResults);
+  const [searchResults, setSearchResults] = useState<
+    SearchResult | undefined
+  >();
+  const [showNoResults, setShowNoResults] = useState(false);
 
   /**
    * Mutation to execute the search
    * when it completes, we save the results in local state
    */
   const searchMutation = useSearch({
-    onSuccess: (data) => setSearchResults(data),
+    onSuccess: (data: SearchResult) => {
+      // save the results. Even when no results, we still need to use the 'query' in this payload.
+      setSearchResults(data);
+    },
   });
 
   /**
@@ -48,6 +53,25 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
     // remove the query
     setQuery("");
   };
+
+  /**
+   * This use effect handles all of the alerting and alert cleanup when there are no results
+   */
+  useEffect(() => {
+    if (searchResults && searchResults.numResults === 0) {
+      // show alert
+      setShowNoResults(true);
+      // auto-dismiss the alert timer and clear results
+      const timer = setTimeout(() => {
+        setShowNoResults(false);
+        setSearchResults(undefined);
+      }, 5000);
+      // clean up the timer
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [searchResults]);
 
   return (
     <div className="flex flex-col p-1 border border-input dark:border-white w-full rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
@@ -82,7 +106,7 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
       <AnimatedExpandable
         isOpen={
           searchMutation.isPending ||
-          (searchMutation.isSuccess && searchResults.length > 0)
+          (searchMutation.isSuccess && !!searchResults)
         }
       >
         {/* show loading if mutation pending */}
@@ -93,15 +117,25 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
             <Skeleton className="w-[250px] h-20" />
           </div>
         )}
-        {/* show the items if search results exist */}
-        {searchMutation.isSuccess && searchResults.length > 0 && (
+        {/* show the items if we get search results */}
+        {searchMutation.isSuccess && !!searchResults && (
           <div className="p-2 flex space-x-2">
-            {searchResults.map((searchResult) => (
-              <SearchResultItem
-                key={searchResult.note.id}
-                searchResult={searchResult}
-              />
-            ))}
+            {/* if we have more than 0 results, show them */}
+            {searchResults.numResults > 0 &&
+              searchResults.searchResults.map((searchResult) => (
+                <SearchResultItem
+                  key={searchResult.note.id}
+                  searchResult={searchResult}
+                />
+              ))}
+            {/* if we have 0 results, notify the user */}
+            {searchResults.numResults === 0 && (
+              <Alert className="border-none bg-slate-50 dark:bg-slate-800">
+                <CircleAlertIcon className="h-4 w-4" />
+                <AlertTitle>Nothing Here!</AlertTitle>
+                <AlertDescription>{`Your search for ${searchResults.query} did not significantly match any of your notes`}</AlertDescription>
+              </Alert>
+            )}
           </div>
         )}
       </AnimatedExpandable>

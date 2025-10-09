@@ -1,5 +1,6 @@
 import {
   CustomNodeMetadata,
+  SearchResult,
   SearchResultNote,
   SearchResultVersion,
 } from "@/lib/types/aiTypes";
@@ -8,12 +9,23 @@ import { NoteService } from "../note/noteService";
 import { FolderService } from "../folder/folderService";
 
 export const transformNodesToSearchResult = async (
+  query: string,
   retrievedNodes: NodeWithScore<Metadata>[],
   userId: string
-): Promise<SearchResultNote[]> => {
+): Promise<SearchResult> => {
   const noteService = new NoteService();
   const folderService = new FolderService();
 
+  // return early if no results to transform
+  if (retrievedNodes.length === 0) {
+    return {
+      query,
+      numResults: 0,
+      searchResults: [],
+    };
+  }
+
+  // --- BEGIN TRANSFORMATION OF RETRIEVED NODES---
   // Step 1: Group nodes by note ID
   const groupedByNote: { [noteId: string]: NodeWithScore<Metadata>[] } = {};
   retrievedNodes.forEach((node) => {
@@ -92,5 +104,12 @@ export const transformNodesToSearchResult = async (
   }
 
   // Step 5: Sort by note-level score (highest first)
-  return searchResult.sort((a, b) => b.score - a.score);
+  const sortedSearchResult = searchResult.sort((a, b) => b.score - a.score);
+
+  // Step 6: return results
+  return {
+    query,
+    numResults: sortedSearchResult.length,
+    searchResults: sortedSearchResult,
+  };
 };

@@ -458,16 +458,13 @@ export class AiService {
         )
       : retrievedNodes;
 
-    // return if no results after filtering
-    if (filteredNodes.length === 0) {
-      return [];
-    }
-
     // transform filtered results
     const searchResult = await transformNodesToSearchResult(
+      query,
       filteredNodes,
       userId
     );
+
     return searchResult;
   }
 }

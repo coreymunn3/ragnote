@@ -1,16 +1,16 @@
 import { handleClientSideMutationError } from "@/lib/errors/handleClientSideMutationError";
-import { SearchResultNote } from "@/lib/types/aiTypes";
+import { SearchResult } from "@/lib/types/aiTypes";
 import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 
-const executeSearch = async (query: string): Promise<SearchResultNote[]> => {
+const executeSearch = async (query: string): Promise<SearchResult> => {
   const res = await axios.get(`/api/search?query=${encodeURIComponent(query)}`);
   return res.data;
 };
 
 export type useSearchOptions = UseMutationHookOptions<
-  SearchResultNote[],
+  SearchResult,
   Error,
   string
 >;
