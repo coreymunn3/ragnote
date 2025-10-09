@@ -134,7 +134,7 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
             {searchResults.numResults === 0 && (
               <Alert className="border-none bg-slate-50 dark:bg-slate-800">
                 <CircleAlertIcon className="h-4 w-4" />
-                <AlertTitle>Nothing Here!</AlertTitle>
+                <AlertTitle className="text-primary">Nothing Here!</AlertTitle>
                 <AlertDescription>{`Your search for ${searchResults.query} did not significantly match any of your notes`}</AlertDescription>
               </Alert>
             )}
