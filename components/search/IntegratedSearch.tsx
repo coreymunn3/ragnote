@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { CircleAlertIcon, CornerDownLeft, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { useSearch } from "@/hooks/search/useSearch";
-import { AnimatedExpandable } from "../animations";
+import { AnimatedExpandable, AnimatedListItem } from "../animations";
 import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
 import { SearchResult, isSearchResultNote } from "@/lib/types/searchTypes";
@@ -96,16 +96,18 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
         />
         {/* clear search results button -only shows when there are results */}
         {!!searchResults && (
-          <div>
-            <Button
-              variant={"ghost"}
-              className="text-muted-foreground hover:text-muted-foreground"
-              onClick={handleClearResults}
-            >
-              <XIcon className="h-4 w-4" />
-              Clear Results
-            </Button>
-          </div>
+          <AnimatedListItem animation="fadeIn" index={1}>
+            <div>
+              <Button
+                variant={"ghost"}
+                className="text-muted-foreground hover:text-muted-foreground"
+                onClick={handleClearResults}
+              >
+                <XIcon className="h-4 w-4" />
+                Clear Results
+              </Button>
+            </div>
+          </AnimatedListItem>
         )}
         {/* the search button */}
         <div className="justify-end">
