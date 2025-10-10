@@ -56,7 +56,7 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
       return;
     }
     // execute the search
-    searchMutation.mutate(query);
+    searchMutation.mutate({ query, searchMode });
     // add any additional effects passed in from the parent
     if (onSearch) {
       onSearch(query);

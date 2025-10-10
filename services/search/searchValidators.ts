@@ -10,6 +10,7 @@ export const searchSchema = z.object({
       (query) => query.length > 0,
       "Search query cannot be just whitespace"
     ),
+  intendedMode: z.enum(["text", "semantic"]),
   userId: z.string().uuid(),
 });
 

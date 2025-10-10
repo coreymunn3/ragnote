@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import {
   SearchResult,
   PrismaTextSearchResult,
-  SearchResultItem,
+  SearchMode,
 } from "@/lib/types/searchTypes";
 import { searchSchema, textBasedSearchSchema } from "./searchValidators";
 import { transformTextSearchResults } from "./searchTransformers";
@@ -14,11 +14,12 @@ export class SearchService {
    */
   async search(params: {
     query: string;
+    intendedMode: SearchMode;
     userId: string;
   }): Promise<SearchResult> {
     // Validate inputs
     const validatedParams = searchSchema.parse(params);
-    const { query, userId } = validatedParams;
+    const { query, intendedMode, userId } = validatedParams;
 
     // Create AI service instance to check for embeddings
     const aiService = new AiService(userId);
@@ -27,8 +28,13 @@ export class SearchService {
     const hasEmbeddings = await aiService.checkUserHasEmbeddings(userId);
 
     if (hasEmbeddings) {
-      // Use semantic search for pro users with embeddings
-      return await aiService.semanticSearch(query, userId);
+      if (intendedMode === "semantic") {
+        // Use semantic search for pro users with embeddings
+        return await aiService.semanticSearch(query, userId);
+      } else {
+        // Use text-based search
+        return await this.textBasedSearch({ query, userId });
+      }
     } else {
       // Use text-based search for free users or pro users who haven't published yet
       return await this.textBasedSearch({ query, userId });
