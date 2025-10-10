@@ -65,6 +65,8 @@ export type PrismaTextSearchResult = {
   };
 };
 
+export type SearchMode = "text" | "semantic";
+
 // Generic search result that can contain mixed content types
 export type SearchResult = {
   query: string;

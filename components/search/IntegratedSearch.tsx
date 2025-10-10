@@ -2,15 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { CircleAlertIcon, CornerDownLeft, XIcon } from "lucide-react";
+import {
+  CircleAlertIcon,
+  CornerDownLeft,
+  SparkleIcon,
+  XIcon,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { useSearch } from "@/hooks/search/useSearch";
 import { AnimatedExpandable, AnimatedListItem } from "../animations";
 import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
-import { SearchResult, isSearchResultNote } from "@/lib/types/searchTypes";
+import {
+  SearchMode,
+  SearchResult,
+  isSearchResultNote,
+} from "@/lib/types/searchTypes";
 import SearchResultItem from "./SearchResultItem";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import ProButton from "../ProButton";
 
 interface IntegratedSearchProps {
   onSearch?: (query: string) => void;
@@ -22,6 +32,7 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
   const [searchResults, setSearchResults] = useState<
     SearchResult | undefined
   >();
+  const [searchMode, setSearchMode] = useState<SearchMode>("text");
   const [showNoResults, setShowNoResults] = useState(false);
 
   /**
@@ -54,9 +65,18 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
     setQuery("");
   };
 
-  // clear the search results
+  /**
+   * Clear the search results
+   */
   const handleClearResults = () => {
     setSearchResults(undefined);
+  };
+
+  /**
+   * Toggles the search mode from 'text' to 'semantic' and back
+   */
+  const toggleSearchMode = () => {
+    setSearchMode((prevMode) => (prevMode === "text" ? "semantic" : "text"));
   };
 
   /**
@@ -119,6 +139,15 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
             {`Search`}
             <CornerDownLeft className="h-4 w-4" />
           </Button>
+        </div>
+        {/* Search Mode - Semantic Search or Text Matching */}
+        <div>
+          <ProButton
+            variant={searchMode === "semantic" ? "default" : "ghost"}
+            tooltipText="Enable AI-powered Semantic Search"
+            icon={<SparkleIcon className="h-4 w-4" />}
+            onClick={toggleSearchMode}
+          />
         </div>
       </div>
 
