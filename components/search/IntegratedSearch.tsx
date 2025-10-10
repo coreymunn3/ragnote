@@ -100,7 +100,7 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
 
   return (
     <div className="flex flex-col p-1 border border-input dark:border-white w-full rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
-      <div className="flex">
+      <div className="flex space-x-1">
         {/* the input */}
         <Input
           placeholder="Search Your Notes"
@@ -141,9 +141,10 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
           </Button>
         </div>
         {/* Search Mode - Semantic Search or Text Matching */}
-        <div>
+        <div className="flex items-center justify-center">
           <ProButton
             variant={searchMode === "semantic" ? "default" : "ghost"}
+            className={`${searchMode === "text" ? "text-primary" : "text-white"}`}
             tooltipText="Enable AI-powered Semantic Search"
             icon={<SparkleIcon className="h-4 w-4" />}
             onClick={toggleSearchMode}
@@ -180,7 +181,7 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
                   />
                 ))}
             {/* if we have 0 results, notify the user */}
-            {searchResults.numResults === 0 && (
+            {showNoResults && searchResults.numResults === 0 && (
               <Alert className="border-none bg-slate-50 dark:bg-slate-800">
                 <CircleAlertIcon className="h-4 w-4" />
                 <AlertTitle className="text-primary">Nothing Here!</AlertTitle>
