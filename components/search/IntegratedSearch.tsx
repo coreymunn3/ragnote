@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { CircleAlertIcon, CornerDownLeft } from "lucide-react";
+import { CircleAlertIcon, CornerDownLeft, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { useSearch } from "@/hooks/search/useSearch";
 import { AnimatedExpandable } from "../animations";
@@ -54,6 +54,11 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
     setQuery("");
   };
 
+  // clear the search results
+  const handleClearResults = () => {
+    setSearchResults(undefined);
+  };
+
   /**
    * This use effect handles all of the alerting and alert cleanup when there are no results
    */
@@ -89,8 +94,21 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
             }
           }}
         />
+        {/* clear search results button -only shows when there are results */}
+        {!!searchResults && (
+          <div>
+            <Button
+              variant={"ghost"}
+              className="text-muted-foreground hover:text-muted-foreground"
+              onClick={handleClearResults}
+            >
+              <XIcon className="h-4 w-4" />
+              Clear Results
+            </Button>
+          </div>
+        )}
         {/* the search button */}
-        <div className="flex justify-end ">
+        <div className="justify-end">
           <Button
             variant={"ghost"}
             className="text-primary  hover:text-primary dark:text-white dark:hover:text-white"
