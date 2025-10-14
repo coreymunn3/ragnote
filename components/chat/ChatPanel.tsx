@@ -17,7 +17,7 @@ import VersionBadge from "../VersionBadge";
 import { useChat } from "@/hooks/chat/useChat";
 import { useGetChatHistoryForScope } from "@/hooks/chat/useGetChatHistoryForScope";
 import ChatHistory from "./ChatHistory";
-import { useGetChatMessagesForSessionScope } from "@/hooks/chat/useGetChatMessagesForSessionScope";
+import { useGetChatMessagesForSession } from "@/hooks/chat/useGetChatMessagesForSession";
 import { Button } from "../ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -57,14 +57,9 @@ const ChatPanel = ({
   });
 
   // Hook for getting chat messages for the current session
-  const chatConversation = useGetChatMessagesForSessionScope(
-    chatSessionId || "",
-    scope,
-    scopeId,
-    {
-      enabled: open && !!chatSessionId,
-    }
-  );
+  const chatConversation = useGetChatMessagesForSession(chatSessionId || "", {
+    enabled: open && !!chatSessionId,
+  });
 
   /**
    * Change the selected chat session ID
@@ -89,7 +84,7 @@ const ChatPanel = ({
       });
       // Invalidate the chat conversation query
       queryClient.invalidateQueries({
-        queryKey: ["chatConversation", response.session.id, scope, scopeId],
+        queryKey: ["chat-session", response.session.id, "messages"],
       });
 
       // Clear optimistic messages since real messages are now in the API data
