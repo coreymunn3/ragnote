@@ -22,8 +22,8 @@ export type PrismaUserSubscription = {
   start_date: Date;
   end_date: Date | null;
   renewal_date: Date | null;
-  monthly_credits_awarded: number;
-  last_credit_award_date: Date | null;
+  stripe_subscription_id: string | null;
+  stripe_price_id: string | null;
   created_at: Date;
   updated_at: Date;
 };
