@@ -1,5 +1,29 @@
 import { z } from "zod";
 
-export const userIdSchema = z.object({
+export const getUserSubscriptionSchema = z.object({
   userId: z.string().uuid(),
+});
+
+export const createStripeCustomerSchema = z.object({
+  userId: z.string().uuid(),
+  email: z.string().email(),
+  name: z.string().optional(),
+});
+
+export const updateSubscriptionFromStripeSchema = z.object({
+  userId: z.string().uuid(),
+  stripeSubscriptionId: z.string(),
+  stripePriceId: z.string(),
+  tier: z.enum(["FREE", "PRO"]),
+  status: z.enum(["ACTIVE", "CANCELLED", "PAUSED", "TRIAL"]),
+  endDate: z.date().nullable().optional(),
+});
+
+export const hasProAccessSchema = z.object({
+  userId: z.string().uuid(),
+});
+
+export const upgradeToProTrialSchema = z.object({
+  userId: z.string().uuid(),
+  trialDays: z.number().int().min(1).max(365).optional().default(10),
 });
