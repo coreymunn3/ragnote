@@ -90,9 +90,7 @@ model user_subscription {
   user_id                String             @unique @db.Uuid // Each user has at most one subscription
   tier                   SubscriptionTier
   status                 SubscriptionStatus
-  start_date             DateTime           @db.Timestamptz(3)
   end_date               DateTime?          @db.Timestamptz(3) // Null for active, recurring subscriptions
-  renewal_date           DateTime?          @db.Timestamptz(3) // Next date for recurring renewal
   stripe_subscription_id String?            @unique // ← Changes with each new subscription
   stripe_price_id        String? // ← Which plan they're on
   created_at             DateTime           @default(now()) @db.Timestamptz(3)
