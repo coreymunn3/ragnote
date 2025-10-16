@@ -14,9 +14,15 @@ export type UseGetUserSubscriptionOptions =
 export const useUserSubscription = (
   options?: UseGetUserSubscriptionOptions
 ) => {
-  return useQuery({
+  const subscriptionQuery = useQuery({
     queryKey: ["userSubscription"],
     queryFn: getUserSubscription,
     ...options,
   });
+  return {
+    ...subscriptionQuery,
+    isPro:
+      subscriptionQuery.data?.status === "ACTIVE" &&
+      subscriptionQuery.data.tier === "PRO",
+  };
 };
