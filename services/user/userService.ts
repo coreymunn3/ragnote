@@ -61,7 +61,7 @@ export class UserService {
   /**
    * Create a Stripe customer for a user and store the customer ID
    */
-  public createStripeCustomer = withErrorHandling(
+  public getOrCreateStripeCustomer = withErrorHandling(
     async (params: CreateStripeCustomerParams): Promise<string> => {
       const { userId, email, name } = createStripeCustomerSchema.parse(params);
 
