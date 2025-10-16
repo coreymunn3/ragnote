@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2Icon, Crown, Zap, MessageCircle } from "lucide-react";
+import { Loader2Icon, Crown, Zap, MessageCircle, Icon } from "lucide-react";
 import { Button, buttonVariants } from "./ui/button";
 import {
   Dialog,
@@ -39,7 +39,6 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
       isLoading = false,
       disabled,
       onClick: intendedOnClick,
-      children,
       ...props
     },
     ref
@@ -92,12 +91,14 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
           onClick={handleClick}
           {...props}
         >
-          {label}
-          {children}
-          {(isLoading || subscriptionLoading) && (
+          {isLoading || subscriptionLoading ? (
             <Loader2Icon className="h-4 w-4 animate-spin" />
+          ) : (
+            <>
+              {label}
+              {IconComponent && IconComponent}
+            </>
           )}
-          {IconComponent && IconComponent}
         </Button>
 
         {/* Upgrade modal for non-Pro users */}
