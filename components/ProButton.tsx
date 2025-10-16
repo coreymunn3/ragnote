@@ -75,7 +75,10 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
                   {subscriptionLoading ? (
                     <Loader2Icon className="h-4 w-4 animate-spin" />
                   ) : (
-                    <LockIcon className="h-4 w-4" />
+                    <>
+                      {IconComponent && IconComponent}
+                      <LockIcon className="h-4 w-4" />
+                    </>
                   )}
                 </Button>
               </span>
