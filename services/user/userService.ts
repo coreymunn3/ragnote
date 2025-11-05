@@ -129,14 +129,8 @@ export class UserService {
     async (
       params: UpdateSubscriptionFromStripeParams
     ): Promise<UserSubscription> => {
-      const {
-        userId,
-        stripeSubscriptionId,
-        stripePriceId,
-        tier,
-        status,
-        endDate,
-      } = updateSubscriptionFromStripeSchema.parse(params);
+      const { userId, stripeSubscriptionId, stripePriceId, tier, endDate } =
+        updateSubscriptionFromStripeSchema.parse(params);
 
       // Update the subscription record
       const updatedSubscription = await prisma.user_subscription.update({
@@ -145,7 +139,6 @@ export class UserService {
           stripe_subscription_id: stripeSubscriptionId,
           stripe_price_id: stripePriceId,
           tier,
-          status,
           end_date: endDate,
         },
       });
@@ -170,7 +163,6 @@ export class UserService {
         where: { user_id: userId },
         data: {
           tier: "PRO",
-          status: "TRIAL",
           end_date: trialEndDate,
           // Clear Stripe fields for trials
           stripe_subscription_id: null,
@@ -179,6 +171,29 @@ export class UserService {
       });
 
       return transformUserSubscription(updatedSubscription);
+    }
+  );
+
+  /**
+   * Find user by Stripe customer ID (for webhook processing)
+   */
+  public findUserByStripeCustomerId = withErrorHandling(
+    async (
+      stripeCustomerId: string
+    ): Promise<{ id: string; email: string } | null> => {
+      const user = await prisma.app_user.findUnique({
+        where: { stripe_customer_id: stripeCustomerId },
+        select: { id: true, email: true },
+      });
+
+      if (!user) {
+        console.error(
+          `User not found for Stripe customer ID: ${stripeCustomerId}`
+        );
+        return null;
+      }
+
+      return user;
     }
   );
 }
