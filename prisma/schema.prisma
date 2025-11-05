@@ -20,13 +20,6 @@ enum SubscriptionTier {
   PRO
 }
 
-enum SubscriptionStatus {
-  ACTIVE
-  CANCELLED
-  PAUSED
-  TRIAL
-}
-
 enum CreditTransactionType {
   AWARD_MONTHLY
   AWARD_PURCHASE
@@ -86,15 +79,14 @@ model app_user {
 // User Subscription 
 // -----------------------------------------------------------
 model user_subscription {
-  id                     String             @id @default(uuid()) @db.Uuid
-  user_id                String             @unique @db.Uuid // Each user has at most one subscription
+  id                     String           @id @default(uuid()) @db.Uuid
+  user_id                String           @unique @db.Uuid // Each user has at most one subscription
   tier                   SubscriptionTier
-  status                 SubscriptionStatus
-  end_date               DateTime?          @db.Timestamptz(3) // Null for active, recurring subscriptions
-  stripe_subscription_id String?            @unique // ← Changes with each new subscription
+  end_date               DateTime?        @db.Timestamptz(3) // Null for active, recurring subscriptions
+  stripe_subscription_id String?          @unique // ← Changes with each new subscription
   stripe_price_id        String? // ← Which plan they're on
-  created_at             DateTime           @default(now()) @db.Timestamptz(3)
-  updated_at             DateTime           @updatedAt @db.Timestamptz(3)
+  created_at             DateTime         @default(now()) @db.Timestamptz(3)
+  updated_at             DateTime         @updatedAt @db.Timestamptz(3)
 
   user app_user @relation(fields: [user_id], references: [id], onDelete: Cascade)
 

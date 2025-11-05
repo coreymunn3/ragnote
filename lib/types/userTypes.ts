@@ -3,12 +3,9 @@ import { Expand } from "./sharedTypes";
 /**
  * Simplified & Safe types for frontend/backend
  */
-export type SubscriptionStatus = "ACTIVE" | "CANCELLED" | "PAUSED" | "TRIAL";
-
 export type UserSubscription = {
   id: string;
   tier: "FREE" | "PRO";
-  status: SubscriptionStatus;
   end_date: Date | null;
 };
 
@@ -19,7 +16,6 @@ export type PrismaUserSubscription = {
   id: string;
   user_id: string;
   tier: "FREE" | "PRO";
-  status: "ACTIVE" | "CANCELLED" | "PAUSED" | "TRIAL";
   end_date: Date | null;
   stripe_subscription_id: string | null;
   stripe_price_id: string | null;
@@ -39,9 +35,8 @@ export type CreateStripeCustomerParams = {
 export type UpdateSubscriptionFromStripeParams = {
   userId: string;
   stripeSubscriptionId: string;
-  stripePriceId: string;
+  stripePriceId: string | null;
   tier: "FREE" | "PRO";
-  status: SubscriptionStatus;
   endDate?: Date | null;
 };
 
