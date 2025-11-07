@@ -21,8 +21,6 @@ export const useUserSubscription = (
   });
   return {
     ...subscriptionQuery,
-    isPro:
-      subscriptionQuery.data?.status === "ACTIVE" &&
-      subscriptionQuery.data.tier === "PRO",
+    isPro: subscriptionQuery.isSuccess && subscriptionQuery.data.tier === "PRO",
   };
 };

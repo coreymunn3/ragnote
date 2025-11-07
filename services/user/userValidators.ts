@@ -15,7 +15,6 @@ export const updateSubscriptionFromStripeSchema = z.object({
   stripeSubscriptionId: z.string(),
   stripePriceId: z.string(),
   tier: z.enum(["FREE", "PRO"]),
-  status: z.enum(["ACTIVE", "CANCELLED", "PAUSED", "TRIAL"]),
   endDate: z.date().nullable().optional(),
 });
 

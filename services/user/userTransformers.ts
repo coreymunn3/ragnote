@@ -14,7 +14,6 @@ export const transformUserSubscription = (
   return {
     id: subscription.id,
     tier: subscription.tier,
-    status: subscription.status,
     end_date: subscription.end_date,
   };
 };
