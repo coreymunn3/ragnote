@@ -201,10 +201,6 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     | undefined;
   const billingReason = invoice.billing_reason;
 
-  console.log(
-    `Invoice debug - subscriptionId: ${subscriptionId}, billingReason: ${billingReason}`
-  );
-
   if (
     !subscriptionId ||
     (billingReason !== "subscription_create" &&
