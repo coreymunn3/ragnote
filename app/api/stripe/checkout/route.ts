@@ -19,10 +19,6 @@ const postHandler = async (req: NextRequest) => {
   const stripeCustomerId = await userService.getOrCreateStripeCustomer({
     userId: dbUser.id,
     email: dbUser.email,
-    name:
-      dbUser.first_name && dbUser.last_name
-        ? `${dbUser.first_name} ${dbUser.last_name}`
-        : dbUser.email,
   });
 
   // Create checkout session

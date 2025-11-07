@@ -63,12 +63,17 @@ export class UserService {
    */
   public getOrCreateStripeCustomer = withErrorHandling(
     async (params: CreateStripeCustomerParams): Promise<string> => {
-      const { userId, email, name } = createStripeCustomerSchema.parse(params);
+      const { userId, email } = createStripeCustomerSchema.parse(params);
 
       // Check if user already has a Stripe customer ID
       const existingUser = await prisma.app_user.findUnique({
         where: { id: userId },
-        select: { stripe_customer_id: true, email: true },
+        select: {
+          stripe_customer_id: true,
+          email: true,
+          first_name: true,
+          last_name: true,
+        },
       });
 
       if (!existingUser) {
@@ -82,7 +87,7 @@ export class UserService {
       // Create Stripe customer
       const customer = await stripe.customers.create({
         email,
-        name,
+        name: `${existingUser.first_name} ${existingUser.last_name}`,
         metadata: {
           user_id: userId,
         },

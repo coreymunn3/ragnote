@@ -7,7 +7,6 @@ export const getUserSubscriptionSchema = z.object({
 export const createStripeCustomerSchema = z.object({
   userId: z.string().uuid(),
   email: z.string().email(),
-  name: z.string().optional(),
 });
 
 export const updateSubscriptionFromStripeSchema = z.object({
