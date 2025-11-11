@@ -4,6 +4,7 @@ import { UserService } from "@/services/user/userService";
 import { getDbUser } from "@/lib/getDbUser";
 import { withApiErrorHandling } from "@/lib/errors/apiRouteHandlers";
 import stripe from "@/lib/stripe/stripe-admin";
+import { CreateCheckoutSessionRequest } from "@/lib/types/userTypes";
 
 const userService = new UserService();
 
@@ -14,6 +15,7 @@ const userService = new UserService();
 const postHandler = async (req: NextRequest) => {
   auth.protect();
   const dbUser = await getDbUser();
+  const body: CreateCheckoutSessionRequest = await req.json();
 
   // Create or get existing Stripe customer
   const stripeCustomerId = await userService.getOrCreateStripeCustomer({
@@ -32,8 +34,8 @@ const postHandler = async (req: NextRequest) => {
         quantity: 1,
       },
     ],
-    success_url: `${req.headers.get("origin")}/dashboard?upgrade=success`,
-    cancel_url: `${req.headers.get("origin")}/dashboard?upgrade=canceled`,
+    success_url: `${body.return_url}?upgrade=success`,
+    cancel_url: `${body.return_url}/dashboard?upgrade=canceled`,
     metadata: {
       user_id: dbUser.id,
       tier: "PRO",

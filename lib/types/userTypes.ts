@@ -9,6 +9,14 @@ export type UserSubscription = {
   end_date: Date | null;
 };
 
+export type CreateCheckoutSessionRequest = {
+  return_url: string;
+};
+
+export type CreateCheckoutSessionResponse = {
+  url: string;
+};
+
 /**
  * Prisma Types - full schema-identical prisma objects
  */
