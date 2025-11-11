@@ -119,69 +119,84 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const user = await userService.findUserByStripeCustomerId(customerId);
   if (!user) return;
 
-  console.log(
-    `Updating subscription for user ${user.id}, status: ${subscription.status}`
-  );
+  // Get current subscription state to validate this is the active subscription
+  const currentSubscription = await userService.getUserSubscription(user.id);
 
-  // Get current_period_end from the subscription item
-  const currentPeriodEnd = (subscription.items.data[0] as any)
-    ?.current_period_end;
-  if (!currentPeriodEnd) {
-    console.error("Missing current_period_end in subscription item");
-    return;
-  }
-
-  // Handle end-of-period cancellation
-  if (subscription.cancel_at_period_end && subscription.status === "active") {
-    // User cancelled but keeps access until end of paid period
+  // Only process if this is the user's current active subscription or they have no subscription
+  if (
+    currentSubscription.stripe_subscription_id === subscription.id ||
+    !currentSubscription.stripe_subscription_id
+  ) {
     console.log(
-      `User ${user.id} cancelled but retains access until ${new Date(currentPeriodEnd * 1000)}`
+      `Updating subscription for user ${user.id}, status: ${subscription.status}`
     );
+
+    // Get current_period_end from the subscription item
+    const currentPeriodEnd = (subscription.items.data[0] as any)
+      ?.current_period_end;
+    if (!currentPeriodEnd) {
+      console.error("Missing current_period_end in subscription item");
+      return;
+    }
+
+    // Handle end-of-period cancellation
+    if (subscription.cancel_at_period_end && subscription.status === "active") {
+      // User cancelled but keeps access until end of paid period
+      console.log(
+        `User ${user.id} cancelled but retains access until ${new Date(currentPeriodEnd * 1000)}`
+      );
+      await userService.updateSubscriptionFromStripe({
+        userId: user.id,
+        stripeSubscriptionId: subscription.id,
+        stripePriceId: subscription.items.data[0]?.price.id || null,
+        tier: "PRO",
+        endDate: new Date(currentPeriodEnd * 1000),
+      });
+      return;
+    }
+
+    // Handle immediate cancellation - check if already cleared by deleted event
+    if (subscription.status === "canceled") {
+      console.log(
+        `Subscription ${subscription.id} canceled - checking current user state for user ${user.id}`
+      );
+
+      // Check current subscription state to avoid duplicate database writes
+      const currentSubscription = await userService.getUserSubscription(
+        user.id
+      );
+
+      // Only update if user is not already in FREE state with cleared Stripe data
+      if (currentSubscription.tier === "PRO") {
+        console.log(`User ${user.id} not yet cleared - updating to FREE tier`);
+        await userService.updateSubscriptionFromStripe({
+          userId: user.id,
+          stripeSubscriptionId: null, // Clear dead subscription
+          stripePriceId: null, // Clear price they're not paying for
+          tier: "FREE",
+          endDate: null, // No expiration for free users
+        });
+      } else {
+        console.log(
+          `User ${user.id} already in FREE state - skipping duplicate update`
+        );
+      }
+      return;
+    }
+
+    // Handle active subscription
     await userService.updateSubscriptionFromStripe({
       userId: user.id,
       stripeSubscriptionId: subscription.id,
       stripePriceId: subscription.items.data[0]?.price.id || null,
-      tier: "PRO", // Keep PRO until end date
+      tier: "PRO",
       endDate: new Date(currentPeriodEnd * 1000),
     });
-    return;
-  }
-
-  // Handle immediate cancellation - check if already cleared by deleted event
-  if (subscription.status === "canceled") {
+  } else {
     console.log(
-      `Subscription ${subscription.id} canceled - checking current user state for user ${user.id}`
+      `Ignoring update for old subscription ${subscription.id} for user ${user.id} - current subscription is ${currentSubscription.stripe_subscription_id}`
     );
-
-    // Check current subscription state to avoid duplicate database writes
-    const currentSubscription = await userService.getUserSubscription(user.id);
-
-    // Only update if user is not already in FREE state with cleared Stripe data
-    if (currentSubscription.tier === "PRO") {
-      console.log(`User ${user.id} not yet cleared - updating to FREE tier`);
-      await userService.updateSubscriptionFromStripe({
-        userId: user.id,
-        stripeSubscriptionId: null, // Clear dead subscription
-        stripePriceId: null, // Clear price they're not paying for
-        tier: "FREE",
-        endDate: null, // No expiration for free users
-      });
-    } else {
-      console.log(
-        `User ${user.id} already in FREE state - skipping duplicate update`
-      );
-    }
-    return;
   }
-
-  // Handle active subscription
-  await userService.updateSubscriptionFromStripe({
-    userId: user.id,
-    stripeSubscriptionId: subscription.id,
-    stripePriceId: subscription.items.data[0]?.price.id || null,
-    tier: "PRO",
-    endDate: new Date(currentPeriodEnd * 1000),
-  });
 }
 
 /**
@@ -197,15 +212,27 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const user = await userService.findUserByStripeCustomerId(customerId);
   if (!user) return;
 
-  console.log(`Cancelling subscription for user ${user.id}`);
+  // Get current subscription state to validate this is the active subscription
+  const currentSubscription = await userService.getUserSubscription(user.id);
 
-  await userService.updateSubscriptionFromStripe({
-    userId: user.id,
-    stripeSubscriptionId: null, // Clear dead subscription
-    stripePriceId: null,
-    tier: "FREE",
-    endDate: null, // Immediate cancellation - no end date for free users
-  });
+  // Only process if this is the user's current active subscription
+  if (currentSubscription.stripe_subscription_id === subscription.id) {
+    console.log(
+      `Cancelling current subscription ${subscription.id} for user ${user.id}`
+    );
+
+    await userService.updateSubscriptionFromStripe({
+      userId: user.id,
+      stripeSubscriptionId: null, // Clear dead subscription
+      stripePriceId: null,
+      tier: "FREE",
+      endDate: null, // Immediate cancellation - no end date for free users
+    });
+  } else {
+    console.log(
+      `Ignoring deletion of old subscription ${subscription.id} for user ${user.id} - current subscription is ${currentSubscription.stripe_subscription_id}`
+    );
+  }
 }
 
 /**
