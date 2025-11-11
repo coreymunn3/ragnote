@@ -127,9 +127,6 @@ export async function POST(req: Request) {
           data: {
             user_id: newUser.id,
             tier: "FREE",
-            status: "ACTIVE",
-            start_date: new Date(),
-            monthly_credits_awarded: 0,
           },
         });
       } catch (error) {
@@ -255,7 +252,6 @@ export async function POST(req: Request) {
         await prisma.user_subscription.updateMany({
           where: { user_id: user.id },
           data: {
-            status: "CANCELLED",
             end_date: new Date(),
           },
         });
