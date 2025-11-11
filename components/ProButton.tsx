@@ -1,6 +1,15 @@
 "use client";
 
-import { Loader2Icon, Crown, Zap, MessageCircle, Icon } from "lucide-react";
+import {
+  Loader2Icon,
+  Crown,
+  Zap,
+  MessageCircle,
+  Icon,
+  GlobeIcon,
+  HistoryIcon,
+  SparklesIcon,
+} from "lucide-react";
 import { Button, buttonVariants } from "./ui/button";
 import {
   Dialog,
@@ -14,6 +23,8 @@ import { cn } from "@/lib/utils";
 import { VariantProps } from "class-variance-authority";
 import { forwardRef, useState } from "react";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
+import { MEMBERSHIP_FEATURES, UPGRADE_BUTTON_LABEL } from "@/CONSTANTS";
+import { useCreateCheckoutSession } from "@/hooks/user/useCreateCheckoutSession";
 
 interface ProButtonProps
   extends React.ComponentProps<"button">,
@@ -44,7 +55,7 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
     ref
   ) => {
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-    const [upgradingToStripe, setUpgradingToStripe] = useState(false);
+    const checkoutSessionMutation = useCreateCheckoutSession();
 
     // get the user's current subscription
     const {
@@ -56,19 +67,9 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
 
     // Handle upgrade to Pro via Stripe checkout
     const handleUpgrade = async () => {
-      setUpgradingToStripe(true);
-      try {
-        const response = await fetch("/api/stripe/checkout", {
-          method: "POST",
-        });
-        const { url } = await response.json();
-        if (url) {
-          window.location.href = url;
-        }
-      } catch (error) {
-        console.error("Failed to create checkout session:", error);
-        setUpgradingToStripe(false);
-      }
+      checkoutSessionMutation.mutate({
+        return_url: window.location.href,
+      });
     };
 
     // Determine click handler: Pro users get intended action, others get upgrade modal
@@ -116,27 +117,44 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
 
             <div className="py-4">
               <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <Zap className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm">
-                    Unlimited notes and publishing
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MessageCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm">
-                    Unlimited AI chat conversations
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Crown className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm">Priority support</span>
-                </div>
+                {MEMBERSHIP_FEATURES.PRO.features.map((feature, index) => {
+                  // Helper to get icon component from string name
+                  const getIconComponent = (iconName: string) => {
+                    const iconMap: Record<string, React.ComponentType<any>> = {
+                      Globe: GlobeIcon,
+                      MessageCircle: MessageCircle,
+                      History: HistoryIcon,
+                      Sparkles: SparklesIcon,
+                      Crown: Crown,
+                    };
+                    return iconMap[iconName] || Crown;
+                  };
+
+                  const FeatureIcon = getIconComponent(feature.icon);
+                  const colors = [
+                    "text-blue-600",
+                    "text-green-600",
+                    "text-purple-600",
+                    "text-orange-600",
+                    "text-yellow-600",
+                  ];
+
+                  return (
+                    <div key={index} className="flex items-center gap-3">
+                      <FeatureIcon
+                        className={`h-4 w-4 ${colors[index % colors.length]}`}
+                      />
+                      <span className="text-sm">{feature.text}</span>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="mt-4 p-3 bg-muted rounded-lg">
                 <div className="text-center">
-                  <div className="text-2xl font-bold">$1.99</div>
+                  <div className="text-2xl font-bold">
+                    {MEMBERSHIP_FEATURES.PRO.price}
+                  </div>
                   <div className="text-sm text-muted-foreground">per month</div>
                 </div>
               </div>
@@ -145,16 +163,16 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
             <DialogFooter className="flex-col sm:flex-col space-y-2">
               <Button
                 onClick={handleUpgrade}
-                disabled={upgradingToStripe}
+                disabled={checkoutSessionMutation.isPending}
                 className="w-full"
               >
-                {upgradingToStripe ? (
+                {checkoutSessionMutation.isPending ? (
                   <>
                     <Loader2Icon className="h-4 w-4 animate-spin mr-2" />
                     Redirecting to checkout...
                   </>
                 ) : (
-                  "Subscribe Now"
+                  <>{UPGRADE_BUTTON_LABEL}</>
                 )}
               </Button>
               <Button

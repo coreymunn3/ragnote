@@ -5,6 +5,7 @@ import { getDbUser } from "@/lib/getDbUser";
 import { withApiErrorHandling } from "@/lib/errors/apiRouteHandlers";
 import stripe from "@/lib/stripe/stripe-admin";
 import { CreateCheckoutSessionRequest } from "@/lib/types/userTypes";
+import { BadRequestError } from "@/lib/errors/apiErrors";
 
 const userService = new UserService();
 
@@ -16,6 +17,10 @@ const postHandler = async (req: NextRequest) => {
   auth.protect();
   const dbUser = await getDbUser();
   const body: CreateCheckoutSessionRequest = await req.json();
+
+  if (!body.return_url) {
+    throw new BadRequestError("return_url is required");
+  }
 
   // Create or get existing Stripe customer
   const stripeCustomerId = await userService.getOrCreateStripeCustomer({

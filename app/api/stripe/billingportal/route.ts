@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDbUser } from "@/lib/getDbUser";
 import { UserService } from "@/services/user/userService";
 import stripe from "@/lib/stripe/stripe-admin";
-import { BadRequestError } from "@/lib/errors/apiErrors";
+import { BadRequestError, InternalServerError } from "@/lib/errors/apiErrors";
 import { withApiErrorHandling } from "@/lib/errors/apiRouteHandlers";
 
 const userService = new UserService();
@@ -19,6 +19,12 @@ const postHandler = async (req: NextRequest) => {
     throw new BadRequestError("return_url is required");
   }
 
+  if (!process.env.STRIPE_BILLING_PORTAL_CONFIGURATION) {
+    throw new InternalServerError(
+      "STRIPE_BILLING_PORTAL_CONFIGURATION is not set"
+    );
+  }
+
   // Get or create Stripe customer using the database user ID
   const stripeCustomerId = await userService.getOrCreateStripeCustomer({
     userId: dbUser.id,
@@ -27,6 +33,7 @@ const postHandler = async (req: NextRequest) => {
 
   // Create billing portal session
   const portalSession = await stripe.billingPortal.sessions.create({
+    configuration: process.env.STRIPE_BILLING_PORTAL_CONFIGURATION,
     customer: stripeCustomerId,
     return_url: return_url,
   });
