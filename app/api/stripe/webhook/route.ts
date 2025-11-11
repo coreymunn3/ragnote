@@ -147,18 +147,30 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     return;
   }
 
-  // Handle immediate cancellation - treat same as deletion
+  // Handle immediate cancellation - check if already cleared by deleted event
   if (subscription.status === "canceled") {
     console.log(
-      `Subscription ${subscription.id} canceled - clearing subscription data for user ${user.id}`
+      `Subscription ${subscription.id} canceled - checking current user state for user ${user.id}`
     );
-    await userService.updateSubscriptionFromStripe({
-      userId: user.id,
-      stripeSubscriptionId: null, // Clear dead subscription
-      stripePriceId: null, // Clear price they're not paying for
-      tier: "FREE",
-      endDate: null, // No expiration for free users
-    });
+
+    // Check current subscription state to avoid duplicate database writes
+    const currentSubscription = await userService.getUserSubscription(user.id);
+
+    // Only update if user is not already in FREE state with cleared Stripe data
+    if (currentSubscription.tier === "PRO") {
+      console.log(`User ${user.id} not yet cleared - updating to FREE tier`);
+      await userService.updateSubscriptionFromStripe({
+        userId: user.id,
+        stripeSubscriptionId: null, // Clear dead subscription
+        stripePriceId: null, // Clear price they're not paying for
+        tier: "FREE",
+        endDate: null, // No expiration for free users
+      });
+    } else {
+      console.log(
+        `User ${user.id} already in FREE state - skipping duplicate update`
+      );
+    }
     return;
   }
 
