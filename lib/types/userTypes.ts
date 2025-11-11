@@ -7,6 +7,8 @@ export type UserSubscription = {
   id: string;
   tier: "FREE" | "PRO";
   end_date: Date | null;
+  stripe_price_id: string | null;
+  stripe_subscription_id: string | null;
 };
 
 export type CreateCheckoutSessionRequest = {

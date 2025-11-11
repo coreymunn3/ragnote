@@ -15,5 +15,7 @@ export const transformUserSubscription = (
     id: subscription.id,
     tier: subscription.tier,
     end_date: subscription.end_date,
+    stripe_price_id: subscription.stripe_price_id,
+    stripe_subscription_id: subscription.stripe_subscription_id,
   };
 };
