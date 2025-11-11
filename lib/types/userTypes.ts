@@ -42,8 +42,8 @@ export type CreateStripeCustomerParams = {
 
 export type UpdateSubscriptionFromStripeParams = {
   userId: string;
-  stripeSubscriptionId: string;
-  stripePriceId: string | null;
+  stripeSubscriptionId?: string | null;
+  stripePriceId?: string | null;
   tier: "FREE" | "PRO";
   endDate?: Date | null;
 };

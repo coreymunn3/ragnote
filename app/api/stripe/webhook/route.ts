@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
  * Handle new subscription creation
  */
 async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
-  console.log("subscription", JSON.stringify(subscription));
+  console.log("subscription created", JSON.stringify(subscription));
   const customerId =
     typeof subscription.customer === "string"
       ? subscription.customer
@@ -110,7 +110,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
  * Handle subscription updates (plan changes, reactivations, etc.)
  */
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  console.log("subscription", JSON.stringify(subscription));
+  console.log("subscription updated", JSON.stringify(subscription));
   const customerId =
     typeof subscription.customer === "string"
       ? subscription.customer
@@ -131,7 +131,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     return;
   }
 
-  // Handle end-of-period vs immediate cancellation
+  // Handle end-of-period cancellation
   if (subscription.cancel_at_period_end && subscription.status === "active") {
     // User cancelled but keeps access until end of paid period
     console.log(
@@ -147,22 +147,28 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     return;
   }
 
-  // Determine tier based on subscription status
-  const tier = subscription.status === "canceled" ? "FREE" : "PRO";
+  // Handle immediate cancellation - treat same as deletion
+  if (subscription.status === "canceled") {
+    console.log(
+      `Subscription ${subscription.id} canceled - clearing subscription data for user ${user.id}`
+    );
+    await userService.updateSubscriptionFromStripe({
+      userId: user.id,
+      stripeSubscriptionId: null, // Clear dead subscription
+      stripePriceId: null, // Clear price they're not paying for
+      tier: "FREE",
+      endDate: null, // No expiration for free users
+    });
+    return;
+  }
 
-  // Set end date - null for active recurring, actual date for canceled
-  const endDate = subscription.cancel_at
-    ? new Date(subscription.cancel_at * 1000)
-    : subscription.status === "canceled"
-      ? new Date()
-      : new Date(currentPeriodEnd * 1000);
-
+  // Handle active subscription
   await userService.updateSubscriptionFromStripe({
     userId: user.id,
     stripeSubscriptionId: subscription.id,
     stripePriceId: subscription.items.data[0]?.price.id || null,
-    tier,
-    endDate,
+    tier: "PRO",
+    endDate: new Date(currentPeriodEnd * 1000),
   });
 }
 
@@ -170,7 +176,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
  * Handle subscription deletion (immediate cancellation)
  */
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  console.log("subscription", JSON.stringify(subscription));
+  console.log("subscription deleted", JSON.stringify(subscription));
   const customerId =
     typeof subscription.customer === "string"
       ? subscription.customer
@@ -183,10 +189,10 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
   await userService.updateSubscriptionFromStripe({
     userId: user.id,
-    stripeSubscriptionId: subscription.id,
+    stripeSubscriptionId: null, // Clear dead subscription
     stripePriceId: null,
     tier: "FREE",
-    endDate: new Date(), // Immediate cancellation
+    endDate: null, // Immediate cancellation - no end date for free users
   });
 }
 
@@ -195,6 +201,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
  * This is crucial for updating the end_date with each billing cycle
  */
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
+  console.log("Invoice Paid", JSON.stringify(invoice));
   // Only process subscription invoices - check billing_reason or subscription field
   const subscriptionId = invoice.parent?.subscription_details?.subscription as
     | string
@@ -245,6 +252,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
  * Handle failed invoice payment - immediately downgrade user
  */
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
+  console.log("Invoice Payment failed", JSON.stringify(invoice));
   // Only process subscription invoices - use proper typing
   const subscriptionId = invoice.parent?.subscription_details?.subscription as
     | string

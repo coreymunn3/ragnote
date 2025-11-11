@@ -11,8 +11,8 @@ export const createStripeCustomerSchema = z.object({
 
 export const updateSubscriptionFromStripeSchema = z.object({
   userId: z.string().uuid(),
-  stripeSubscriptionId: z.string(),
-  stripePriceId: z.string(),
+  stripeSubscriptionId: z.string().nullable().optional(),
+  stripePriceId: z.string().nullable().optional(),
   tier: z.enum(["FREE", "PRO"]),
   endDate: z.date().nullable().optional(),
 });
