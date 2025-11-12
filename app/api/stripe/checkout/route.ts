@@ -31,7 +31,7 @@ const postHandler = async (req: NextRequest) => {
   // Create checkout session
   const session = await stripe.checkout.sessions.create({
     customer: stripeCustomerId,
-    payment_method_types: ["card", "link"],
+    // payment_method_types: ["card", "link"],
     mode: "subscription",
     line_items: [
       {
@@ -40,7 +40,7 @@ const postHandler = async (req: NextRequest) => {
       },
     ],
     success_url: `${body.return_url}?upgrade=success`,
-    cancel_url: `${body.return_url}/dashboard?upgrade=canceled`,
+    cancel_url: `${body.return_url}/?upgrade=canceled`,
     metadata: {
       user_id: dbUser.id,
       tier: "PRO",
