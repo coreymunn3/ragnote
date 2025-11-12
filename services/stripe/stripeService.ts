@@ -13,6 +13,7 @@ import {
 } from "@/lib/types/stripeTypes";
 import { InternalServerError, NotFoundError } from "@/lib/errors/apiErrors";
 import Stripe from "stripe";
+import { UserService } from "@/services/user/userService";
 
 export class StripeService {
   /**
@@ -118,6 +119,325 @@ export class StripeService {
         },
       });
       return session;
+    }
+  );
+
+  /**
+   * Process Stripe webhook events
+   */
+  public processWebhookEvent = withErrorHandling(
+    async (event: Stripe.Event): Promise<void> => {
+      console.log(`Processing webhook event: ${event.type}`);
+
+      switch (event.type) {
+        case "customer.subscription.created":
+          await this.handleSubscriptionCreated(
+            event.data.object as Stripe.Subscription
+          );
+          break;
+
+        case "customer.subscription.updated":
+          await this.handleSubscriptionUpdated(
+            event.data.object as Stripe.Subscription
+          );
+          break;
+
+        case "customer.subscription.deleted":
+          await this.handleSubscriptionDeleted(
+            event.data.object as Stripe.Subscription
+          );
+          break;
+
+        case "invoice.paid":
+          await this.handleInvoicePaid(event.data.object as Stripe.Invoice);
+          break;
+
+        case "invoice.payment_failed":
+          await this.handleInvoicePaymentFailed(
+            event.data.object as Stripe.Invoice
+          );
+          break;
+
+        default:
+          console.log(`Unhandled event type: ${event.type}`);
+      }
+    }
+  );
+
+  /**
+   * Handle new subscription creation
+   */
+  private handleSubscriptionCreated = withErrorHandling(
+    async (subscription: Stripe.Subscription): Promise<void> => {
+      console.log("subscription created", JSON.stringify(subscription));
+      const userService = new UserService();
+
+      const customerId =
+        typeof subscription.customer === "string"
+          ? subscription.customer
+          : subscription.customer.id;
+
+      const user = await userService.findUserByStripeCustomerId(customerId);
+      if (!user) return;
+
+      console.log(`Activating subscription for user ${user.id}`);
+
+      // Get current_period_end from the subscription item (Stripe timestamps are in seconds, JS Date expects milliseconds)
+      const currentPeriodEnd = (subscription.items.data[0] as any)
+        ?.current_period_end;
+      if (!currentPeriodEnd) {
+        console.error("Missing current_period_end in subscription item");
+        return;
+      }
+
+      await userService.updateUserSubscriptionFromStripe({
+        userId: user.id,
+        stripeSubscriptionId: subscription.id,
+        stripePriceId: subscription.items.data[0]?.price.id || null,
+        tier: "PRO",
+        endDate: new Date(currentPeriodEnd * 1000),
+      });
+    }
+  );
+
+  /**
+   * Handle subscription updates (plan changes, reactivations, etc.)
+   */
+  private handleSubscriptionUpdated = withErrorHandling(
+    async (subscription: Stripe.Subscription): Promise<void> => {
+      console.log("subscription updated", JSON.stringify(subscription));
+      const userService = new UserService();
+
+      const customerId =
+        typeof subscription.customer === "string"
+          ? subscription.customer
+          : subscription.customer.id;
+
+      const user = await userService.findUserByStripeCustomerId(customerId);
+      if (!user) return;
+
+      // Get current subscription state to validate this is the active subscription
+      const currentSubscription = await userService.getUserSubscription(
+        user.id
+      );
+
+      // Only process if this is the user's current active subscription or they have no subscription
+      if (
+        currentSubscription.stripe_subscription_id === subscription.id ||
+        !currentSubscription.stripe_subscription_id
+      ) {
+        console.log(
+          `Updating subscription for user ${user.id}, status: ${subscription.status}`
+        );
+
+        // Get current_period_end from the subscription item
+        const currentPeriodEnd = (subscription.items.data[0] as any)
+          ?.current_period_end;
+        if (!currentPeriodEnd) {
+          console.error("Missing current_period_end in subscription item");
+          return;
+        }
+
+        // Handle end-of-period cancellation
+        if (
+          subscription.cancel_at_period_end &&
+          subscription.status === "active"
+        ) {
+          // User cancelled but keeps access until end of paid period
+          console.log(
+            `User ${user.id} cancelled but retains access until ${new Date(currentPeriodEnd * 1000)}`
+          );
+          await userService.updateUserSubscriptionFromStripe({
+            userId: user.id,
+            stripeSubscriptionId: subscription.id,
+            stripePriceId: subscription.items.data[0]?.price.id || null,
+            tier: "PRO",
+            endDate: new Date(currentPeriodEnd * 1000),
+          });
+          return;
+        }
+
+        // Handle immediate cancellation - check if already cleared by deleted event
+        if (subscription.status === "canceled") {
+          console.log(
+            `Subscription ${subscription.id} canceled - checking current user state for user ${user.id}`
+          );
+
+          // Check current subscription state to avoid duplicate database writes
+          const currentSubscription = await userService.getUserSubscription(
+            user.id
+          );
+
+          // Only update if user is not already in FREE state with cleared Stripe data
+          if (currentSubscription.tier === "PRO") {
+            console.log(
+              `User ${user.id} not yet cleared - updating to FREE tier`
+            );
+            await userService.updateUserSubscriptionFromStripe({
+              userId: user.id,
+              stripeSubscriptionId: null, // Clear dead subscription
+              stripePriceId: null, // Clear price they're not paying for
+              tier: "FREE",
+              endDate: null, // No expiration for free users
+            });
+          } else {
+            console.log(
+              `User ${user.id} already in FREE state - skipping duplicate update`
+            );
+          }
+          return;
+        }
+
+        // Handle active subscription
+        await userService.updateUserSubscriptionFromStripe({
+          userId: user.id,
+          stripeSubscriptionId: subscription.id,
+          stripePriceId: subscription.items.data[0]?.price.id || null,
+          tier: "PRO",
+          endDate: new Date(currentPeriodEnd * 1000),
+        });
+      } else {
+        console.log(
+          `Ignoring update for old subscription ${subscription.id} for user ${user.id} - current subscription is ${currentSubscription.stripe_subscription_id}`
+        );
+      }
+    }
+  );
+
+  /**
+   * Handle subscription deletion (immediate cancellation)
+   */
+  private handleSubscriptionDeleted = withErrorHandling(
+    async (subscription: Stripe.Subscription): Promise<void> => {
+      console.log("subscription deleted", JSON.stringify(subscription));
+      const userService = new UserService();
+
+      const customerId =
+        typeof subscription.customer === "string"
+          ? subscription.customer
+          : subscription.customer.id;
+
+      const user = await userService.findUserByStripeCustomerId(customerId);
+      if (!user) return;
+
+      // Get current subscription state to validate this is the active subscription
+      const currentSubscription = await userService.getUserSubscription(
+        user.id
+      );
+
+      // Only process if this is the user's current active subscription
+      if (currentSubscription.stripe_subscription_id === subscription.id) {
+        console.log(
+          `Cancelling current subscription ${subscription.id} for user ${user.id}`
+        );
+
+        await userService.updateUserSubscriptionFromStripe({
+          userId: user.id,
+          stripeSubscriptionId: null, // Clear dead subscription
+          stripePriceId: null,
+          tier: "FREE",
+          endDate: null, // Immediate cancellation - no end date for free users
+        });
+      } else {
+        console.log(
+          `Ignoring deletion of old subscription ${subscription.id} for user ${user.id} - current subscription is ${currentSubscription.stripe_subscription_id}`
+        );
+      }
+    }
+  );
+
+  /**
+   * Handle successful invoice payment (including renewals)
+   * This is crucial for updating the end_date with each billing cycle
+   */
+  private handleInvoicePaid = withErrorHandling(
+    async (invoice: Stripe.Invoice): Promise<void> => {
+      console.log("Invoice Paid", JSON.stringify(invoice));
+      const userService = new UserService();
+
+      // Only process subscription invoices - check billing_reason or subscription field
+      const subscriptionId = invoice.parent?.subscription_details
+        ?.subscription as string | undefined;
+      const billingReason = invoice.billing_reason;
+
+      if (
+        !subscriptionId ||
+        (billingReason !== "subscription_create" &&
+          billingReason !== "subscription_cycle")
+      ) {
+        console.log(
+          `Ignoring non-subscription invoice - subscriptionId: ${subscriptionId}, billingReason: ${billingReason}`
+        );
+        return;
+      }
+
+      const customerId = invoice.customer as string;
+      const user = await userService.findUserByStripeCustomerId(customerId);
+      if (!user) return;
+
+      // Get the full subscription object to access current_period_end from items
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+      // Get current_period_end from the subscription item
+      const currentPeriodEnd = (subscription.items.data[0] as any)
+        ?.current_period_end;
+      if (!currentPeriodEnd) {
+        console.log("Subscription missing current_period_end in items");
+        return;
+      }
+
+      console.log(
+        `Processing successful payment for user ${user.id}, extending access until ${new Date(currentPeriodEnd * 1000)}`
+      );
+
+      // Update subscription with new end date from current billing cycle
+      await userService.updateUserSubscriptionFromStripe({
+        userId: user.id,
+        stripeSubscriptionId: subscription.id,
+        stripePriceId: subscription.items.data[0]?.price.id || null,
+        tier: "PRO",
+        endDate: new Date(currentPeriodEnd * 1000),
+      });
+    }
+  );
+
+  /**
+   * Handle failed invoice payment - immediately downgrade user
+   */
+  private handleInvoicePaymentFailed = withErrorHandling(
+    async (invoice: Stripe.Invoice): Promise<void> => {
+      console.log("Invoice Payment failed", JSON.stringify(invoice));
+      const userService = new UserService();
+
+      // Only process subscription invoices - use proper typing
+      const subscriptionId = invoice.parent?.subscription_details
+        ?.subscription as string | undefined;
+
+      if (
+        !subscriptionId ||
+        (invoice.billing_reason !== "subscription_create" &&
+          invoice.billing_reason !== "subscription_cycle")
+      ) {
+        console.log("Ignoring non-subscription invoice");
+        return;
+      }
+
+      const customerId = invoice.customer as string;
+      const user = await userService.findUserByStripeCustomerId(customerId);
+      if (!user) return;
+
+      console.log(
+        `Payment failed for user ${user.id}, downgrading to FREE tier`
+      );
+
+      // Immediately downgrade user to FREE tier
+      await userService.updateUserSubscriptionFromStripe({
+        userId: user.id,
+        stripeSubscriptionId: subscriptionId,
+        stripePriceId: null,
+        tier: "FREE",
+        endDate: new Date(),
+      });
     }
   );
 }
