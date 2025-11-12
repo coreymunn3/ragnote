@@ -1,16 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { UseMutationHookOptions } from "@/lib/types/sharedTypes";
-import { toast } from "sonner";
 import { handleClientSideMutationError } from "@/lib/errors/handleClientSideMutationError";
-
-export type CreateBillingPortalSessionRequest = {
-  return_url: string;
-};
-
-export type CreateBillingPortalSessionResponse = {
-  url: string;
-};
+import {
+  CreateBillingPortalSessionRequest,
+  CreateBillingPortalSessionResponse,
+} from "@/lib/types/stripeTypes";
 
 async function createBillingPortalSession(
   data: CreateBillingPortalSessionRequest

@@ -6,7 +6,7 @@ import { handleClientSideMutationError } from "@/lib/errors/handleClientSideMuta
 import {
   CreateCheckoutSessionRequest,
   CreateCheckoutSessionResponse,
-} from "@/lib/types/userTypes";
+} from "@/lib/types/stripeTypes";
 
 async function createCheckoutSession(
   data: CreateCheckoutSessionRequest

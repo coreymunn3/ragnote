@@ -11,14 +11,6 @@ export type UserSubscription = {
   stripe_subscription_id: string | null;
 };
 
-export type CreateCheckoutSessionRequest = {
-  return_url: string;
-};
-
-export type CreateCheckoutSessionResponse = {
-  url: string;
-};
-
 /**
  * Prisma Types - full schema-identical prisma objects
  */
@@ -36,13 +28,8 @@ export type PrismaUserSubscription = {
 /**
  * Parameter types for UserService methods
  */
-export type CreateStripeCustomerParams = {
-  userId: string;
-  email: string;
-  name?: string;
-};
 
-export type UpdateSubscriptionFromStripeParams = {
+export type UpdateUserSubscriptionFromStripeParams = {
   userId: string;
   stripeSubscriptionId?: string | null;
   stripePriceId?: string | null;

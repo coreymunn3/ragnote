@@ -97,7 +97,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
     return;
   }
 
-  await userService.updateSubscriptionFromStripe({
+  await userService.updateUserSubscriptionFromStripe({
     userId: user.id,
     stripeSubscriptionId: subscription.id,
     stripePriceId: subscription.items.data[0]?.price.id || null,
@@ -145,7 +145,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       console.log(
         `User ${user.id} cancelled but retains access until ${new Date(currentPeriodEnd * 1000)}`
       );
-      await userService.updateSubscriptionFromStripe({
+      await userService.updateUserSubscriptionFromStripe({
         userId: user.id,
         stripeSubscriptionId: subscription.id,
         stripePriceId: subscription.items.data[0]?.price.id || null,
@@ -169,7 +169,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       // Only update if user is not already in FREE state with cleared Stripe data
       if (currentSubscription.tier === "PRO") {
         console.log(`User ${user.id} not yet cleared - updating to FREE tier`);
-        await userService.updateSubscriptionFromStripe({
+        await userService.updateUserSubscriptionFromStripe({
           userId: user.id,
           stripeSubscriptionId: null, // Clear dead subscription
           stripePriceId: null, // Clear price they're not paying for
@@ -185,7 +185,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     }
 
     // Handle active subscription
-    await userService.updateSubscriptionFromStripe({
+    await userService.updateUserSubscriptionFromStripe({
       userId: user.id,
       stripeSubscriptionId: subscription.id,
       stripePriceId: subscription.items.data[0]?.price.id || null,
@@ -221,7 +221,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       `Cancelling current subscription ${subscription.id} for user ${user.id}`
     );
 
-    await userService.updateSubscriptionFromStripe({
+    await userService.updateUserSubscriptionFromStripe({
       userId: user.id,
       stripeSubscriptionId: null, // Clear dead subscription
       stripePriceId: null,
@@ -278,7 +278,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
   );
 
   // Update subscription with new end date from current billing cycle
-  await userService.updateSubscriptionFromStripe({
+  await userService.updateUserSubscriptionFromStripe({
     userId: user.id,
     stripeSubscriptionId: subscription.id,
     stripePriceId: subscription.items.data[0]?.price.id || null,
@@ -313,7 +313,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   console.log(`Payment failed for user ${user.id}, downgrading to FREE tier`);
 
   // Immediately downgrade user to FREE tier
-  await userService.updateSubscriptionFromStripe({
+  await userService.updateUserSubscriptionFromStripe({
     userId: user.id,
     stripeSubscriptionId: subscriptionId,
     stripePriceId: null,

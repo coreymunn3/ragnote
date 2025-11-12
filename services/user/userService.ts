@@ -1,22 +1,19 @@
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import {
   getUserSubscriptionSchema,
-  createStripeCustomerSchema,
-  updateSubscriptionFromStripeSchema,
   hasProAccessSchema,
+  updateUserSubscriptionFromStripeSchema,
   upgradeToProTrialSchema,
 } from "./userValidators";
 import { prisma } from "@/lib/prisma";
 import {
   UserSubscription,
-  CreateStripeCustomerParams,
-  UpdateSubscriptionFromStripeParams,
   HasProAccessParams,
   UpgradeToProTrialParams,
+  UpdateUserSubscriptionFromStripeParams,
 } from "@/lib/types/userTypes";
 import { transformUserSubscription } from "./userTransformers";
 import { NotFoundError } from "@/lib/errors/apiErrors";
-import stripe from "@/lib/stripe/stripe-admin";
 
 export class UserService {
   /**
@@ -59,51 +56,6 @@ export class UserService {
   );
 
   /**
-   * Create a Stripe customer for a user and store the customer ID
-   */
-  public getOrCreateStripeCustomer = withErrorHandling(
-    async (params: CreateStripeCustomerParams): Promise<string> => {
-      const { userId, email } = createStripeCustomerSchema.parse(params);
-
-      // Check if user already has a Stripe customer ID
-      const existingUser = await prisma.app_user.findUnique({
-        where: { id: userId },
-        select: {
-          stripe_customer_id: true,
-          email: true,
-          first_name: true,
-          last_name: true,
-        },
-      });
-
-      if (!existingUser) {
-        throw new NotFoundError(`User with ID ${userId} not found`);
-      }
-
-      if (existingUser.stripe_customer_id) {
-        return existingUser.stripe_customer_id;
-      }
-
-      // Create Stripe customer
-      const customer = await stripe.customers.create({
-        email,
-        name: `${existingUser.first_name} ${existingUser.last_name}`,
-        metadata: {
-          user_id: userId,
-        },
-      });
-
-      // Store customer ID in database
-      await prisma.app_user.update({
-        where: { id: userId },
-        data: { stripe_customer_id: customer.id },
-      });
-
-      return customer.id;
-    }
-  );
-
-  /**
    * Check if user has Pro access (considering end_date fallback)
    */
   public hasProAccess = withErrorHandling(
@@ -128,14 +80,14 @@ export class UserService {
   );
 
   /**
-   * Update subscription from Stripe webhook data
+   * Update user's subscription data from Stripe webhook events
    */
-  public updateSubscriptionFromStripe = withErrorHandling(
+  public updateUserSubscriptionFromStripe = withErrorHandling(
     async (
-      params: UpdateSubscriptionFromStripeParams
+      params: UpdateUserSubscriptionFromStripeParams
     ): Promise<UserSubscription> => {
       const { userId, stripeSubscriptionId, stripePriceId, tier, endDate } =
-        updateSubscriptionFromStripeSchema.parse(params);
+        updateUserSubscriptionFromStripeSchema.parse(params);
 
       // Update the subscription record
       const updatedSubscription = await prisma.user_subscription.update({
