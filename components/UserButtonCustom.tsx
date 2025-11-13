@@ -1,21 +1,7 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import {
-  BrainIcon,
-  CrownIcon,
-  FileTextIcon,
-  SaveIcon,
-  SearchIcon,
-  TypeIcon,
-  FolderIcon,
-  GlobeIcon,
-  MessageCircleIcon,
-  HistoryIcon,
-  SparklesIcon,
-  CreditCardIcon,
-  CheckIcon,
-} from "lucide-react";
+import { CrownIcon, CreditCardIcon, CheckIcon } from "lucide-react";
 import { TypographyLarge, TypographyP, TypographyMuted } from "./ui/typography";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { useCreateBillingPortalSession } from "@/hooks/user/useCreateBillingPortalSession";
@@ -27,30 +13,12 @@ import {
   UPGRADE_BUTTON_LABEL,
 } from "@/CONSTANTS";
 import { useCreateCheckoutSession } from "@/hooks/user/useCreateCheckoutSession";
+import { getIconComponent } from "@/lib/utils";
 
 const MembershipPage = () => {
   const { data: membership, isLoading, isError } = useUserSubscription();
   const billingPortalMutation = useCreateBillingPortalSession();
   const checkoutSessionMutation = useCreateCheckoutSession();
-
-  // Helper to get icon component from string name
-  const getIconComponent = (iconName: string) => {
-    const iconMap: Record<string, React.ComponentType<any>> = {
-      BrainIcon,
-      Crown: CrownIcon,
-      FileText: FileTextIcon,
-      Save: SaveIcon,
-      Search: SearchIcon,
-      Type: TypeIcon,
-      Folder: FolderIcon,
-      Globe: GlobeIcon,
-      MessageCircle: MessageCircleIcon,
-      History: HistoryIcon,
-      Sparkles: SparklesIcon,
-      Check: CheckIcon,
-    };
-    return iconMap[iconName] || CheckIcon;
-  };
 
   // Handle billing portal or upgrade actions
   const handleManageBilling = () => {

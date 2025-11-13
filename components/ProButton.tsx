@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Loader2Icon,
-  Crown,
-  Zap,
-  MessageCircle,
-  Icon,
-  GlobeIcon,
-  HistoryIcon,
-  SparklesIcon,
-} from "lucide-react";
+import { Loader2Icon, Crown } from "lucide-react";
 import { Button, buttonVariants } from "./ui/button";
 import {
   Dialog,
@@ -19,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { cn } from "@/lib/utils";
+import { cn, getIconComponent } from "@/lib/utils";
 import { VariantProps } from "class-variance-authority";
 import { forwardRef, useState } from "react";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
@@ -118,18 +109,6 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
             <div className="py-4">
               <div className="space-y-3">
                 {MEMBERSHIP_FEATURES.PRO.features.map((feature, index) => {
-                  // Helper to get icon component from string name
-                  const getIconComponent = (iconName: string) => {
-                    const iconMap: Record<string, React.ComponentType<any>> = {
-                      Globe: GlobeIcon,
-                      MessageCircle: MessageCircle,
-                      History: HistoryIcon,
-                      Sparkles: SparklesIcon,
-                      Crown: Crown,
-                    };
-                    return iconMap[iconName] || Crown;
-                  };
-
                   const FeatureIcon = getIconComponent(feature.icon);
                   const colors = [
                     "text-blue-600",
