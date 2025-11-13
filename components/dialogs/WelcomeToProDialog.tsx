@@ -67,11 +67,12 @@ const WelcomeToProDialog = ({
               ];
 
               return (
-                <AnimatedListItem index={index + 1} animation="fadeInRight">
-                  <div
-                    key={index}
-                    className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 transition-colors"
-                  >
+                <AnimatedListItem
+                  index={index + 1}
+                  key={index}
+                  animation="fadeInRight"
+                >
+                  <div className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 transition-colors">
                     <div className="p-1 rounded-full bg-muted">
                       <FeatureIcon
                         className={`h-4 w-4 ${colors[index % colors.length]}`}
