@@ -87,6 +87,9 @@ export class StripeService {
     }
   );
 
+  /**
+   * Create a checkout session which enables a user to subscribe to our product via stripe
+   */
   public createCheckoutSession = withErrorHandling(
     async (
       params: createCheckoutSessionParams
@@ -178,7 +181,11 @@ export class StripeService {
           : subscription.customer.id;
 
       const user = await userService.findUserByStripeCustomerId(customerId);
-      if (!user) return;
+      if (!user) {
+        throw new NotFoundError(
+          `No user found for Stripe customer ID: ${customerId}`
+        );
+      }
 
       console.log(`Activating subscription for user ${user.id}`);
 
@@ -186,8 +193,9 @@ export class StripeService {
       const currentPeriodEnd = (subscription.items.data[0] as any)
         ?.current_period_end;
       if (!currentPeriodEnd) {
-        console.error("Missing current_period_end in subscription item");
-        return;
+        throw new InternalServerError(
+          "Subscription is missing required current_period_end data"
+        );
       }
 
       await userService.updateUserSubscriptionFromStripe({
@@ -214,7 +222,11 @@ export class StripeService {
           : subscription.customer.id;
 
       const user = await userService.findUserByStripeCustomerId(customerId);
-      if (!user) return;
+      if (!user) {
+        throw new NotFoundError(
+          `No user found for Stripe customer ID: ${customerId}`
+        );
+      }
 
       // Get current subscription state to validate this is the active subscription
       const currentSubscription = await userService.getUserSubscription(
@@ -234,8 +246,9 @@ export class StripeService {
         const currentPeriodEnd = (subscription.items.data[0] as any)
           ?.current_period_end;
         if (!currentPeriodEnd) {
-          console.error("Missing current_period_end in subscription item");
-          return;
+          throw new InternalServerError(
+            "Subscription is missing required current_period_end data"
+          );
         }
 
         // Handle end-of-period cancellation
@@ -318,7 +331,11 @@ export class StripeService {
           : subscription.customer.id;
 
       const user = await userService.findUserByStripeCustomerId(customerId);
-      if (!user) return;
+      if (!user) {
+        throw new NotFoundError(
+          `No user found for Stripe customer ID: ${customerId}`
+        );
+      }
 
       // Get current subscription state to validate this is the active subscription
       const currentSubscription = await userService.getUserSubscription(
@@ -373,7 +390,11 @@ export class StripeService {
 
       const customerId = invoice.customer as string;
       const user = await userService.findUserByStripeCustomerId(customerId);
-      if (!user) return;
+      if (!user) {
+        throw new NotFoundError(
+          `No user found for Stripe customer ID: ${customerId}`
+        );
+      }
 
       // Get the full subscription object to access current_period_end from items
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
@@ -382,8 +403,9 @@ export class StripeService {
       const currentPeriodEnd = (subscription.items.data[0] as any)
         ?.current_period_end;
       if (!currentPeriodEnd) {
-        console.log("Subscription missing current_period_end in items");
-        return;
+        throw new InternalServerError(
+          "Subscription is missing required current_period_end data"
+        );
       }
 
       console.log(
@@ -424,7 +446,11 @@ export class StripeService {
 
       const customerId = invoice.customer as string;
       const user = await userService.findUserByStripeCustomerId(customerId);
-      if (!user) return;
+      if (!user) {
+        throw new NotFoundError(
+          `No user found for Stripe customer ID: ${customerId}`
+        );
+      }
 
       console.log(
         `Payment failed for user ${user.id}, downgrading to FREE tier`
