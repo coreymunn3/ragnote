@@ -4,6 +4,7 @@ import { ClerkWebhookEvent } from "@/lib/types/clerkTypes";
 import { NextResponse } from "next/server";
 import { ClerkService } from "@/services/clerk/clerkService";
 import { transformClerkUserData } from "@/services/clerk/clerkTransformers";
+import { saveWebhookEvent } from "@/lib/utils/webhook-events";
 
 export async function POST(req: Request) {
   const CLERK_WEBHOOK_SIGNING_SECRET = process.env.CLERK_WEBHOOK_SIGNING_SECRET;
@@ -54,6 +55,26 @@ export async function POST(req: Request) {
   const eventType = evt.type;
   const { id } = evt.data;
   console.log(`Received webhook with ID ${id} and event type of ${eventType}`);
+
+  // Check for duplicate webhook using deduplication
+  try {
+    const isNewEvent = await saveWebhookEvent({
+      provider: "CLERK",
+      webhookId: svix_id,
+      eventType: evt.type,
+      eventPayload: evt.data,
+    });
+
+    if (!isNewEvent) {
+      console.log(`Duplicate Clerk webhook ${svix_id} - skipping processing`);
+      return new Response("Duplicate webhook ignored", { status: 200 });
+    }
+  } catch (error) {
+    console.error("Failed to save webhook event:", error);
+    return new NextResponse(`Failed to process webhook: ${error}`, {
+      status: 500,
+    });
+  }
 
   const clerkService = new ClerkService();
 

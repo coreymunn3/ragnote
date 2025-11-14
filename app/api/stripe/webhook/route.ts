@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import stripe from "@/lib/stripe/stripe-admin";
 import { StripeService } from "@/services/stripe/stripeService";
 import { withApiErrorHandling } from "@/lib/errors/apiRouteHandlers";
+import { saveWebhookEvent } from "@/lib/utils/webhook-events";
 
 const stripeService = new StripeService();
 
@@ -34,6 +35,19 @@ const postHandler = async (req: NextRequest) => {
   }
 
   console.log(`Processing webhook event: ${event.type}`);
+
+  // Check for duplicate webhook using deduplication
+  const isNewEvent = await saveWebhookEvent({
+    provider: "STRIPE",
+    webhookId: event.id,
+    eventType: event.type,
+    eventPayload: event.data,
+  });
+
+  if (!isNewEvent) {
+    console.log(`Duplicate Stripe webhook ${event.id} - skipping processing`);
+    return new NextResponse("Duplicate webhook ignored", { status: 200 });
+  }
 
   await stripeService.processWebhookEvent(event);
   return new NextResponse("Webhook processed successfully", { status: 200 });
