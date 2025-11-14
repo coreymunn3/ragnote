@@ -307,11 +307,12 @@ enum WebhookProvider {
 }
 
 model webhook_events {
-  id           String          @id @default(uuid()) @db.Uuid
-  provider     WebhookProvider
-  webhook_id   String
-  event_type   String
-  processed_at DateTime        @default(now()) @db.Timestamptz(3)
+  id            String          @id @default(uuid()) @db.Uuid
+  provider      WebhookProvider
+  webhook_id    String
+  event_type    String
+  processed_at  DateTime        @default(now()) @db.Timestamptz(3)
+  event_payload Json
 
   // unique webhook id's within provider
   @@unique([provider, webhook_id])
