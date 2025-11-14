@@ -145,7 +145,6 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
           <ProButton
             variant={searchMode === "semantic" ? "default" : "ghost"}
             className={`${searchMode === "text" ? "text-primary" : "text-white"}`}
-            tooltipText="Enable AI-powered Semantic Search"
             icon={<SparkleIcon className="h-4 w-4" />}
             onClick={toggleSearchMode}
           />

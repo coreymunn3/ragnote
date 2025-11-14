@@ -24,6 +24,8 @@ import { Skeleton } from "./ui/skeleton";
 import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
 import { toast } from "sonner";
 import ProButton from "./ProButton";
+import { useUserSubscription } from "@/hooks/user/useUserSubscription";
+import { Button } from "./ui/button";
 
 const NoteToolbar = () => {
   const { id } = useParams();
@@ -37,6 +39,8 @@ const NoteToolbar = () => {
     loading,
     handleToggleChat,
   } = useNoteVersionContext();
+
+  const { isPro } = useUserSubscription();
 
   const updateNoteMutation = useUpdateNote();
   const publishNoteVersionMutation = usePublishNoteVersion({
@@ -120,34 +124,46 @@ const NoteToolbar = () => {
         />
         {selectedVersion && (
           <>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="p-1" asChild>
-                <ProButton
-                  label={`v${selectedVersion.version_number}`}
-                  className={`px-3 ${
-                    selectedVersion.is_published
-                      ? "bg-primary text-primary-foreground shadow hover:bg-primary/80"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                  }`}
-                >
-                  {/* <VersionBadge version={selectedVersion} /> */}
-                </ProButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="min-w-0">
-                {noteVersions.map((version: PrismaNoteVersion) => (
-                  <DropdownMenuItem
-                    key={version.id}
-                    onClick={() => setSelectedVersionId(version.id)}
+            {/* select version menu */}
+            {isPro ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="p-1" asChild>
+                  <Button
+                    className={`px-3 ${
+                      selectedVersion.is_published
+                        ? "bg-primary text-primary-foreground shadow hover:bg-primary/80"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                    }`}
                   >
-                    <VersionBadge version={version} />
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    {`v${selectedVersion.version_number}`}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="min-w-0">
+                  {noteVersions.map((version: PrismaNoteVersion) => (
+                    <DropdownMenuItem
+                      key={version.id}
+                      onClick={() => setSelectedVersionId(version.id)}
+                    >
+                      <VersionBadge version={version} />
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <ProButton
+                label={`v${selectedVersion.version_number}`}
+                className={`px-3 ${
+                  selectedVersion.is_published
+                    ? "bg-primary text-primary-foreground shadow hover:bg-primary/80"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                }`}
+              />
+            )}
+
+            {/* chat with note entry */}
             <ProButton
               variant={"ghost"}
               icon={<MessageCircleIcon className="h-4 w-4" />}
-              tooltipText="Ask anything about this note"
               onClick={handleToggleChat}
             />
           </>
@@ -176,11 +192,6 @@ const NoteToolbar = () => {
           onClick={handlePublishNote}
           isLoading={publishNoteVersionMutation.isPending}
           disabled={selectedVersion?.is_published}
-          tooltipText={
-            selectedVersion?.is_published
-              ? "This version is already published"
-              : undefined
-          }
         />
         <OptionsMenu
           options={[

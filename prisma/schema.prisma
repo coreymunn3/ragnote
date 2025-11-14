@@ -20,13 +20,6 @@ enum SubscriptionTier {
   PRO
 }
 
-enum SubscriptionStatus {
-  ACTIVE
-  CANCELLED
-  PAUSED
-  TRIAL
-}
-
 enum CreditTransactionType {
   AWARD_MONTHLY
   AWARD_PURCHASE
@@ -58,16 +51,17 @@ enum LLMOperationType {
 // Core User & Authentication
 // -----------------------------------------------------------
 model app_user {
-  id         String   @id @default(uuid()) @db.Uuid
-  clerk_id   String   @unique
-  username   String?
-  email      String   @unique
-  first_name String?
-  last_name  String?
-  avatar_url String?
-  created_at DateTime @default(now()) @db.Timestamptz(3)
-  updated_at DateTime @updatedAt @db.Timestamptz(3)
-  is_deleted Boolean  @default(false) // Soft delete to maintain subscription/transaction info
+  id                 String   @id @default(uuid()) @db.Uuid
+  clerk_id           String   @unique
+  username           String?
+  email              String   @unique
+  first_name         String?
+  last_name          String?
+  avatar_url         String?
+  created_at         DateTime @default(now()) @db.Timestamptz(3)
+  updated_at         DateTime @updatedAt @db.Timestamptz(3)
+  is_deleted         Boolean  @default(false) // Soft delete to maintain subscription/transaction info
+  stripe_customer_id String?  @unique // for paid customers
 
   folders              folder[]
   notes                note[]
@@ -85,17 +79,14 @@ model app_user {
 // User Subscription 
 // -----------------------------------------------------------
 model user_subscription {
-  id                      String             @id @default(uuid()) @db.Uuid
-  user_id                 String             @unique @db.Uuid // Each user has at most one subscription
-  tier                    SubscriptionTier
-  status                  SubscriptionStatus
-  start_date              DateTime           @db.Timestamptz(3)
-  end_date                DateTime?          @db.Timestamptz(3) // Null for active, recurring subscriptions
-  renewal_date            DateTime?          @db.Timestamptz(3) // Next date for recurring renewal
-  monthly_credits_awarded Int // Number of credits awarded each month for this tier
-  last_credit_award_date  DateTime?          @db.Timestamptz(3) // To track last credit award for monthly cron job
-  created_at              DateTime           @default(now()) @db.Timestamptz(3)
-  updated_at              DateTime           @updatedAt @db.Timestamptz(3)
+  id                     String           @id @default(uuid()) @db.Uuid
+  user_id                String           @unique @db.Uuid // Each user has at most one subscription
+  tier                   SubscriptionTier
+  end_date               DateTime?        @db.Timestamptz(3) // Null for active, recurring subscriptions
+  stripe_subscription_id String?          @unique // ← Changes with each new subscription
+  stripe_price_id        String? // ← Which plan they're on
+  created_at             DateTime         @default(now()) @db.Timestamptz(3)
+  updated_at             DateTime         @updatedAt @db.Timestamptz(3)
 
   user app_user @relation(fields: [user_id], references: [id], onDelete: Cascade)
 

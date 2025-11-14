@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/sidebar";
 import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
 import BrandingHeader from "@/components/BrandingHeader";
-import { SignedIn, UserButton, useUser } from "@clerk/nextjs";
+import { SignedIn, useUser } from "@clerk/nextjs";
+import UserButtonCustom from "@/components/UserButtonCustom";
 import ThemeSwitch from "@/components/ThemeSwitch";
 import WebSidebarFolderGroup from "./WebSidebarFolderGroup";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
@@ -25,7 +26,7 @@ const WebSidebar = () => {
           {/* User Button */}
           <SignedIn>
             <div className="flex items-center space-x-2">
-              <UserButton />
+              <UserButtonCustom />
               <div className="flex flex-col">
                 <p className="text-sm font-semibold">
                   {user?.fullName || user?.firstName || "User"}

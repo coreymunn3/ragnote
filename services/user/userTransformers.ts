@@ -14,8 +14,8 @@ export const transformUserSubscription = (
   return {
     id: subscription.id,
     tier: subscription.tier,
-    status: subscription.status,
-    start_date: subscription.start_date,
     end_date: subscription.end_date,
+    stripe_price_id: subscription.stripe_price_id,
+    stripe_subscription_id: subscription.stripe_subscription_id,
   };
 };
