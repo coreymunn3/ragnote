@@ -24,3 +24,26 @@ interface ClerkWebhookEventDataFull extends ClerkWebhookEventDataBase {
 type ClerkWebhookEventData =
   | ClerkWebhookEventDataBase
   | ClerkWebhookEventDataFull;
+
+// Service method parameter types
+export interface CreateUserFromClerkParams {
+  clerkId: string;
+  email: string;
+  username?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  avatarUrl?: string | null;
+}
+
+export interface UpdateUserFromClerkParams {
+  clerkId: string;
+  email: string;
+  username?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  avatarUrl?: string | null;
+}
+
+export interface SoftDeleteUserFromClerkParams {
+  clerkId: string;
+}
