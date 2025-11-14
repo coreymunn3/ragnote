@@ -69,10 +69,9 @@ model app_user {
   notes_shared_with_me note_permission[] @relation("NotePermissionsSharedWith") // Notes shared with this user
   files                file[] // Files uploaded by this user
 
-  subscription        user_subscription? // One-to-one relation
-  credit_transactions credit_transaction[]
-  chat_sessions       chat_session[]
-  llm_usage_log       llm_usage_log[]
+  subscription  user_subscription? // One-to-one relation
+  chat_sessions chat_session[]
+  llm_usage_log llm_usage_log[]
 }
 
 // -----------------------------------------------------------
@@ -91,23 +90,6 @@ model user_subscription {
   user app_user @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("user_subscription")
-}
-
-// -----------------------------------------------------------
-// Credit Transaction Log 
-// -----------------------------------------------------------
-model credit_transaction {
-  id                String                @id @default(uuid()) @db.Uuid
-  user_id           String                @db.Uuid
-  transaction_type  CreditTransactionType
-  amount            Int // Positive value; type indicates debit/award, negative indicates spend
-  description       String? // E.g., 'Monthly award', 'RAG query - health note'
-  related_entity_id String? // E.g., chat_message.id for a debit, subscription.id for an award
-  created_at        DateTime              @default(now()) @db.Timestamptz(3)
-
-  user app_user @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@map("credit_transaction")
 }
 
 // -----------------------------------------------------------
