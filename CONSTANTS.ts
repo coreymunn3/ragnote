@@ -1,5 +1,3 @@
-export const NEW_ACCOUNT_SIGNUP_BONUS = 10;
-
 // Membership & Pricing Configuration
 export const MEMBERSHIP_FEATURES = {
   FREE: {
