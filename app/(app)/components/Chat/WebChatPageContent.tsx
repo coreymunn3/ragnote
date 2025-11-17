@@ -9,6 +9,7 @@ import ChatInput from "@/components/chat/ChatInput";
 import { useChat } from "@/hooks/chat/useChat";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 
 interface WebChatPageContentProps {
   chatSessionId: string;
@@ -47,6 +48,8 @@ const WebChatPageContent = ({
       setPendingUserMessage("");
     },
   });
+  // get the user subscription
+  const userSubscription = useUserSubscription();
 
   /**
    * Called by the input, creates optimistic message and sends the chat via mutation
@@ -84,7 +87,19 @@ const WebChatPageContent = ({
       </div>
       {/* Chat Input */}
       <div className="flex-shrink-0 p-4">
-        <ChatInput onSend={handleSendChat} />
+        <ChatInput
+          onSend={handleSendChat}
+          disabled={
+            userSubscription.isLoading ||
+            userSubscription.isError ||
+            !userSubscription.isPro
+          }
+          tooltipMessage={
+            !userSubscription.isPro
+              ? "Pro subscription required to send message"
+              : ""
+          }
+        />
       </div>
     </div>
   );

@@ -207,6 +207,7 @@ const ChatPanel = ({
               disabled={
                 !mostRecentPublishedVersion || sendChatMutation.isPending
               }
+              tooltipMessage="At least 1 published version of this note required to send message."
               placeholder={`Ask about ${title}...`}
             />
           </div>

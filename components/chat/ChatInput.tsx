@@ -14,6 +14,7 @@ interface ChatInputProps {
   onSend: (message: string) => void;
   showSuggestions?: boolean;
   disabled?: boolean;
+  tooltipMessage?: string;
   placeholder?: string;
 }
 
@@ -28,6 +29,7 @@ const ChatInput = ({
   onSend,
   showSuggestions: showSuggestionsProp,
   disabled = false,
+  tooltipMessage,
   placeholder = "Ask Anything...",
 }: ChatInputProps) => {
   const [message, setMessage] = useState("");
@@ -213,12 +215,9 @@ const ChatInput = ({
               </div>
             </div>
           </TooltipTrigger>
-          {disabled && (
+          {disabled && tooltipMessage && (
             <TooltipContent>
-              <p>
-                Chat functionality requires at least 1 published version of this
-                note
-              </p>
+              <p>{tooltipMessage}</p>
             </TooltipContent>
           )}
         </Tooltip>
