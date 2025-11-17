@@ -11,8 +11,19 @@ import {
   SoftDeleteUserFromClerkParams,
 } from "@/lib/types/clerkTypes";
 import { NotFoundError } from "@/lib/errors/apiErrors";
+import { randomBytes } from "crypto";
 
 export class ClerkService {
+  /**
+   * Generate an anonymized email for soft-deleted users
+   * Uses a random hash to prevent future conflicts on re-signup
+   */
+  private generateAnonymizedEmail(originalEmail: string): string {
+    const hash = randomBytes(8).toString("hex");
+    const [localPart, domain] = originalEmail.split("@");
+    return `${localPart}_deleted_${hash}@${domain || "example.com"}`;
+  }
+
   /**
    * Create a new user from Clerk webhook data
    * Creates both the user record and their initial FREE subscription
@@ -104,7 +115,7 @@ export class ClerkService {
       // Find the user by clerk_id
       const user = await prisma.app_user.findUnique({
         where: { clerk_id: clerkId },
-        select: { id: true },
+        select: { id: true, email: true },
       });
 
       if (!user) {
@@ -145,11 +156,13 @@ export class ClerkService {
           },
         });
 
-        // 6. Mark the user as deleted (but preserve the record)
+        // 6. Mark the user as deleted and anonymize email to prevent conflicts
+        const anonymizedEmail = this.generateAnonymizedEmail(user.email);
         await tx.app_user.update({
           where: { id: user.id },
           data: {
             is_deleted: true,
+            email: anonymizedEmail,
           },
         });
 
