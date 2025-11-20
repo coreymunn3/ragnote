@@ -8,11 +8,14 @@ import { getDbUser } from "@/lib/getDbUser";
 import { Note } from "@/lib/types/noteTypes";
 import { ChatService } from "@/services/chat/chatService";
 import { ChatSession } from "@/lib/types/chatTypes";
+import { FolderWithItems, UserAndSystemFolders } from "@/lib/types/folderTypes";
+import { FolderService } from "@/services/folder/folderService";
 
 export default async function Dashboard() {
   const { userId } = await auth();
   const noteService = new NoteService();
   const chatService = new ChatService();
+  const folderService = new FolderService();
 
   // Protect this page from non-logged-in users
   if (!userId) {
@@ -21,14 +24,14 @@ export default async function Dashboard() {
 
   // get the database user
   const dbUser = await getDbUser();
-  // get the users notes - initial data for dashboard page
+  // get the users notes - initial data for the web dashboard page
   let notes: Note[] = [];
   try {
     notes = await noteService.getAllNotesForUser(dbUser.id);
   } catch (error) {
     console.error(error);
   }
-  // get the users chat sessions - initial data for the dashboard page
+  // get the users chat sessions - initial data for the web dashboard page
   let chatSessions: ChatSession[] = [];
   try {
     chatSessions = await chatService.getChatSessionsForUser({
@@ -38,9 +41,24 @@ export default async function Dashboard() {
     console.error(error);
   }
 
+  // get the users folders - initial data for the mobile dashboard page
+  let userFolders: FolderWithItems[] = [];
+  let systemFolders: FolderWithItems[] = [];
+  try {
+    [userFolders, systemFolders] = await Promise.all([
+      folderService.getUserCreatedFolders(dbUser.id),
+      folderService.getUserSystemFolders(dbUser.id),
+    ]);
+  } catch (error) {
+    console.error(error);
+  }
+
   // Render each view component
   const mobileView = (
-    <MobileDashboardContent notes={notes} chatSessions={chatSessions} />
+    <MobileDashboardContent
+      userFolders={userFolders}
+      systemFolders={systemFolders}
+    />
   );
   const webView = (
     <WebDashboardContent notes={notes} chatSessions={chatSessions} />

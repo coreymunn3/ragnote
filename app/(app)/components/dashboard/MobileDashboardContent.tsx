@@ -1,18 +1,33 @@
 "use client";
+import FolderList from "@/components/mobile/FolderList";
+import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { ChatSession } from "@/lib/types/chatTypes";
+import { FolderWithItems } from "@/lib/types/folderTypes";
 import { Note } from "@/lib/types/noteTypes";
 
 interface MobileDashboardContentProps {
-  notes: Note[];
-  chatSessions: ChatSession[];
+  userFolders: FolderWithItems[];
+  systemFolders: FolderWithItems[];
 }
 
-const MobileDashboardContent = ({ notes }: MobileDashboardContentProps) => {
+const MobileDashboardContent = ({
+  userFolders,
+  systemFolders,
+}: MobileDashboardContentProps) => {
+  // immediately re-fetch the user's folders
+  const folders = useGetFolders({
+    initialData: {
+      user: userFolders,
+      system: systemFolders,
+    },
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+
   return (
-    <div>
-      {/* TO DO - render recent notes */}
-      {/* TO DO - render folder list */}
-      Folders List Mobile
+    <div className="flex flex-col space-y-4">
+      <FolderList title="Your Folders" folders={folders.data!.user} />
+      <FolderList title="System Folders" folders={folders.data!.system} />
     </div>
   );
 };

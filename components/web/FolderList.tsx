@@ -1,19 +1,13 @@
 "use client";
 import { FolderWithItems } from "@/lib/types/folderTypes";
 import { SidebarMenu, SidebarMenuItem } from "../ui/sidebar";
-import {
-  FolderIcon,
-  FolderSyncIcon,
-  HouseIcon,
-  MessageSquare,
-  Trash2Icon,
-} from "lucide-react";
 import FolderListItem from "./FolderListItem";
 import { AnimatedListItem } from "@/components/animations";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import CreateFolder from "../CreateFolder";
+import { getFolderIcon } from "@/lib/utils";
 
 interface FolderListProps {
   folders: FolderWithItems[] | undefined;
@@ -42,22 +36,6 @@ const FolderList = ({
 
   const toggleFolder = (folderId: string) => {
     setOpenFolderId((current) => (current === folderId ? null : folderId));
-  };
-
-  // show a folder Icon for system folders and home
-  const getFolderIcon = (folderId: string) => {
-    switch (folderId) {
-      case "system_deleted":
-        return <Trash2Icon className="h-4 w-4" />;
-      case "system_shared":
-        return <FolderSyncIcon className="h-4 w-4" />;
-      case "system_chats":
-        return <MessageSquare className="h-4 w-4" />;
-      case "home":
-        return <HouseIcon className="h-4 w-4" />;
-      default:
-        return <FolderIcon className="h-4 w-4" />;
-    }
   };
 
   // skeletons when loading
