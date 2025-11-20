@@ -13,11 +13,31 @@ import {
   HistoryIcon,
   SparklesIcon,
   CheckIcon,
+  FolderSyncIcon,
+  HouseIcon,
+  MessageSquare,
+  Trash2Icon,
 } from "lucide-react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+// helper to show a folder Icon for system folders and home
+export const getFolderIcon = (folderId: string) => {
+  switch (folderId) {
+    case "system_deleted":
+      return <Trash2Icon className="h-4 w-4" />;
+    case "system_shared":
+      return <FolderSyncIcon className="h-4 w-4" />;
+    case "system_chats":
+      return <MessageSquare className="h-4 w-4" />;
+    case "home":
+      return <HouseIcon className="h-4 w-4" />;
+    default:
+      return <FolderIcon className="h-4 w-4" />;
+  }
+};
 
 // Helper to get icon component from string name
 export const getIconComponent = (iconName: string) => {
