@@ -6,7 +6,7 @@ export default function MobileLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-sidebar">
       <MobileHeader />
       {children}
     </div>
