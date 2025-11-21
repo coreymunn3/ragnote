@@ -99,12 +99,12 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
   }, [searchResults]);
 
   return (
-    <div className="flex flex-col p-1 border border-input dark:border-white w-full rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
+    <div className="flex flex-col p-1 border border-input dark:border-white w-full bg-background rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
       <div className="flex space-x-1">
         {/* the input */}
         <Input
           placeholder="Search Your Notes"
-          className="flex-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0"
+          className="flex-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0 placeholder:text-sm"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
