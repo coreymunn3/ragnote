@@ -2,11 +2,16 @@ import { NoteVersionWithoutContent } from "@/lib/types/noteTypes";
 import { Badge } from "./ui/badge";
 
 interface VersionBadgeProps {
-  version: NoteVersionWithoutContent;
+  version: NoteVersionWithoutContent | undefined;
   withBorder?: boolean;
 }
 
 const VersionBadge = ({ version, withBorder = false }: VersionBadgeProps) => {
+  // Handle undefined version
+  if (!version) {
+    return null;
+  }
+
   return (
     <Badge
       variant={version.is_published ? "default" : "secondary"}

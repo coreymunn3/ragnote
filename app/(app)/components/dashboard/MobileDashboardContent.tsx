@@ -1,10 +1,8 @@
 "use client";
-import FolderList from "@/components/mobile/FolderList";
+import MobileList from "@/components/mobile/MobileList";
 import IntegratedSearch from "@/components/search/IntegratedSearch";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
-import { ChatSession } from "@/lib/types/chatTypes";
 import { FolderWithItems } from "@/lib/types/folderTypes";
-import { Note } from "@/lib/types/noteTypes";
 
 interface MobileDashboardContentProps {
   userFolders: FolderWithItems[];
@@ -28,8 +26,18 @@ const MobileDashboardContent = ({
   return (
     <div className="flex flex-col space-y-4">
       <IntegratedSearch />
-      <FolderList title="Your Folders" folders={folders.data!.user} />
-      <FolderList title="System Folders" folders={folders.data!.system} />
+      <MobileList
+        title="Your Folders"
+        items={folders.data?.user}
+        type="folder"
+        isLoading={folders.isLoading}
+      />
+      <MobileList
+        title="System Folders"
+        items={folders.data?.system}
+        type="folder"
+        isLoading={folders.isLoading}
+      />
     </div>
   );
 };
