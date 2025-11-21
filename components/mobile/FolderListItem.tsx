@@ -14,7 +14,12 @@ interface FolderListItemProps {
 const FolderListItem = ({ folder, isLastFolder }: FolderListItemProps) => {
   return (
     <div>
-      <Button variant={"ghost"} className="w-full" asChild>
+      <Button
+        variant={"ghost"}
+        className="w-full px-8 h-12
+      "
+        asChild
+      >
         <Link href={folder.href}>
           {/* folder Name and Icon */}
           <div className="w-full flex items-center justify-between">

@@ -14,7 +14,7 @@ const FolderList = ({ title, folders }: FolderListProps) => {
       {/* the title */}
       <TypographyH4>{title}</TypographyH4>
       {/* the folders in this section */}
-      <div className="px-2 rounded-md bg-background">
+      <div className="rounded-md bg-background">
         {folders.map((folder, index) => (
           <AnimatedListItem
             key={folder.id}
