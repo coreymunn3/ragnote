@@ -16,7 +16,6 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
     refetchOnMount: true,
   });
 
-  console.log(folderData.data);
   return (
     <div>
       <MobileList
