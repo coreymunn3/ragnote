@@ -1,12 +1,12 @@
 "use client";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { PrismaNoteVersion } from "@/lib/types/noteTypes";
+import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import VersionBadge from "./VersionBadge";
 import { TypographyMuted } from "./ui/typography";
 import {
@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import EditableField from "./EditableField";
 import OptionsMenu from "./OptionsMenu";
-import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import { DateTime } from "luxon";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import { Skeleton } from "./ui/skeleton";
@@ -27,19 +26,29 @@ import ProButton from "./ProButton";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { Button } from "./ui/button";
 
-const NoteToolbar = () => {
-  const { id } = useParams();
-  const router = useRouter();
-  const {
-    note,
-    noteVersions,
-    selectedVersion,
-    selectedVersionId,
-    setSelectedVersionId,
-    loading,
-    handleToggleChat,
-  } = useNoteVersionContext();
+interface NoteToolbarProps {
+  note: Note;
+  noteVersions: PrismaNoteVersion[];
+  selectedVersion: PrismaNoteVersion | null;
+  selectedVersionId: string | null;
+  setSelectedVersionId: (versionId: string) => void;
+  loading: {
+    noteLoading: boolean;
+    versionsLoading: boolean;
+  };
+  handleToggleChat: () => void;
+}
 
+const NoteToolbar = ({
+  note,
+  noteVersions,
+  selectedVersion,
+  selectedVersionId,
+  setSelectedVersionId,
+  loading,
+  handleToggleChat,
+}: NoteToolbarProps) => {
+  const router = useRouter();
   const { isPro } = useUserSubscription();
 
   const updateNoteMutation = useUpdateNote();

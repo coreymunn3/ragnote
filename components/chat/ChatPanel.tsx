@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { ChatScope } from "@/lib/types/chatTypes";
 import ChatMessages from "./ChatMessages";
-import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import VersionBadge from "../VersionBadge";
 import { useChat } from "@/hooks/chat/useChat";
 import { useGetChatHistoryForScope } from "@/hooks/chat/useGetChatHistoryForScope";
@@ -20,6 +19,7 @@ import ChatHistory from "./ChatHistory";
 import { useGetChatMessagesForSession } from "@/hooks/chat/useGetChatMessagesForSession";
 import { Button } from "../ui/button";
 import { useQueryClient } from "@tanstack/react-query";
+import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 
 interface ChatPanelProps {
   open: boolean;
@@ -28,6 +28,8 @@ interface ChatPanelProps {
   isMobile?: boolean;
   scope: ChatScope;
   scopeId?: string;
+  note?: Note;
+  noteVersions?: PrismaNoteVersion[];
 }
 
 const ChatPanel = ({
@@ -37,6 +39,8 @@ const ChatPanel = ({
   isMobile = false,
   scope,
   scopeId,
+  note,
+  noteVersions,
 }: ChatPanelProps) => {
   const queryClient = useQueryClient();
   // GET the chat session history for this note version
@@ -44,10 +48,8 @@ const ChatPanel = ({
   const [chatSessionId, setChatSessionId] = useState<string | undefined>();
   const [pendingUserMessage, setPendingUserMessage] = useState<string>("");
   const [historyExpanded, setHistoryExpanded] = useState<boolean>(false);
-  // get values from context
-  const { noteVersions, note, loading } = useNoteVersionContext();
   // the user must chat with only the most recently published version
-  const mostRecentPublishedVersion = noteVersions.filter(
+  const mostRecentPublishedVersion = noteVersions?.filter(
     (version) => version.is_published
   )[0];
 
