@@ -88,6 +88,10 @@ const ChatPanel = ({
       queryClient.invalidateQueries({
         queryKey: ["chat-session", response.session.id, "messages"],
       });
+      // Invalidate the folders query to update sidebar
+      queryClient.invalidateQueries({
+        queryKey: ["folders"],
+      });
 
       // Clear optimistic messages since real messages are now in the API data
       setPendingUserMessage("");
