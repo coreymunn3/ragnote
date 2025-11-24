@@ -8,6 +8,8 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
 import { AnimatedContainer } from "@/components/animations/AnimatedContainer";
+import { TypographySmall } from "./ui/typography";
+import { LockIcon } from "lucide-react";
 
 export interface RichTextEditorProps {
   initialContent?: any; // BlockNote JSON content
@@ -160,30 +162,33 @@ const RichTextEditor = dynamic(
 
       return (
         <div className={`h-full w-full ${className} relative`}>
-          {readOnly && (
-            <div className="absolute top-2 right-14 z-10">
+          <div className={`${readOnly && "bg-muted"} rounded-md relative`}>
+            {readOnly && (
               <AnimatedContainer withPresence>
-                <div className="px-2 py-1 text-xs rounded-md bg-muted text-muted-foreground">
-                  Read-only
+                <div className="w-full flex items-center justify-center gap-2 py-1.5 px-3 bg-muted dark:bg-muted rounded-t-md">
+                  <LockIcon className="h-3.5 w-3.5 text-muted-foreground dark:text-white" />
+                  <span className="text-xs text-muted-foreground dark:text-white">
+                    Read Only
+                  </span>
                 </div>
               </AnimatedContainer>
-            </div>
-          )}
-          <BlockNoteView
-            editor={editor}
-            sideMenu={false}
-            theme={customTheme || undefined}
-            editable={!readOnly}
-            onChange={onChange}
-          >
-            <SideMenuController
-              sideMenu={(props) => (
-                <SideMenu {...props}>
-                  <AddBlockButton {...props} />
-                </SideMenu>
-              )}
-            />
-          </BlockNoteView>
+            )}
+            <BlockNoteView
+              editor={editor}
+              sideMenu={false}
+              theme={customTheme || undefined}
+              editable={!readOnly}
+              onChange={onChange}
+            >
+              <SideMenuController
+                sideMenu={(props) => (
+                  <SideMenu {...props}>
+                    <AddBlockButton {...props} />
+                  </SideMenu>
+                )}
+              />
+            </BlockNoteView>
+          </div>
         </div>
       );
     };
