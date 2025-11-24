@@ -23,9 +23,9 @@ const VersionSelector = ({
     <DropdownMenu>
       <DropdownMenuTrigger className="p-1" asChild>
         <Button
-          className={`px-3 text-sm ${
+          className={`px-3 h-8 w-12 text-xs ${
             selectedVersion.is_published
-              ? "bg-primary text-primary-foreground shadow hover:bg-primary/80"
+              ? "bg-primary text-primary-foreground hover:bg-primary/80"
               : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
           }`}
         >
