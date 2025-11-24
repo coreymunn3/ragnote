@@ -1,5 +1,7 @@
 "use client";
+import NoteToolbar from "@/components/mobile/NoteToolbar";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
+import BaseNotePageContent from "./BaseNotePageContent";
 
 interface MobileNotePageContentProps {
   note: Note;
@@ -11,10 +13,12 @@ const MobileNotePageContent = ({
   noteVersions,
 }: MobileNotePageContentProps) => {
   return (
-    <div>
-      <p>Mobile Note Page Content - To be implemented</p>
-      <p>Note: {note.title}</p>
-    </div>
+    <BaseNotePageContent
+      note={note}
+      noteVersions={noteVersions}
+      renderToolbar={(props) => <NoteToolbar {...props} />}
+    />
   );
 };
+
 export default MobileNotePageContent;
