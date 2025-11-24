@@ -6,7 +6,7 @@ import UserButtonCustom from "../UserButtonCustom";
 
 const MobileHeader = () => {
   return (
-    <header className="flex items-center justify-between px-4 py-4">
+    <header className="flex items-center justify-between px-4 py-2">
       {/* Brand/Logo Section */}
       <div>
         <BrandingHeader />{" "}
