@@ -21,6 +21,7 @@ import { useGetChatMessagesForSession } from "@/hooks/chat/useGetChatMessagesFor
 import { Button } from "../ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
+import { MessageCirclePlusIcon } from "lucide-react";
 
 interface ChatPanelProps {
   open: boolean;
@@ -176,8 +177,8 @@ const ChatPanel = ({
                 )}
               </div>
               <div>
-                <Button variant={"outline"} onClick={handleBeginNewChat}>
-                  New Chat
+                <Button variant={"ghost"} onClick={handleBeginNewChat}>
+                  <MessageCirclePlusIcon className="h-4 w-4" />
                 </Button>
               </div>
             </div>
