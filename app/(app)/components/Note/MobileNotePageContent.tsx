@@ -14,6 +14,7 @@ const MobileNotePageContent = ({
 }: MobileNotePageContentProps) => {
   return (
     <BaseNotePageContent
+      isMobile={true}
       note={note}
       noteVersions={noteVersions}
       renderToolbar={(props) => <NoteToolbar {...props} />}

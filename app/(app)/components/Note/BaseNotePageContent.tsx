@@ -23,12 +23,14 @@ interface ToolbarProps {
 }
 
 interface BaseNotePageContentProps {
+  isMobile?: boolean;
   note: Note;
   noteVersions: PrismaNoteVersion[];
   renderToolbar: (props: ToolbarProps) => React.ReactNode;
 }
 
 const BaseNotePageContent = ({
+  isMobile = false,
   note: initialNote,
   noteVersions: initialNoteVersions,
   renderToolbar,
@@ -172,6 +174,7 @@ const BaseNotePageContent = ({
       </div>
       {/* Chat Panel */}
       <ChatPanel
+        isMobile={isMobile}
         open={chatOpen}
         onOpenChange={handleToggleChat}
         title={`${note.title}`}
