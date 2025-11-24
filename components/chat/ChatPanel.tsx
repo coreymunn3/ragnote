@@ -151,7 +151,9 @@ const ChatPanel = ({
         )}
         side={isMobile ? "bottom" : "right"}
       >
-        <div className="flex-1 flex flex-col space-y-2 max-h-screen px-2">
+        <div
+          className={`flex-1 flex flex-col space-y-2 px-2 ${isMobile ? "h-full" : "max-h-screen"}`}
+        >
           {/* Top Banner - title and history */}
           <div className="flex justify-between items-center mt-2">
             {/* left side: title and active version */}
