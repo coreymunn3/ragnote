@@ -6,6 +6,7 @@ import ChatInput from "./ChatInput";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -155,19 +156,21 @@ const ChatPanel = ({
             {/* left side: title and active version */}
             <div className="flex flex-row justify-between items-center w-full">
               <div className="flex flex-row space-x-2 items-center">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <TypographyLead className="font-semibold text-foreground">
-                      {title} Chat
-                    </TypographyLead>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      You are chatting with the most recently published version
-                      of this note
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <TypographyLead className="font-semibold text-foreground">
+                        {title} Chat
+                      </TypographyLead>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        You are chatting with the most recently published
+                        version of this note
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 {!!mostRecentPublishedVersion && (
                   <VersionBadge version={mostRecentPublishedVersion} />
                 )}
