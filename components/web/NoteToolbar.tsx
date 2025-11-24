@@ -1,30 +1,23 @@
 "use client";
 import { useRouter } from "next/navigation";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
-import VersionBadge from "./VersionBadge";
-import { TypographyMuted } from "./ui/typography";
+import { TypographyMuted } from "../ui/typography";
 import {
+  BookCheckIcon,
   ForwardIcon,
   MessageCircleIcon,
-  SparkleIcon,
   Trash2Icon,
 } from "lucide-react";
-import EditableField from "./EditableField";
-import OptionsMenu from "./OptionsMenu";
+import EditableField from "../EditableField";
+import OptionsMenu from "../OptionsMenu";
 import { DateTime } from "luxon";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
 import { toast } from "sonner";
-import ProButton from "./ProButton";
+import ProButton from "../ProButton";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
-import { Button } from "./ui/button";
+import VersionSelector from "../VersionSelector";
 
 interface NoteToolbarProps {
   note: Note;
@@ -131,33 +124,15 @@ const NoteToolbar = ({
           variant="bold"
           onSave={handleSaveTitle}
         />
+        {/* select version menu */}
         {selectedVersion && (
           <>
-            {/* select version menu */}
             {isPro ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger className="p-1" asChild>
-                  <Button
-                    className={`px-3 ${
-                      selectedVersion.is_published
-                        ? "bg-primary text-primary-foreground shadow hover:bg-primary/80"
-                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                    }`}
-                  >
-                    {`v${selectedVersion.version_number}`}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="min-w-0">
-                  {noteVersions.map((version: PrismaNoteVersion) => (
-                    <DropdownMenuItem
-                      key={version.id}
-                      onClick={() => setSelectedVersionId(version.id)}
-                    >
-                      <VersionBadge version={version} />
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <VersionSelector
+                selectedVersion={selectedVersion}
+                noteVersions={noteVersions}
+                onSelect={(v) => setSelectedVersionId(v.id)}
+              />
             ) : (
               <ProButton
                 label={`v${selectedVersion.version_number}`}
@@ -183,7 +158,7 @@ const NoteToolbar = ({
         {selectedVersion && (
           // if published show published at time, otherwise use updated_at to get last saved time
           <TypographyMuted>{`
-            ${selectedVersion.is_published ? "published" : "last saved"} 
+            ${selectedVersion.is_published ? "published" : "saved"} 
             ${
               selectedVersion.is_published && selectedVersion.published_at
                 ? DateTime.fromISO(
@@ -197,10 +172,10 @@ const NoteToolbar = ({
         )}
         <ProButton
           label="Publish"
-          icon={<SparkleIcon className="h-4 w-4" />}
+          icon={<BookCheckIcon className="h-4 w-4" />}
           onClick={handlePublishNote}
           isLoading={publishNoteVersionMutation.isPending}
-          disabled={selectedVersion?.is_published}
+          disabled={!selectedVersion || selectedVersion?.is_published}
         />
         <OptionsMenu
           options={[
