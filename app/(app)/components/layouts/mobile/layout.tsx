@@ -6,9 +6,9 @@ export default function MobileLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-sidebar">
+    <div className="flex flex-col h-screen bg-sidebar">
       <MobileHeader />
-      {children}
+      <div className="flex-1">{children}</div>
     </div>
   );
 }

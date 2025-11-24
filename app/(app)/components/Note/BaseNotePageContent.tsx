@@ -99,7 +99,7 @@ const BaseNotePageContent = ({
 
   if (shouldShowLoading) {
     return (
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-full">
         <div className="flex-shrink-0">
           <Skeleton className="h-16 w-full" />
         </div>
@@ -113,7 +113,7 @@ const BaseNotePageContent = ({
   // Error state
   if (noteError || versionsError) {
     return (
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-full">
         <div className="flex-shrink-0">
           <Skeleton className="h-16 w-full" />
         </div>
@@ -146,7 +146,7 @@ const BaseNotePageContent = ({
       ? "The Note you wish to view cannot be found"
       : "No version is currently selected for this note.";
     return (
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-full">
         <div className="flex-shrink-0">{renderToolbar(toolbarProps)}</div>
         <div className="flex-1 overflow-auto pt-8">
           <MessageAlert
@@ -160,7 +160,7 @@ const BaseNotePageContent = ({
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-full">
       {/* Toolbar - fixed at top */}
       <div className="flex-shrink-0">{renderToolbar(toolbarProps)}</div>
       {/* Editor - scrollable content */}
