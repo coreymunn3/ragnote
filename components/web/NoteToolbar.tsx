@@ -18,6 +18,13 @@ import { toast } from "sonner";
 import ProButton from "../ProButton";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import VersionSelector from "../VersionSelector";
+import { Button } from "../ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 interface NoteToolbarProps {
   note: Note;
@@ -143,21 +150,16 @@ const NoteToolbar = ({
                 }`}
               />
             )}
-
-            {/* chat with note entry */}
-            <ProButton
-              variant={"ghost"}
-              icon={<MessageCircleIcon className="h-4 w-4" />}
-              onClick={handleToggleChat}
-            />
           </>
         )}
       </div>
       {/* right side - last edited, publish & controls */}
-      <div className="flex items-center space-x-2">
-        {selectedVersion && (
-          // if published show published at time, otherwise use updated_at to get last saved time
-          <TypographyMuted>{`
+
+      <TooltipProvider>
+        <div className="flex items-center space-x-2">
+          {selectedVersion && (
+            // if published show published at time, otherwise use updated_at to get last saved time
+            <TypographyMuted>{`
             ${selectedVersion.is_published ? "published" : "saved"} 
             ${
               selectedVersion.is_published && selectedVersion.published_at
@@ -169,29 +171,45 @@ const NoteToolbar = ({
                   ).toRelative()
             }
           `}</TypographyMuted>
-        )}
-        <ProButton
-          label="Publish"
-          icon={<BookCheckIcon className="h-4 w-4" />}
-          onClick={handlePublishNote}
-          isLoading={publishNoteVersionMutation.isPending}
-          disabled={!selectedVersion || selectedVersion?.is_published}
-        />
-        <OptionsMenu
-          options={[
-            {
-              label: "Share",
-              icon: <ForwardIcon className="h-4 w-4" />,
-              onClick: () => console.log("TO DO - share note"),
-            },
-            {
-              label: "Delete",
-              icon: <Trash2Icon className="h-4 w-4" />,
-              onClick: handleDeleteNote,
-            },
-          ]}
-        />
-      </div>
+          )}
+          {/* publish note */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ProButton
+                icon={<BookCheckIcon className="h-4 w-4" />}
+                variant={"ghost"}
+                className="text-primary"
+                onClick={handlePublishNote}
+                isLoading={publishNoteVersionMutation.isPending}
+                disabled={!selectedVersion || selectedVersion?.is_published}
+              />
+            </TooltipTrigger>
+            <TooltipContent>Pubilsh this note</TooltipContent>
+          </Tooltip>
+
+          {/* chat with note entry */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ProButton
+                variant={"ghost"}
+                icon={<MessageCircleIcon className="h-4 w-4" />}
+                onClick={handleToggleChat}
+              />
+            </TooltipTrigger>
+            <TooltipContent>Chat with this note</TooltipContent>
+          </Tooltip>
+
+          {/* delete */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant={"ghost"} onClick={handleDeleteNote}>
+                <Trash2Icon className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Delete this note</TooltipContent>
+          </Tooltip>
+        </div>
+      </TooltipProvider>
     </div>
   );
 };

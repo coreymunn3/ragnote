@@ -91,23 +91,14 @@ const NoteToolbar = ({
 
   return (
     <div className="flex items-center justify-between">
-      {/* Left side - title and chat button */}
-      <div className="flex items-center space-x-2">
+      {/* Left side - title and version */}
+      <div className="flex items-end space-x-2">
         {/* title field that is editable */}
         <EditableField
           value={note.title}
           variant="bold"
           onSave={handleSaveTitle}
         />
-        {/* chat with note entry */}
-        <ProButton
-          variant={"ghost"}
-          icon={<MessageCircleIcon className="h-4 w-4" />}
-          onClick={handleToggleChat}
-        />
-      </div>
-      {/* right side - version and publish */}
-      <div className="flex items-center space-x-2">
         {/* version */}
         {selectedVersion && (
           <>
@@ -129,10 +120,21 @@ const NoteToolbar = ({
             )}
           </>
         )}
+      </div>
+      {/* right side - version and publish */}
+      <div className="flex items-end space-x-2">
+        {/* chat with note entry */}
+        <ProButton
+          variant={"ghost"}
+          icon={<MessageCircleIcon className="h-4 w-4" />}
+          onClick={handleToggleChat}
+        />
 
         {/* publish */}
         <ProButton
           icon={<BookCheckIcon className="h-4 w-4" />}
+          variant={"ghost"}
+          className="text-primary"
           onClick={handlePublishNote}
           isLoading={publishNoteVersionMutation.isPending}
           disabled={!selectedVersion || selectedVersion?.is_published}
