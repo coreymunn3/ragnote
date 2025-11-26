@@ -80,7 +80,7 @@ const BaseChatPageContent = ({
     isLoading: chatSession.isLoading || chatMessages.isLoading,
   };
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-[calc(100vh-4rem)]">
       {/* Toolbar */}
       <div className="flex-shrink-0">{renderToolbar(toolbarProps)}</div>
       {/* Chat Messages */}
