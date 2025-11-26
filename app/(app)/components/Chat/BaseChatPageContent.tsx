@@ -80,6 +80,7 @@ const BaseChatPageContent = ({
     isLoading: chatSession.isLoading || chatMessages.isLoading,
   };
   return (
+    // the height class here is to account for the Mobile header in the root layout
     <div className="flex flex-col h-[calc(100vh-4rem)]">
       {/* Toolbar */}
       <div className="flex-shrink-0">{renderToolbar(toolbarProps)}</div>
