@@ -64,12 +64,7 @@ const MobileListItem = ({ type, item, isLastItem }: MobileListItemProps) => {
 
   return (
     <div>
-      <Button
-        variant={"ghost"}
-        className="w-full px-8 h-12
-      "
-        asChild
-      >
+      <Button variant={"ghost"} className="w-full px-4 h-12" asChild>
         <Link href={itemData.href}>
           {/* item Name and optional Icon */}
           <div className="w-full flex items-center justify-between">

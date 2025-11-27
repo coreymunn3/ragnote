@@ -14,6 +14,7 @@ interface MobileListProps {
   type: MobileListType;
   title: string;
   items?: MobileListItemType[];
+  action?: React.ReactNode;
   options?: Option[];
   isLoading?: boolean;
   skeletonCount?: number;
@@ -39,16 +40,22 @@ const MobileList = ({
   type,
   title,
   items = [],
+  action,
   options,
   isLoading = false,
   skeletonCount = 3,
 }: MobileListProps) => {
   return (
     <div>
-      {/* the title & options if provided*/}
-      <div className="flex items-center pb-2 space-x-2">
+      {/* the title & options/acitons if provided*/}
+      <div className="flex justify-between items-center px-4 pb-2 space-x-2">
+        {/* title */}
         <TypographyH4 className="pb-0">{title}</TypographyH4>
-        {options?.length && <OptionsMenu options={options} />}
+        {/* options and action if provided */}
+        <div>
+          {options?.length && <OptionsMenu options={options} />}
+          {action}
+        </div>
       </div>
       {/* the items in this section - show skeletons if loading */}
       <div className="rounded-md bg-background">
