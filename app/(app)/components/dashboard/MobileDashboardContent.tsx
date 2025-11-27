@@ -1,8 +1,10 @@
 "use client";
+import CreateFolder from "@/components/CreateFolder";
 import MobileList from "@/components/mobile/MobileList";
 import IntegratedSearch from "@/components/search/IntegratedSearch";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { FolderWithItems } from "@/lib/types/folderTypes";
+import { FolderPlusIcon } from "lucide-react";
 
 interface MobileDashboardContentProps {
   userFolders: FolderWithItems[];
@@ -31,6 +33,7 @@ const MobileDashboardContent = ({
         items={folders.data?.user}
         type="folder"
         isLoading={folders.isLoading}
+        action={<CreateFolder />}
       />
       <MobileList
         title="System Folders"
