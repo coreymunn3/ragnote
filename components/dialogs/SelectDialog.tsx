@@ -9,6 +9,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -17,6 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ChevronDownIcon } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface SelectOption<T = string> {
   value: T;
@@ -54,6 +63,7 @@ const SelectDialog = <T extends string | number>({
   const [internalSelectedValue, setInternalSelectedValue] = useState<
     T | undefined
   >(selectedValue);
+  const isMobile = useIsMobile();
 
   const currentValue =
     selectedValue !== undefined ? selectedValue : internalSelectedValue;
@@ -79,39 +89,73 @@ const SelectDialog = <T extends string | number>({
     return option.disabled || (disabled ? disabled(option) : false);
   };
 
+  // Shared dropdown content
+  const dropdownContent = (
+    <div className="mt-4">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            className="w-full justify-between"
+            disabled={isLoading}
+          >
+            {selectedOption ? selectedOption.label : placeholder}
+            <ChevronDownIcon className="h-4 w-4 opacity-50" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-full min-w-[var(--radix-dropdown-menu-trigger-width)]">
+          {options.map((option) => (
+            <DropdownMenuItem
+              key={String(option.value)}
+              onClick={() =>
+                !isOptionDisabled(option) && handleSelect(option.value)
+              }
+              disabled={isOptionDisabled(option)}
+              className={currentValue === option.value ? "bg-accent" : ""}
+            >
+              {option.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+
+  // Mobile: Render as bottom sheet
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent side="bottom">
+          <SheetHeader>
+            <SheetTitle>{title}</SheetTitle>
+            {dropdownContent}
+          </SheetHeader>
+          <SheetFooter className="flex flex-row gap-2 pt-4">
+            <SheetClose asChild>
+              <Button variant="ghost" className="flex-1">
+                Cancel
+              </Button>
+            </SheetClose>
+            <Button
+              onClick={handleConfirm}
+              disabled={!isValid || isLoading}
+              className="flex-1"
+            >
+              {isLoading ? confirmLoadingText || "Loading..." : confirmText}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // Desktop: Render as centered dialog
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <div className="mt-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-between"
-                  disabled={isLoading}
-                >
-                  {selectedOption ? selectedOption.label : placeholder}
-                  <ChevronDownIcon className="h-4 w-4 opacity-50" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full min-w-[var(--radix-dropdown-menu-trigger-width)]">
-                {options.map((option) => (
-                  <DropdownMenuItem
-                    key={String(option.value)}
-                    onClick={() =>
-                      !isOptionDisabled(option) && handleSelect(option.value)
-                    }
-                    disabled={isOptionDisabled(option)}
-                    className={currentValue === option.value ? "bg-accent" : ""}
-                  >
-                    {option.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          {dropdownContent}
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
