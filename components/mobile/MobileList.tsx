@@ -1,6 +1,6 @@
 import { FolderWithItems } from "@/lib/types/folderTypes";
 import { TypographyH4 } from "../ui/typgrophy";
-import { AnimatedListItem } from "../animations";
+import { AnimatedListItem, AnimatedTypography } from "../animations";
 import MobileListItem from "./MobileListItem";
 import { Note } from "@/lib/types/noteTypes";
 import OptionsMenu, { Option } from "../OptionsMenu";
@@ -50,7 +50,7 @@ const MobileList = ({
       {/* the title & options/acitons if provided*/}
       <div className="flex justify-between items-center px-4 pb-2 space-x-2">
         {/* title */}
-        <TypographyH4 className="pb-0">{title}</TypographyH4>
+        <AnimatedTypography variant="h4">{title}</AnimatedTypography>
         {/* options and action if provided */}
         <div>
           {options?.length && <OptionsMenu options={options} />}
