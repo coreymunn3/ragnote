@@ -12,12 +12,16 @@ interface CreateNoteProps {
 
 const CreateNote = ({ classname, folderId }: CreateNoteProps) => {
   const router = useRouter();
-  const createNote = useCreateNote();
+  const createNote = useCreateNote({
+    // navigate the user to the new note's page
+    onSuccess: (data, variables, context) => {
+      router.push(`/note/${data.id}`);
+    },
+  });
 
   const handleCreateNote = () => {
     // run mutation
     createNote.mutate({ title: "Untitled", folderId });
-    // push user to new note page
   };
 
   return (

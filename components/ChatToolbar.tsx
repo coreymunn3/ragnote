@@ -3,7 +3,6 @@ import { useParams, useRouter } from "next/navigation";
 import EditableField from "./EditableField";
 import { ChatSession } from "@/lib/types/chatTypes";
 import { Skeleton } from "./ui/skeleton";
-import OptionsMenu from "./OptionsMenu";
 import { Trash2Icon } from "lucide-react";
 import { TypographyMuted } from "./ui/typography";
 import { DateTime } from "luxon";
