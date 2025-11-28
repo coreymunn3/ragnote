@@ -53,8 +53,8 @@ const MobileList = ({
         <AnimatedTypography variant="h4">{title}</AnimatedTypography>
         {/* options and action if provided */}
         <div>
-          {options?.length && <OptionsMenu options={options} />}
           {action}
+          {options?.length && <OptionsMenu options={options} />}
         </div>
       </div>
       {/* the items in this section - show skeletons if loading */}
