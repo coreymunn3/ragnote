@@ -5,6 +5,7 @@ import WebLayout from "./components/layouts/web/layout";
 import ResponsiveLayout from "../../components/ResponsiveLayout";
 import WelcomeToProDialog from "../../components/dialogs/WelcomeToProDialog";
 import { useUpgradeSuccess } from "../../hooks/useUpgradeSuccess";
+import { MobileHeaderProvider } from "@/contexts/MobileHeaderContext";
 
 export default function LayoutSwitch({
   children,
@@ -15,15 +16,17 @@ export default function LayoutSwitch({
 
   return (
     <div>
-      <ResponsiveLayout MobileLayout={MobileLayout} WebLayout={WebLayout}>
-        {children}
-      </ResponsiveLayout>
+      <MobileHeaderProvider>
+        <ResponsiveLayout MobileLayout={MobileLayout} WebLayout={WebLayout}>
+          {children}
+        </ResponsiveLayout>
 
-      {/* Welcome to Pro dialog for successful upgrades */}
-      <WelcomeToProDialog
-        open={showWelcomeDialog}
-        onOpenChange={closeWelcomeDialog}
-      />
+        {/* Welcome to Pro dialog for successful upgrades */}
+        <WelcomeToProDialog
+          open={showWelcomeDialog}
+          onOpenChange={closeWelcomeDialog}
+        />
+      </MobileHeaderProvider>
     </div>
   );
 }

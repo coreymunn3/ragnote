@@ -12,7 +12,7 @@ export type MobileListType = "folder" | "note" | "chat";
 
 interface MobileListProps {
   type: MobileListType;
-  title: string;
+  title?: string;
   items?: MobileListItemType[];
   action?: React.ReactNode;
   options?: Option[];
@@ -47,16 +47,20 @@ const MobileList = ({
 }: MobileListProps) => {
   return (
     <div>
-      {/* the title & options/acitons if provided*/}
-      <div className="flex justify-between items-center px-4 pb-2 space-x-2">
-        {/* title */}
-        <AnimatedTypography variant="h4">{title}</AnimatedTypography>
-        {/* options and action if provided */}
-        <div>
-          {action}
-          {options?.length && <OptionsMenu options={options} />}
+      {/* the title & options/actions if provided*/}
+      {(title || action || options?.length) && (
+        <div className="flex justify-between items-center px-4 pb-2 space-x-2">
+          {/* title */}
+          {title && (
+            <AnimatedTypography variant="h4">{title}</AnimatedTypography>
+          )}
+          {/* options and action if provided */}
+          <div>
+            {action}
+            {options?.length && <OptionsMenu options={options} />}
+          </div>
         </div>
-      </div>
+      )}
       {/* the items in this section - show skeletons if loading */}
       <div className="rounded-md bg-background">
         {isLoading

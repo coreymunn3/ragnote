@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
 import { FolderWithItems } from "@/lib/types/folderTypes";
@@ -10,8 +10,12 @@ import MobileList from "@/components/mobile/MobileList";
 import { isSystemFolder } from "@/lib/utils/folderUtils";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
-import { FolderPenIcon, Trash2Icon } from "lucide-react";
+import { ArrowLeftIcon, FolderPenIcon, Trash2Icon } from "lucide-react";
 import CreateNote from "@/components/CreateNote";
+import { useMobileHeader } from "@/contexts/MobileHeaderContext";
+import { Button } from "@/components/ui/button";
+import OptionsMenu from "@/components/OptionsMenu";
+import { TypographyH4 } from "@/components/ui/typgrophy";
 
 interface MobileFolderPageContentProps {
   folder: FolderWithItems;
@@ -19,6 +23,7 @@ interface MobileFolderPageContentProps {
 
 const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
   const router = useRouter();
+  const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
   // dialog state management
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -34,16 +39,29 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
   const renameFolder = useRenameFolder();
   const deleteFolder = useDeleteFolder();
 
-  return (
-    <div>
-      <MobileList
-        type={folderData.data!.itemType}
-        items={folderData.data!.items}
-        title={folderData.data!.folder_name}
-        action={isUserFolder && <CreateNote folderId={folderData.data!.id} />}
-        options={
-          isUserFolder
-            ? [
+  // Set header configuration for Folder page
+  useEffect(() => {
+    if (folderData.data) {
+      setHeaderConfig({
+        leftContent: (
+          <>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push("/dashboard")}
+            >
+              <ArrowLeftIcon className="h-4 w-4" />
+            </Button>
+            <TypographyH4 className="pb-0">
+              {folderData.data.folder_name}
+            </TypographyH4>
+          </>
+        ),
+        rightContent: isUserFolder ? (
+          <>
+            <CreateNote folderId={folderData.data.id} />
+            <OptionsMenu
+              options={[
                 {
                   label: "Rename",
                   icon: <FolderPenIcon className="h-4 w-4" />,
@@ -54,9 +72,31 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
                   icon: <Trash2Icon className="h-4 w-4" />,
                   onClick: () => setDeleteOpen(true),
                 },
-              ]
-            : undefined
-        }
+              ]}
+            />
+          </>
+        ) : (
+          <CreateNote folderId={folderData.data.id} />
+        ),
+      });
+    }
+
+    return () => {
+      resetHeaderConfig();
+    };
+  }, [
+    folderData.data,
+    isUserFolder,
+    router,
+    setHeaderConfig,
+    resetHeaderConfig,
+  ]);
+
+  return (
+    <div>
+      <MobileList
+        type={folderData.data!.itemType}
+        items={folderData.data!.items}
       />
 
       {/* Rename Dialog */}

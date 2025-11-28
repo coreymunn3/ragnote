@@ -1,10 +1,13 @@
 "use client";
+import { useEffect } from "react";
 import CreateFolder from "@/components/CreateFolder";
 import MobileList from "@/components/mobile/MobileList";
 import IntegratedSearch from "@/components/search/IntegratedSearch";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { FolderWithItems } from "@/lib/types/folderTypes";
 import { FolderPlusIcon } from "lucide-react";
+import { useMobileHeader } from "@/contexts/MobileHeaderContext";
+import BrandingHeader from "@/components/BrandingHeader";
 
 interface MobileDashboardContentProps {
   userFolders: FolderWithItems[];
@@ -15,6 +18,19 @@ const MobileDashboardContent = ({
   userFolders,
   systemFolders,
 }: MobileDashboardContentProps) => {
+  const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
+  // Set header configuration for Dashboard
+  useEffect(() => {
+    setHeaderConfig({
+      leftContent: <BrandingHeader />,
+      rightContent: null, // UserButton is always shown
+    });
+
+    return () => {
+      resetHeaderConfig();
+    };
+  }, [setHeaderConfig, resetHeaderConfig]);
+
   // immediately re-fetch the user's folders
   const folders = useGetFolders({
     initialData: {
