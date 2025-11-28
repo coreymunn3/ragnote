@@ -157,21 +157,20 @@ const NoteToolbar = ({
 
       <TooltipProvider>
         <div className="flex items-center space-x-2">
-          {selectedVersion && (
-            // if published show published at time, otherwise use updated_at to get last saved time
-            <TypographyMuted>{`
-            ${selectedVersion.is_published ? "published" : "saved"} 
-            ${
-              selectedVersion.is_published && selectedVersion.published_at
-                ? DateTime.fromISO(
-                    selectedVersion.published_at.toString()
-                  ).toRelative()
-                : DateTime.fromISO(
-                    selectedVersion.updated_at.toString()
-                  ).toRelative()
-            }
-          `}</TypographyMuted>
-          )}
+          {selectedVersion &&
+            selectedVersion.updated_at &&
+            (!selectedVersion.is_published || selectedVersion.published_at) && (
+              <TypographyMuted>
+                {selectedVersion.is_published ? "published" : "saved"}{" "}
+                {selectedVersion.is_published && selectedVersion.published_at
+                  ? DateTime.fromISO(
+                      selectedVersion.published_at.toString()
+                    ).toRelative()
+                  : DateTime.fromISO(
+                      selectedVersion.updated_at.toString()
+                    ).toRelative()}
+              </TypographyMuted>
+            )}
           {/* publish note */}
           <Tooltip>
             <TooltipTrigger asChild>
