@@ -11,6 +11,7 @@ import { isSystemFolder } from "@/lib/utils/folderUtils";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
 import { FolderPenIcon, Trash2Icon } from "lucide-react";
+import CreateNote from "@/components/CreateNote";
 
 interface MobileFolderPageContentProps {
   folder: FolderWithItems;
@@ -39,6 +40,7 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
         type={folderData.data!.itemType}
         items={folderData.data!.items}
         title={folderData.data!.folder_name}
+        action={<CreateNote folderId={folderData.data!.id} />}
         options={
           isUserFolder
             ? [
