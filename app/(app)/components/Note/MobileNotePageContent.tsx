@@ -10,7 +10,9 @@ import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { Button } from "@/components/ui/button";
-import { ArrowLeftIcon, BookCheckIcon, MessageCircleIcon } from "lucide-react";
+import { ArrowLeftIcon, Trash2Icon } from "lucide-react";
+import OptionsMenu from "@/components/OptionsMenu";
+import NoteToolbar from "@/components/mobile/NoteToolbar";
 import EditableField from "@/components/EditableField";
 import VersionSelector from "@/components/VersionSelector";
 import ProButton from "@/components/ProButton";
@@ -104,6 +106,19 @@ const MobileNotePageContent = ({
     }
   };
 
+  // Handlers for options menu
+  const handleDeleteNote = () => {
+    if (note) {
+      updateNoteMutation.mutate({
+        noteId: note.id,
+        action: "delete",
+      });
+      router.push(`/folder/${note.folder_id}`);
+    } else {
+      toast.error("Unable to Delete");
+    }
+  };
+
   // Set mobile header configuration
   useEffect(() => {
     if (note) {
@@ -117,46 +132,55 @@ const MobileNotePageContent = ({
             >
               <ArrowLeftIcon className="h-4 w-4" />
             </Button>
-            <EditableField
-              value={note.title}
-              variant="bold"
-              onSave={handleSaveTitle}
+            <span className="text-sm font-semibold truncate max-w-[150px]">
+              {note.title}
+            </span>
+          </>
+        ),
+        rightContent: (
+          <>
+            {selectedVersion && (
+              <>
+                {isPro ? (
+                  <VersionSelector
+                    selectedVersion={selectedVersion}
+                    noteVersions={noteVersions || []}
+                    onSelect={(v) => setSelectedVersionId(v.id)}
+                  />
+                ) : (
+                  <ProButton
+                    label={`v${selectedVersion.version_number}`}
+                    className={`px-3 ${
+                      selectedVersion.is_published
+                        ? "bg-primary text-primary-foreground shadow hover:bg-primary/80"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                    }`}
+                  />
+                )}
+              </>
+            )}
+            <OptionsMenu
+              options={[
+                // {
+                //   label: "Rename",
+                //   icon: (
+                //     <EditableField
+                //       value={note.title}
+                //       variant="bold"
+                //       onSave={handleSaveTitle}
+                //     />
+                //   ),
+                //   onClick: () => {}, // EditableField handles the click
+                // },
+                {
+                  label: "Delete",
+                  icon: <Trash2Icon className="h-4 w-4" />,
+                  onClick: handleDeleteNote,
+                },
+              ]}
             />
           </>
         ),
-        rightContent: selectedVersion ? (
-          <>
-            {isPro ? (
-              <VersionSelector
-                selectedVersion={selectedVersion}
-                noteVersions={noteVersions || []}
-                onSelect={(v) => setSelectedVersionId(v.id)}
-              />
-            ) : (
-              <ProButton
-                label={`v${selectedVersion.version_number}`}
-                className={`px-3 ${
-                  selectedVersion.is_published
-                    ? "bg-primary text-primary-foreground shadow hover:bg-primary/80"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                }`}
-              />
-            )}
-            <ProButton
-              variant="ghost"
-              icon={<MessageCircleIcon className="h-4 w-4" />}
-              onClick={handleToggleChat}
-            />
-            <ProButton
-              icon={<BookCheckIcon className="h-4 w-4" />}
-              variant="ghost"
-              className="text-primary"
-              onClick={handlePublishNote}
-              isLoading={publishNoteVersionMutation.isPending}
-              disabled={!selectedVersion || selectedVersion?.is_published}
-            />
-          </>
-        ) : null,
       });
 
       return () => {
@@ -172,7 +196,6 @@ const MobileNotePageContent = ({
     router,
     setHeaderConfig,
     resetHeaderConfig,
-    publishNoteVersionMutation.isPending,
   ]);
 
   const isLoading = noteLoading || versionsLoading;
@@ -190,6 +213,15 @@ const MobileNotePageContent = ({
       handleToggleChat={handleToggleChat}
       isLoading={isLoading}
       error={error}
+      renderToolbar={(props) => (
+        <NoteToolbar
+          note={props.note}
+          selectedVersion={props.selectedVersion}
+          selectedVersionId={props.selectedVersionId}
+          setSelectedVersionId={props.setSelectedVersionId}
+          handleToggleChat={props.handleToggleChat}
+        />
+      )}
     />
   );
 };

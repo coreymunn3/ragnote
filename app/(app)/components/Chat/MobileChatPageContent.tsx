@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon, Trash2Icon } from "lucide-react";
 import EditableField from "@/components/EditableField";
 import ScopeBadge from "@/components/ScopeBadge";
+import OptionsMenu from "@/components/OptionsMenu";
 import { toast } from "sonner";
 
 interface MobileChatPageContentProps {
@@ -110,20 +111,35 @@ const MobileChatPageContent = ({
             >
               <ArrowLeftIcon className="h-4 w-4" />
             </Button>
-            <EditableField
-              value={chatSession.data.title || "Chat Session..."}
-              variant="bold"
-              onSave={handleSaveTitle}
-            />
+            <span className="text-sm font-semibold truncate max-w-[120px]">
+              {chatSession.data.title || "Chat Session..."}
+            </span>
             {chatSession.data.chat_scope && (
               <ScopeBadge chatScope={chatSession.data.chat_scope} />
             )}
           </>
         ),
         rightContent: (
-          <Button variant="ghost" onClick={handleDeleteChatSession}>
-            <Trash2Icon className="h-4 w-4" />
-          </Button>
+          <OptionsMenu
+            options={[
+              // {
+              //   label: "Rename",
+              //   icon: (
+              //     <EditableField
+              //       value={chatSession.data.title || "Chat Session..."}
+              //       variant="bold"
+              //       onSave={handleSaveTitle}
+              //     />
+              //   ),
+              //   onClick: () => {}, // EditableField handles the click
+              // },
+              {
+                label: "Delete",
+                icon: <Trash2Icon className="h-4 w-4" />,
+                onClick: handleDeleteChatSession,
+              },
+            ]}
+          />
         ),
       });
 
