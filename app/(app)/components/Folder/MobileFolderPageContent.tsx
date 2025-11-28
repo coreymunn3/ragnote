@@ -40,7 +40,7 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
         type={folderData.data!.itemType}
         items={folderData.data!.items}
         title={folderData.data!.folder_name}
-        action={<CreateNote folderId={folderData.data!.id} />}
+        action={isUserFolder && <CreateNote folderId={folderData.data!.id} />}
         options={
           isUserFolder
             ? [
@@ -55,7 +55,7 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
                   onClick: () => setDeleteOpen(true),
                 },
               ]
-            : []
+            : undefined
         }
       />
 
