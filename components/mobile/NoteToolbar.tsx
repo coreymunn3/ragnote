@@ -122,7 +122,7 @@ const NoteToolbar = ({
         )}
       </div>
       {/* right side - version and publish */}
-      <div className="flex items-end space-x-2">
+      <div className="flex items-end">
         {/* chat with note entry */}
         <ProButton
           variant={"ghost"}

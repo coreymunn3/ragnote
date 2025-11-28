@@ -99,7 +99,7 @@ const BaseNotePageContent = ({
 
   if (shouldShowLoading) {
     return (
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-[calc(100vh-4rem)]">
         <div className="flex-shrink-0">
           <Skeleton className="h-16 w-full" />
         </div>
@@ -160,7 +160,7 @@ const BaseNotePageContent = ({
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-[calc(100vh-4rem)]">
       {/* Toolbar - fixed at top */}
       <div className="flex-shrink-0">{renderToolbar(toolbarProps)}</div>
       {/* Editor - scrollable content */}
