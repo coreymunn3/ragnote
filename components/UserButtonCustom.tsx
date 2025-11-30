@@ -1,12 +1,26 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { CrownIcon, CreditCardIcon, CheckIcon } from "lucide-react";
+import {
+  CrownIcon,
+  CreditCardIcon,
+  CheckIcon,
+  MoonIcon,
+  PaletteIcon,
+  SunIcon,
+  MonitorIcon,
+} from "lucide-react";
 import { TypographyLarge, TypographyP, TypographyMuted } from "./ui/typography";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { useCreateBillingPortalSession } from "@/hooks/user/useCreateBillingPortalSession";
 import { Skeleton } from "./ui/skeleton";
 import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import {
   MEMBERSHIP_FEATURES,
   MEMBERSHIP_UPGRADE_FEATURES,
@@ -14,6 +28,116 @@ import {
 } from "@/CONSTANTS";
 import { useCreateCheckoutSession } from "@/hooks/user/useCreateCheckoutSession";
 import { getIconComponent } from "@/lib/utils";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+
+const AppearancePage = () => {
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Get current theme icon
+  const getCurrentThemeIcon = () => {
+    if (!mounted) return <MonitorIcon className="h-5 w-5" />;
+
+    switch (theme) {
+      case "light":
+        return <SunIcon className="h-5 w-5" />;
+      case "dark":
+        return <MoonIcon className="h-5 w-5" />;
+      default:
+        return <MonitorIcon className="h-5 w-5" />;
+    }
+  };
+
+  // Get theme display name
+  const getThemeDisplayName = () => {
+    if (!mounted) return "System";
+
+    switch (theme) {
+      case "light":
+        return "Light";
+      case "dark":
+        return "Dark";
+      default:
+        return "System";
+    }
+  };
+
+  const themeOptions = [
+    {
+      value: "system",
+      label: "System",
+      description: "Follow device settings",
+      icon: <MonitorIcon className="h-4 w-4" />,
+    },
+    {
+      value: "light",
+      label: "Light",
+      description: "Light theme",
+      icon: <SunIcon className="h-4 w-4" />,
+    },
+    {
+      value: "dark",
+      label: "Dark",
+      description: "Dark theme",
+      icon: <MoonIcon className="h-4 w-4" />,
+    },
+  ];
+
+  return (
+    <div className="flex flex-col space-y-6 p-4">
+      {/* Header Section */}
+      <div className="flex items-center space-x-3">
+        <PaletteIcon className="h-8 w-8 text-primary" />
+        <div>
+          <TypographyLarge>Appearance</TypographyLarge>
+          <TypographyMuted>Customize your theme preference</TypographyMuted>
+        </div>
+      </div>
+
+      {/* Theme Selector Section */}
+      <div className="space-y-4">
+        <div>
+          <TypographyP className="font-semibold mb-3">Theme</TypographyP>
+          <div className="space-y-2">
+            {themeOptions.map((option) => (
+              <Button
+                key={option.value}
+                variant={
+                  mounted && theme === option.value ? "default" : "outline"
+                }
+                className="w-full justify-between h-auto py-3"
+                onClick={() => setTheme(option.value)}
+              >
+                <div className="flex items-center space-x-3">
+                  {option.icon}
+                  <div className="flex flex-col items-start">
+                    <span className="text-sm font-medium">{option.label}</span>
+                    <span className="text-xs font-normal">
+                      {option.description}
+                    </span>
+                  </div>
+                </div>
+                {mounted && theme === option.value && (
+                  <CheckIcon className="h-4 w-4" />
+                )}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <TypographyMuted className="text-sm">
+          Choose how RagNote AI looks to you. Select a single theme, or sync
+          with your system settings.
+        </TypographyMuted>
+      </div>
+    </div>
+  );
+};
 
 const MembershipPage = () => {
   const { data: membership, isLoading, isError } = useUserSubscription();
@@ -137,6 +261,13 @@ export default function UserButtonCustom() {
       </UserButton.UserProfilePage>
       <UserButton.UserProfilePage label="account" />
       <UserButton.UserProfilePage label="security" />
+      <UserButton.UserProfilePage
+        label="Appearance"
+        url="appearance"
+        labelIcon={<PaletteIcon className="h-4 w-4" />}
+      >
+        <AppearancePage />
+      </UserButton.UserProfilePage>
     </UserButton>
   );
 }
