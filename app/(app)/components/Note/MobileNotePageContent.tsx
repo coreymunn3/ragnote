@@ -7,17 +7,13 @@ import { useMobileHeader } from "@/contexts/MobileHeaderContext";
 import { useGetNote } from "@/hooks/note/useGetNote";
 import { useGetNoteVersions } from "@/hooks/note/useGetNoteVersions";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
-import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
-import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { Button } from "@/components/ui/button";
-import { ArrowLeftIcon, Trash2Icon } from "lucide-react";
+import { ArrowLeftIcon, FolderPenIcon, Trash2Icon } from "lucide-react";
 import OptionsMenu from "@/components/OptionsMenu";
 import NoteToolbar from "@/components/mobile/NoteToolbar";
-import EditableField from "@/components/EditableField";
-import VersionSelector from "@/components/VersionSelector";
-import ProButton from "@/components/ProButton";
 import { toast } from "sonner";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
+import InputDialog from "@/components/dialogs/InputDialog";
 
 interface MobileNotePageContentProps {
   note: Note;
@@ -30,12 +26,13 @@ const MobileNotePageContent = ({
 }: MobileNotePageContentProps) => {
   const router = useRouter();
   const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
-  const { isPro } = useUserSubscription();
 
   // State management
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
     initialNote?.current_version?.id || null
   );
+  // dialog state management
+  const [renameOpen, setRenameOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
 
   // Re-fetch note data with initial data
@@ -72,12 +69,6 @@ const MobileNotePageContent = ({
 
   // Mutations
   const updateNoteMutation = useUpdateNote();
-  const publishNoteVersionMutation = usePublishNoteVersion({
-    onSuccess: (data) => {
-      const { nextVersion } = data;
-      setSelectedVersionId(nextVersion.id);
-    },
-  });
 
   // Handlers
   const handleToggleChat = () => {
@@ -93,17 +84,6 @@ const MobileNotePageContent = ({
       });
     } else {
       toast.error("Unable to Update Title");
-    }
-  };
-
-  const handlePublishNote = () => {
-    if (note && selectedVersionId) {
-      publishNoteVersionMutation.mutate({
-        versionId: selectedVersionId,
-        noteId: note.id,
-      });
-    } else {
-      toast.error("Unable to Publish");
     }
   };
 
@@ -138,39 +118,13 @@ const MobileNotePageContent = ({
         ),
         rightContent: (
           <>
-            {selectedVersion && (
-              <>
-                {isPro ? (
-                  <VersionSelector
-                    selectedVersion={selectedVersion}
-                    noteVersions={noteVersions || []}
-                    onSelect={(v) => setSelectedVersionId(v.id)}
-                  />
-                ) : (
-                  <ProButton
-                    label={`v${selectedVersion.version_number}`}
-                    className={`px-3 ${
-                      selectedVersion.is_published
-                        ? "bg-primary text-primary-foreground shadow hover:bg-primary/80"
-                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                    }`}
-                  />
-                )}
-              </>
-            )}
             <OptionsMenu
               options={[
-                // {
-                //   label: "Rename",
-                //   icon: (
-                //     <EditableField
-                //       value={note.title}
-                //       variant="bold"
-                //       onSave={handleSaveTitle}
-                //     />
-                //   ),
-                //   onClick: () => {}, // EditableField handles the click
-                // },
+                {
+                  label: "Rename",
+                  icon: <FolderPenIcon className="h-4 w-4" />,
+                  onClick: () => setRenameOpen(true),
+                },
                 {
                   label: "Delete",
                   icon: <Trash2Icon className="h-4 w-4" />,
@@ -186,42 +140,48 @@ const MobileNotePageContent = ({
         resetHeaderConfig();
       };
     }
-  }, [
-    note,
-    selectedVersion,
-    selectedVersionId,
-    noteVersions,
-    isPro,
-    router,
-    setHeaderConfig,
-    resetHeaderConfig,
-  ]);
+  }, [note, router, setHeaderConfig, resetHeaderConfig]);
 
   const isLoading = noteLoading || versionsLoading;
   const error = noteError || versionsError;
 
   return (
-    <BaseNotePageContent
-      isMobile={true}
-      note={note || initialNote}
-      noteVersions={noteVersions || initialNoteVersions}
-      selectedVersionId={selectedVersionId}
-      setSelectedVersionId={setSelectedVersionId}
-      selectedVersion={selectedVersion}
-      chatOpen={chatOpen}
-      handleToggleChat={handleToggleChat}
-      isLoading={isLoading}
-      error={error}
-      renderToolbar={(props) => (
-        <NoteToolbar
-          note={props.note}
-          selectedVersion={props.selectedVersion}
-          selectedVersionId={props.selectedVersionId}
-          setSelectedVersionId={props.setSelectedVersionId}
-          handleToggleChat={props.handleToggleChat}
-        />
-      )}
-    />
+    <>
+      <BaseNotePageContent
+        isMobile={true}
+        note={note || initialNote}
+        noteVersions={noteVersions || initialNoteVersions}
+        selectedVersionId={selectedVersionId}
+        setSelectedVersionId={setSelectedVersionId}
+        selectedVersion={selectedVersion}
+        chatOpen={chatOpen}
+        handleToggleChat={handleToggleChat}
+        isLoading={isLoading}
+        error={error}
+        renderToolbar={(props) => (
+          <NoteToolbar
+            note={props.note}
+            selectedVersion={props.selectedVersion}
+            selectedVersionId={props.selectedVersionId}
+            setSelectedVersionId={props.setSelectedVersionId}
+            handleToggleChat={props.handleToggleChat}
+            noteVersions={props.noteVersions}
+          />
+        )}
+      />
+      {/* Rename Dialog */}
+      <InputDialog
+        open={renameOpen}
+        onOpenChange={setRenameOpen}
+        title="Rename This Note"
+        placeholder="Note Title"
+        confirmText="Rename"
+        confirmLoadingText="Renaming..."
+        onConfirm={(inputValue) => handleSaveTitle(inputValue)}
+        isLoading={updateNoteMutation.isPending}
+        validate={(value) => value.trim().length > 0}
+      />
+    </>
   );
 };
 
