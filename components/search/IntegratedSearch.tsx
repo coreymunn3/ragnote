@@ -168,7 +168,7 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
         )}
         {/* show the items if we get search results */}
         {searchMutation.isSuccess && !!searchResults && (
-          <div className="p-2 flex space-x-2">
+          <div className="p-2 flex flex-wrap gap-2">
             {/* if we have more than 0 results, show them */}
             {searchResults.numResults > 0 &&
               searchResults.searchResults
