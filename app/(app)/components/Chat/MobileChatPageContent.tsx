@@ -16,6 +16,7 @@ import EditableField from "@/components/EditableField";
 import ScopeBadge from "@/components/ScopeBadge";
 import OptionsMenu from "@/components/OptionsMenu";
 import { toast } from "sonner";
+import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 
 interface MobileChatPageContentProps {
   chatSessionId: string;
@@ -111,9 +112,9 @@ const MobileChatPageContent = ({
             >
               <ArrowLeftIcon className="h-4 w-4" />
             </Button>
-            <span className="text-sm font-semibold truncate max-w-[120px]">
-              {chatSession.data.title || "Chat Session..."}
-            </span>
+            <MobilePageTitle
+              title={chatSession.data.title || "Chat Session..."}
+            />
             {chatSession.data.chat_scope && (
               <ScopeBadge chatScope={chatSession.data.chat_scope} />
             )}

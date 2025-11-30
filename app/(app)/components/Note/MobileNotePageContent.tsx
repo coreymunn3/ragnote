@@ -17,6 +17,7 @@ import EditableField from "@/components/EditableField";
 import VersionSelector from "@/components/VersionSelector";
 import ProButton from "@/components/ProButton";
 import { toast } from "sonner";
+import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 
 interface MobileNotePageContentProps {
   note: Note;
@@ -132,9 +133,7 @@ const MobileNotePageContent = ({
             >
               <ArrowLeftIcon className="h-4 w-4" />
             </Button>
-            <span className="text-sm font-semibold truncate max-w-[150px]">
-              {note.title}
-            </span>
+            <MobilePageTitle title={note.title} />
           </>
         ),
         rightContent: (

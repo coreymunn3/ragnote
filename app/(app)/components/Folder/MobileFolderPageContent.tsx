@@ -16,6 +16,7 @@ import { useMobileHeader } from "@/contexts/MobileHeaderContext";
 import { Button } from "@/components/ui/button";
 import OptionsMenu from "@/components/OptionsMenu";
 import { TypographyH4 } from "@/components/ui/typgrophy";
+import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 
 interface MobileFolderPageContentProps {
   folder: FolderWithItems;
@@ -52,9 +53,7 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
             >
               <ArrowLeftIcon className="h-4 w-4" />
             </Button>
-            <TypographyH4 className="pb-0">
-              {folderData.data.folder_name}
-            </TypographyH4>
+            <MobilePageTitle title={folderData.data.folder_name} />
           </>
         ),
         rightContent: isUserFolder ? (
