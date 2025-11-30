@@ -11,12 +11,12 @@ import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { useUpdateChat } from "@/hooks/chat/useUpdateChat";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowLeftIcon, Trash2Icon } from "lucide-react";
-import EditableField from "@/components/EditableField";
+import { ArrowLeftIcon, SquarePenIcon, Trash2Icon } from "lucide-react";
 import ScopeBadge from "@/components/ScopeBadge";
 import OptionsMenu from "@/components/OptionsMenu";
 import { toast } from "sonner";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
+import InputDialog from "@/components/dialogs/InputDialog";
 
 interface MobileChatPageContentProps {
   chatSessionId: string;
@@ -36,6 +36,7 @@ const MobileChatPageContent = ({
 
   // State management
   const [pendingUserMessage, setPendingUserMessage] = useState<string>("");
+  const [renameOpen, setRenameOpen] = useState(false);
 
   // Re-fetch chat session
   const chatSession = useGetChatSession(chatSessionId, {
@@ -123,17 +124,11 @@ const MobileChatPageContent = ({
         rightContent: (
           <OptionsMenu
             options={[
-              // {
-              //   label: "Rename",
-              //   icon: (
-              //     <EditableField
-              //       value={chatSession.data.title || "Chat Session..."}
-              //       variant="bold"
-              //       onSave={handleSaveTitle}
-              //     />
-              //   ),
-              //   onClick: () => {}, // EditableField handles the click
-              // },
+              {
+                label: "Rename",
+                icon: <SquarePenIcon className="h-4 w-4" />,
+                onClick: () => setRenameOpen(true),
+              },
               {
                 label: "Delete",
                 icon: <Trash2Icon className="h-4 w-4" />,
@@ -153,14 +148,28 @@ const MobileChatPageContent = ({
   const isLoading = chatSession.isLoading || chatMessages.isLoading;
 
   return (
-    <BaseChatPageContent
-      chatSession={chatSession.data || initialChatSession}
-      chatMessages={chatMessages.data || initialChatMessages}
-      pendingUserMessage={pendingUserMessage}
-      isLoading={isLoading}
-      isPro={isPro}
-      onSendChat={handleSendChat}
-    />
+    <>
+      <BaseChatPageContent
+        chatSession={chatSession.data || initialChatSession}
+        chatMessages={chatMessages.data || initialChatMessages}
+        pendingUserMessage={pendingUserMessage}
+        isLoading={isLoading}
+        isPro={isPro}
+        onSendChat={handleSendChat}
+      />
+      {/* Rename Dialog */}
+      <InputDialog
+        open={renameOpen}
+        onOpenChange={setRenameOpen}
+        title="Rename This Chat"
+        placeholder="Chat Title"
+        confirmText="Rename"
+        confirmLoadingText="Renaming..."
+        onConfirm={(inputValue) => handleSaveTitle(inputValue)}
+        isLoading={updateChatMutation.isPending}
+        validate={(value) => value.trim().length > 0}
+      />
+    </>
   );
 };
 
