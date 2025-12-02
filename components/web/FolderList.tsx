@@ -5,9 +5,9 @@ import FolderListItem from "./FolderListItem";
 import { AnimatedListItem } from "@/components/animations";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Skeleton } from "@/components/ui/skeleton";
 import CreateFolder from "../CreateFolder";
 import { getFolderIcon } from "@/lib/utils";
+import FolderListSkeleton from "../skeletons/FolderListSkeleton";
 
 interface FolderListProps {
   folders: FolderWithItems[] | undefined;
@@ -38,22 +38,8 @@ const FolderList = ({
     setOpenFolderId((current) => (current === folderId ? null : folderId));
   };
 
-  // skeletons when loading
-  const renderFolderSkeletons = () => {
-    return Array.from({ length: 3 }).map((_, index) => (
-      <SidebarMenuItem key={`skeleton-${index}`}>
-        <AnimatedListItem index={index} animation="fadeInRight">
-          <div className="flex items-center gap-2 p-2">
-            <Skeleton className="h-4 w-4 rounded" />
-            <Skeleton className="h-4 flex-1 rounded" />
-          </div>
-        </AnimatedListItem>
-      </SidebarMenuItem>
-    ));
-  };
-
   if (isLoading) {
-    return <SidebarMenu>{renderFolderSkeletons()}</SidebarMenu>;
+    return <FolderListSkeleton />;
   }
 
   return (

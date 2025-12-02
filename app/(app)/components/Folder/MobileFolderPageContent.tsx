@@ -19,6 +19,7 @@ import { TypographyH4 } from "@/components/ui/typgrophy";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import { Note } from "@/lib/types/noteTypes";
 import { ChatSession } from "@/lib/types/chatTypes";
+import MobileListSkeleton from "@/components/skeletons/MobileListSkeleton";
 
 interface MobileFolderPageContentProps {
   folder: FolderWithItems;
@@ -36,22 +37,15 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
     staleTime: 0,
     refetchOnMount: true,
   });
-  // determine if this is a system folder or user folder
-  const isUserFolder = !isSystemFolder(folderData.data!.id);
-  // hooks for folder operations
+
+  // hooks
   const renameFolder = useRenameFolder();
   const deleteFolder = useDeleteFolder();
-  // Separate pinned and unpinned items - both Note and ChatSession have is_pinned
-  const unpinnedItems = folderData.data!.items.filter(
-    (item: Note | ChatSession) => !item.is_pinned
-  );
-  const pinnedItems = folderData.data!.items.filter(
-    (item: Note | ChatSession) => item.is_pinned
-  );
 
-  // Set header configuration for Folder page
+  // Set header configuration for Folder page (must call useEffect before any returns)
   useEffect(() => {
     if (folderData.data) {
+      const isUserFolder = !isSystemFolder(folderData.data.id);
       setHeaderConfig({
         leftContent: (
           <>
@@ -92,13 +86,31 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
     return () => {
       resetHeaderConfig();
     };
-  }, [
-    folderData.data,
-    isUserFolder,
-    router,
-    setHeaderConfig,
-    resetHeaderConfig,
-  ]);
+  }, [folderData.data, router, setHeaderConfig, resetHeaderConfig]);
+
+  // Show loading skeleton while fetching (check AFTER all hooks are called)
+  if (folderData.isFetching) {
+    return (
+      <div>
+        <MobileListSkeleton
+          showTitle={false}
+          showAction={false}
+          itemCount={3}
+        />
+      </div>
+    );
+  }
+
+  // Now safe to access data after confirming we're not fetching
+  // determine if this is a system folder or user folder
+  const isUserFolder = !isSystemFolder(folderData.data!.id);
+  // Separate pinned and unpinned items - both Note and ChatSession have is_pinned
+  const unpinnedItems = folderData.data!.items.filter(
+    (item: Note | ChatSession) => !item.is_pinned
+  );
+  const pinnedItems = folderData.data!.items.filter(
+    (item: Note | ChatSession) => item.is_pinned
+  );
 
   return (
     <div>
