@@ -1,11 +1,11 @@
 import { FolderWithItems } from "@/lib/types/folderTypes";
-import { TypographyH4 } from "../ui/typgrophy";
 import { AnimatedListItem, AnimatedTypography } from "../animations";
 import MobileListItem from "./MobileListItem";
 import { Note } from "@/lib/types/noteTypes";
 import OptionsMenu, { Option } from "../OptionsMenu";
 import { ChatSession } from "@/lib/types/chatTypes";
 import { Skeleton } from "../ui/skeleton";
+import { TypographyP } from "../ui/typography";
 
 export type MobileListItemType = FolderWithItems | Note | ChatSession;
 export type MobileListType = "folder" | "note" | "chat";
@@ -52,13 +52,19 @@ const MobileList = ({
         <div className="flex justify-between items-center px-4 pb-2 space-x-2">
           {/* title */}
           {title && (
-            <AnimatedTypography variant="h4">{title}</AnimatedTypography>
+            <TypographyP className="font-semibold">{title}</TypographyP>
           )}
           {/* options and action if provided */}
-          <div>
-            {action}
-            {options?.length && <OptionsMenu options={options} />}
-          </div>
+          {isLoading ? (
+            <>
+              <Skeleton className="h-6 w-6" />
+            </>
+          ) : (
+            <div>
+              {action}
+              {options?.length && <OptionsMenu options={options} />}
+            </div>
+          )}
         </div>
       )}
       {/* the items in this section - show skeletons if loading */}

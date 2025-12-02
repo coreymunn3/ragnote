@@ -91,34 +91,32 @@ const SelectDialog = <T extends string | number>({
 
   // Shared dropdown content
   const dropdownContent = (
-    <div className="mt-4">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-full justify-between"
-            disabled={isLoading}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          className="w-full justify-between"
+          disabled={isLoading}
+        >
+          {selectedOption ? selectedOption.label : placeholder}
+          <ChevronDownIcon className="h-4 w-4 opacity-50" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-full min-w-[var(--radix-dropdown-menu-trigger-width)]">
+        {options.map((option) => (
+          <DropdownMenuItem
+            key={String(option.value)}
+            onClick={() =>
+              !isOptionDisabled(option) && handleSelect(option.value)
+            }
+            disabled={isOptionDisabled(option)}
+            className={currentValue === option.value ? "bg-accent" : ""}
           >
-            {selectedOption ? selectedOption.label : placeholder}
-            <ChevronDownIcon className="h-4 w-4 opacity-50" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-full min-w-[var(--radix-dropdown-menu-trigger-width)]">
-          {options.map((option) => (
-            <DropdownMenuItem
-              key={String(option.value)}
-              onClick={() =>
-                !isOptionDisabled(option) && handleSelect(option.value)
-              }
-              disabled={isOptionDisabled(option)}
-              className={currentValue === option.value ? "bg-accent" : ""}
-            >
-              {option.label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+            {option.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 
   // Mobile: Render as bottom sheet
