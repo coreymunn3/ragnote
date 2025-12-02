@@ -15,7 +15,6 @@ import CreateNote from "@/components/CreateNote";
 import { useMobileHeader } from "@/contexts/MobileHeaderContext";
 import { Button } from "@/components/ui/button";
 import OptionsMenu from "@/components/OptionsMenu";
-import { TypographyH4 } from "@/components/ui/typgrophy";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import { Note } from "@/lib/types/noteTypes";
 import { ChatSession } from "@/lib/types/chatTypes";
@@ -101,9 +100,6 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
     );
   }
 
-  // Now safe to access data after confirming we're not fetching
-  // determine if this is a system folder or user folder
-  const isUserFolder = !isSystemFolder(folderData.data!.id);
   // Separate pinned and unpinned items - both Note and ChatSession have is_pinned
   const unpinnedItems = folderData.data!.items.filter(
     (item: Note | ChatSession) => !item.is_pinned

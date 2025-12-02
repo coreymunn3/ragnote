@@ -9,6 +9,7 @@ import { ChatSession } from "@/lib/types/chatTypes";
 import MobileListItemNoteDetail from "./MobileListItemNoteDetail";
 import MobileListItemChatDetail from "./MobileListItemChatDetail";
 import MobileListItemFolderDetail from "./MobileListItemFolderDetail";
+import { TypographyP } from "../ui/typography";
 
 interface MobileListItemProps {
   type: MobileListType;
@@ -66,7 +67,9 @@ const MobileListItem = ({ type, item, isLastItem }: MobileListItemProps) => {
         >
           {Boolean(itemData.icon) && itemData.icon}
           <div className="flex flex-col w-full overflow-hidden min-w-0">
-            <span className="truncate">{itemData.displayName}</span>
+            <TypographyP className="truncate">
+              {itemData.displayName}
+            </TypographyP>
             <span className="text-xs text-foreground/40 truncate">
               {itemData?.description}
             </span>
