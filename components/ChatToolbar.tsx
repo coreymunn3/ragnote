@@ -2,8 +2,8 @@
 import { useParams, useRouter } from "next/navigation";
 import EditableField from "./EditableField";
 import { ChatSession } from "@/lib/types/chatTypes";
-import { Skeleton } from "./ui/skeleton";
 import { Trash2Icon } from "lucide-react";
+import WebToolbarSkeleton from "./skeletons/WebToolbarSkeleton";
 import { TypographyMuted } from "./ui/typography";
 import { DateTime } from "luxon";
 import { useUpdateChat } from "@/hooks/chat/useUpdateChat";
@@ -58,16 +58,7 @@ const ChatToolbar = ({
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-between py-2">
-        <div className="flex items-center space-x-2">
-          <Skeleton className="h-8 w-32" />
-        </div>
-        <div className="flex items-center space-x-2">
-          <Skeleton className="h-8 w-10" />
-        </div>
-      </div>
-    );
+    return <WebToolbarSkeleton variant="chat" />;
   }
 
   return (

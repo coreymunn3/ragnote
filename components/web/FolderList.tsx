@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import CreateFolder from "../CreateFolder";
 import { getFolderIcon } from "@/lib/utils";
-import FolderListSkeleton from "../skeletons/FolderListSkeleton";
+import WebFolderListSkeleton from "../skeletons/WebFolderListSkeleton";
 
 interface FolderListProps {
   folders: FolderWithItems[] | undefined;
@@ -39,7 +39,7 @@ const FolderList = ({
   };
 
   if (isLoading) {
-    return <FolderListSkeleton />;
+    return <WebFolderListSkeleton />;
   }
 
   return (

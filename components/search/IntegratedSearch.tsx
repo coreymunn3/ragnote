@@ -11,8 +11,8 @@ import {
 import { Button } from "../ui/button";
 import { useSearch } from "@/hooks/search/useSearch";
 import { AnimatedExpandable, AnimatedListItem } from "../animations";
-import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
+import SearchResultsSkeleton from "../skeletons/SearchResultsSkeleton";
 import {
   SearchMode,
   SearchResult,
@@ -159,13 +159,7 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
         }
       >
         {/* show loading if mutation pending */}
-        {searchMutation.isPending && (
-          <div className="p-2 flex space-x-2">
-            <Skeleton className="w-[250px] h-20" />
-            <Skeleton className="w-[250px] h-20" />
-            <Skeleton className="w-[250px] h-20" />
-          </div>
-        )}
+        {searchMutation.isPending && <SearchResultsSkeleton />}
         {/* show the items if we get search results */}
         {searchMutation.isSuccess && !!searchResults && (
           <div className="p-2 flex flex-wrap gap-2">

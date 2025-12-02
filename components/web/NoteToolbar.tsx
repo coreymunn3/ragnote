@@ -2,18 +2,12 @@
 import { useRouter } from "next/navigation";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import { TypographyMuted } from "../ui/typography";
-import {
-  BookCheckIcon,
-  ForwardIcon,
-  MessageCircleIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { BookCheckIcon, MessageCircleIcon, Trash2Icon } from "lucide-react";
 import EditableField from "../EditableField";
-import OptionsMenu from "../OptionsMenu";
 import { DateTime } from "luxon";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
-import { Skeleton } from "../ui/skeleton";
 import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
+import WebToolbarSkeleton from "../skeletons/WebToolbarSkeleton";
 import { toast } from "sonner";
 import ProButton from "../ProButton";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
@@ -107,20 +101,7 @@ const NoteToolbar = ({
 
   // loading state
   if (shouldShowLoading || !note) {
-    return (
-      <div className="flex items-center justify-between px-14 py-2">
-        <div className="flex items-center space-x-2">
-          <Skeleton className="h-8 w-32" />
-          <Skeleton className="h-8 w-16" />
-        </div>
-        <div className="flex items-center space-x-2">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-8 w-8" />
-          <Skeleton className="h-8 w-8" />
-          <Skeleton className="h-8 w-8" />
-        </div>
-      </div>
-    );
+    return <WebToolbarSkeleton variant="note" />;
   }
 
   return (

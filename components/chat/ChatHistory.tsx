@@ -5,7 +5,7 @@ import { ChatSession } from "@/lib/types/chatTypes";
 import { ChevronRight, HistoryIcon, Loader2Icon } from "lucide-react";
 import { AnimatedExpandable, AnimatedListItem } from "@/components/animations";
 import ChatHistoryItem from "./ChatHistoryItem";
-import { Skeleton } from "../ui/skeleton";
+import WebChatHistoryHeaderSkeleton from "../skeletons/WebChatHistoryHeaderSkeleton";
 
 // Small header component for the chat history section
 const ChatHistoryHeader = ({
@@ -28,10 +28,7 @@ const ChatHistoryHeader = ({
       onClick={onToggle}
     >
       {isLoading ? (
-        <>
-          <Skeleton className="h-6 w-6"></Skeleton>
-          <Skeleton className="h-6 w-36"></Skeleton>
-        </>
+        <WebChatHistoryHeaderSkeleton />
       ) : (
         <>
           <HistoryIcon
