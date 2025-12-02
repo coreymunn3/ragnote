@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import OptionsMenu from "@/components/OptionsMenu";
 import { TypographyH4 } from "@/components/ui/typgrophy";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
+import { Note } from "@/lib/types/noteTypes";
+import { ChatSession } from "@/lib/types/chatTypes";
 
 interface MobileFolderPageContentProps {
   folder: FolderWithItems;
@@ -39,6 +41,13 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
   // hooks for folder operations
   const renameFolder = useRenameFolder();
   const deleteFolder = useDeleteFolder();
+  // Separate pinned and unpinned items - both Note and ChatSession have is_pinned
+  const unpinnedItems = folderData.data!.items.filter(
+    (item: Note | ChatSession) => !item.is_pinned
+  );
+  const pinnedItems = folderData.data!.items.filter(
+    (item: Note | ChatSession) => item.is_pinned
+  );
 
   // Set header configuration for Folder page
   useEffect(() => {
@@ -93,10 +102,21 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
 
   return (
     <div>
-      <MobileList
-        type={folderData.data!.itemType}
-        items={folderData.data!.items}
-      />
+      <div className="flex flex-col space-y-8">
+        {/* list of pinned items */}
+        {pinnedItems.length > 0 && (
+          <MobileList
+            type={folderData.data!.itemType}
+            items={pinnedItems}
+            title="Pinned"
+          />
+        )}
+
+        {/* list of unpinned items */}
+        {unpinnedItems.length > 0 && (
+          <MobileList type={folderData.data!.itemType} items={unpinnedItems} />
+        )}
+      </div>
 
       {/* Rename Dialog */}
       <InputDialog

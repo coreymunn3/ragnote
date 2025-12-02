@@ -58,7 +58,7 @@ const MobileListItem = ({ type, item, isLastItem }: MobileListItemProps) => {
 
   return (
     <div>
-      <div className="w-full px-4 h-12 flex items-center justify-between hover:bg-accent/50 transition-colors">
+      <div className="w-full px-4 h-14 flex items-center justify-between hover:bg-accent/50 transition-colors">
         {/* Left side - clickable link with icon and name */}
         <Link
           href={itemData.href}
