@@ -10,9 +10,9 @@ import { PrismaNoteVersion } from "@/lib/types/noteTypes";
 import VersionBadge from "./VersionBadge";
 import { TypographyMuted } from "./ui/typography";
 import {
+  BrainIcon,
   ForwardIcon,
   MessageCircleIcon,
-  SparkleIcon,
   Trash2Icon,
 } from "lucide-react";
 import EditableField from "./EditableField";
@@ -188,7 +188,7 @@ const NoteToolbar = () => {
         )}
         <ProButton
           label="Publish"
-          icon={<SparkleIcon className="h-4 w-4" />}
+          icon={<BrainIcon className="h-4 w-4" />}
           onClick={handlePublishNote}
           isLoading={publishNoteVersionMutation.isPending}
           disabled={selectedVersion?.is_published}
