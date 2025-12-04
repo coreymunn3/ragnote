@@ -143,8 +143,8 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
         {/* Search Mode - Semantic Search or Text Matching */}
         <div className="flex items-center justify-center">
           <ProButton
-            variant={searchMode === "semantic" ? "secondary" : "ghost"}
-            className={`${searchMode === "text" ? "text-secondary" : "text-background"}`}
+            variant={searchMode === "semantic" ? "default" : "ghost"}
+            className={`${searchMode === "text" ? "text-primary" : "text-background"}`}
             icon={<BrainIcon className="h-4 w-4" />}
             onClick={toggleSearchMode}
           />

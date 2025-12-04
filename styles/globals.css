@@ -46,10 +46,10 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 8%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217 91% 50%;        
-    --primary-foreground: 210 40% 98%;
-    --secondary: 166 80% 52%;      
-    --secondary-foreground: 222 47% 11%;
+    --primary: 166 80% 52%;         
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 91% 50%;     
+    --secondary-foreground:  210 40% 98%;
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
     --accent: 217 33% 17%;
@@ -67,7 +67,7 @@
     --chart-5: 199 89% 53%;
    --sidebar-background: 222 47% 10%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217 91% 50%; 
+    --sidebar-primary: 166 80% 52%; 
     --sidebar-primary-foreground: 222 47% 11%; 
     --sidebar-accent: 217 33% 17%;
     --sidebar-accent-foreground: 210 40% 98%;
