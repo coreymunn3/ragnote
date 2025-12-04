@@ -1,11 +1,9 @@
-import { BrainIcon } from "lucide-react";
+import Logo from "./Logo";
 
 const BrandingHeader = () => {
   return (
     <div className="flex items-center w-full justify-center">
-      <BrainIcon className="h-6 w-6 text-primary mr-2" />
-      {/* Assuming 'text-primary' is a Tailwind color */}
-      <span className="ml-2 text-lg font-bold">RagNote AI</span>
+      <Logo width={140} height={36} />
     </div>
   );
 };

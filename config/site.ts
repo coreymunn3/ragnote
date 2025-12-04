@@ -1,6 +1,6 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "ragnote",
-  description: "A Notepad for deep analysis",
+  name: "Wysenote",
+  description: "AI-powered Personal Knowledge Base",
 };
