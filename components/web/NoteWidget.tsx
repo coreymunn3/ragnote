@@ -24,6 +24,7 @@ import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import SelectDialog, { SelectOption } from "../dialogs/SelectDialog";
 import { useState } from "react";
 import { DateTime } from "luxon";
+import VersionBadge from "../VersionBadge";
 
 interface NoteWidgetProps {
   note: Note;
@@ -119,7 +120,7 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
       <Link href={noteUrl} className="block w-full h-full">
         <Card
           variant="dense"
-          className={`${pinned && "bg-primary/15"} ${!pinned && "min-w-[250px]"} cursor-pointer hover:shadow-md hover:text-primary transition-all duration-200`}
+          className={`${pinned && "bg-sidebar border border-primary"} ${!pinned && "min-w-[250px]"} cursor-pointer hover:shadow-md hover:text-primary hover:border hover:border-primary transition-all duration-200`}
         >
           {/* Note Widget Header */}
           <CardHeader>
@@ -133,12 +134,7 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
               </div>
               {/* Header right - the published badge and options */}
               <div className="flex items-center justify-center space-x-2">
-                <Badge
-                  variant={isPublished ? "default" : "secondary"}
-                  className={`ml-2 whitespace-nowrap flex-shrink-0 ${pinned && !isPublished && "border-stone-500"}`}
-                >
-                  v{note.current_version.version_number}
-                </Badge>
+                <VersionBadge version={note.current_version} />
                 <OptionsMenu options={noteActions} />
               </div>
             </div>

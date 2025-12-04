@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import {
   CircleAlertIcon,
   CornerDownLeft,
-  SparkleIcon,
+  BrainIcon,
   XIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -144,8 +144,8 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
         <div className="flex items-center justify-center">
           <ProButton
             variant={searchMode === "semantic" ? "default" : "ghost"}
-            className={`${searchMode === "text" ? "text-primary" : "text-white"}`}
-            icon={<SparkleIcon className="h-4 w-4" />}
+            className={`${searchMode === "text" ? "text-primary" : "text-background"}`}
+            icon={<BrainIcon className="h-4 w-4" />}
             onClick={toggleSearchMode}
           />
         </div>

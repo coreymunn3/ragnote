@@ -23,7 +23,7 @@ const CreateFolder = () => {
     <>
       <Button
         variant={"ghost"}
-        className="w-full flex justify-start h-[44px] hover:bg-primary/20 transition-colors duration-200"
+        className="w-full flex justify-start h-[44px] hover:bg-primary/30 dark:hover:bg-primary/30 transition-colors duration-200"
         disabled={createFolderMutation.isPending}
         onClick={() => setDialogOpen(true)}
       >

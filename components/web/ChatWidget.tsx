@@ -23,7 +23,7 @@ const ChatWidget = ({ chatSession }: ChatWidgetProps) => {
     <Link href={chatUrl} className="block w-full h-full">
       <Card
         variant="dense"
-        className="cursor-pointer hover:shadow-md hover:text-primary transition-all duration-200"
+        className="acursor-pointer hover:shadow-md hover:text-primary hover:border hover:border-primary transition-all duration-200"
       >
         <CardHeader>
           <CardTitle className="text-base font-semibold line-clamp-1 overflow-ellipsis">
