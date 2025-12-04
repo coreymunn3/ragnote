@@ -50,8 +50,8 @@ const FolderListItem = ({
   return (
     <div
       className={`p-1 rounded-md ${
-        isOpen ? "bg-primary/20" : ""
-      } hover:bg-primary/20 transition-colors duration-200`}
+        isOpen ? "bg-primary/30" : ""
+      } hover:bg-primary/30 transition-colors duration-200`}
       onClick={handleFolderClick}
     >
       <div className="flex items-center">

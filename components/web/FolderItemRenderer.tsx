@@ -19,7 +19,7 @@ const FolderItemRenderer = ({ item, itemType }: FolderItemRendererProps) => {
   return (
     <Button
       variant={"ghost"}
-      className="flex justify-start p-0 hover:bg-primary/20 min-w-0"
+      className="flex justify-start p-0 hover:bg-primary dark:hover:bg-primary hover:text-primary-foreground min-w-0"
       asChild
     >
       <Link
