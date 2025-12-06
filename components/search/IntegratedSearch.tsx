@@ -99,7 +99,7 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
   }, [searchResults]);
 
   return (
-    <div className="flex flex-col justify-center h-14 p-1 border border-input dark:border-white w-full bg-background rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
+    <div className="flex flex-col justify-center h-14 p-1 border border-input dark:border-primary w-full bg-background rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
       <div className="flex space-x-1">
         {/* the input */}
         <Input
