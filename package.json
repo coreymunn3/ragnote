@@ -5,17 +5,17 @@
   "scripts": {
     "dev": "next dev --turbopack -p 3003",
     "dev:local": "cross-env NODE_ENV=development next dev --turbopack -p 3003",
-    "dev:prod": "cross-env NODE_ENV=production DATABASE_URL=\"postgresql://prisma.uevoqepnqbrvukwvcutj:H@stiershrapn3l@aws-1-us-east-2.pooler.supabase.com:6543/postgres?pgbouncer=true\" DIRECT_URL=\"postgresql://prisma.uevoqepnqbrvukwvcutj:H@stiershrapn3l@aws-1-us-east-2.pooler.supabase.com:5432/postgres\" next dev --turbopack -p 3003",
+    "dev:prod": "cross-env NODE_ENV=production next dev --turbopack -p 3003",
     "build": "next build",
-    "build:prod": "cross-env NODE_ENV=production DATABASE_URL=\"postgresql://prisma.uevoqepnqbrvukwvcutj:H@stiershrapn3l@aws-1-us-east-2.pooler.supabase.com:6543/postgres?pgbouncer=true\" DIRECT_URL=\"postgresql://prisma.uevoqepnqbrvukwvcutj:H@stiershrapn3l@aws-1-us-east-2.pooler.supabase.com:5432/postgres\" next build",
+    "build:prod": "cross-env NODE_ENV=production next build",
     "start": "next start",
     "lint": "eslint --fix",
     "db:studio:local": "cross-env NODE_ENV=development npx prisma studio",
-    "db:studio:prod": "cross-env DATABASE_URL=\"postgresql://prisma.uevoqepnqbrvukwvcutj:H@stiershrapn3l@aws-1-us-east-2.pooler.supabase.com:6543/postgres?pgbouncer=true\" DIRECT_URL=\"postgresql://prisma.uevoqepnqbrvukwvcutj:H@stiershrapn3l@aws-1-us-east-2.pooler.supabase.com:5432/postgres\" npx prisma studio",
+    "db:studio:prod": "cross-env NODE_ENV=production npx prisma studio",
     "db:migrate:local": "cross-env NODE_ENV=development npx prisma migrate dev",
-    "db:migrate:prod": "cross-env DATABASE_URL=\"postgresql://prisma.uevoqepnqbrvukwvcutj:H@stiershrapn3l@aws-1-us-east-2.pooler.supabase.com:6543/postgres?pgbouncer=true\" DIRECT_URL=\"postgresql://prisma.uevoqepnqbrvukwvcutj:H@stiershrapn3l@aws-1-us-east-2.pooler.supabase.com:5432/postgres\" npx prisma migrate deploy",
+    "db:migrate:prod": "cross-env NODE_ENV=production npx prisma migrate deploy",
     "db:push:local": "cross-env NODE_ENV=development npx prisma db push",
-    "db:push:prod": "cross-env DATABASE_URL=\"postgresql://prisma.uevoqepnqbrvukwvcutj:H@stiershrapn3l@aws-1-us-east-2.pooler.supabase.com:6543/postgres?pgbouncer=true\" DIRECT_URL=\"postgresql://prisma.uevoqepnqbrvukwvcutj:H@stiershrapn3l@aws-1-us-east-2.pooler.supabase.com:5432/postgres\" npx prisma db push",
+    "db:push:prod": "cross-env NODE_ENV=production npx prisma db push",
     "db:reset:local": "cross-env NODE_ENV=development npx prisma migrate reset"
   },
   "dependencies": {
