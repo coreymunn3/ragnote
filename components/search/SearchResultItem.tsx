@@ -32,7 +32,7 @@ const SearchResultItem = ({ searchResult }: SearchResultItemProps) => {
               <TypographySmall className="truncate flex-1 text-start">
                 {searchResult.note.title}
               </TypographySmall>
-              <VersionBadge version={searchResult.versions[0]} />
+              <VersionBadge version={searchResult.versions[0]} context="note" />
             </div>
 
             {/* Preview */}
@@ -61,7 +61,7 @@ const SearchResultItem = ({ searchResult }: SearchResultItemProps) => {
               <TypographySmall className="truncate flex-1 text-start">
                 {searchResult.note.title}
               </TypographySmall>
-              <VersionBadge version={searchResult.versions[0]} />
+              <VersionBadge version={searchResult.versions[0]} context="note" />
             </div>
           </div>
         </Button>

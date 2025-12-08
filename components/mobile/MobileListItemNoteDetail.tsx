@@ -73,7 +73,7 @@ const MobileListItemNoteDetail = ({ note }: MobileListItemNoteDetailProps) => {
 
   return (
     <>
-      <VersionBadge version={note.current_version} />
+      <VersionBadge version={note.current_version} context="note" />
       <OptionsMenu
         options={[
           note.is_pinned

@@ -175,7 +175,10 @@ const ChatPanel = ({
                   </Tooltip>
                 </TooltipProvider>
                 {!!mostRecentPublishedVersion && (
-                  <VersionBadge version={mostRecentPublishedVersion} />
+                  <VersionBadge
+                    version={mostRecentPublishedVersion}
+                    context="version"
+                  />
                 )}
               </div>
               <div>
