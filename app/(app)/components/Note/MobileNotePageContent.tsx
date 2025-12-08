@@ -166,6 +166,8 @@ const MobileNotePageContent = ({
             setSelectedVersionId={props.setSelectedVersionId}
             handleToggleChat={props.handleToggleChat}
             noteVersions={props.noteVersions}
+            saveStatus={props.saveStatus}
+            onRetrySave={props.onRetrySave}
           />
         )}
       />

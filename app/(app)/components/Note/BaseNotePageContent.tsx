@@ -8,6 +8,8 @@ import { debounce } from "lodash";
 import MessageAlert from "@/components/MessageAlert";
 import ChatPanel from "@/components/chat/ChatPanel";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { SaveStatusType } from "@/components/SaveStatus";
 
 interface ToolbarProps {
   note: Note;
@@ -17,6 +19,8 @@ interface ToolbarProps {
   setSelectedVersionId: (id: string | null) => void;
   loading: { noteLoading: boolean; versionsLoading: boolean };
   handleToggleChat: () => void;
+  saveStatus: SaveStatusType;
+  onRetrySave: () => void;
 }
 
 interface BaseNotePageContentProps {
@@ -49,18 +53,74 @@ const BaseNotePageContent = ({
   const params: { id: string } = useParams();
   const { id: noteId } = params;
 
-  const saveNoteVersionContent = useSaveNoteVersionContent();
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSavedContent, setLastSavedContent] = useState<any>(null);
 
-  // Save editor content after debouncing
-  const handleEditorChange = debounce((editor: BlockNoteEditor) => {
-    if (selectedVersionId) {
+  const saveNoteVersionContent = useSaveNoteVersionContent({
+    onSuccess: () => {
+      setHasUnsavedChanges(false);
+    },
+  });
+
+  // Save editor content after debouncing - memoized to prevent multiple instances
+  const SAVE_DEBOUNCE = 1000;
+  const handleEditorChange = useMemo(
+    () =>
+      debounce((editor: BlockNoteEditor) => {
+        if (selectedVersionId) {
+          saveNoteVersionContent.mutate({
+            noteId,
+            versionId: selectedVersionId,
+            richTextContent: editor.document,
+          });
+        }
+      }, SAVE_DEBOUNCE),
+    [selectedVersionId, noteId, saveNoteVersionContent]
+  );
+
+  // Non-debounced handler to track unsaved changes immediately
+  const handleEditorChangeImmediate = useCallback(
+    (editor: BlockNoteEditor) => {
+      setHasUnsavedChanges(true);
+      handleEditorChange(editor);
+    },
+    [handleEditorChange]
+  );
+
+  // Cleanup debounced function on unmount or version change
+  useEffect(() => {
+    return () => {
+      handleEditorChange.cancel();
+    };
+  }, [handleEditorChange]);
+
+  // Calculate save status
+  const saveStatus: SaveStatusType = saveNoteVersionContent.isError
+    ? "error"
+    : saveNoteVersionContent.isPending
+      ? "saving"
+      : hasUnsavedChanges
+        ? "unsaved"
+        : saveNoteVersionContent.isSuccess
+          ? "saved"
+          : "idle";
+
+  // Retry save handler
+  const handleRetrySave = useCallback(() => {
+    if (selectedVersionId && lastSavedContent) {
       saveNoteVersionContent.mutate({
         noteId,
         versionId: selectedVersionId,
-        richTextContent: editor.document,
+        richTextContent: lastSavedContent,
       });
     }
-  }, 1000);
+  }, [selectedVersionId, lastSavedContent, noteId, saveNoteVersionContent]);
+
+  // Reset unsaved changes when version changes
+  useEffect(() => {
+    setHasUnsavedChanges(false);
+    setLastSavedContent(selectedVersion?.rich_text_content);
+  }, [selectedVersionId, selectedVersion]);
 
   // Loading state
   if (isLoading) {
@@ -103,6 +163,8 @@ const BaseNotePageContent = ({
     setSelectedVersionId,
     loading: { noteLoading: isLoading, versionsLoading: isLoading },
     handleToggleChat,
+    saveStatus,
+    onRetrySave: handleRetrySave,
   };
 
   // No version selected
@@ -138,7 +200,7 @@ const BaseNotePageContent = ({
         <RichTextEditor
           key={selectedVersionId}
           initialContent={selectedVersion.rich_text_content}
-          onChange={handleEditorChange}
+          onChange={handleEditorChangeImmediate}
           readOnly={selectedVersion.is_published || note.is_deleted}
         />
       </div>

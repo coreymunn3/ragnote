@@ -8,7 +8,6 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
 import { AnimatedContainer } from "@/components/animations/AnimatedContainer";
-import { TypographySmall } from "./ui/typography";
 import { LockIcon } from "lucide-react";
 
 export interface RichTextEditorProps {

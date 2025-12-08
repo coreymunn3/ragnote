@@ -13,6 +13,7 @@ import ProButton from "../ProButton";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import VersionSelector from "../VersionSelector";
 import { Button } from "../ui/button";
+import SaveStatus, { SaveStatusType } from "../SaveStatus";
 import {
   Tooltip,
   TooltipContent,
@@ -31,6 +32,8 @@ interface NoteToolbarProps {
     versionsLoading: boolean;
   };
   handleToggleChat: () => void;
+  saveStatus: SaveStatusType;
+  onRetrySave: () => void;
 }
 
 const NoteToolbar = ({
@@ -41,6 +44,8 @@ const NoteToolbar = ({
   setSelectedVersionId,
   loading,
   handleToggleChat,
+  saveStatus,
+  onRetrySave,
 }: NoteToolbarProps) => {
   const router = useRouter();
   const { isPro } = useUserSubscription();
@@ -134,6 +139,10 @@ const NoteToolbar = ({
             )}
           </>
         )}
+        {/* Save Status Indicator */}
+        {!selectedVersion?.is_published && !note.is_deleted && (
+          <SaveStatus status={saveStatus} onRetry={onRetrySave} />
+        )}
       </div>
       {/* right side - last edited, publish & controls */}
 
@@ -142,7 +151,7 @@ const NoteToolbar = ({
           {selectedVersion &&
             selectedVersion.updated_at &&
             (!selectedVersion.is_published || selectedVersion.published_at) && (
-              <TypographyMuted>
+              <TypographyMuted className="text-xs">
                 {selectedVersion.is_published ? "published" : "saved"}{" "}
                 {selectedVersion.is_published && selectedVersion.published_at
                   ? DateTime.fromISO(

@@ -5,6 +5,7 @@ import ProButton from "../ProButton";
 import VersionSelector from "../VersionSelector";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { BookCheckIcon, MessageCircleIcon } from "lucide-react";
+import SaveStatus, { SaveStatusType } from "../SaveStatus";
 
 interface NoteToolbarProps {
   note: Note;
@@ -13,6 +14,8 @@ interface NoteToolbarProps {
   setSelectedVersionId: (versionId: string) => void;
   handleToggleChat: () => void;
   noteVersions: PrismaNoteVersion[];
+  saveStatus: SaveStatusType;
+  onRetrySave: () => void;
 }
 
 const NoteToolbar = ({
@@ -22,6 +25,8 @@ const NoteToolbar = ({
   setSelectedVersionId,
   handleToggleChat,
   noteVersions,
+  saveStatus,
+  onRetrySave,
 }: NoteToolbarProps) => {
   const { isPro } = useUserSubscription();
   const publishNoteVersionMutation = usePublishNoteVersion({
@@ -47,8 +52,8 @@ const NoteToolbar = ({
 
   return (
     <div className="flex items-center justify-between bg-background">
-      {/* Left side: Version Selector */}
-      <div className="flex items-center">
+      {/* Left side: Version Selector and Save Status */}
+      <div className="flex items-center space-x-2">
         {selectedVersion && (
           <>
             {isPro ? (
@@ -68,6 +73,10 @@ const NoteToolbar = ({
               />
             )}
           </>
+        )}
+        {/* Save Status Indicator */}
+        {!selectedVersion?.is_published && !note.is_deleted && (
+          <SaveStatus status={saveStatus} onRetry={onRetrySave} />
         )}
       </div>
 
