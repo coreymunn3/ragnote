@@ -15,7 +15,6 @@ interface NoteToolbarProps {
   handleToggleChat: () => void;
   noteVersions: PrismaNoteVersion[];
   saveStatus: SaveStatusType;
-  onRetrySave: () => void;
 }
 
 const NoteToolbar = ({
@@ -26,7 +25,6 @@ const NoteToolbar = ({
   handleToggleChat,
   noteVersions,
   saveStatus,
-  onRetrySave,
 }: NoteToolbarProps) => {
   const { isPro } = useUserSubscription();
   const publishNoteVersionMutation = usePublishNoteVersion({
@@ -76,7 +74,7 @@ const NoteToolbar = ({
         )}
         {/* Save Status Indicator */}
         {!selectedVersion?.is_published && !note.is_deleted && (
-          <SaveStatus status={saveStatus} onRetry={onRetrySave} />
+          <SaveStatus status={saveStatus} />
         )}
       </div>
 

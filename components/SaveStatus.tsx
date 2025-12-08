@@ -13,11 +13,10 @@ export type SaveStatusType = "idle" | "unsaved" | "saving" | "saved" | "error";
 
 interface SaveStatusProps {
   status: SaveStatusType;
-  onRetry?: () => void;
   className?: string;
 }
 
-const SaveStatus = ({ status, onRetry, className }: SaveStatusProps) => {
+const SaveStatus = ({ status, className }: SaveStatusProps) => {
   if (status === "idle") {
     return null; // Don't show anything in idle state
   }
@@ -59,16 +58,6 @@ const SaveStatus = ({ status, onRetry, className }: SaveStatusProps) => {
           {config.text}
         </span>
       </div>
-      {status === "error" && onRetry && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onRetry}
-          className="h-6 px-2 text-xs"
-        >
-          Retry
-        </Button>
-      )}
     </div>
   );
 };

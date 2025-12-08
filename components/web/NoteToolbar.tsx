@@ -33,7 +33,6 @@ interface NoteToolbarProps {
   };
   handleToggleChat: () => void;
   saveStatus: SaveStatusType;
-  onRetrySave: () => void;
 }
 
 const NoteToolbar = ({
@@ -45,7 +44,6 @@ const NoteToolbar = ({
   loading,
   handleToggleChat,
   saveStatus,
-  onRetrySave,
 }: NoteToolbarProps) => {
   const router = useRouter();
   const { isPro } = useUserSubscription();
@@ -141,7 +139,7 @@ const NoteToolbar = ({
         )}
         {/* Save Status Indicator */}
         {!selectedVersion?.is_published && !note.is_deleted && (
-          <SaveStatus status={saveStatus} onRetry={onRetrySave} />
+          <SaveStatus status={saveStatus} />
         )}
       </div>
       {/* right side - last edited, publish & controls */}
