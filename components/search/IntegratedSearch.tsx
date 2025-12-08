@@ -21,6 +21,7 @@ import {
 import SearchResultItem from "./SearchResultItem";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import ProButton from "../ProButton";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface IntegratedSearchProps {
   onSearch?: (query: string) => void;
@@ -28,6 +29,7 @@ interface IntegratedSearchProps {
 
 const IntegratedSearch = (props: IntegratedSearchProps) => {
   const { onSearch } = props;
+  const isMobile = useIsMobile();
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
     SearchResult | undefined
@@ -99,12 +101,12 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
   }, [searchResults]);
 
   return (
-    <div className="flex flex-col justify-center h-14 p-1 border border-input dark:border-primary w-full bg-background rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
+    <div className="py-2 flex flex-col justify-center p-1 border border-input dark:border-primary w-full rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
       <div className="flex space-x-1">
         {/* the input */}
         <Input
           placeholder="Search Your Notes"
-          className="flex-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0 placeholder:text-sm"
+          className="flex-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0 text-sm placeholder:text-sm"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
@@ -133,10 +135,10 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
         <div className="justify-end">
           <Button
             variant={"ghost"}
-            className="text-primary  hover:text-primary dark:text-white dark:hover:text-white"
+            className="text-primary hover:text-primary"
             onClick={handleSearch}
           >
-            {`Search`}
+            <span>{!isMobile && `Search`}</span>
             <CornerDownLeft className="h-4 w-4" />
           </Button>
         </div>
@@ -152,16 +154,11 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
       </div>
 
       {/* the search results */}
-      <AnimatedExpandable
-        isOpen={
-          searchMutation.isPending ||
-          (searchMutation.isSuccess && !!searchResults)
-        }
-      >
+      <AnimatedExpandable isOpen={searchMutation.isPending || !!searchResults}>
         {/* show loading if mutation pending */}
         {searchMutation.isPending && <SearchResultsSkeleton />}
         {/* show the items if we get search results */}
-        {searchMutation.isSuccess && !!searchResults && (
+        {!!searchResults && (
           <div className="p-2 flex flex-wrap gap-2">
             {/* if we have more than 0 results, show them */}
             {searchResults.numResults > 0 &&
