@@ -39,6 +39,11 @@ export type FolderWithItems = Expand<
   }
 >;
 
+export type UserAndSystemFolders = Expand<{
+  user: FolderWithItems[];
+  system: FolderWithItems[];
+}>;
+
 /**
  * Request Types for Folder APIs
  */

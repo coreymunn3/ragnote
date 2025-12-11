@@ -134,7 +134,7 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
               </div>
               {/* Header right - the published badge and options */}
               <div className="flex items-center justify-center space-x-2">
-                <VersionBadge version={note.current_version} />
+                <VersionBadge version={note.current_version} context="note" />
                 <OptionsMenu options={noteActions} />
               </div>
             </div>

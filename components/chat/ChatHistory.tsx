@@ -5,6 +5,7 @@ import { ChatSession } from "@/lib/types/chatTypes";
 import { ChevronRight, HistoryIcon, Loader2Icon } from "lucide-react";
 import { AnimatedExpandable, AnimatedListItem } from "@/components/animations";
 import ChatHistoryItem from "./ChatHistoryItem";
+import WebChatHistoryHeaderSkeleton from "../skeletons/WebChatHistoryHeaderSkeleton";
 
 // Small header component for the chat history section
 const ChatHistoryHeader = ({
@@ -27,13 +28,16 @@ const ChatHistoryHeader = ({
       onClick={onToggle}
     >
       {isLoading ? (
-        <Loader2Icon className="h-4 w-4 animate-spin" />
+        <WebChatHistoryHeaderSkeleton />
       ) : (
-        <HistoryIcon
-          className={`h-4 w-4 ${isError ? "text-destructive" : ""}`}
-        />
+        <>
+          <HistoryIcon
+            className={`h-4 w-4 ${isError ? "text-destructive" : ""}`}
+          />
+          <TypographySmall>{`Recent Conversations (${sessionCount})`}</TypographySmall>
+        </>
       )}
-      <TypographySmall>{`Recent Conversations (${sessionCount})`}</TypographySmall>
+
       {!isError && (
         <div>
           <ChevronRight

@@ -121,9 +121,116 @@ Wysenote is a modern note-taking application that combines the simplicity of App
 - `npm run build` - Build for production
 - `npm start` - Start production server
 - `npm run lint` - Run ESLint
-- `npm run db:studio:local` - Open Prisma Studio
-- `npm run db:migrate:local` - Run database migrations
-- `npm run db:push:local` - Push schema changes to database
+- `npm run db:studio` - Open Prisma Studio
+- `npm run db:migrate` - Run database migrations (local dev)
+- `npm run db:migrate:deploy` - Deploy migrations to production
+- `npm run db:push` - Push schema changes to database
+
+## 🗄️ Database Configuration
+
+Wysenote supports multiple database environments with a secure, flexible setup that keeps credentials out of version control.
+
+### Environment Files
+
+Create the following files in your project root (all are gitignored):
+
+- **`.env`** - Local development database (Docker PostgreSQL)
+- **`.env.local`** - Local environment overrides (optional)
+- **`.env.production`** - Production database credentials (Supabase)
+
+### Local Development Setup
+
+**Option 1: Docker (Recommended)**
+
+```bash
+# Start local PostgreSQL with Docker
+docker-compose up -d
+
+# Create .env file with local credentials
+echo 'DATABASE_URL="postgresql://postgres:admin@localhost:35432/ragnote?schema=public"' > .env
+echo 'DIRECT_URL="postgresql://postgres:admin@localhost:35432/ragnote?schema=public"' >> .env
+
+# Run migrations
+npm run db:migrate
+```
+
+**Option 2: Local PostgreSQL Installation**
+
+Adjust the DATABASE_URL in `.env` to match your local PostgreSQL setup.
+
+### Production Database Setup (Supabase)
+
+1. **Get your connection string from Supabase:**
+
+   - Go to Project Settings → Database → Connect → ORM's (select prisma)
+   - Copy both the pooled and direct connection strings
+
+2. **Create `.env.production` file:**
+
+```bash
+# .env.production
+DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
+```
+
+**Note:** Make sure to use the Prisma-specific connection format from Supabase, not the generic PostgreSQL format.
+
+### Switching Between Databases
+
+To easily switch between local and production databases, add these shell aliases to your `~/.zshrc` or `~/.bashrc`:
+
+```bash
+# Database environment switchers
+alias exportenv="set -o allexport; source .env; set +o allexport"
+alias exportenvlocal="set -o allexport; source .env.local; set +o allexport"
+alias exportenvprod="set -o allexport; source .env.production; set +o allexport"
+```
+
+After adding these, reload your shell:
+
+```bash
+source ~/.zshrc  # or source ~/.bashrc
+```
+
+### Usage Examples
+
+**Local Development (Default):**
+
+```bash
+npm run dev              # Uses .env automatically
+npm run db:studio        # Open local database in Prisma Studio
+npm run db:migrate       # Run migrations on local database
+```
+
+**Access Production Database:**
+
+```bash
+exportenvprod            # Load production credentials
+npm run db:studio        # Now opens PRODUCTION database
+npm run db:migrate:deploy # Deploy migrations to production
+npm run dev              # Run app locally with production data
+```
+
+**Switch Back to Local:**
+
+```bash
+exportenv                # Reload local credentials
+npm run dev              # Back to local development
+```
+
+### Database Migrations
+
+```bash
+# Local development - create new migration
+npm run db:migrate
+
+# Production - deploy migrations
+exportenvprod
+npm run db:migrate:deploy
+
+# Push schema changes without migration (dev only)
+npm run db:push
+```
 
 ## 🗄 Database Schema
 

@@ -16,6 +16,7 @@ import { forwardRef, useState } from "react";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { MEMBERSHIP_FEATURES, UPGRADE_BUTTON_LABEL } from "@/CONSTANTS";
 import { useCreateCheckoutSession } from "@/hooks/user/useCreateCheckoutSession";
+import { Skeleton } from "./ui/skeleton";
 
 interface ProButtonProps
   extends React.ComponentProps<"button">,
@@ -84,7 +85,7 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
           {...props}
         >
           {isLoading || subscriptionLoading ? (
-            <Loader2Icon className="h-4 w-4 animate-spin" />
+            <Skeleton className="h-6 w-6"></Skeleton>
           ) : (
             <>
               {label}

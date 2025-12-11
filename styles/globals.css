@@ -33,7 +33,6 @@
     --sidebar-foreground: 222 47% 11%;
     --sidebar-primary: 217 91% 35%; 
     --sidebar-primary-foreground: 0 0% 100%;
-    
     --sidebar-accent: 210 40% 96%;
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 214 32% 91%;
@@ -82,5 +81,26 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* BlockNote Editor Mobile Padding Override - Outside @layer for higher specificity */
+/* Target the editor with multiple class selectors for extra specificity */
+@media (max-width: 768px) {
+  div.ProseMirror.bn-editor,
+  .bn-editor.ProseMirror,
+  [class*="bn-editor"] {
+    padding-left: 20px !important;
+    padding-right: 0px !important;
+  }
+}
+
+/* Optional: slightly reduce padding on tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+  div.ProseMirror.bn-editor,
+  .bn-editor.ProseMirror,
+  [class*="bn-editor"] {
+    padding-left: 32px !important;
+    padding-right: 32px !important;
   }
 }

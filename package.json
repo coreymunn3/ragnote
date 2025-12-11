@@ -4,19 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 3003",
-    "dev:local": "cross-env NODE_ENV=development next dev --turbopack -p 3003",
-    "dev:prod": "cross-env NODE_ENV=production next dev --turbopack -p 3003",
     "build": "next build",
-    "build:prod": "cross-env NODE_ENV=production next build",
     "start": "next start",
     "lint": "eslint --fix",
-    "db:studio:local": "cross-env NODE_ENV=development npx prisma studio",
-    "db:studio:prod": "cross-env NODE_ENV=production npx prisma studio",
-    "db:migrate:local": "cross-env NODE_ENV=development npx prisma migrate dev",
-    "db:migrate:prod": "cross-env NODE_ENV=production npx prisma migrate deploy",
-    "db:push:local": "cross-env NODE_ENV=development npx prisma db push",
-    "db:push:prod": "cross-env NODE_ENV=production npx prisma db push",
-    "db:reset:local": "cross-env NODE_ENV=development npx prisma migrate reset"
+    "db:studio": "npx prisma studio",
+    "db:migrate": "npx prisma migrate dev",
+    "db:migrate:deploy": "npx prisma migrate deploy",
+    "db:push": "npx prisma db push"
   },
   "dependencies": {
     "@blocknote/core": "^0.31.2",

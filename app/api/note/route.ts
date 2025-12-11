@@ -27,7 +27,7 @@ const postHandler = async (req: NextRequest) => {
   auth.protect();
   const body: CreateNoteApiRequest = await req.json();
   const dbUser = await getDbUser();
-  const newNote = noteService.createNote({
+  const newNote = await noteService.createNote({
     userId: dbUser.id,
     title: body.title,
     folderId: body.folderId,

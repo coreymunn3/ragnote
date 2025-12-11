@@ -80,9 +80,6 @@ const WebSidebar = () => {
           folders={folders.data?.system}
           isLoading={folders.isLoading}
         />
-        {/*  TO DO - find out the best way to render conversations in a group
-        Probably make another component, WebSidebarConversations
-        */}
       </SidebarContent>
       <SidebarFooter>
         <ThemeSwitch />

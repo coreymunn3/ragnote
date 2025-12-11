@@ -1,112 +1,80 @@
 "use client";
-import { useParams } from "next/navigation";
-import RichTextEditor from "@/components/RichTextEditor";
-import type { BlockNoteEditor } from "@blocknote/core";
-import { useSaveNoteVersionContent } from "@/hooks/note/useSaveNoteVersionContent";
-import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
-import { Skeleton } from "@/components/ui/skeleton";
-import { debounce } from "lodash";
-import MessageAlert from "@/components/MessageAlert";
-import ChatPanel from "@/components/chat/ChatPanel";
+import { useState, useMemo } from "react";
+import NoteToolbar from "@/components/web/NoteToolbar";
+import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
+import BaseNotePageContent from "./BaseNotePageContent";
+import { useGetNote } from "@/hooks/note/useGetNote";
+import { useGetNoteVersions } from "@/hooks/note/useGetNoteVersions";
 
-const WebNotePageContent = () => {
-  const params: { id: string } = useParams();
-  const { id: noteId } = params;
+interface WebNotePageContentProps {
+  note: Note;
+  noteVersions: PrismaNoteVersion[];
+}
+
+const WebNotePageContent = ({
+  note: initialNote,
+  noteVersions: initialNoteVersions,
+}: WebNotePageContentProps) => {
+  // State management
+  const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
+    initialNote?.current_version?.id || null
+  );
+  const [chatOpen, setChatOpen] = useState(false);
+
+  // Re-fetch note data with initial data
   const {
-    selectedVersionId,
-    selectedVersion,
-    note,
-    loading,
-    error,
-    chatOpen,
-    handleToggleChat,
-  } = useNoteVersionContext();
+    data: note,
+    isLoading: noteLoading,
+    error: noteError,
+  } = useGetNote(initialNote.id, {
+    enabled: !!initialNote.id,
+    initialData: initialNote,
+    staleTime: 0,
+    refetchOnMount: true,
+  });
 
-  const saveNoteVersionContent = useSaveNoteVersionContent();
+  // Re-fetch note versions with initial data
+  const {
+    data: noteVersions,
+    isLoading: versionsLoading,
+    error: versionsError,
+  } = useGetNoteVersions(initialNote.id, {
+    enabled: !!initialNote.id,
+    initialData: initialNoteVersions,
+    staleTime: 0,
+    refetchOnMount: true,
+  });
 
-  // TO DO - save editor content to a draft after debouncing for 3 seconds
-  const handleEditorChange = debounce((editor: BlockNoteEditor) => {
-    // mutation to save the note version
-    if (selectedVersionId) {
-      saveNoteVersionContent.mutate({
-        noteId,
-        versionId: selectedVersionId,
-        richTextContent: editor.document,
-      });
+  // Compute selected version
+  const selectedVersion = useMemo(() => {
+    if (selectedVersionId && noteVersions) {
+      return noteVersions.find((v) => v.id === selectedVersionId) || null;
     }
-  }, 1000);
+    return null;
+  }, [selectedVersionId, noteVersions]);
 
-  // Only show loading if we don't have the essential data (note)
-  // With initial data, this should almost never happen
-  const shouldShowLoading = loading.noteLoading && !note;
+  // Handlers
+  const handleToggleChat = () => {
+    setChatOpen((prev) => !prev);
+  };
 
-  if (shouldShowLoading) {
-    return (
-      <div className="pt-10">
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
-  }
-
-  // If there's an error in any of our queries, lets show an error alert
-  if (error.noteError || error.versionsError) {
-    return (
-      <div className="pt-8">
-        <MessageAlert
-          variant="error"
-          title="Error Loading Note"
-          description={`Error loading note versions: ${error.noteError?.message || error.versionsError?.message}`}
-        />
-      </div>
-    );
-  }
-
-  // Show message if no note is loaded
-  // With initial data, this should rarely happen since server-side fetching handles not found
-  if (!note) {
-    return (
-      <div className="pt-8">
-        <MessageAlert
-          variant="error"
-          title="Error Loading Note"
-          description="Note ID did not resolve to a note."
-        />
-      </div>
-    );
-  }
-
-  // Show message if no version is selected
-  // though we should be redirected to notFound before ever seeing this
-  if (!selectedVersion || !selectedVersionId) {
-    return (
-      <div className="pt-8">
-        <MessageAlert
-          variant="warning"
-          title="No Version Selected"
-          description="No version is currently selected for this note."
-        />
-      </div>
-    );
-  }
+  const isLoading = noteLoading || versionsLoading;
+  const error = noteError || versionsError;
 
   return (
-    <div className="pt-8">
-      {/* Note Editor */}
-      <RichTextEditor
-        key={selectedVersionId} // Force re-render when version changes
-        initialContent={selectedVersion.rich_text_content}
-        onChange={handleEditorChange}
-        readOnly={selectedVersion.is_published || note.is_deleted}
-      />
-      {/* Chat with your Note */}
-      <ChatPanel
-        open={chatOpen}
-        onOpenChange={handleToggleChat}
-        title={`${note.title}`}
-        scope="note"
-        scopeId={noteId}
-      />
-    </div>
+    <BaseNotePageContent
+      note={note || initialNote}
+      noteVersions={noteVersions || initialNoteVersions}
+      selectedVersionId={selectedVersionId}
+      setSelectedVersionId={setSelectedVersionId}
+      selectedVersion={selectedVersion}
+      chatOpen={chatOpen}
+      handleToggleChat={handleToggleChat}
+      isLoading={isLoading}
+      error={error}
+      renderToolbar={(props) => <NoteToolbar {...props} />}
+    />
   );
 };
+
 export default WebNotePageContent;

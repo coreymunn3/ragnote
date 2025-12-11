@@ -8,9 +8,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface InputDialogProps {
   open: boolean;
@@ -40,6 +49,7 @@ const InputDialog = ({
   onValueChange,
 }: InputDialogProps) => {
   const [internalValue, setInternalValue] = useState("");
+  const isMobile = useIsMobile();
 
   // Use parent-controlled value if provided, otherwise use internal state
   const inputValue = value !== undefined ? value : internalValue;
@@ -61,21 +71,57 @@ const InputDialog = ({
     ? validate(inputValue)
     : inputValue.trim().length > 0;
 
+  // Shared content for both Dialog and Sheet
+  const content = (
+    <>
+      <Input
+        placeholder={placeholder}
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && isValid && !isLoading) {
+            handleConfirm();
+          }
+        }}
+      />
+    </>
+  );
+
+  // Mobile: Render as bottom sheet
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent side="bottom">
+          <SheetHeader>
+            <SheetTitle>{title}</SheetTitle>
+            {content}
+          </SheetHeader>
+          <SheetFooter className="flex flex-row gap-2 pt-4">
+            <SheetClose asChild>
+              <Button variant="ghost" className="flex-1">
+                Cancel
+              </Button>
+            </SheetClose>
+            <Button
+              onClick={handleConfirm}
+              disabled={!isValid || isLoading}
+              className="flex-1"
+            >
+              {isLoading ? confirmLoadingText || "Loading..." : confirmText}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // Desktop: Render as centered dialog
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <Input
-            placeholder={placeholder}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && isValid && !isLoading) {
-                handleConfirm();
-              }
-            }}
-          />
+          {content}
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>

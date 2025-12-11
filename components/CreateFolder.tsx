@@ -28,7 +28,7 @@ const CreateFolder = () => {
         onClick={() => setDialogOpen(true)}
       >
         <FolderPlusIcon className="h-4 w-4" />
-        Create Folder
+        <span className="hidden md:block">Create Folder </span>
       </Button>
 
       <InputDialog

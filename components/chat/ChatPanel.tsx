@@ -6,13 +6,13 @@ import ChatInput from "./ChatInput";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { ChatScope } from "@/lib/types/chatTypes";
 import ChatMessages from "./ChatMessages";
-import { useNoteVersionContext } from "@/contexts/NoteVersionContext";
 import VersionBadge from "../VersionBadge";
 import { useChat } from "@/hooks/chat/useChat";
 import { useGetChatHistoryForScope } from "@/hooks/chat/useGetChatHistoryForScope";
@@ -20,6 +20,8 @@ import ChatHistory from "./ChatHistory";
 import { useGetChatMessagesForSession } from "@/hooks/chat/useGetChatMessagesForSession";
 import { Button } from "../ui/button";
 import { useQueryClient } from "@tanstack/react-query";
+import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
+import { MessageCirclePlusIcon } from "lucide-react";
 
 interface ChatPanelProps {
   open: boolean;
@@ -28,6 +30,8 @@ interface ChatPanelProps {
   isMobile?: boolean;
   scope: ChatScope;
   scopeId?: string;
+  note?: Note;
+  noteVersions?: PrismaNoteVersion[];
 }
 
 const ChatPanel = ({
@@ -37,6 +41,8 @@ const ChatPanel = ({
   isMobile = false,
   scope,
   scopeId,
+  note,
+  noteVersions,
 }: ChatPanelProps) => {
   const queryClient = useQueryClient();
   // GET the chat session history for this note version
@@ -44,10 +50,8 @@ const ChatPanel = ({
   const [chatSessionId, setChatSessionId] = useState<string | undefined>();
   const [pendingUserMessage, setPendingUserMessage] = useState<string>("");
   const [historyExpanded, setHistoryExpanded] = useState<boolean>(false);
-  // get values from context
-  const { noteVersions, note, loading } = useNoteVersionContext();
   // the user must chat with only the most recently published version
-  const mostRecentPublishedVersion = noteVersions.filter(
+  const mostRecentPublishedVersion = noteVersions?.filter(
     (version) => version.is_published
   )[0];
 
@@ -85,6 +89,10 @@ const ChatPanel = ({
       // Invalidate the chat conversation query
       queryClient.invalidateQueries({
         queryKey: ["chat-session", response.session.id, "messages"],
+      });
+      // Invalidate the folders query to update sidebar
+      queryClient.invalidateQueries({
+        queryKey: ["folders"],
       });
 
       // Clear optimistic messages since real messages are now in the API data
@@ -143,32 +151,39 @@ const ChatPanel = ({
         )}
         side={isMobile ? "bottom" : "right"}
       >
-        <div className="flex-1 flex flex-col space-y-2 max-h-screen px-2">
+        <div
+          className={`flex-1 flex flex-col space-y-2 px-2 ${isMobile ? "h-full" : "max-h-screen"}`}
+        >
           {/* Top Banner - title and history */}
           <div className="flex justify-between items-center mt-2">
             {/* left side: title and active version */}
             <div className="flex flex-row justify-between items-center w-full">
               <div className="flex flex-row space-x-2 items-center">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <TypographyLead className="font-semibold text-foreground">
-                      {title} Chat
-                    </TypographyLead>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      You are chatting with the most recently published version
-                      of this note
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <TypographyLead className="font-semibold text-foreground">
+                        {title} Chat
+                      </TypographyLead>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        You are chatting with the most recently published
+                        version of this note
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 {!!mostRecentPublishedVersion && (
-                  <VersionBadge version={mostRecentPublishedVersion} />
+                  <VersionBadge
+                    version={mostRecentPublishedVersion}
+                    context="version"
+                  />
                 )}
               </div>
               <div>
-                <Button variant={"outline"} onClick={handleBeginNewChat}>
-                  New Chat
+                <Button variant={"ghost"} onClick={handleBeginNewChat}>
+                  <MessageCirclePlusIcon className="h-4 w-4" />
                 </Button>
               </div>
             </div>

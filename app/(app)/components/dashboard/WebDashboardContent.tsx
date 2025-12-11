@@ -1,20 +1,9 @@
 "use client";
 
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import WidgetList from "@/components/web/WidgetList";
 import NoteWidget from "@/components/web/NoteWidget";
 import ChatWidget from "@/components/web/ChatWidget";
-import {
-  Calendar1Icon,
-  FileIcon,
-  MessageSquareIcon,
-  PinIcon,
-} from "lucide-react";
+import { FileIcon, MessageSquareIcon, PinIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetNotes } from "@/hooks/note/useGetNotes";
 import { Note } from "@/lib/types/noteTypes";

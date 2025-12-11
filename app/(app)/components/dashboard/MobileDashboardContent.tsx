@@ -1,18 +1,62 @@
 "use client";
-import { ChatSession } from "@/lib/types/chatTypes";
-import { Note } from "@/lib/types/noteTypes";
+import { useEffect } from "react";
+import CreateFolder from "@/components/CreateFolder";
+import MobileList from "@/components/mobile/MobileList";
+import IntegratedSearch from "@/components/search/IntegratedSearch";
+import { useGetFolders } from "@/hooks/folder/useGetFolders";
+import { FolderWithItems } from "@/lib/types/folderTypes";
+import { FolderPlusIcon } from "lucide-react";
+import { useMobileHeader } from "@/contexts/MobileHeaderContext";
+import BrandingHeader from "@/components/BrandingHeader";
 
 interface MobileDashboardContentProps {
-  notes: Note[];
-  chatSessions: ChatSession[];
+  userFolders: FolderWithItems[];
+  systemFolders: FolderWithItems[];
 }
 
-const MobileDashboardContent = ({ notes }: MobileDashboardContentProps) => {
+const MobileDashboardContent = ({
+  userFolders,
+  systemFolders,
+}: MobileDashboardContentProps) => {
+  const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
+  // Set header configuration for Dashboard
+  useEffect(() => {
+    setHeaderConfig({
+      leftContent: <BrandingHeader />,
+      rightContent: null, // UserButton is always shown
+    });
+
+    return () => {
+      resetHeaderConfig();
+    };
+  }, [setHeaderConfig, resetHeaderConfig]);
+
+  // immediately re-fetch the user's folders
+  const folders = useGetFolders({
+    initialData: {
+      user: userFolders,
+      system: systemFolders,
+    },
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+
   return (
-    <div>
-      {/* TO DO - render recent notes */}
-      {/* TO DO - render folder list */}
-      Folders List Mobile
+    <div className="flex flex-col space-y-4">
+      <IntegratedSearch />
+      <MobileList
+        title="Your Folders"
+        items={folders.data?.user}
+        type="folder"
+        isLoading={folders.isLoading}
+        action={<CreateFolder />}
+      />
+      <MobileList
+        title="System Folders"
+        items={folders.data?.system}
+        type="folder"
+        isLoading={folders.isLoading}
+      />
     </div>
   );
 };
