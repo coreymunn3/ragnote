@@ -5,7 +5,6 @@ import MobileList from "@/components/mobile/MobileList";
 import IntegratedSearch from "@/components/search/IntegratedSearch";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { FolderWithItems } from "@/lib/types/folderTypes";
-import { FolderPlusIcon } from "lucide-react";
 import { useMobileHeader } from "@/contexts/MobileHeaderContext";
 import BrandingHeader from "@/components/BrandingHeader";
 

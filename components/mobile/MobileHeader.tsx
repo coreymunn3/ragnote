@@ -10,7 +10,7 @@ const MobileHeader = () => {
   const { headerConfig } = useMobileHeader();
 
   // Default content if none is set (Dashboard page behavior)
-  const leftContent = headerConfig.leftContent || <BrandingHeader />;
+  const leftContent = headerConfig.leftContent || null;
   const centerContent = headerConfig.centerContent || null;
   const rightContent = headerConfig.rightContent || null;
 

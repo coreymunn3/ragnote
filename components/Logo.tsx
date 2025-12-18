@@ -8,12 +8,14 @@ interface LogoProps {
   className?: string;
   width?: number;
   height?: number;
+  variant?: "iconOnly" | "iconWithText";
 }
 
 export default function Logo({
   className = "",
-  width = 150,
-  height = 40,
+  width = 30,
+  height = 30,
+  variant = "iconOnly",
 }: LogoProps) {
   const { theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -28,20 +30,40 @@ export default function Logo({
     return <div style={{ width, height }} className={className} />;
   }
 
-  const currentTheme = theme === "system" ? resolvedTheme : theme;
-  const logoSrc =
-    currentTheme === "dark"
-      ? "/logo/logo-horizontal-dark.svg"
-      : "/logo/logo-horizontal-light.svg";
+  const currentResolvedTheme = theme === "system" ? resolvedTheme : theme;
 
-  return (
-    <Image
-      src={logoSrc}
-      alt="Wysenote"
-      width={width}
-      height={height}
-      className={className}
-      priority
-    />
-  );
+  let logoSrc =
+    currentResolvedTheme === "dark"
+      ? "/icons/icon-dark-512.png"
+      : "/icons/icon-light-512.png";
+
+  if (variant === "iconOnly") {
+    return (
+      <Image
+        src={logoSrc}
+        alt="Wysenote"
+        width={width}
+        height={height}
+        className={className}
+        priority
+      />
+    );
+  }
+  if (variant === "iconWithText") {
+    return (
+      <div className={`flex items-center justify-center space-x-2`}>
+        <Image
+          src={logoSrc}
+          alt="Wysenote"
+          width={width}
+          height={height}
+          className={className}
+          priority
+        />
+        <span className="text-lg font-semibold text-foreground text-primary">
+          Wysenote
+        </span>
+      </div>
+    );
+  }
 }
