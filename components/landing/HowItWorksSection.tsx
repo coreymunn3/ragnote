@@ -45,27 +45,15 @@ export default function HowItWorksSection() {
             {steps.map((step, index) => {
               const Icon = step.icon;
               return (
-                <div key={index} className="relative">
-                  {/* Connector line (hidden on mobile) */}
-                  {index < steps.length - 1 && (
-                    <div className="hidden md:block absolute top-16 left-[60%] w-full h-0.5 bg-border" />
-                  )}
-
-                  <div className="relative z-10 text-center">
-                    {/* Icon circle */}
-                    <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary/10 border-4 border-background shadow-lg mb-6">
-                      <Icon className="w-10 h-10 text-primary" />
-                    </div>
-
-                    {/* Step number */}
-                    <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold mb-4">
-                      {step.number}
-                    </div>
-
-                    {/* Content */}
-                    <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                    <p className="text-muted-foreground">{step.description}</p>
+                <div key={index} className="text-center">
+                  {/* Icon circle */}
+                  <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary/10 border-4 border-background shadow-lg mb-6">
+                    <Icon className="w-10 h-10 text-primary" />
                   </div>
+
+                  {/* Content */}
+                  <h3 className="text-xl font-bold mb-3">{step.title}</h3>
+                  <p className="text-muted-foreground">{step.description}</p>
                 </div>
               );
             })}
