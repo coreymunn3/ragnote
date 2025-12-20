@@ -93,14 +93,17 @@ export default function HeroSection() {
             <SignUpButton mode="modal">
               <Button
                 size="lg"
-                variant={"secondary"}
-                className="gap-2 text-base px-8"
+                className="gap-2 text-base px-8 bg-gradient-to-br from-primary to-secondary"
               >
                 Get Started Free
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </SignUpButton>
-            <Button size="lg" variant="outline" className="text-base px-8">
+            <Button
+              size="lg"
+              variant="ghost"
+              className="text-base px-8 bg-transparent"
+            >
               View Demo
             </Button>
           </div>
