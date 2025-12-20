@@ -1,7 +1,12 @@
 import { redirect } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { auth } from "@clerk/nextjs/server";
-import { SignInButton, SignUpButton, SignedOut } from "@clerk/nextjs";
+import LandingNavbar from "@/components/landing/LandingNavbar";
+import HeroSection from "@/components/landing/HeroSection";
+import AIChatDemo from "@/components/landing/AIChatDemo";
+import FeaturesSection from "@/components/landing/FeaturesSection";
+import HowItWorksSection from "@/components/landing/HowItWorksSection";
+import PricingSection from "@/components/landing/PricingSection";
+import LandingFooter from "@/components/landing/LandingFooter";
 
 export default async function Home() {
   const { userId } = await auth();
@@ -12,18 +17,16 @@ export default async function Home() {
   }
 
   return (
-    <div className="container mx-auto">
-      <p className="text-center">This is a Landing Page! To Do!</p>
-      <SignedOut>
-        <div className="flex gap-2 justify-center">
-          <Button color="primary">
-            <SignInButton />
-          </Button>
-          <Button>
-            <SignUpButton />
-          </Button>
-        </div>
-      </SignedOut>
+    <div className="min-h-screen flex flex-col">
+      <LandingNavbar />
+      <main className="flex-1">
+        <HeroSection />
+        <AIChatDemo />
+        <FeaturesSection />
+        <HowItWorksSection />
+        <PricingSection />
+      </main>
+      <LandingFooter />
     </div>
   );
 }
