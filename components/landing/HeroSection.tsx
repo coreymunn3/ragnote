@@ -99,13 +99,13 @@ export default function HeroSection() {
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </SignUpButton>
-            <Button
+            {/* <Button
               size="lg"
               variant="ghost"
               className="text-base px-8 bg-transparent"
             >
               View Demo
-            </Button>
+            </Button> */}
           </div>
 
           {/* Trust indicator */}
