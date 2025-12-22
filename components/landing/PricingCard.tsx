@@ -26,6 +26,7 @@ interface PricingCardProps {
   emphasized?: boolean;
   badge?: string;
   showEverythingInFree?: boolean;
+  redirectToUpgrade?: boolean;
 }
 
 export default function PricingCard({
@@ -41,8 +42,12 @@ export default function PricingCard({
   emphasized = false,
   badge,
   showEverythingInFree = false,
+  redirectToUpgrade = false,
 }: PricingCardProps) {
   const Icon = getIconComponent(icon);
+
+  const redirectUrl = "/upgrade";
+  const fallbackUrl = "/dashboard";
 
   return (
     <Card
@@ -96,7 +101,6 @@ export default function PricingCard({
 
         <ul className="space-y-3">
           {features.map((feature, index) => {
-            const FeatureIcon = getIconComponent(feature.icon);
             return (
               <li key={index} className="flex items-start gap-3">
                 <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
@@ -108,7 +112,13 @@ export default function PricingCard({
           })}
         </ul>
 
-        <SignUpButton mode="modal">
+        <SignUpButton
+          mode="modal"
+          forceRedirectUrl={redirectUrl}
+          fallbackRedirectUrl={fallbackUrl}
+          signInForceRedirectUrl={redirectUrl}
+          signInFallbackRedirectUrl={fallbackUrl}
+        >
           <Button variant={buttonVariant} className="w-full mt-6">
             {buttonText}
           </Button>

@@ -56,6 +56,7 @@ export default function PricingSection() {
               emphasized={true}
               badge="Recommended"
               showEverythingInFree={true}
+              redirectToUpgrade={true}
             />
           </AnimatedScrollItem>
         </div>
