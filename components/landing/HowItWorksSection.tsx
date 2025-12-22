@@ -1,4 +1,8 @@
+"use client";
+
 import { FileEdit, Brain, MessageSquare } from "lucide-react";
+import { AnimatedScrollItem } from "@/components/animations";
+import SectionHeader from "./SectionHeader";
 
 const steps = [
   {
@@ -29,15 +33,11 @@ export default function HowItWorksSection() {
     <section className="py-20 sm:py-28 bg-muted/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-            How It Works
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Get started in minutes. It's as simple as taking notes, and the AI
-            does the rest.
-          </p>
-        </div>
+        <SectionHeader
+          topText="How It Works"
+          description="Get started in minutes. It's as simple as taking notes, and the AI
+            does the rest."
+        />
 
         {/* Steps */}
         <div className="max-w-5xl mx-auto">
@@ -45,7 +45,14 @@ export default function HowItWorksSection() {
             {steps.map((step, index) => {
               const Icon = step.icon;
               return (
-                <div key={index} className="text-center">
+                <AnimatedScrollItem
+                  key={index}
+                  index={index}
+                  animation="fadeInUp"
+                  distance={40}
+                  duration={0.6}
+                  className="text-center"
+                >
                   {/* Icon circle */}
                   <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary/10 border-4 border-background shadow-lg mb-6">
                     <Icon className="w-10 h-10 text-primary" />
@@ -54,7 +61,7 @@ export default function HowItWorksSection() {
                   {/* Content */}
                   <h3 className="text-xl font-bold mb-3">{step.title}</h3>
                   <p className="text-muted-foreground">{step.description}</p>
-                </div>
+                </AnimatedScrollItem>
               );
             })}
           </div>

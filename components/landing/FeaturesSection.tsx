@@ -1,6 +1,10 @@
+"use client";
+
 import { MEMBERSHIP_FEATURES } from "@/CONSTANTS";
 import { Card, CardContent } from "@/components/ui/card";
 import { getIconComponent } from "@/lib/utils";
+import { AnimatedScrollItem } from "@/components/animations";
+import SectionHeader from "./SectionHeader";
 
 export default function FeaturesSection() {
   // Combine FREE and PRO features for comprehensive overview
@@ -13,17 +17,12 @@ export default function FeaturesSection() {
     <section className="py-20 sm:py-28">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-            Everything You Need to
-            <br />
-            <span className="text-primary">Manage Your Knowledge</span>
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            A complete toolkit for capturing, organizing, and retrieving your
-            thoughts and ideas with the power of AI.
-          </p>
-        </div>
+        <SectionHeader
+          topText="Everything You Need to"
+          primaryText="Manage Your Knowledge"
+          description="A complete toolkit for capturing, organizing, and retrieving your
+            thoughts and ideas with the power of AI."
+        />
 
         {/* Features grid */}
         <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -45,19 +44,26 @@ export default function FeaturesSection() {
             const color = colors[index % colors.length];
 
             return (
-              <Card
+              <AnimatedScrollItem
                 key={index}
-                className="border-border/50 hover:border-primary/50 transition-colors"
+                index={index}
+                animation="fadeInUp"
+                distance={30}
+                duration={0.5}
               >
-                <CardContent className="pt-6">
-                  <div
-                    className={`w-12 h-12 rounded-lg bg-muted flex items-center justify-center mb-4 ${color}`}
-                  >
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">{feature.text}</h3>
-                </CardContent>
-              </Card>
+                <Card className="border-border/50 hover:border-primary/50 transition-colors h-full">
+                  <CardContent className="pt-6">
+                    <div
+                      className={`w-12 h-12 rounded-lg bg-muted flex items-center justify-center mb-4 ${color}`}
+                    >
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {feature.text}
+                    </h3>
+                  </CardContent>
+                </Card>
+              </AnimatedScrollItem>
             );
           })}
         </div>

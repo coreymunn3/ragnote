@@ -1,5 +1,7 @@
 import { MessageCircle, Brain, Sparkles } from "lucide-react";
 import DemoSection, { StepInfo, StepSection } from "./DemoSection";
+import { AnimatedScrollItem } from "../animations";
+import SectionHeader from "./SectionHeader";
 
 export default function AIChatDemo() {
   const demoSteps: StepSection[] = [
@@ -42,23 +44,18 @@ export default function AIChatDemo() {
     <section className="py-20 sm:py-28 bg-muted/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-            Chat with Your Notes
-            <br />
-            <span className="text-primary">Like Never Before</span>
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Ask questions, get insights, and discover connections in your
-            knowledge base. Our AI understands context and provides intelligent
-            responses based on your notes.
-          </p>
-        </div>
+        <SectionHeader
+          topText="Chat with Your Notes"
+          primaryText="Like Never Before"
+          description="Ask questions, get insights, and discover connections in your
+              knowledge base. Our AI understands context and provides
+              intelligent responses based on your notes."
+        />
 
         {/* Demo screenshots - 3 step process */}
         <div className="max-w-6xl mx-auto space-y-12">
-          {demoSteps.map((step) => (
-            <DemoSection {...step} />
+          {demoSteps.map((step, idx) => (
+            <DemoSection index={idx} {...step} />
           ))}
         </div>
       </div>
