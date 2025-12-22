@@ -5,6 +5,7 @@ import { AnimatedScrollItem } from "@/components/animations";
 
 export type StepInfo = {
   number: number;
+  stepName: string;
   title: string;
   description: string;
 };
@@ -34,7 +35,7 @@ const DemoSection = ({
         <div className="w-full aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl border border-border/50 flex items-center justify-center shadow-lg relative overflow-hidden">
           <Image
             src={imgUrl}
-            alt={stepInfo.title}
+            alt={stepInfo.stepName}
             fill
             className="object-cover"
           />
@@ -51,9 +52,9 @@ const DemoSection = ({
           <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm">
             {stepInfo.number}
           </span>
-          <span>{stepInfo.title}</span>
+          <span>{stepInfo.stepName}</span>
         </div>
-        <h3 className="text-2xl font-bold mb-3">Write Your Notes</h3>
+        <h3 className="text-2xl font-bold mb-3">{stepInfo.title}</h3>
         <p className="text-muted-foreground">{stepInfo.description}</p>
       </AnimatedScrollItem>
     </div>
