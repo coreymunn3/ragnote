@@ -464,13 +464,14 @@ export class NoteService {
         throw new NotFoundError("Note not found or already deleted");
       }
 
-      // Soft delete the note
+      // Soft delete the note & set to unpinned
       await prisma.note.update({
         where: {
           id: noteId,
         },
         data: {
           is_deleted: true,
+          is_pinned: false,
         },
       });
     }
