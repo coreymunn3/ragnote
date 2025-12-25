@@ -124,7 +124,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
         {/* Display pinned items prominently */}
         {pinnedItems.length > 0 && (
           <AnimatedListItem index={1} animation="fadeIn">
-            {renderItemWidgetList(pinnedItems, "vertical", 1)}
+            {renderItemWidgetList(pinnedItems, "grid", 1)}
           </AnimatedListItem>
         )}
 

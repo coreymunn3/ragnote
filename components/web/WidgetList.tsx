@@ -1,8 +1,9 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ScrollableContainer } from "@/components/ui/scrollable-container";
 import { AnimatedListItem, AnimatedTypography } from "../animations";
 import { STAGGER_DELAY } from "@/lib/animations";
+import { Button } from "@/components/ui/button";
 
 interface WidgetListProps<T> {
   items: T[];
@@ -13,6 +14,9 @@ interface WidgetListProps<T> {
   emptyMessage?: string;
   delay?: number; // Optional delay for child animations
   displayMode?: "horizontal" | "grid" | "vertical"; // Control display as horizontal scroll or responsive grid
+  initialItemLimit?: number; // Number of items to show initially
+  showMoreIncrement?: number; // Number of items to add when "Show More" is clicked
+  showMoreButton?: boolean; // Whether to show the "Show More" button
 }
 
 const WidgetList = <T extends { id: string }>({
@@ -24,7 +28,17 @@ const WidgetList = <T extends { id: string }>({
   emptyMessage = "",
   delay = 0, // Default to no delay
   displayMode = "horizontal", // Default to horizontal for backward compatibility
+  initialItemLimit,
+  showMoreIncrement,
+  showMoreButton = false,
 }: WidgetListProps<T>) => {
+  // State for pagination - simple and straightforward
+  const [displayCount, setDisplayCount] = useState(
+    initialItemLimit && initialItemLimit < items.length
+      ? initialItemLimit
+      : items.length
+  );
+
   if (!items || items.length === 0) {
     return (
       <div className="text-muted-foreground text-sm py-0 text-center">
@@ -33,13 +47,30 @@ const WidgetList = <T extends { id: string }>({
     );
   }
 
+  // Slice items based on current display count
+  const visibleItems = showMoreButton ? items.slice(0, displayCount) : items;
+
+  // Handlers for show more/less
+  const handleShowMore = () => {
+    const increment = showMoreIncrement || initialItemLimit || 6;
+    setDisplayCount((prev) => Math.min(prev + increment, items.length));
+  };
+
+  const handleShowLess = () => {
+    setDisplayCount(initialItemLimit || 6);
+  };
+
+  // Button visibility logic
+  const canShowMore = displayCount < items.length;
+  const canShowLess = initialItemLimit && displayCount > initialItemLimit;
+
   // Render content based on display mode
   const renderContent = () => {
     switch (displayMode) {
       case "grid":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {items.map((item, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {visibleItems.map((item, index) => (
               <AnimatedListItem
                 key={item.id}
                 index={index}
@@ -88,7 +119,7 @@ const WidgetList = <T extends { id: string }>({
   };
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn(className, "w-full p-4 rounded-md bg-sidebar")}>
       {/* Title area */}
       <div className="flex items-center pb-3 space-x-2">
         {icon}
@@ -105,6 +136,22 @@ const WidgetList = <T extends { id: string }>({
 
       {/* Content rendered based on display mode */}
       <div className="pb-4">{renderContent()}</div>
+
+      {/* Show More / Show Less buttons */}
+      {showMoreButton && (canShowMore || canShowLess) && (
+        <div className="flex justify-center gap-2 mt-4">
+          {canShowMore && (
+            <Button variant="outline" onClick={handleShowMore}>
+              Show More ({items.length - displayCount} more)
+            </Button>
+          )}
+          {canShowLess && (
+            <Button variant="ghost" onClick={handleShowLess}>
+              Show Less
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
