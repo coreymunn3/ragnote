@@ -212,11 +212,12 @@ export class FolderService {
        */
 
       // Handle each system folder separately since they need different enrichment types
-      const sharedFolder = await this.enrichFoldersWithItems(
-        [this.createSystemFolder("SHARED", userId)],
-        userId,
-        "note"
-      );
+      // TODO: Re-enable for shared notes feature
+      // const sharedFolder = await this.enrichFoldersWithItems(
+      //   [this.createSystemFolder("SHARED", userId)],
+      //   userId,
+      //   "note"
+      // );
 
       const deletedFolder = await this.enrichFoldersWithItems(
         [this.createSystemFolder("DELETED", userId)],
@@ -230,7 +231,7 @@ export class FolderService {
         "chat"
       );
 
-      return [...chatsFolder, ...sharedFolder, ...deletedFolder];
+      return [...chatsFolder, ...deletedFolder]; // removed ...sharedFolder
     }
   );
 

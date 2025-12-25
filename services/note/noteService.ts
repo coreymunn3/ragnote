@@ -119,9 +119,10 @@ export class NoteService {
     userId: string
   ): Promise<Note[]> {
     switch (systemFolderId) {
-      case SYSTEM_FOLDERS.SHARED.id:
-        // get shared notes
-        return await this.getSharedNotes(userId);
+      // TODO: Re-enable for shared notes feature
+      // case SYSTEM_FOLDERS.SHARED.id:
+      //   // get shared notes
+      //   return await this.getSharedNotes(userId);
 
       case SYSTEM_FOLDERS.DELETED.id:
         // get deleted notes

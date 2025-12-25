@@ -19,8 +19,9 @@ export function getSystemFolderKey(
   systemFolderId: string
 ): keyof typeof SYSTEM_FOLDERS {
   switch (systemFolderId) {
-    case SYSTEM_FOLDERS.SHARED.id:
-      return "SHARED";
+    // TODO: Re-enable for shared notes feature
+    // case SYSTEM_FOLDERS.SHARED.id:
+    //   return "SHARED";
     case SYSTEM_FOLDERS.DELETED.id:
       return "DELETED";
     case SYSTEM_FOLDERS.CHATS.id:

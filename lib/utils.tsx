@@ -28,8 +28,9 @@ export const getFolderIcon = (folderId: string) => {
   switch (folderId) {
     case "system_deleted":
       return <Trash2Icon className="h-4 w-4" />;
-    case "system_shared":
-      return <FolderSyncIcon className="h-4 w-4" />;
+    // TODO: Re-enable for shared notes feature
+    // case "system_shared":
+    //   return <FolderSyncIcon className="h-4 w-4" />;
     case "system_chats":
       return <MessageSquare className="h-4 w-4" />;
     case "home":
