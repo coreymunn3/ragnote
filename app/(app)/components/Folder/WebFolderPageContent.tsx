@@ -66,7 +66,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
             <NoteWidget
               note={note}
               folderId={folder.id}
-              pinned={displayMode === "vertical"}
+              pinned={note.is_pinned}
             />
           )}
           displayMode={displayMode}
