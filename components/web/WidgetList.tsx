@@ -121,7 +121,12 @@ const WidgetList = <T extends { id: string }>({
   };
 
   return (
-    <div className={cn(className, "w-full p-4 rounded-md bg-sidebar")}>
+    <div
+      className={cn(
+        className,
+        "w-full p-4 rounded-md bg-gradient-to-br from-muted/70 via-transparent to-muted/40"
+      )}
+    >
       {/* Title area */}
       <div className="flex items-center pb-3 space-x-2">
         {icon}
