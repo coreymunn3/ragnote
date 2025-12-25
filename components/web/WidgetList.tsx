@@ -69,7 +69,9 @@ const WidgetList = <T extends { id: string }>({
     switch (displayMode) {
       case "grid":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+            className={`grid ${visibleItems.length === 1 ? "grid-cols-1" : "md:grid-cols-2 gap-4"}`}
+          >
             {visibleItems.map((item, index) => (
               <AnimatedListItem
                 key={item.id}
