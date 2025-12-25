@@ -14,6 +14,7 @@ import {
 } from "@/lib/types/userTypes";
 import { transformUserSubscription } from "./userTransformers";
 import { NotFoundError } from "@/lib/errors/apiErrors";
+import { DateTime } from "luxon";
 
 export class UserService {
   /**
@@ -67,15 +68,21 @@ export class UserService {
         select: { tier: true, end_date: true },
       });
 
-      if (!subscription) {
+      if (!subscription || subscription.tier !== "PRO") {
         return false;
       }
 
-      // Pro access logic: tier is PRO AND (end_date is null OR end_date is in future)
-      return (
-        subscription.tier === "PRO" &&
-        (subscription.end_date === null || subscription.end_date > new Date())
-      );
+      // If no end_date, subscription is active (recurring)
+      if (!subscription.end_date) {
+        return true;
+      }
+
+      // Check if end_date is in the future using luxon
+      // end_date from Prisma is a Date object
+      const endDateTime = DateTime.fromJSDate(subscription.end_date);
+      const now = DateTime.now();
+
+      return endDateTime > now;
     }
   );
 

@@ -26,15 +26,18 @@ export const useUserSubscription = (
       return false;
     }
     const { tier, end_date } = subscriptionQuery.data;
-    // if not pro, then false
+
+    // If not Pro tier, no access
     if (tier !== "PRO") {
       return false;
     }
-    // if no end date, then the user is free tier
+
+    // If no end_date, subscription is active (recurring)
     if (!end_date) {
-      return false;
+      return true;
     }
-    // if end date is not in the future, then it has expired
+
+    // Check if end_date is in the future
     const endDateTime = DateTime.fromISO(end_date);
     const now = DateTime.now();
     return endDateTime > now;

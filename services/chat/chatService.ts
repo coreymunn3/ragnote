@@ -23,11 +23,16 @@ import {
   transformToChatMessage,
   transformToChatSession,
 } from "./chatTransformers";
-import { InternalServerError, NotFoundError } from "@/lib/errors/apiErrors";
+import {
+  InternalServerError,
+  NotFoundError,
+  UnauthorizedError,
+} from "@/lib/errors/apiErrors";
 import { AiService } from "../ai/aiService";
 import { tokenTrackingService } from "../tokenTracking/tokenTrackingService";
 import { AgentResultData, WorkflowEventData } from "@llamaindex/workflow";
 import { Session } from "inspector/promises";
+import { UserService } from "../user/userService";
 
 export class ChatService {
   /**
@@ -263,6 +268,20 @@ export class ChatService {
         folderId: validatedFolderId,
         sessionId: validatedSessionId,
       } = sendChatSchema.parse(params);
+
+      /**
+       * Guard: Check Pro access for chat features
+       */
+      const userService = new UserService();
+      const hasProAccess = await userService.hasProAccess({
+        userId: validatedUserId,
+      });
+
+      if (!hasProAccess) {
+        throw new UnauthorizedError(
+          "Chat features require an active Pro subscription"
+        );
+      }
 
       /**
        * Create the chat scope from the args

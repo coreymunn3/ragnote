@@ -21,7 +21,7 @@ import {
   PrismaNoteVersion,
   PublishNoteResponse,
 } from "@/lib/types/noteTypes";
-import { NotFoundError } from "@/lib/errors/apiErrors";
+import { NotFoundError, UnauthorizedError } from "@/lib/errors/apiErrors";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { transformToNote } from "./noteTransformers";
 import { SYSTEM_FOLDERS } from "@/lib/types/folderTypes";
@@ -29,6 +29,7 @@ import { isSystemFolder } from "@/lib/utils/folderUtils";
 import { NoteTextExtractor } from "./noteTextExtractor";
 import { AiService } from "../ai/aiService";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
+import { UserService } from "../user/userService";
 
 export class NoteService {
   /**
@@ -610,6 +611,8 @@ export class NoteService {
 
   /**
    * Get list of versions for a note using its ID
+   * FREE users: Returns only the current version
+   * PRO users: Returns full version history
    */
   public getNoteVersions = withErrorHandling(
     async (params: {
@@ -618,7 +621,38 @@ export class NoteService {
     }): Promise<PrismaNoteVersion[]> => {
       const { noteId, userId } = getNoteVersionsSchema.parse(params);
 
-      // Get all versions of a note
+      // Check Pro access
+      const userService = new UserService();
+      const hasProAccess = await userService.hasProAccess({ userId });
+
+      // Get the note to find current version
+      const note = await prisma.note.findFirst({
+        where: {
+          id: noteId,
+          user_id: userId,
+          is_deleted: false,
+        },
+        select: {
+          current_version_id: true,
+        },
+      });
+
+      if (!note) {
+        throw new NotFoundError(
+          `Note not found for note ${noteId} or access denied`
+        );
+      }
+
+      // FREE users: Return only current version
+      if (!hasProAccess && note.current_version_id) {
+        const currentVersion = await prisma.note_version.findUnique({
+          where: { id: note.current_version_id },
+        });
+
+        return currentVersion ? [currentVersion] : [];
+      }
+
+      // PRO users: Return full version history
       const noteVersions = await prisma.note_version.findMany({
         where: {
           note_id: noteId,
@@ -648,22 +682,44 @@ export class NoteService {
     async (params: { versionId: string; userId: string }) => {
       const { versionId, userId } = getNoteVersionSchema.parse(params);
 
-      // get the version of the note
-      const noteVersion = await prisma.note_version.findFirst({
+      // Get the version with note info to check if it's the current version
+      const noteVersionWithNote = await prisma.note_version.findFirst({
         where: {
           id: versionId,
           note: {
             user_id: userId,
           },
         },
+        include: {
+          note: {
+            select: { current_version_id: true },
+          },
+        },
       });
 
-      if (!noteVersion) {
+      if (!noteVersionWithNote) {
         throw new NotFoundError(
           `Note Version not found for version ${versionId} or access denied`
         );
       }
 
+      // Conditional Guard: Only require Pro for NON-CURRENT versions (history)
+      const isCurrentVersion =
+        noteVersionWithNote.note.current_version_id === versionId;
+
+      if (!isCurrentVersion) {
+        const userService = new UserService();
+        const hasProAccess = await userService.hasProAccess({ userId });
+
+        if (!hasProAccess) {
+          throw new UnauthorizedError(
+            "Accessing version history requires an active Pro subscription"
+          );
+        }
+      }
+
+      // Return just the version without the note relation
+      const { note, ...noteVersion } = noteVersionWithNote;
       return noteVersion;
     }
   );
@@ -707,6 +763,18 @@ export class NoteService {
       // Validate input parameters
       const { versionId: validatedVersionId, userId: validatedUserId } =
         publishNoteVersionSchema.parse(params);
+
+      // Guard: Check Pro access for publishing
+      const userService = new UserService();
+      const hasProAccess = await userService.hasProAccess({
+        userId: validatedUserId,
+      });
+
+      if (!hasProAccess) {
+        throw new UnauthorizedError(
+          "Publishing notes requires an active Pro subscription"
+        );
+      }
 
       // create instance of AiService for embeddings, later
       const aiService = new AiService(validatedUserId);
