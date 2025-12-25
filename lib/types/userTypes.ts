@@ -6,7 +6,7 @@ import { Expand } from "./sharedTypes";
 export type UserSubscription = {
   id: string;
   tier: "FREE" | "PRO";
-  end_date: Date | null;
+  end_date: string | null;
   stripe_price_id: string | null;
   stripe_subscription_id: string | null;
 };
