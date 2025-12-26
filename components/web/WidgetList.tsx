@@ -124,7 +124,7 @@ const WidgetList = <T extends { id: string }>({
     <div
       className={cn(
         className,
-        "w-full p-4 rounded-md bg-gradient-to-br from-muted/70 via-transparent to-muted/40"
+        "w-full p-4 rounded-md bg-gradient-to-br from-muted/70 via-background to-muted/40"
       )}
     >
       {/* Title area */}
