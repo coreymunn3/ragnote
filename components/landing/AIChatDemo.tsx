@@ -9,7 +9,7 @@ export default function AIChatDemo() {
       stepInfo: {
         number: 1,
         stepName: "Create & Organize",
-        title: "Write Your Notes",
+        // title: "Create",
         description:
           "Use our rich text editor to capture your thoughts, ideas, and knowledge. Organize everything into folders for easy management.",
       },
@@ -21,7 +21,7 @@ export default function AIChatDemo() {
       stepInfo: {
         number: 2,
         stepName: "AI Understanding",
-        title: "Publish Your Notes",
+        // title: "Publish",
         description:
           "As you create published versions, our AI automatically analyzes and understands your notes, building a semantic understanding of your knowledge base.",
       },
@@ -33,7 +33,7 @@ export default function AIChatDemo() {
       stepInfo: {
         number: 3,
         stepName: "Ask & Discover",
-        title: "Chat with Your Notes",
+        // title: "Chat & Discover",
         description:
           "Ask questions in natural language and get intelligent responses based on your notes. Discover connections and insights you might have missed.",
       },

@@ -6,7 +6,7 @@ import { AnimatedScrollItem } from "@/components/animations";
 export type StepInfo = {
   number: number;
   stepName: string;
-  title: string;
+  title?: string;
   description: string;
 };
 
