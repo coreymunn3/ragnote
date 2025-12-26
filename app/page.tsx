@@ -7,6 +7,7 @@ import FeaturesSection from "@/components/landing/FeaturesSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import PricingSection from "@/components/landing/PricingSection";
 import LandingFooter from "@/components/landing/LandingFooter";
+import BackgroundPattern from "@/components/BackgroundPattern";
 
 export default async function Home() {
   const { userId } = await auth();
@@ -19,7 +20,9 @@ export default async function Home() {
   return (
     <div className="min-h-screen flex flex-col relative">
       {/* Global grid pattern for landing page */}
-      <div className="fixed inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none z-0" />
+      <div className="fixed inset-0">
+        <BackgroundPattern />
+      </div>
 
       <div className="relative z-10 flex flex-col flex-1">
         <LandingNavbar />

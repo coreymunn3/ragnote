@@ -1,5 +1,6 @@
 import MobileHeader from "@/components/mobile/MobileHeader";
 import { MobileHeaderProvider } from "@/contexts/MobileHeaderContext";
+import BackgroundPattern from "@/components/BackgroundPattern";
 
 export default function MobileLayout({
   children,
@@ -8,9 +9,10 @@ export default function MobileLayout({
 }) {
   return (
     <MobileHeaderProvider>
-      <div className="flex flex-col h-screen bg-sidebar">
+      <div className="flex flex-col h-screen bg-sidebar relative">
+        <BackgroundPattern />
         <MobileHeader />
-        <div className="flex-1">{children}</div>
+        <div className="flex-1 relative z-10">{children}</div>
       </div>
     </MobileHeaderProvider>
   );
