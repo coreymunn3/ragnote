@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { SignUpButton } from "@clerk/nextjs";
 import { ArrowRight, Sparkles } from "lucide-react";
 import BackgroundPattern from "../BackgroundPattern";
+import { AuroraText } from "@/components/ui/aurora-text";
 
 export default function HeroSection() {
   return (
@@ -79,7 +80,17 @@ export default function HeroSection() {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
             Your Notes,
             <br />
-            <span className="text-primary">Supercharged by AI</span>
+            <AuroraText
+              colors={[
+                "hsl(var(--primary))",
+                "hsl(var(--secondary))",
+                "#a855f7",
+                "#3b82f6",
+              ]}
+              speed={0.8}
+            >
+              Supercharged by AI
+            </AuroraText>
           </h1>
 
           {/* Subheading */}
