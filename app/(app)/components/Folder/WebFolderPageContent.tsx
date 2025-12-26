@@ -3,7 +3,7 @@
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { Separator } from "@/components/ui/separator";
 import { TypographyMuted } from "@/components/ui/typography";
-import WidgetList from "@/components/web/WidgetList";
+import WidgetGrid from "@/components/web/WidgetGrid";
 import NoteWidget from "@/components/web/NoteWidget";
 import ChatWidget from "@/components/web/ChatWidget";
 import OptionsMenu from "@/components/OptionsMenu";
@@ -50,7 +50,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
   );
 
   // Render method that handles both Note and ChatSession types based on folder.itemType
-  const renderItemWidgetList = (
+  const renderItemWidgetGrid = (
     items: (Note | ChatSession)[],
     delay: number
   ) => {
@@ -59,7 +59,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
     if (folder.itemType === "note") {
       const notes = items as Note[];
       return (
-        <WidgetList<Note>
+        <WidgetGrid<Note>
           items={notes}
           renderItem={(note) => (
             <NoteWidget
@@ -74,7 +74,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
     } else if (folder.itemType === "chat") {
       const chatSessions = items as ChatSession[];
       return (
-        <WidgetList<ChatSession>
+        <WidgetGrid<ChatSession>
           items={chatSessions}
           renderItem={(chatSession) => <ChatWidget chatSession={chatSession} />}
           delay={delay}
@@ -120,14 +120,14 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
         {/* Display pinned items prominently */}
         {pinnedItems.length > 0 && (
           <AnimatedListItem index={1} animation="fadeIn">
-            {renderItemWidgetList(pinnedItems, 1)}
+            {renderItemWidgetGrid(pinnedItems, 1)}
           </AnimatedListItem>
         )}
 
         {/* Display unpinned items in a responsive grid layout */}
         {unpinnedItems.length > 0 && (
           <AnimatedListItem index={2} animation="fadeIn">
-            {renderItemWidgetList(unpinnedItems, 2)}
+            {renderItemWidgetGrid(unpinnedItems, 2)}
           </AnimatedListItem>
         )}
       </div>

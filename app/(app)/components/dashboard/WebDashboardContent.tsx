@@ -1,6 +1,6 @@
 "use client";
 
-import WidgetList from "@/components/web/WidgetList";
+import WidgetGrid from "@/components/web/WidgetGrid";
 import NoteWidget from "@/components/web/NoteWidget";
 import ChatWidget from "@/components/web/ChatWidget";
 import { FileIcon, MessageSquareIcon, PinIcon } from "lucide-react";
@@ -64,7 +64,7 @@ const WebDashboardContent = ({
         {/* Pinned Notes - only show if user has pinned notes */}
         {
           <AnimatedListItem index={1} animation="fadeIn">
-            <WidgetList
+            <WidgetGrid
               items={pinnedNotes}
               renderItem={(note) => (
                 <NoteWidget note={note} pinned={note.is_pinned} />
@@ -82,7 +82,7 @@ const WebDashboardContent = ({
 
         {/* Recent Notes */}
         <AnimatedListItem index={2} animation="fadeIn">
-          <WidgetList
+          <WidgetGrid
             items={recentNotes}
             renderItem={(note) => <NoteWidget note={note} />}
             title="Recent Notes"
@@ -97,7 +97,7 @@ const WebDashboardContent = ({
 
         {/* Recent Chats */}
         <AnimatedListItem index={3} animation="fadeIn">
-          <WidgetList
+          <WidgetGrid
             items={recentChats}
             renderItem={(conversation) => (
               <ChatWidget chatSession={conversation} />

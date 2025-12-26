@@ -5,7 +5,7 @@ import { STAGGER_DELAY } from "@/lib/animations";
 import { Button } from "@/components/ui/button";
 import { TypographyMuted } from "../ui/typography";
 
-interface WidgetListProps<T> {
+interface WidgetGridProps<T> {
   items: T[];
   renderItem: (item: T, index: number) => React.ReactNode;
   title?: string;
@@ -18,7 +18,7 @@ interface WidgetListProps<T> {
   showMoreButton?: boolean; // Whether to show the "Show More" button
 }
 
-const WidgetList = <T extends { id: string }>({
+const WidgetGrid = <T extends { id: string }>({
   items,
   renderItem,
   title,
@@ -29,7 +29,7 @@ const WidgetList = <T extends { id: string }>({
   initialItemLimit,
   showMoreIncrement,
   showMoreButton = false,
-}: WidgetListProps<T>) => {
+}: WidgetGridProps<T>) => {
   // State for pagination - simple and straightforward
   const [displayCount, setDisplayCount] = useState(
     initialItemLimit && initialItemLimit < items.length
@@ -117,4 +117,4 @@ const WidgetList = <T extends { id: string }>({
   );
 };
 
-export default WidgetList;
+export default WidgetGrid;
