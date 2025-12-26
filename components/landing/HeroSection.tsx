@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { SignUpButton } from "@clerk/nextjs";
 import { ArrowRight, Sparkles } from "lucide-react";
+import BackgroundPattern from "../BackgroundPattern";
 
 export default function HeroSection() {
   return (
@@ -60,7 +61,7 @@ export default function HeroSection() {
         />
 
         {/* Subtle grid pattern for texture */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+        <BackgroundPattern />
       </div>
 
       {/* Content layer */}
