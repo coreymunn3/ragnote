@@ -25,7 +25,7 @@ const WidgetGrid = <T extends { id: string }>({
   icon,
   className,
   delay = 0, // Default to no delay
-  emptyContentMessage,
+  emptyContentMessage = "Nothing yet",
   initialItemLimit,
   showMoreIncrement,
   showMoreButton = false,
