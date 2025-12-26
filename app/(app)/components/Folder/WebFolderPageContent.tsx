@@ -118,7 +118,6 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
           )}
         </div>
       </div>
-      <Separator orientation="horizontal" className="mb-6" />
 
       <div className="flex flex-col space-y-4">
         {/* Display pinned items prominently */}
