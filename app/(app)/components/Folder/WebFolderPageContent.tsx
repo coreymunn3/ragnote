@@ -52,7 +52,6 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
   // Render method that handles both Note and ChatSession types based on folder.itemType
   const renderItemWidgetList = (
     items: (Note | ChatSession)[],
-    displayMode: "vertical" | "grid",
     delay: number
   ) => {
     if (items.length === 0) return null;
@@ -69,7 +68,6 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
               pinned={note.is_pinned}
             />
           )}
-          displayMode={displayMode}
           delay={delay}
         />
       );
@@ -79,7 +77,6 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
         <WidgetList<ChatSession>
           items={chatSessions}
           renderItem={(chatSession) => <ChatWidget chatSession={chatSession} />}
-          displayMode={displayMode}
           delay={delay}
         />
       );
@@ -123,14 +120,14 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
         {/* Display pinned items prominently */}
         {pinnedItems.length > 0 && (
           <AnimatedListItem index={1} animation="fadeIn">
-            {renderItemWidgetList(pinnedItems, "grid", 1)}
+            {renderItemWidgetList(pinnedItems, 1)}
           </AnimatedListItem>
         )}
 
         {/* Display unpinned items in a responsive grid layout */}
         {unpinnedItems.length > 0 && (
           <AnimatedListItem index={2} animation="fadeIn">
-            {renderItemWidgetList(unpinnedItems, "grid", 2)}
+            {renderItemWidgetList(unpinnedItems, 2)}
           </AnimatedListItem>
         )}
       </div>

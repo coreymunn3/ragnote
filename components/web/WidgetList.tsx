@@ -1,9 +1,9 @@
 import { ReactNode, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ScrollableContainer } from "@/components/ui/scrollable-container";
 import { AnimatedListItem, AnimatedTypography } from "../animations";
 import { STAGGER_DELAY } from "@/lib/animations";
 import { Button } from "@/components/ui/button";
+import { TypographyMuted } from "../ui/typography";
 
 interface WidgetListProps<T> {
   items: T[];
@@ -11,9 +11,8 @@ interface WidgetListProps<T> {
   title?: string;
   icon?: ReactNode;
   className?: string;
-  emptyMessage?: string;
   delay?: number; // Optional delay for child animations
-  displayMode?: "horizontal" | "grid" | "vertical"; // Control display as horizontal scroll or responsive grid
+  emptyContentMessage?: string; // Message to display when there are no items
   initialItemLimit?: number; // Number of items to show initially
   showMoreIncrement?: number; // Number of items to add when "Show More" is clicked
   showMoreButton?: boolean; // Whether to show the "Show More" button
@@ -25,9 +24,8 @@ const WidgetList = <T extends { id: string }>({
   title,
   icon,
   className,
-  emptyMessage = "",
   delay = 0, // Default to no delay
-  displayMode = "horizontal", // Default to horizontal for backward compatibility
+  emptyContentMessage,
   initialItemLimit,
   showMoreIncrement,
   showMoreButton = false,
@@ -38,14 +36,6 @@ const WidgetList = <T extends { id: string }>({
       ? initialItemLimit
       : items.length
   );
-
-  if (!items || items.length === 0) {
-    return (
-      <div className="text-muted-foreground text-sm py-0 text-center">
-        {emptyMessage}
-      </div>
-    );
-  }
 
   // Slice items based on current display count
   const visibleItems = showMoreButton ? items.slice(0, displayCount) : items;
@@ -63,62 +53,6 @@ const WidgetList = <T extends { id: string }>({
   // Button visibility logic
   const canShowMore = displayCount < items.length;
   const canShowLess = initialItemLimit && displayCount > initialItemLimit;
-
-  // Render content based on display mode
-  const renderContent = () => {
-    switch (displayMode) {
-      case "grid":
-        return (
-          <div
-            className={`grid ${visibleItems.length === 1 ? "grid-cols-1" : "md:grid-cols-2 gap-4"}`}
-          >
-            {visibleItems.map((item, index) => (
-              <AnimatedListItem
-                key={item.id}
-                index={index}
-                animation="fadeInUp"
-                delay={delay * STAGGER_DELAY}
-              >
-                {renderItem(item, index)}
-              </AnimatedListItem>
-            ))}
-          </div>
-        );
-      case "vertical":
-        return (
-          <div className="flex flex-col space-y-4">
-            {items.map((item, index) => (
-              <AnimatedListItem
-                key={item.id}
-                index={index}
-                animation="fadeIn"
-                delay={delay * STAGGER_DELAY}
-              >
-                <div className="flex-shrink-0">{renderItem(item, index)}</div>
-              </AnimatedListItem>
-            ))}
-          </div>
-        );
-      case "horizontal":
-      default:
-        return (
-          <ScrollableContainer containerClassName="space-x-4 scrollbar-hide">
-            {items.map((item, index) => (
-              <AnimatedListItem
-                key={item.id}
-                index={index}
-                animation="fadeInUp"
-                delay={delay * STAGGER_DELAY}
-              >
-                <div className="flex-shrink-0 w-[300px]">
-                  {renderItem(item, index)}
-                </div>
-              </AnimatedListItem>
-            ))}
-          </ScrollableContainer>
-        );
-    }
-  };
 
   return (
     <div
@@ -141,8 +75,28 @@ const WidgetList = <T extends { id: string }>({
         )}
       </div>
 
-      {/* Content rendered based on display mode */}
-      <div className="pb-4">{renderContent()}</div>
+      {/* Grid content */}
+      <div className="pb-4">
+        <div
+          className={`grid ${!visibleItems.length || visibleItems.length === 1 ? "grid-cols-1" : "md:grid-cols-2 gap-4"}`}
+        >
+          {!visibleItems.length && emptyContentMessage && (
+            <TypographyMuted className="py-4 text-center">
+              {emptyContentMessage}
+            </TypographyMuted>
+          )}
+          {visibleItems.map((item, index) => (
+            <AnimatedListItem
+              key={item.id}
+              index={index}
+              animation="fadeInUp"
+              delay={delay * STAGGER_DELAY}
+            >
+              {renderItem(item, index)}
+            </AnimatedListItem>
+          ))}
+        </div>
+      </div>
 
       {/* Show More / Show Less buttons */}
       {showMoreButton && (canShowMore || canShowLess) && (

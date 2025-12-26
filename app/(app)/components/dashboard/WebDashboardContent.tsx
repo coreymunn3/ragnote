@@ -62,7 +62,7 @@ const WebDashboardContent = ({
         </AnimatedListItem>
 
         {/* Pinned Notes - only show if user has pinned notes */}
-        {pinnedNotes.length > 0 && (
+        {
           <AnimatedListItem index={1} animation="fadeIn">
             <WidgetList
               items={pinnedNotes}
@@ -71,14 +71,14 @@ const WebDashboardContent = ({
               )}
               title="Pinned Notes"
               icon={<PinIcon className="h-6 w-6 text-muted-foreground" />}
-              displayMode="grid"
+              emptyContentMessage="No pinned notes yet. Any pinned notes will appear here."
               initialItemLimit={2}
               showMoreIncrement={2}
               showMoreButton={true}
               delay={1}
             />
           </AnimatedListItem>
-        )}
+        }
 
         {/* Recent Notes */}
         <AnimatedListItem index={2} animation="fadeIn">
@@ -87,7 +87,7 @@ const WebDashboardContent = ({
             renderItem={(note) => <NoteWidget note={note} />}
             title="Recent Notes"
             icon={<FileIcon className="h-6 w-6 text-muted-foreground" />}
-            displayMode="grid"
+            emptyContentMessage="No notes yet. Create a note to get started."
             initialItemLimit={4}
             showMoreIncrement={4}
             showMoreButton={true}
@@ -106,7 +106,7 @@ const WebDashboardContent = ({
             icon={
               <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
             }
-            displayMode="grid"
+            emptyContentMessage="No chats yet. Chat with one of your notes to get started."
             initialItemLimit={4}
             showMoreIncrement={4}
             showMoreButton={true}
