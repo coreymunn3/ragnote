@@ -120,7 +120,7 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
       <Link href={noteUrl} className="block w-full h-full">
         <Card
           variant="dense"
-          className={`${pinned && "bg-sidebar border border-primary"} cursor-pointer hover:shadow-md hover:text-primary hover:border hover:border-primary transition-all duration-200`}
+          className={`${pinned && "bg-primary/10"} cursor-pointer hover:shadow-md hover:text-primary hover:border hover:border-primary transition-all duration-200`}
         >
           {/* Note Widget Header */}
           <CardHeader>

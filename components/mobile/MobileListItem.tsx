@@ -26,6 +26,11 @@ interface DetailElement {
 }
 
 const MobileListItem = ({ type, item, isLastItem }: MobileListItemProps) => {
+  // Check if the item is pinned (for notes and chats)
+  const isPinned =
+    (type === "note" && (item as Note).is_pinned) ||
+    (type === "chat" && (item as ChatSession).is_pinned);
+
   // console.log(type, item);
   const itemData = ((): DetailElement => {
     switch (type) {
@@ -59,7 +64,9 @@ const MobileListItem = ({ type, item, isLastItem }: MobileListItemProps) => {
 
   return (
     <div>
-      <div className="w-full px-4 h-14 flex items-center justify-between hover:bg-accent/50 transition-colors">
+      <div
+        className={`w-full px-4 h-14 flex items-center justify-between hover:bg-accent/50 transition-colors ${isPinned && "bg-primary/10 rounded-md"}`}
+      >
         {/* Left side - clickable link with icon and name */}
         <Link
           href={itemData.href}
