@@ -49,6 +49,7 @@ const MobileDashboardContent = ({
         type="folder"
         isLoading={folders.isLoading}
         action={<CreateFolder />}
+        emptyContentMessage="No folders yet. Create a folder to get started."
       />
       <MobileList
         title="System Folders"
