@@ -43,6 +43,7 @@ export default function AIChatDemo() {
       webImgDark: "/demo/step3-web-dark.png",
       mobileImgLight: "/demo/step3-mobile-light.png",
       mobileImgDark: "/demo/step3-mobile-dark.png",
+      mobileSide: "left",
     },
   ];
 
@@ -59,7 +60,7 @@ export default function AIChatDemo() {
         />
 
         {/* Demo screenshots - 3 step process */}
-        <div className="max-w-6xl mx-auto space-y-12">
+        <div className="space-y-12">
           {demoSteps.map((step, idx) => (
             <DemoSection index={idx} {...step} />
           ))}

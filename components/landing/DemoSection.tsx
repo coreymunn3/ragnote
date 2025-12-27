@@ -20,6 +20,7 @@ export type StepSection = {
   webImgDark: string;
   mobileImgLight: string;
   mobileImgDark: string;
+  mobileSide?: "left" | "right";
 };
 
 const DemoSection = ({
@@ -29,6 +30,7 @@ const DemoSection = ({
   webImgDark,
   mobileImgLight,
   mobileImgDark,
+  mobileSide = "right",
 }: StepSection) => {
   const { theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -73,9 +75,9 @@ const DemoSection = ({
         delay={(index ?? 0) * 0.1 + 0.2}
         className="w-full"
       >
-        <div className="flex flex-col md:flex-row gap-6 items-start justify-center w-full max-w-7xl mx-auto">
+        <div className="relative w-full">
           {/* Safari (web) mockup */}
-          <div className="w-full md:w-[65%]">
+          <div className="">
             <Safari
               imageSrc={webImg}
               url="wysenote.com"
@@ -84,7 +86,9 @@ const DemoSection = ({
           </div>
 
           {/* iPhone (mobile) mockup */}
-          <div className="w-full md:w-[30%] mx-auto md:mx-0">
+          <div
+            className={`w-[150px] md:w-[200px] xl:w-[350px] absolute z-10 bottom-0 ${mobileSide === "left" ? "left-0 md:-left-10" : "right-0 md:-right-10"}`}
+          >
             <Iphone src={mobileImg} className="w-full drop-shadow-2xl" />
           </div>
         </div>
