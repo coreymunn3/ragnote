@@ -62,7 +62,7 @@ export default function AIChatDemo() {
         {/* Demo screenshots - 3 step process */}
         <div className="space-y-12">
           {demoSteps.map((step, idx) => (
-            <DemoSection index={idx} {...step} />
+            <DemoSection key={idx} index={idx} {...step} />
           ))}
         </div>
       </div>
