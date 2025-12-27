@@ -8,7 +8,7 @@ import { AuroraText } from "@/components/ui/aurora-text";
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden min-h-[800px]">
+    <section className="relative overflow-hidden min-h-[800px] lg:h-[1000px]">
       {/* Custom keyframe animations */}
       <style jsx>{`
         @keyframes float1 {
