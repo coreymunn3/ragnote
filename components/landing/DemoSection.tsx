@@ -3,6 +3,7 @@
 import { AnimatedScrollItem } from "@/components/animations";
 import { Safari } from "@/components/ui/safari";
 import { Iphone } from "@/components/ui/iphone";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
@@ -34,6 +35,8 @@ const DemoSection = ({
 }: StepSection) => {
   const { theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState<"web" | "mobile">("web");
 
   // Handle hydration mismatch
   useEffect(() => {
@@ -44,6 +47,17 @@ const DemoSection = ({
   const currentTheme = mounted ? resolvedTheme || theme : "light";
   const webImg = currentTheme === "dark" ? webImgDark : webImgLight;
   const mobileImg = currentTheme === "dark" ? mobileImgDark : mobileImgLight;
+
+  // Handle image click
+  const handleWebClick = () => {
+    setSelectedDevice("web");
+    setDialogOpen(true);
+  };
+
+  const handleMobileClick = () => {
+    setSelectedDevice("mobile");
+    setDialogOpen(true);
+  };
 
   return (
     <div className="flex flex-col w-full space-y-8">
@@ -76,8 +90,11 @@ const DemoSection = ({
         className="w-full"
       >
         <div className="relative w-full">
-          {/* Safari (web) mockup */}
-          <div className="">
+          {/* Safari (web) mockup - clickable */}
+          <div
+            onClick={handleWebClick}
+            className="cursor-pointer hover:scale-[1.05] transition-all duration-300 ease-in-out hover:drop-shadow-[0_20px_50px_rgba(0,0,0,0.4)]"
+          >
             <Safari
               imageSrc={webImg}
               url="wysenote.com"
@@ -85,14 +102,36 @@ const DemoSection = ({
             />
           </div>
 
-          {/* iPhone (mobile) mockup */}
+          {/* iPhone (mobile) mockup - clickable */}
           <div
-            className={`w-[150px] md:w-[200px] xl:w-[350px] absolute z-10 bottom-0 ${mobileSide === "left" ? "left-0 md:-left-10" : "right-0 md:-right-10"}`}
+            onClick={handleMobileClick}
+            className={`w-[150px] md:w-[200px] xl:w-[350px] absolute z-10 bottom-0 cursor-pointer hover:scale-105 transition-all duration-300 ease-in-out hover:drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] ${mobileSide === "left" ? "left-0 md:-left-10" : "right-0 md:-right-10"}`}
           >
             <Iphone src={mobileImg} className="w-full drop-shadow-2xl" />
           </div>
         </div>
       </AnimatedScrollItem>
+
+      {/* Full-size image dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-4 overflow-hidden">
+          <div className="w-full h-full flex items-center justify-center overflow-hidden">
+            {selectedDevice === "web" ? (
+              <div className="w-full max-w-5xl">
+                <Safari
+                  imageSrc={webImg}
+                  url="wysenote.com"
+                  className="w-full"
+                />
+              </div>
+            ) : (
+              <div className="w-full max-w-md overflow-hidden">
+                <Iphone src={mobileImg} className="w-full" />
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
