@@ -54,13 +54,12 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
     items: (Note | ChatSession)[],
     delay: number
   ) => {
-    if (items.length === 0) return null;
-
     if (folder.itemType === "note") {
       const notes = items as Note[];
       return (
         <WidgetGrid<Note>
           items={notes}
+          emptyContentMessage="No Chats Yet."
           renderItem={(note) => (
             <NoteWidget
               note={note}
@@ -117,19 +116,17 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
       </div>
 
       <div className="flex flex-col space-y-4">
-        {/* Display pinned items prominently */}
-        {pinnedItems.length > 0 && (
+        {/* Display pinned items prominently - but only for user created folders (no pinning in system folders) */}
+        {isUserFolder && (
           <AnimatedListItem index={1} animation="fadeIn">
             {renderItemWidgetGrid(pinnedItems, 1)}
           </AnimatedListItem>
         )}
 
         {/* Display unpinned items in a responsive grid layout */}
-        {unpinnedItems.length > 0 && (
-          <AnimatedListItem index={2} animation="fadeIn">
-            {renderItemWidgetGrid(unpinnedItems, 2)}
-          </AnimatedListItem>
-        )}
+        <AnimatedListItem index={2} animation="fadeIn">
+          {renderItemWidgetGrid(unpinnedItems, 2)}
+        </AnimatedListItem>
       </div>
 
       {/* Rename Dialog */}
