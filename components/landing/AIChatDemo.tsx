@@ -13,9 +13,10 @@ export default function AIChatDemo() {
         description:
           "Use our rich text editor to capture your thoughts, ideas, and knowledge. Organize everything into folders for easy management.",
       },
-      imgUrl:
-        "https://images.unsplash.com/photo-1517842645767-c639042777db?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      imgSide: "left",
+      webImgLight: "/demo/step1-web-light.png",
+      webImgDark: "/demo/step1-web-dark.png",
+      mobileImgLight: "/demo/step1-mobile-light.png",
+      mobileImgDark: "/demo/step1-mobile-dark.png",
     },
     {
       stepInfo: {
@@ -25,9 +26,10 @@ export default function AIChatDemo() {
         description:
           "As you create published versions, our AI automatically analyzes and understands your notes, building a semantic understanding of your knowledge base.",
       },
-      imgUrl:
-        "https://images.unsplash.com/photo-1517842645767-c639042777db?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      imgSide: "right",
+      webImgLight: "/demo/step2-web-light.png",
+      webImgDark: "/demo/step2-web-dark.png",
+      mobileImgLight: "/demo/step2-mobile-light.png",
+      mobileImgDark: "/demo/step2-mobile-dark.png",
     },
     {
       stepInfo: {
@@ -37,9 +39,10 @@ export default function AIChatDemo() {
         description:
           "Ask questions in natural language and get intelligent responses based on your notes. Discover connections and insights you might have missed.",
       },
-      imgUrl:
-        "https://images.unsplash.com/photo-1517842645767-c639042777db?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      imgSide: "left",
+      webImgLight: "/demo/step3-web-light.png",
+      webImgDark: "/demo/step3-web-dark.png",
+      mobileImgLight: "/demo/step3-mobile-light.png",
+      mobileImgDark: "/demo/step3-mobile-dark.png",
     },
   ];
 
