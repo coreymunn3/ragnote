@@ -11,7 +11,8 @@
     "db:studio": "npx prisma studio",
     "db:migrate": "npx prisma migrate dev",
     "db:migrate:deploy": "npx prisma migrate deploy",
-    "db:push": "npx prisma db push"
+    "db:push": "npx prisma db push",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@blocknote/core": "^0.31.2",
