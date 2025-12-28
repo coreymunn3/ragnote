@@ -59,7 +59,6 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
       return (
         <WidgetGrid<Note>
           items={notes}
-          emptyContentMessage="No Chats Yet."
           renderItem={(note) => (
             <NoteWidget
               note={note}
@@ -75,6 +74,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
       return (
         <WidgetGrid<ChatSession>
           items={chatSessions}
+          emptyContentMessage="No chats yet"
           renderItem={(chatSession) => <ChatWidget chatSession={chatSession} />}
           delay={delay}
         />
@@ -117,7 +117,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
 
       <div className="flex flex-col space-y-4">
         {/* Display pinned items prominently - but only for user created folders (no pinning in system folders) */}
-        {isUserFolder && (
+        {isUserFolder && pinnedItems.length > 0 && (
           <AnimatedListItem index={1} animation="fadeIn">
             {renderItemWidgetGrid(pinnedItems, 1)}
           </AnimatedListItem>
