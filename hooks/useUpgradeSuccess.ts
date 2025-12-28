@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export function useUpgradeSuccess() {
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     // Only run on client side after mount
@@ -29,7 +28,7 @@ export function useUpgradeSuccess() {
       // Replace the URL without the upgrade parameter
       router.replace(newUrl, { scroll: false });
     }
-  }, [searchParams, router]);
+  }, []);
 
   const closeWelcomeDialog = () => {
     setShowWelcomeDialog(false);
