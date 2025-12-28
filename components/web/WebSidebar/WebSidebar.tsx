@@ -82,7 +82,6 @@ const WebSidebar = () => {
         />
       </SidebarContent>
       <SidebarFooter>
-        <ThemeSwitch />
         <BrandingHeader />
       </SidebarFooter>
       <SidebarRail />

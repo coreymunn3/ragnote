@@ -3,7 +3,7 @@
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { Separator } from "@/components/ui/separator";
 import { TypographyMuted } from "@/components/ui/typography";
-import WidgetList from "@/components/web/WidgetList";
+import WidgetGrid from "@/components/web/WidgetGrid";
 import NoteWidget from "@/components/web/NoteWidget";
 import ChatWidget from "@/components/web/ChatWidget";
 import OptionsMenu from "@/components/OptionsMenu";
@@ -50,36 +50,32 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
   );
 
   // Render method that handles both Note and ChatSession types based on folder.itemType
-  const renderItemWidgetList = (
+  const renderItemWidgetGrid = (
     items: (Note | ChatSession)[],
-    displayMode: "vertical" | "grid",
     delay: number
   ) => {
-    if (items.length === 0) return null;
-
     if (folder.itemType === "note") {
       const notes = items as Note[];
       return (
-        <WidgetList<Note>
+        <WidgetGrid<Note>
           items={notes}
           renderItem={(note) => (
             <NoteWidget
               note={note}
               folderId={folder.id}
-              pinned={displayMode === "vertical"}
+              pinned={note.is_pinned}
             />
           )}
-          displayMode={displayMode}
           delay={delay}
         />
       );
     } else if (folder.itemType === "chat") {
       const chatSessions = items as ChatSession[];
       return (
-        <WidgetList<ChatSession>
+        <WidgetGrid<ChatSession>
           items={chatSessions}
+          emptyContentMessage="No chats yet"
           renderItem={(chatSession) => <ChatWidget chatSession={chatSession} />}
-          displayMode={displayMode}
           delay={delay}
         />
       );
@@ -118,22 +114,19 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
           )}
         </div>
       </div>
-      <Separator orientation="horizontal" className="mb-6" />
 
       <div className="flex flex-col space-y-4">
-        {/* Display pinned items prominently */}
-        {pinnedItems.length > 0 && (
+        {/* Display pinned items prominently - but only for user created folders (no pinning in system folders) */}
+        {isUserFolder && pinnedItems.length > 0 && (
           <AnimatedListItem index={1} animation="fadeIn">
-            {renderItemWidgetList(pinnedItems, "vertical", 1)}
+            {renderItemWidgetGrid(pinnedItems, 1)}
           </AnimatedListItem>
         )}
 
         {/* Display unpinned items in a responsive grid layout */}
-        {unpinnedItems.length > 0 && (
-          <AnimatedListItem index={2} animation="fadeIn">
-            {renderItemWidgetList(unpinnedItems, "grid", 2)}
-          </AnimatedListItem>
-        )}
+        <AnimatedListItem index={2} animation="fadeIn">
+          {renderItemWidgetGrid(unpinnedItems, 2)}
+        </AnimatedListItem>
       </div>
 
       {/* Rename Dialog */}

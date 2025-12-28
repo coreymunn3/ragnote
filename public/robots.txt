@@ -1,0 +1,20 @@
+# robots.txt for Wysenote
+# This file tells search engines which pages to crawl
+
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Disallow crawling of private/authenticated areas
+Disallow: /dashboard
+Disallow: /note/
+Disallow: /folder/
+Disallow: /chat/
+Disallow: /upgrade
+Disallow: /api/
+
+# Allow crawling of API documentation if you have it
+# Allow: /api/docs
+
+# Sitemap location
+Sitemap: https://wysenote.com/sitemap.xml

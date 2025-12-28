@@ -7,6 +7,8 @@ import {
 import { searchSchema, textBasedSearchSchema } from "./searchValidators";
 import { transformTextSearchResults } from "./searchTransformers";
 import { AiService } from "../ai/aiService";
+import { UserService } from "../user/userService";
+import { UnauthorizedError } from "@/lib/errors/apiErrors";
 
 export class SearchService {
   /**
@@ -29,6 +31,16 @@ export class SearchService {
 
     if (hasEmbeddings) {
       if (intendedMode === "semantic") {
+        // Guard: Check Pro access for semantic search
+        const userService = new UserService();
+        const hasProAccess = await userService.hasProAccess({ userId });
+
+        if (!hasProAccess) {
+          throw new UnauthorizedError(
+            "Semantic search requires an active Pro subscription"
+          );
+        }
+
         // Use semantic search for pro users with embeddings
         return await aiService.semanticSearch(query, userId);
       } else {

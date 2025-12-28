@@ -95,12 +95,14 @@ export const staggerContainer = {
 export const createStaggerAnimation = (
   index: number,
   animationType: string,
-  additionalDelay: number = 0
+  additionalDelay: number = 0,
+  distance: number = 10, // Default distance for subtle UI animations
+  duration: number = ANIMATION_DURATION.normal // Default duration for animations
 ) => {
   // Base transition with staggering plus any additional delay
   const transition = {
     delay: index * STAGGER_DELAY + additionalDelay,
-    duration: ANIMATION_DURATION.normal,
+    duration: duration,
     ease: ANIMATION_EASING.easeOut,
   };
 
@@ -113,18 +115,18 @@ export const createStaggerAnimation = (
       };
     case "fadeInUp":
       return {
-        hidden: { opacity: 0, y: 10 },
+        hidden: { opacity: 0, y: distance },
         visible: { opacity: 1, y: 0, transition },
       };
     case "fadeInLeft":
       return {
-        hidden: { opacity: 0, x: -10 },
+        hidden: { opacity: 0, x: -distance },
         visible: { opacity: 1, x: 0, transition },
       };
     case "fadeInRight":
     default:
       return {
-        hidden: { opacity: 0, x: 10 },
+        hidden: { opacity: 0, x: distance },
         visible: { opacity: 1, x: 0, transition },
       };
   }

@@ -5,7 +5,6 @@ import MobileList from "@/components/mobile/MobileList";
 import IntegratedSearch from "@/components/search/IntegratedSearch";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { FolderWithItems } from "@/lib/types/folderTypes";
-import { FolderPlusIcon } from "lucide-react";
 import { useMobileHeader } from "@/contexts/MobileHeaderContext";
 import BrandingHeader from "@/components/BrandingHeader";
 
@@ -50,6 +49,7 @@ const MobileDashboardContent = ({
         type="folder"
         isLoading={folders.isLoading}
         action={<CreateFolder />}
+        emptyContentMessage="No folders yet. Create a folder to get started."
       />
       <MobileList
         title="System Folders"

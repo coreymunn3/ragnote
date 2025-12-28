@@ -4,7 +4,7 @@ import MobileListItem from "./MobileListItem";
 import { Note } from "@/lib/types/noteTypes";
 import OptionsMenu, { Option } from "../OptionsMenu";
 import { ChatSession } from "@/lib/types/chatTypes";
-import { TypographyP } from "../ui/typography";
+import { TypographyMuted, TypographyP } from "../ui/typography";
 import MobileListSkeleton from "../skeletons/MobileListSkeleton";
 
 export type MobileListItemType = FolderWithItems | Note | ChatSession;
@@ -17,6 +17,7 @@ interface MobileListProps {
   action?: React.ReactNode;
   options?: Option[];
   isLoading?: boolean;
+  emptyContentMessage?: string;
   skeletonCount?: number;
 }
 
@@ -27,6 +28,7 @@ const MobileList = ({
   action,
   options,
   isLoading = false,
+  emptyContentMessage = "Nothing yet",
   skeletonCount = 3,
 }: MobileListProps) => {
   // If loading, show skeleton
@@ -59,15 +61,29 @@ const MobileList = ({
       )}
       {/* the items in this section */}
       <div className="rounded-md bg-background">
-        {items.map((item, index) => (
-          <AnimatedListItem key={item.id} index={index} animation="fadeInRight">
-            <MobileListItem
-              type={type}
-              item={item}
-              isLastItem={index !== items.length - 1}
-            />
+        {/* display an empty content message if no items */}
+        {!items.length && (
+          <AnimatedListItem index={0} animation="fadeInRight">
+            <div className="w-full px-4 h-14 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <TypographyMuted>{emptyContentMessage}</TypographyMuted>
+            </div>
           </AnimatedListItem>
-        ))}
+        )}
+        {/* otherwise, display the items */}
+        {items.length > 0 &&
+          items.map((item, index) => (
+            <AnimatedListItem
+              key={item.id}
+              index={index}
+              animation="fadeInRight"
+            >
+              <MobileListItem
+                type={type}
+                item={item}
+                isLastItem={index !== items.length - 1}
+              />
+            </AnimatedListItem>
+          ))}
       </div>
     </div>
   );

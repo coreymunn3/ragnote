@@ -3,10 +3,11 @@ import { ChatSession } from "./chatTypes";
 import { Expand } from "./sharedTypes";
 
 export const SYSTEM_FOLDERS = {
-  SHARED: {
-    id: "system_shared",
-    displayName: "Shared With You",
-  },
+  // TODO: Re-enable for shared notes feature
+  // SHARED: {
+  //   id: "system_shared",
+  //   displayName: "Shared With You",
+  // },
   DELETED: {
     id: "system_deleted",
     displayName: "Recently Deleted",
@@ -17,9 +18,8 @@ export const SYSTEM_FOLDERS = {
   },
 };
 export type SystemFolderId =
-  | "system_shared"
-  | "system_deleted"
-  | "system_chats";
+  // | "system_shared" // TODO: Re-enable for shared notes feature
+  "system_deleted" | "system_chats";
 
 export type PrismaFolder = {
   id: string;

@@ -26,7 +26,7 @@ const OptionsMenu = ({ options }: OptionsMenuProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={`ghost`}>
+        <Button variant={`ghost`} className="">
           <EllipsisVerticalIcon className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>

@@ -112,18 +112,23 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
     <div>
       <div className="flex flex-col space-y-8">
         {/* list of pinned items */}
-        {pinnedItems.length > 0 && (
+        {
           <MobileList
             type={folderData.data!.itemType}
             items={pinnedItems}
             title="Pinned"
+            emptyContentMessage="No pinned items yet"
           />
-        )}
+        }
 
         {/* list of unpinned items */}
-        {unpinnedItems.length > 0 && (
-          <MobileList type={folderData.data!.itemType} items={unpinnedItems} />
-        )}
+        {
+          <MobileList
+            type={folderData.data!.itemType}
+            items={unpinnedItems}
+            emptyContentMessage="No items yet"
+          />
+        }
       </div>
 
       {/* Rename Dialog */}

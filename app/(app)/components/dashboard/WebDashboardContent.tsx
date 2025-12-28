@@ -1,6 +1,6 @@
 "use client";
 
-import WidgetList from "@/components/web/WidgetList";
+import WidgetGrid from "@/components/web/WidgetGrid";
 import NoteWidget from "@/components/web/NoteWidget";
 import ChatWidget from "@/components/web/ChatWidget";
 import { FileIcon, MessageSquareIcon, PinIcon } from "lucide-react";
@@ -33,72 +33,85 @@ const WebDashboardContent = ({
     refetchOnMount: true,
   });
 
+  // Separate pinned and unpinned notes
+  const pinnedNotes = userNotes.data?.filter((note) => note.is_pinned) || [];
+  const recentNotes =
+    userNotes.data
+      ?.filter((note) => !note.is_pinned)
+      // sort recent notes by last updated time
+      .sort(
+        (a, b) =>
+          new Date(b.current_version.updated_at).getTime() -
+          new Date(a.current_version.updated_at).getTime()
+      ) || [];
+
+  // Sort chat sessions by last updated time
+  const recentChats =
+    userChatSessions.data?.sort(
+      (a, b) =>
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    ) || [];
+
   return (
     <div>
       <AnimatedTypography variant="h1">{`Welcome!`}</AnimatedTypography>
-      <div className="flex flex-col space-y-4">
+      <div className="flex flex-col space-y-8">
         {/* global chat input */}
         <AnimatedListItem index={0} animation="fadeIn">
           <IntegratedSearch />
         </AnimatedListItem>
-        {/* Pinned Notes */}
-        <AnimatedListItem index={1} animation="fadeIn">
-          <div>
-            <WidgetList
-              items={userNotes.data?.filter((note) => note.is_pinned) || []}
+
+        {/* Pinned Notes - only show if user has pinned notes */}
+        {
+          <AnimatedListItem index={1} animation="fadeIn">
+            <WidgetGrid
+              items={pinnedNotes}
               renderItem={(note) => (
                 <NoteWidget note={note} pinned={note.is_pinned} />
               )}
-              title={"Pinned Notes"}
+              title="Pinned Notes"
               icon={<PinIcon className="h-6 w-6 text-muted-foreground" />}
+              emptyContentMessage="No pinned notes yet. Any pinned notes will appear here."
+              initialItemLimit={2}
+              showMoreIncrement={2}
+              showMoreButton={true}
               delay={1}
             />
-          </div>
-        </AnimatedListItem>
+          </AnimatedListItem>
+        }
+
         {/* Recent Notes */}
         <AnimatedListItem index={2} animation="fadeIn">
-          <div>
-            <WidgetList
-              items={
-                userNotes.data
-                  ?.filter((note) => !note.is_pinned)
-                  .sort(
-                    (a, b) =>
-                      new Date(b.current_version.updated_at).getTime() -
-                      new Date(a.current_version.updated_at).getTime()
-                  ) || []
-              }
-              renderItem={(note) => <NoteWidget note={note} />}
-              title={"Recent Notes"}
-              icon={<FileIcon className="h-6 w-6 text-muted-foreground" />}
-              delay={2}
-            />
-          </div>
+          <WidgetGrid
+            items={recentNotes}
+            renderItem={(note) => <NoteWidget note={note} />}
+            title="Recent Notes"
+            icon={<FileIcon className="h-6 w-6 text-muted-foreground" />}
+            emptyContentMessage="No notes yet. Create a note to get started."
+            initialItemLimit={4}
+            showMoreIncrement={4}
+            showMoreButton={true}
+            delay={2}
+          />
         </AnimatedListItem>
-        {/* Recent Conversations */}
+
+        {/* Recent Chats */}
         <AnimatedListItem index={3} animation="fadeIn">
-          <div>
-            <WidgetList
-              items={
-                // sort the chat sessions by last updated time, and only show the first 10
-                userChatSessions.data
-                  ?.sort(
-                    (a, b) =>
-                      new Date(b.updated_at).getTime() -
-                      new Date(a.updated_at).getTime()
-                  )
-                  .slice(0, 10) || []
-              }
-              renderItem={(conversation) => (
-                <ChatWidget chatSession={conversation} />
-              )}
-              title={"Recent Chats"}
-              icon={
-                <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
-              }
-              delay={3}
-            />
-          </div>
+          <WidgetGrid
+            items={recentChats}
+            renderItem={(conversation) => (
+              <ChatWidget chatSession={conversation} />
+            )}
+            title="Recent Chats"
+            icon={
+              <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
+            }
+            emptyContentMessage="No chats yet. Chat with one of your notes to get started."
+            initialItemLimit={4}
+            showMoreIncrement={4}
+            showMoreButton={true}
+            delay={3}
+          />
         </AnimatedListItem>
       </div>
     </div>
