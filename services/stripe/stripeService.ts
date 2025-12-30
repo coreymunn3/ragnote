@@ -120,6 +120,7 @@ export class StripeService {
           user_id: userId,
           tier: "PRO",
         },
+        allow_promotion_codes: true,
       });
       return session;
     }
