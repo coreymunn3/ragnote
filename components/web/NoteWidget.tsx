@@ -2,7 +2,6 @@
 
 import { Note } from "@/lib/types/noteTypes";
 import { TypographyMuted, TypographySmall } from "../ui/typography";
-import { Badge } from "../ui/badge";
 import {
   FolderOutputIcon,
   PinIcon,
@@ -25,6 +24,7 @@ import SelectDialog, { SelectOption } from "../dialogs/SelectDialog";
 import { useState } from "react";
 import { DateTime } from "luxon";
 import VersionBadge from "../VersionBadge";
+import ConfirmationDialog from "../dialogs/ConfirmationDialog";
 
 interface NoteWidgetProps {
   note: Note;
@@ -33,8 +33,8 @@ interface NoteWidgetProps {
 }
 
 const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
-  const isPublished = note.current_version.is_published;
   const [moveDialogOpen, setMoveDialogOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const updateNoteMutation = useUpdateNote();
   const { data: foldersData } = useGetFolders();
@@ -50,11 +50,7 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
 
   const handleDeleteNote = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    updateNoteMutation.mutate({
-      noteId: note.id,
-      folderId,
-      action: "delete",
-    });
+    setDeleteOpen(true);
   };
 
   const handleOpenMoveDialog = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -178,6 +174,24 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
         confirmLoadingText="Moving..."
         options={folderOptions}
         onConfirm={handleConfirmMove}
+        isLoading={updateNoteMutation.isPending}
+      />
+
+      {/* Delete Note confirmation dialog */}
+      <ConfirmationDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={"Are you sure you want to delete?"}
+        description="You will be able to recover this Note later, for a while."
+        confirmText="Delete"
+        confirmVariant="destructive"
+        onConfirm={() => {
+          updateNoteMutation.mutate({
+            noteId: note.id,
+            folderId,
+            action: "delete",
+          });
+        }}
         isLoading={updateNoteMutation.isPending}
       />
     </>

@@ -14,6 +14,7 @@ import NoteToolbar from "@/components/mobile/NoteToolbar";
 import { toast } from "sonner";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import InputDialog from "@/components/dialogs/InputDialog";
+import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 
 interface MobileNotePageContentProps {
   note: Note;
@@ -33,6 +34,7 @@ const MobileNotePageContent = ({
   );
   // dialog state management
   const [renameOpen, setRenameOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
 
   // Re-fetch note data with initial data
@@ -89,15 +91,7 @@ const MobileNotePageContent = ({
 
   // Handlers for options menu
   const handleDeleteNote = () => {
-    if (note) {
-      updateNoteMutation.mutate({
-        noteId: note.id,
-        action: "delete",
-      });
-      router.push(`/folder/${note.folder_id}`);
-    } else {
-      toast.error("Unable to Delete");
-    }
+    setDeleteOpen(true);
   };
 
   // Set mobile header configuration
@@ -181,6 +175,29 @@ const MobileNotePageContent = ({
         onConfirm={(inputValue) => handleSaveTitle(inputValue)}
         isLoading={updateNoteMutation.isPending}
         validate={(value) => value.trim().length > 0}
+      />
+      {/* Delete confirmation */}
+      <ConfirmationDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={"Are you sure you want to delete?"}
+        description="You will be able to recover this Note later, for a while."
+        confirmText="Delete"
+        confirmLoadingText="Deleting..."
+        confirmVariant="destructive"
+        onConfirm={() => {
+          if (note) {
+            updateNoteMutation.mutate({
+              noteId: note.id,
+              folderId: note.folder_id,
+              action: "delete",
+            });
+            router.push(`/folder/${note.folder_id}`);
+          } else {
+            toast.error("Unable to Delete");
+          }
+        }}
+        isLoading={updateNoteMutation.isPending}
       />
     </>
   );

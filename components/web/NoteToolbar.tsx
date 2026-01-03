@@ -20,6 +20,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import ConfirmationDialog from "../dialogs/ConfirmationDialog";
+import { useState } from "react";
 
 interface NoteToolbarProps {
   note: Note;
@@ -47,6 +49,7 @@ const NoteToolbar = ({
 }: NoteToolbarProps) => {
   const router = useRouter();
   const { isPro } = useUserSubscription();
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const updateNoteMutation = useUpdateNote();
   const publishNoteVersionMutation = usePublishNoteVersion({
@@ -75,14 +78,7 @@ const NoteToolbar = ({
    * Soft delete a note
    */
   const handleDeleteNote = () => {
-    if (note) {
-      // soft delete
-      updateNoteMutation.mutate({ action: "delete", noteId: note.id });
-      // route user back to the folder
-      router.push(`/folder/${note.folder_id}`);
-    } else {
-      toast.error("Unable to Delete");
-    }
+    setDeleteOpen(true);
   };
 
   /**
@@ -196,6 +192,28 @@ const NoteToolbar = ({
             </TooltipTrigger>
             <TooltipContent>Delete this note</TooltipContent>
           </Tooltip>
+
+          {/* Delete confirmation */}
+          <ConfirmationDialog
+            open={deleteOpen}
+            onOpenChange={setDeleteOpen}
+            title={"Are you sure you want to delete?"}
+            description="You will be able to recover this Note later, for a while"
+            confirmText="Delete"
+            confirmLoadingText="Deleting..."
+            confirmVariant="destructive"
+            onConfirm={() => {
+              // soft delete
+              updateNoteMutation.mutate({
+                noteId: note.id,
+                folderId: note.folder_id,
+                action: "delete",
+              });
+              // route user back to the folder
+              router.push(`/folder/${note.folder_id}`);
+            }}
+            isLoading={updateNoteMutation.isPending}
+          />
         </div>
       </TooltipProvider>
     </div>

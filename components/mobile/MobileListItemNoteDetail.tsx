@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import SelectDialog, { SelectOption } from "../dialogs/SelectDialog";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
+import ConfirmationDialog from "../dialogs/ConfirmationDialog";
 
 interface MobileListItemNoteDetailProps {
   note: Note;
@@ -19,6 +20,7 @@ interface MobileListItemNoteDetailProps {
 
 const MobileListItemNoteDetail = ({ note }: MobileListItemNoteDetailProps) => {
   const [moveDialogOpen, setMoveDialogOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   // queries & mutations
   const updateNoteMutation = useUpdateNote();
   const { data: foldersData } = useGetFolders();
@@ -34,11 +36,7 @@ const MobileListItemNoteDetail = ({ note }: MobileListItemNoteDetailProps) => {
 
   const handleDeleteNote = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    updateNoteMutation.mutate({
-      noteId: note.id,
-      folderId: note.folder_id,
-      action: "delete",
-    });
+    setDeleteOpen(true);
   };
 
   const handleOpenMoveDialog = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -110,6 +108,24 @@ const MobileListItemNoteDetail = ({ note }: MobileListItemNoteDetailProps) => {
         confirmLoadingText="Moving..."
         options={folderOptions}
         onConfirm={handleConfirmMove}
+        isLoading={updateNoteMutation.isPending}
+      />
+
+      {/* Delete Note confirmation dialog */}
+      <ConfirmationDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={"Are you sure you want to delete?"}
+        description="You will be able to recover this Note later, for a while."
+        confirmText="Delete"
+        confirmVariant="destructive"
+        onConfirm={() => {
+          updateNoteMutation.mutate({
+            noteId: note.id,
+            folderId: note.folder_id,
+            action: "delete",
+          });
+        }}
         isLoading={updateNoteMutation.isPending}
       />
     </>
