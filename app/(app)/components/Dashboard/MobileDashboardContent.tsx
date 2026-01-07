@@ -1,12 +1,13 @@
 "use client";
 import { useEffect } from "react";
 import CreateFolder from "@/components/CreateFolder";
-import MobileList from "@/components/mobile/MobileList";
+import MobileList, { SystemLinkItem } from "@/components/mobile/MobileList";
 import IntegratedSearch from "@/components/search/IntegratedSearch";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { FolderWithItems } from "@/lib/types/folderTypes";
 import { useMobileHeader } from "@/contexts/MobileHeaderContext";
 import BrandingHeader from "@/components/BrandingHeader";
+import { MessageSquareIcon, Trash2Icon } from "lucide-react";
 
 interface MobileDashboardContentProps {
   userFolders: FolderWithItems[];
@@ -35,6 +36,22 @@ const MobileDashboardContent = ({
     refetchOnMount: true,
   });
 
+  // Define system links
+  const systemLinks: SystemLinkItem[] = [
+    {
+      id: "chats-link",
+      href: "/chats",
+      icon: MessageSquareIcon,
+      label: "Chats",
+    },
+    {
+      id: "recently-deleted-link",
+      href: "/recently-deleted",
+      icon: Trash2Icon,
+      label: "Recently Deleted",
+    },
+  ];
+
   return (
     <div className="flex flex-col space-y-4">
       <IntegratedSearch />
@@ -46,6 +63,7 @@ const MobileDashboardContent = ({
         action={<CreateFolder />}
         emptyContentMessage="No folders yet. Create a folder to get started."
       />
+      <MobileList title="System" items={systemLinks} type="link" />
     </div>
   );
 };
