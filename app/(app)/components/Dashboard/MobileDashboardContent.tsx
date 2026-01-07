@@ -10,12 +10,10 @@ import BrandingHeader from "@/components/BrandingHeader";
 
 interface MobileDashboardContentProps {
   userFolders: FolderWithItems[];
-  systemFolders: FolderWithItems[];
 }
 
 const MobileDashboardContent = ({
   userFolders,
-  systemFolders,
 }: MobileDashboardContentProps) => {
   const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
   // Set header configuration for Dashboard
@@ -32,10 +30,7 @@ const MobileDashboardContent = ({
 
   // immediately re-fetch the user's folders
   const folders = useGetFolders({
-    initialData: {
-      user: userFolders,
-      system: systemFolders,
-    },
+    initialData: userFolders,
     staleTime: 0,
     refetchOnMount: true,
   });
@@ -45,17 +40,11 @@ const MobileDashboardContent = ({
       <IntegratedSearch />
       <MobileList
         title="Your Folders"
-        items={folders.data?.user}
+        items={folders.data}
         type="folder"
         isLoading={folders.isLoading}
         action={<CreateFolder />}
         emptyContentMessage="No folders yet. Create a folder to get started."
-      />
-      <MobileList
-        title="System Folders"
-        items={folders.data?.system}
-        type="folder"
-        isLoading={folders.isLoading}
       />
     </div>
   );

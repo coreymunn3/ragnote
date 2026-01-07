@@ -4,18 +4,14 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroupContent,
   SidebarHeader,
-  SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
 import BrandingHeader from "@/components/BrandingHeader";
 import { SignedIn, useUser } from "@clerk/nextjs";
 import UserButtonCustom from "@/components/UserButtonCustom";
-import ThemeSwitch from "@/components/ThemeSwitch";
 import WebSidebarFolderGroup from "./WebSidebarFolderGroup";
-import WebSidebarLink from "./WebSidebarLink";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { MessageSquareIcon, Trash2Icon, TrashIcon } from "lucide-react";
 import WebSidebarLinkGroup from "./WebSidebarLinkGroup";
@@ -74,7 +70,7 @@ const WebSidebar = () => {
         {/* Your Folders */}
         <WebSidebarFolderGroup
           groupName="Your Folders"
-          folders={folders.data?.user}
+          folders={folders.data}
           isLoading={folders.isLoading}
           allowCreateFolder={true}
           allowCreateNote={true}

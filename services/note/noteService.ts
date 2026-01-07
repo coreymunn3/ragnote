@@ -24,8 +24,6 @@ import {
 import { NotFoundError, UnauthorizedError } from "@/lib/errors/apiErrors";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { transformToNote } from "./noteTransformers";
-import { SYSTEM_FOLDERS } from "@/lib/types/folderTypes";
-import { isSystemFolder } from "@/lib/utils/folderUtils";
 import { NoteTextExtractor } from "./noteTextExtractor";
 import { AiService } from "../ai/aiService";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
@@ -113,28 +111,6 @@ export class NoteService {
   );
 
   /**
-   * Get the notes for a system folder
-   */
-  private async getSystemFolderNotes(
-    systemFolderId: string,
-    userId: string
-  ): Promise<Note[]> {
-    switch (systemFolderId) {
-      // TODO: Re-enable for shared notes feature
-      // case SYSTEM_FOLDERS.SHARED.id:
-      //   // get shared notes
-      //   return await this.getSharedNotes(userId);
-
-      case SYSTEM_FOLDERS.DELETED.id:
-        // get deleted notes
-        return await this.getDeletedNotes(userId);
-
-      default:
-        throw new NotFoundError(`Unknown system folder: ${systemFolderId}`);
-    }
-  }
-
-  /**
    * Get all the notes for a user given user id
    */
   public getAllNotesForUser = withErrorHandling(
@@ -175,14 +151,6 @@ export class NoteService {
     async (folderId: string, userId: string): Promise<Note[]> => {
       // validate request data
       const validatedData = getNotesInFolderSchema.parse({ folderId, userId });
-
-      // check if this is a system folder, then return the system folder notes
-      if (isSystemFolder(validatedData.folderId)) {
-        return await this.getSystemFolderNotes(
-          validatedData.folderId,
-          validatedData.userId
-        );
-      }
 
       // otherwise, its a regular folder so we get all notes in this folder
       const notes = await prisma.note.findMany({

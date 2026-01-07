@@ -7,7 +7,6 @@ import { FolderWithItems } from "@/lib/types/folderTypes";
 import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 import InputDialog from "@/components/dialogs/InputDialog";
 import MobileList from "@/components/mobile/MobileList";
-import { isSystemFolder } from "@/lib/utils/folderUtils";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
 import { ArrowLeftIcon, FolderPenIcon, Trash2Icon } from "lucide-react";
@@ -44,7 +43,6 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
   // Set header configuration for Folder page (must call useEffect before any returns)
   useEffect(() => {
     if (folderData.data) {
-      const isUserFolder = !isSystemFolder(folderData.data.id);
       setHeaderConfig({
         leftContent: (
           <>
@@ -58,7 +56,7 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
             <MobilePageTitle title={folderData.data.folder_name} />
           </>
         ),
-        rightContent: isUserFolder ? (
+        rightContent: (
           <>
             <CreateNote folderId={folderData.data.id} />
             <OptionsMenu
@@ -76,8 +74,6 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
               ]}
             />
           </>
-        ) : (
-          <CreateNote folderId={folderData.data.id} />
         ),
       });
     }

@@ -8,7 +8,7 @@ import { getDbUser } from "@/lib/getDbUser";
 import { Note } from "@/lib/types/noteTypes";
 import { ChatService } from "@/services/chat/chatService";
 import { ChatSession } from "@/lib/types/chatTypes";
-import { FolderWithItems, UserAndSystemFolders } from "@/lib/types/folderTypes";
+import { FolderWithItems } from "@/lib/types/folderTypes";
 import { FolderService } from "@/services/folder/folderService";
 
 export default async function Dashboard() {
@@ -43,23 +43,14 @@ export default async function Dashboard() {
 
   // get the users folders - initial data for the mobile dashboard page
   let userFolders: FolderWithItems[] = [];
-  let systemFolders: FolderWithItems[] = [];
   try {
-    [userFolders, systemFolders] = await Promise.all([
-      folderService.getUserCreatedFolders(dbUser.id),
-      folderService.getUserSystemFolders(dbUser.id),
-    ]);
+    userFolders = await folderService.getUserCreatedFolders(dbUser.id);
   } catch (error) {
     console.error(error);
   }
 
   // Render each view component
-  const mobileView = (
-    <MobileDashboardContent
-      userFolders={userFolders}
-      systemFolders={systemFolders}
-    />
-  );
+  const mobileView = <MobileDashboardContent userFolders={userFolders} />;
   const webView = (
     <WebDashboardContent notes={notes} chatSessions={chatSessions} />
   );

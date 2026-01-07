@@ -18,7 +18,6 @@ import InputDialog from "@/components/dialogs/InputDialog";
 import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
 import CreateNote from "@/components/CreateNote";
 import { ChatSession } from "@/lib/types/chatTypes";
-import { isSystemFolder } from "@/lib/utils/folderUtils";
 
 interface WebFolderPageContentProps {
   folder: FolderWithItems;
@@ -35,8 +34,6 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
     staleTime: 0,
     refetchOnMount: true,
   });
-  // determine if this is a system folder or user folder
-  const isUserFolder = !isSystemFolder(folderData.data!.id);
   // hooks for folder operations
   const renameFolder = useRenameFolder();
   const deleteFolder = useDeleteFolder();
@@ -93,32 +90,30 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
         </AnimatedTypography>
         <div className="flex space-x-2 items-center">
           <TypographyMuted>{`${folderData.data!.items.length} Items`}</TypographyMuted>
-          {/* additinal actions/options for user created folders only */}
-          {isUserFolder && (
-            <Fragment>
-              <CreateNote folderId={folder.id} />
-              <OptionsMenu
-                options={[
-                  {
-                    label: "Rename",
-                    icon: <FolderPenIcon className="h-4 w-4" />,
-                    onClick: () => setRenameOpen(true),
-                  },
-                  {
-                    label: "Delete",
-                    icon: <Trash2Icon className="h-4 w-4" />,
-                    onClick: () => setDeleteOpen(true),
-                  },
-                ]}
-              />
-            </Fragment>
-          )}
+
+          <Fragment>
+            <CreateNote folderId={folder.id} />
+            <OptionsMenu
+              options={[
+                {
+                  label: "Rename",
+                  icon: <FolderPenIcon className="h-4 w-4" />,
+                  onClick: () => setRenameOpen(true),
+                },
+                {
+                  label: "Delete",
+                  icon: <Trash2Icon className="h-4 w-4" />,
+                  onClick: () => setDeleteOpen(true),
+                },
+              ]}
+            />
+          </Fragment>
         </div>
       </div>
 
       <div className="flex flex-col space-y-4">
-        {/* Display pinned items prominently - but only for user created folders (no pinning in system folders) */}
-        {isUserFolder && pinnedItems.length > 0 && (
+        {/* Display pinned items prominently */}
+        {pinnedItems.length > 0 && (
           <AnimatedListItem index={1} animation="fadeIn">
             {renderItemWidgetGrid(pinnedItems, 1, "No pinned items yet")}
           </AnimatedListItem>
