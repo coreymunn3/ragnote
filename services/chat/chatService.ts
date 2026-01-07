@@ -18,6 +18,7 @@ import {
   getChatSessionForUserSchema,
   updateChatSessionTitleSchema,
   softDeleteChatSessionSchema,
+  getDeletedChatsSchema,
 } from "./chatValidators";
 import {
   transformToChatMessage,
@@ -30,8 +31,6 @@ import {
 } from "@/lib/errors/apiErrors";
 import { AiService } from "../ai/aiService";
 import { tokenTrackingService } from "../tokenTracking/tokenTrackingService";
-import { AgentResultData, WorkflowEventData } from "@llamaindex/workflow";
-import { Session } from "inspector/promises";
 import { UserService } from "../user/userService";
 
 export class ChatService {
@@ -539,6 +538,34 @@ export class ChatService {
           is_deleted: true,
         },
       });
+    }
+  );
+
+  /**
+   * Get all deleted chat sessions for a user
+   */
+  public getDeletedChats = withErrorHandling(
+    async (userId: string): Promise<ChatSession[]> => {
+      const { userId: validatedUserId } = getDeletedChatsSchema.parse({
+        userId,
+      });
+
+      const sessions = await prisma.chat_session.findMany({
+        where: {
+          user_id: validatedUserId,
+          is_deleted: true,
+        },
+        orderBy: {
+          updated_at: "desc",
+        },
+      });
+
+      // Transform all sessions to application types
+      const transformedSessions = await Promise.all(
+        sessions.map((s) => transformToChatSession(s))
+      );
+
+      return transformedSessions;
     }
   );
 }

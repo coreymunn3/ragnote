@@ -4,6 +4,7 @@ import {
   deleteFolderSchema,
   getFolderByIdSchema,
   renameFolderSchema,
+  getDeletedFoldersSchema,
 } from "./folderValidators";
 import {
   PrismaFolder,
@@ -161,30 +162,70 @@ export class FolderService {
     }
   );
 
-  /** Soft Delete the folder by setting is_deleted to true */
+  /** Soft Delete the folder by setting is_deleted to true and cascade to notes */
   public softDeleteFolder = withErrorHandling(
     async (folderId: string, userId: string) => {
       const validatedData = deleteFolderSchema.parse({
         folderId,
         userId,
       });
-      // attempt to delete the foler
-      const updatedFolder = await prisma.folder.update({
+
+      // Verify folder exists and belongs to user
+      const folder = await prisma.folder.findFirst({
         where: {
           id: validatedData.folderId,
           user_id: validatedData.userId,
         },
-        data: {
-          is_deleted: true,
-        },
       });
-      // throw error is nothing happened
-      if (!updatedFolder) {
+
+      if (!folder) {
         throw new NotFoundError(
           `Folder ${validatedData.folderId} belonging to user ${validatedData.userId} not found`
         );
       }
-      return updatedFolder;
+
+      // CASCADE: Delete folder AND all notes inside in a transaction
+      await prisma.$transaction([
+        // Delete the folder
+        prisma.folder.update({
+          where: { id: validatedData.folderId },
+          data: { is_deleted: true },
+        }),
+        // Delete all notes in the folder
+        prisma.note.updateMany({
+          where: {
+            folder_id: validatedData.folderId,
+            user_id: validatedData.userId,
+          },
+          data: {
+            is_deleted: true,
+            is_pinned: false,
+          },
+        }),
+      ]);
+
+      return folder;
+    }
+  );
+
+  /** Get all deleted folders for a user */
+  public getDeletedFolders = withErrorHandling(
+    async (userId: string): Promise<PrismaFolder[]> => {
+      const { userId: validatedUserId } = getDeletedFoldersSchema.parse({
+        userId,
+      });
+
+      const folders = await prisma.folder.findMany({
+        where: {
+          user_id: validatedUserId,
+          is_deleted: true,
+        },
+        orderBy: {
+          updated_at: "desc",
+        },
+      });
+
+      return folders;
     }
   );
 
