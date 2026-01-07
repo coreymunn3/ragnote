@@ -1,0 +1,8 @@
+const WebRecentlyDeletedPageLayout = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  return <div className="px-4 pt-8 max-w-6xl mx-auto"> {children}</div>;
+};
+export default WebRecentlyDeletedPageLayout;
