@@ -17,6 +17,7 @@ import OptionsMenu from "@/components/OptionsMenu";
 import { toast } from "sonner";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import InputDialog from "@/components/dialogs/InputDialog";
+import MobileBackButton from "@/components/mobile/MobileBackButton";
 
 interface MobileChatPageContentProps {
   chatSessionId: string;
@@ -106,13 +107,9 @@ const MobileChatPageContent = ({
       setHeaderConfig({
         leftContent: (
           <>
-            <Button
-              variant="ghost"
-              size="icon"
+            <MobileBackButton
               onClick={() => router.push(`/folder/system_chats`)}
-            >
-              <ArrowLeftIcon className="h-4 w-4" />
-            </Button>
+            />
             <MobilePageTitle
               title={chatSession.data.title || "Chat Session..."}
             />

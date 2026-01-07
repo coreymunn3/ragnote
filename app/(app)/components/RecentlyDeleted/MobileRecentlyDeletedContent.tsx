@@ -7,6 +7,8 @@ import { useMobileHeader } from "@/contexts/MobileHeaderContext";
 import { ArrowLeftIcon, TrashIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import MobilePageTitle from "@/components/mobile/MobilePageTitle";
+import MobileBackButton from "@/components/mobile/MobileBackButton";
 
 interface MobileRecentlyDeletedContentProps {
   deletedItems: DeletedItemsCollection;
@@ -23,17 +25,8 @@ const MobileRecentlyDeletedContent = ({
     setHeaderConfig({
       leftContent: (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push("/dashboard")}
-          >
-            <ArrowLeftIcon className="h-4 w-4" />
-          </Button>
-          <div className="flex items-center space-x-2">
-            <TrashIcon className="h-5 w-5" />
-            <span className="font-semibold">Recently Deleted</span>
-          </div>
+          <MobileBackButton onClick={() => router.push("/dashboard")} />
+          <MobilePageTitle title="Recently Deleted" />
         </div>
       ),
       rightContent: null,

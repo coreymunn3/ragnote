@@ -18,6 +18,7 @@ import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import { Note } from "@/lib/types/noteTypes";
 import { ChatSession } from "@/lib/types/chatTypes";
 import MobileListSkeleton from "@/components/skeletons/MobileListSkeleton";
+import MobileBackButton from "@/components/mobile/MobileBackButton";
 
 interface MobileFolderPageContentProps {
   folder: FolderWithItems;
@@ -46,13 +47,7 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
       setHeaderConfig({
         leftContent: (
           <>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/dashboard")}
-            >
-              <ArrowLeftIcon className="h-4 w-4" />
-            </Button>
+            <MobileBackButton onClick={() => router.push("/dashboard")} />
             <MobilePageTitle title={folderData.data.folder_name} />
           </>
         ),

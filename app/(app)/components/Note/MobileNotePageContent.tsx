@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import InputDialog from "@/components/dialogs/InputDialog";
 import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
+import MobileBackButton from "@/components/mobile/MobileBackButton";
 
 interface MobileNotePageContentProps {
   note: Note;
@@ -100,13 +101,9 @@ const MobileNotePageContent = ({
       setHeaderConfig({
         leftContent: (
           <>
-            <Button
-              variant="ghost"
-              size="icon"
+            <MobileBackButton
               onClick={() => router.push(`/folder/${note.folder_id}`)}
-            >
-              <ArrowLeftIcon className="h-4 w-4" />
-            </Button>
+            />
             <MobilePageTitle title={note.title} />
           </>
         ),
