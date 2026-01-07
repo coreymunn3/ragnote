@@ -74,8 +74,8 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
   };
 
   // Prepare folder options for the select dialog
-  const folderOptions: SelectOption<string>[] = foldersData?.user
-    ? foldersData.user
+  const folderOptions: SelectOption<string>[] = foldersData
+    ? foldersData
         .filter((folder) => folder.id !== folderId) // Exclude current folder
         .map((folder) => ({
           value: folder.id,
