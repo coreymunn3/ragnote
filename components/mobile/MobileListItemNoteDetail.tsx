@@ -60,8 +60,8 @@ const MobileListItemNoteDetail = ({ note }: MobileListItemNoteDetailProps) => {
   };
 
   // Prepare folder options for the select dialog
-  const folderOptions: SelectOption<string>[] = foldersData?.user
-    ? foldersData.user
+  const folderOptions: SelectOption<string>[] = foldersData
+    ? foldersData
         .filter((folder) => folder.id !== note.folder_id) // Exclude current folder
         .map((folder) => ({
           value: folder.id,
