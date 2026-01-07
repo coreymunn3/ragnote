@@ -4,7 +4,9 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroupContent,
   SidebarHeader,
+  SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
@@ -13,7 +15,10 @@ import { SignedIn, useUser } from "@clerk/nextjs";
 import UserButtonCustom from "@/components/UserButtonCustom";
 import ThemeSwitch from "@/components/ThemeSwitch";
 import WebSidebarFolderGroup from "./WebSidebarFolderGroup";
+import WebSidebarLink from "./WebSidebarLink";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
+import { MessageSquareIcon, Trash2Icon, TrashIcon } from "lucide-react";
+import WebSidebarLinkGroup from "./WebSidebarLinkGroup";
 
 const WebSidebar = () => {
   const { user } = useUser();
@@ -74,11 +79,17 @@ const WebSidebar = () => {
           allowCreateFolder={true}
           allowCreateNote={true}
         />
-        {/* system folders */}
-        <WebSidebarFolderGroup
-          groupName="System Folders"
-          folders={folders.data?.system}
-          isLoading={folders.isLoading}
+        {/* Special Views */}
+        <WebSidebarLinkGroup
+          groupName="System"
+          links={[
+            { href: "/chats", icon: MessageSquareIcon, label: "Chats" },
+            {
+              href: "/recently-deleted",
+              icon: Trash2Icon,
+              label: "Recently Deleted",
+            },
+          ]}
         />
       </SidebarContent>
       <SidebarFooter>
