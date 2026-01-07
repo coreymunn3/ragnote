@@ -112,14 +112,14 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
     <div>
       <div className="flex flex-col space-y-8">
         {/* list of pinned items */}
-        {
+        {pinnedItems.length > 0 && (
           <MobileList
             type={folderData.data!.itemType}
             items={pinnedItems}
             title="Pinned"
             emptyContentMessage="No pinned items yet"
           />
-        }
+        )}
 
         {/* list of unpinned items */}
         {
@@ -153,8 +153,8 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
       <ConfirmationDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Are You Sure?"
-        description="You will be able to recover this folder later, for a while"
+        title={"Are you sure you want to delete?"}
+        description="Any notes still in this folder will be deleted when the folder is deleted. You will still be able to recover them in the recently deleted folder."
         confirmText="Delete"
         confirmLoadingText="Deleting..."
         confirmVariant="destructive"
