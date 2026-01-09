@@ -25,11 +25,11 @@ const ScopeBadge = ({ chatScope }: ScopeBadgeProps) => {
   const getTooltipText = () => {
     switch (chatScope.scope) {
       case "note":
-        return "Note-specific chat";
+        return "Chat with a Note";
       case "folder":
-        return "Folder-wide chat";
+        return "Chat with a Folder";
       case "global":
-        return "Global knowledge base";
+        return "Global Chat";
     }
   };
 
