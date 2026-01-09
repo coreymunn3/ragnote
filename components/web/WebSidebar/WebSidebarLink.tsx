@@ -17,9 +17,9 @@ const WebSidebarLink = ({ href, icon: Icon, label }: WebSidebarLinkProps) => {
   const isActive = pathname === href;
 
   return (
-    <div className="p-1 rounded-md hover:bg-primary/30 transition-colors duration-200">
+    <div className="p-1 flex rounded-md hover:bg-primary/30 transition-colors duration-200">
       <Button
-        className="p-2 hover:bg-transparent dark:hover:bg-transparent"
+        className="p-2 w-full justify-start items-center hover:bg-transparent dark:hover:bg-transparent"
         variant={"ghost"}
         asChild
       >
