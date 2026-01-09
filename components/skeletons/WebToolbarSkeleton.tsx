@@ -9,8 +9,8 @@ const ToolbarSkeleton = ({ variant = "chat" }: ToolbarSkeletonProps) => {
     return (
       <div className="flex items-center justify-between px-14 py-2">
         <div className="flex items-center space-x-2">
-          <Skeleton className="h-8 w-32" />
-          <Skeleton className="h-8 w-16" />
+          <Skeleton className="h-8 w-28" />
+          <Skeleton className="h-8 w-8" />
         </div>
         <div className="flex items-center space-x-2">
           <Skeleton className="h-4 w-24" />
