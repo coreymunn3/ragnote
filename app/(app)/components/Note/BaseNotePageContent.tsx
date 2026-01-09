@@ -4,6 +4,7 @@ import RichTextEditor from "@/components/RichTextEditor";
 import { Skeleton } from "@/components/ui/skeleton";
 import MessageAlert from "@/components/MessageAlert";
 import ChatPanel from "@/components/chat/ChatPanel";
+import NotePageSkeleton from "@/components/skeletons/NotePageSkeleton";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import { SaveStatusType } from "@/components/SaveStatus";
 import { useNoteAutoSave } from "@/hooks/note/useNoteAutoSave";
@@ -55,21 +56,19 @@ const BaseNotePageContent = ({
     versionId: selectedVersionId,
   });
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="flex flex-col h-[calc(100vh-4rem)]">
-        <div className="flex-shrink-0">
-          <Skeleton className="h-16 w-full" />
-        </div>
-        <div className="flex-1 overflow-hidden pt-10">
-          <Skeleton className="h-64 w-full" />
-        </div>
-      </div>
-    );
-  }
+  // Prepare toolbar props
+  const toolbarProps: ToolbarProps = {
+    note,
+    noteVersions,
+    selectedVersion,
+    selectedVersionId,
+    setSelectedVersionId,
+    loading: { noteLoading: isLoading, versionsLoading: isLoading },
+    handleToggleChat,
+    saveStatus,
+  };
 
-  // Error state
+  // Error state - show error message
   if (error) {
     return (
       <div className="flex flex-col h-full">
@@ -87,38 +86,9 @@ const BaseNotePageContent = ({
     );
   }
 
-  // Prepare toolbar props
-  const toolbarProps: ToolbarProps = {
-    note,
-    noteVersions,
-    selectedVersion,
-    selectedVersionId,
-    setSelectedVersionId,
-    loading: { noteLoading: isLoading, versionsLoading: isLoading },
-    handleToggleChat,
-    saveStatus,
-  };
-
-  // No version selected
-  if (!selectedVersion || !selectedVersionId || !note) {
-    const alertTitle = !note ? "Invalid Note" : "No Version Selected";
-    const alertMessage = !note
-      ? "The Note you wish to view cannot be found"
-      : "No version is currently selected for this note.";
-    return (
-      <div className="flex flex-col h-full">
-        {renderToolbar && (
-          <div className="flex-shrink-0">{renderToolbar(toolbarProps)}</div>
-        )}
-        <div className="flex-1 overflow-auto pt-8">
-          <MessageAlert
-            variant="warning"
-            title={alertTitle}
-            description={alertMessage}
-          />
-        </div>
-      </div>
-    );
+  // Loading state - show skeleton during initial load or transient refetch states
+  if (isLoading || !selectedVersion || !selectedVersionId || !note) {
+    return <NotePageSkeleton />;
   }
 
   return (
