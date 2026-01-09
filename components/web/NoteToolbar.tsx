@@ -29,10 +29,7 @@ interface NoteToolbarProps {
   selectedVersion: PrismaNoteVersion | null;
   selectedVersionId: string | null;
   setSelectedVersionId: (versionId: string) => void;
-  loading: {
-    noteLoading: boolean;
-    versionsLoading: boolean;
-  };
+  isLoading: boolean;
   handleToggleChat: () => void;
   saveStatus: SaveStatusType;
 }
@@ -43,7 +40,7 @@ const NoteToolbar = ({
   selectedVersion,
   selectedVersionId,
   setSelectedVersionId,
-  loading,
+  isLoading,
   handleToggleChat,
   saveStatus,
 }: NoteToolbarProps) => {
@@ -95,11 +92,8 @@ const NoteToolbar = ({
     }
   };
 
-  // Only show loading if we don't have the essential data (note + versions)
-  const shouldShowLoading = loading.noteLoading || loading.versionsLoading;
-
   // loading state
-  if (shouldShowLoading || !note) {
+  if (isLoading || !note) {
     return <WebToolbarSkeleton variant="note" />;
   }
 
@@ -146,14 +140,9 @@ const NoteToolbar = ({
             selectedVersion.updated_at &&
             (!selectedVersion.is_published || selectedVersion.published_at) && (
               <TypographyMuted className="text-xs">
-                {selectedVersion.is_published ? "published" : "saved"}{" "}
-                {selectedVersion.is_published && selectedVersion.published_at
-                  ? DateTime.fromISO(
-                      selectedVersion.published_at.toString()
-                    ).toRelative()
-                  : DateTime.fromISO(
-                      selectedVersion.updated_at.toString()
-                    ).toRelative()}
+                {`saved ${DateTime.fromISO(
+                  selectedVersion.updated_at.toString()
+                ).toRelative()}`}
               </TypographyMuted>
             )}
           {/* publish note */}

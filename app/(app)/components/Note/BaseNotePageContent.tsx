@@ -15,7 +15,7 @@ interface ToolbarProps {
   selectedVersion: PrismaNoteVersion | null;
   selectedVersionId: string | null;
   setSelectedVersionId: (id: string | null) => void;
-  loading: { noteLoading: boolean; versionsLoading: boolean };
+  isLoading: boolean;
   handleToggleChat: () => void;
   saveStatus: SaveStatusType;
 }
@@ -63,7 +63,7 @@ const BaseNotePageContent = ({
     selectedVersion,
     selectedVersionId,
     setSelectedVersionId,
-    loading: { noteLoading: isLoading, versionsLoading: isLoading },
+    isLoading,
     handleToggleChat,
     saveStatus,
   };
@@ -86,8 +86,9 @@ const BaseNotePageContent = ({
     );
   }
 
-  // Loading state - show skeleton during initial load or transient refetch states
-  if (isLoading || !selectedVersion || !selectedVersionId || !note) {
+  // Only show full page skeleton if we don't have the essential data yet
+  // During refetches (isLoading=true but we have data), render normally and let toolbar show its own skeleton
+  if (!note || !selectedVersion || !selectedVersionId) {
     return <NotePageSkeleton />;
   }
 
