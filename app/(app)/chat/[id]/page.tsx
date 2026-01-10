@@ -13,7 +13,6 @@ export default async function ChatPage({
 }) {
   const chatService = new ChatService();
   const { id: chatSessionId } = await params;
-  // getDbUser already calls auth.protect() - no need for manual auth check
   const dbUser = await getDbUser();
   // get the chat session
   let chatSession;

@@ -14,7 +14,6 @@ export default async function Dashboard() {
   const chatService = new ChatService();
   const folderService = new FolderService();
 
-  // getDbUser already calls auth.protect() - no need for manual auth check
   const dbUser = await getDbUser();
   // get the users notes - initial data for the web dashboard page
   let notes: Note[] = [];

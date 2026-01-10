@@ -27,11 +27,12 @@ const getCachedDbUserFromDb = unstable_cache(
 );
 
 export async function getDbUser(safeMode = false) {
-  auth.protect(); // Protects route and redirects if not authenticated
-
   // get the user's database ID. the clerkUserId above is not what we want to use for the user Id
   // we need user Id from the app_user table since user_id will be foreign keys in many places
   const { userId: clerkUserId } = await auth();
+  if (!clerkUserId) {
+    throw new Error("No authenticated user found");
+  }
 
   const dbUser = await getCachedDbUserFromDb(clerkUserId!, safeMode);
 

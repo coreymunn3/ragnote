@@ -12,8 +12,6 @@ export default async function NotePage({
 }) {
   // Await params before using
   const { id: noteId } = await params;
-
-  // getDbUser already calls auth.protect() - no need for manual auth check
   const dbUser = await getDbUser();
 
   // Server-side data fetching

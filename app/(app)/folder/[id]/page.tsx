@@ -14,8 +14,6 @@ export default async function FolderPage({
 
   // Await params before using
   const { id } = await params;
-
-  // getDbUser already calls auth.protect() - no need for manual auth check
   const dbUser = await getDbUser();
 
   // get the folder - initial data for folder page
