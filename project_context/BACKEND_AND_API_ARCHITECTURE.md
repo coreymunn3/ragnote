@@ -1,8 +1,8 @@
-# Ragnote Backend Architecture: Services Layer Philosophy
+# Wysenote Backend Architecture: Services Layer Philosophy
 
 ## 1. Core Philosophy: Layered Architecture for Scalability & Maintainability
 
-The Ragnote backend is built upon a layered architecture pattern, primarily focusing on a class-based **Service Layer**. This approach is chosen for its benefits in promoting **separation of concerns, reusability, testability, and maintainability**, crucial for a project with an ambitious roadmap and a planned evolution from web to native mobile platforms.
+The Wysenote backend is built upon a layered architecture pattern, primarily focusing on a class-based **Service Layer**. This approach is chosen for its benefits in promoting **separation of concerns, reusability, testability, and maintainability**, crucial for a project with an ambitious roadmap and a planned evolution from web to native mobile platforms.
 
 ## 2. Technology Stack
 
@@ -81,7 +81,7 @@ The data flow emphasizes clear stages and security at each step:
 
 ## 5. Future Extensions (Roadmap Awareness)
 
-The current architecture is designed to accommodate the Ragnote roadmap:
+The current architecture is designed to accommodate the Wysenote roadmap:
 
 - **Audio Notes & Documents:** The `fileService` (or similar) will handle file uploads, transcription (for audio), OCR (for images/PDFs), and extract/chunk content into `file_content_chunk` for RAG.
 - **Multi-Modal RAG:** The `embeddingService` will evolve to handle multi-modal embeddings from `note_chunk` and `file_content_chunk` as needed.

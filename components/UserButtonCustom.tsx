@@ -89,8 +89,8 @@ const AppearancePage = () => {
         </div>
 
         <TypographyMuted className="text-sm">
-          Choose how RagNote AI looks to you. Select a single theme, or sync
-          with your system settings.
+          Choose how WyseNote looks to you. Select a single theme, or sync with
+          your system settings.
         </TypographyMuted>
       </div>
     </div>
