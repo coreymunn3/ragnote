@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
 import WebDashboardContent from "../components/Dashboard/WebDashboardContent";
 import MobileDashboardContent from "../components/Dashboard/MobileDashboardContent";
 import ResponsivePage from "@/components/ResponsivePage";
@@ -12,17 +10,11 @@ import { FolderWithItems } from "@/lib/types/folderTypes";
 import { FolderService } from "@/services/folder/folderService";
 
 export default async function Dashboard() {
-  const { userId } = await auth();
   const noteService = new NoteService();
   const chatService = new ChatService();
   const folderService = new FolderService();
 
-  // Protect this page from non-logged-in users
-  if (!userId) {
-    redirect("/");
-  }
-
-  // get the database user
+  // getDbUser already calls auth.protect() - no need for manual auth check
   const dbUser = await getDbUser();
   // get the users notes - initial data for the web dashboard page
   let notes: Note[] = [];

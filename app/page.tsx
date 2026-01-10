@@ -10,6 +10,9 @@ import LandingFooter from "@/components/landing/LandingFooter";
 import BackgroundPattern from "@/components/BackgroundPattern";
 import { siteConfig } from "@/config/site";
 
+// Cache the landing page for 1 hour to improve performance for unauthenticated visitors
+export const revalidate = 3600;
+
 export default async function Home() {
   const { userId } = await auth();
 

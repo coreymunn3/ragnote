@@ -2,8 +2,7 @@ import ResponsivePage from "@/components/ResponsivePage";
 import { getDbUser } from "@/lib/getDbUser";
 import { ChatMessage } from "@/lib/types/chatTypes";
 import { ChatService } from "@/services/chat/chatService";
-import { auth } from "@clerk/nextjs/server";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import MobileChatPageContent from "../../components/Chat/MobileChatPageContent";
 import WebChatPageContent from "../../components/Chat/WebChatPageContent";
 
@@ -12,14 +11,9 @@ export default async function ChatPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { userId } = await auth();
   const chatService = new ChatService();
   const { id: chatSessionId } = await params;
-  // Protect this page from non-logged-in users
-  if (!userId) {
-    redirect("/");
-  }
-  // get the database user
+  // getDbUser already calls auth.protect() - no need for manual auth check
   const dbUser = await getDbUser();
   // get the chat session
   let chatSession;
