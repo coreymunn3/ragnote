@@ -72,9 +72,6 @@ const BaseNotePageContent = ({
   if (error) {
     return (
       <div className="flex flex-col h-full">
-        <div className="flex-shrink-0">
-          <Skeleton className="h-16 w-full" />
-        </div>
         <div className="flex-1 overflow-auto pt-8">
           <MessageAlert
             variant="error"
