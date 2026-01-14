@@ -1,15 +1,13 @@
-import { Skeleton } from "../ui/skeleton";
+import ResponsivePage from "@/components/ResponsivePage";
+import MobileNotePageSkeleton from "./MobileNotePageSkeleton";
+import WebNotePageSkeleton from "./WebNotePageSkeleton";
 
 const NotePageSkeleton = () => {
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] pt-4">
-      <div className="flex-shrink-0">
-        <Skeleton className="h-8 w-full" />
-      </div>
-      <div className="flex-1 overflow-hidden pt-10">
-        <Skeleton className="h-64 w-full" />
-      </div>
-    </div>
+    <ResponsivePage
+      mobileView={<MobileNotePageSkeleton />}
+      webView={<WebNotePageSkeleton />}
+    />
   );
 };
 
