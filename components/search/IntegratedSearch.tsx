@@ -101,7 +101,7 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
   }, [searchResults]);
 
   return (
-    <div className="py-2 flex flex-col justify-center p-1 border border-input dark:border-primary w-full rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
+    <div className="py-2 bg-background flex flex-col justify-center p-1 border border-input dark:border-primary w-full rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
       <div className="flex space-x-1">
         {/* the input */}
         <Input
@@ -152,7 +152,6 @@ const IntegratedSearch = (props: IntegratedSearchProps) => {
           />
         </div>
       </div>
-
       {/* the search results */}
       <AnimatedExpandable isOpen={searchMutation.isPending || !!searchResults}>
         {/* show loading if mutation pending */}
