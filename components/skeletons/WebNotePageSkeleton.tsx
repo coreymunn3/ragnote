@@ -1,5 +1,5 @@
-import { Skeleton } from "../ui/skeleton";
 import ToolbarSkeleton from "./WebToolbarSkeleton";
+import EditorSkeleton from "./EditorSkeleton";
 
 const WebNotePageSkeleton = () => {
   return (
@@ -10,15 +10,8 @@ const WebNotePageSkeleton = () => {
       </div>
 
       {/* Editor Skeleton */}
-      <div className="flex-1 p-8 max-w-4xl mx-auto w-full space-y-4">
-        <Skeleton className="h-12 w-2/3 mb-8" /> {/* Title */}
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
+      <div className="flex-1 p-8 max-w-4xl mx-auto w-full">
+        <EditorSkeleton />
       </div>
     </div>
   );

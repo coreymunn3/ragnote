@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
 import { AnimatedContainer } from "@/components/animations/AnimatedContainer";
 import { LockIcon } from "lucide-react";
+import EditorSkeleton from "./skeletons/EditorSkeleton";
 
 export interface RichTextEditorProps {
   initialContent?: any; // BlockNote JSON content
@@ -196,7 +197,11 @@ const RichTextEditor = dynamic(
   },
   {
     ssr: false,
-    loading: () => <Skeleton className="h-64 w-full" />,
+    loading: () => (
+      <div className="w-full max-w-4xl mx-auto p-4 md:p-8">
+        <EditorSkeleton />
+      </div>
+    ),
   }
 );
 

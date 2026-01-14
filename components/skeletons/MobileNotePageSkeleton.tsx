@@ -1,4 +1,5 @@
 import { Skeleton } from "../ui/skeleton";
+import EditorSkeleton from "./EditorSkeleton";
 
 const MobileNotePageSkeleton = () => {
   return (
@@ -16,13 +17,8 @@ const MobileNotePageSkeleton = () => {
       </div>
 
       {/* Editor Skeleton */}
-      <div className="flex-1 p-4 space-y-4">
-        <Skeleton className="h-10 w-3/4" /> {/* Title */}
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-2/3" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" />
+      <div className="flex-1 p-4">
+        <EditorSkeleton />
       </div>
     </div>
   );
