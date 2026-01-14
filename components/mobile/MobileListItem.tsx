@@ -59,7 +59,7 @@ const MobileListItem = ({ type, item, isLastItem }: MobileListItemProps) => {
         return {
           displayName: chat.title || "your chat",
           href: `/chat/${chat.id}`,
-          icon: getFolderIcon("system_chats"),
+          icon: getFolderIcon("chat"),
           detailElement: <MobileListItemChatDetail chatSession={chat} />,
         };
       case "link":

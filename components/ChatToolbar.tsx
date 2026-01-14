@@ -50,8 +50,8 @@ const ChatToolbar = ({
         sessionId: chatSession.id,
         action: "delete",
       });
-      // route user back to the system_chats folder
-      router.push(`/folder/system_chats`);
+      // route user back to the chats folder
+      router.push(`/chats`);
     } else {
       toast.error("Unable to Delete");
     }

@@ -83,7 +83,7 @@ const MobileChatPageContent = ({
         sessionId: chatSession.data.id,
         action: "delete",
       });
-      router.push(`/folder/system_chats`);
+      router.push(`/chats`);
     } else {
       toast.error("Unable to Delete");
     }
@@ -107,9 +107,7 @@ const MobileChatPageContent = ({
       setHeaderConfig({
         leftContent: (
           <>
-            <MobileBackButton
-              onClick={() => router.push(`/folder/system_chats`)}
-            />
+            <MobileBackButton onClick={() => router.push(`/chats`)} />
             <MobilePageTitle
               title={chatSession.data.title || "Chat Session..."}
             />
