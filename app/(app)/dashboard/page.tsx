@@ -15,30 +15,28 @@ export default async function Dashboard() {
   const folderService = new FolderService();
 
   const dbUser = await getDbUser();
-  // get the users notes - initial data for the web dashboard page
-  let notes: Note[] = [];
-  try {
-    notes = await noteService.getAllNotesForUser(dbUser.id);
-  } catch (error) {
-    console.error(error);
-  }
-  // get the users chat sessions - initial data for the web dashboard page
-  let chatSessions: ChatSession[] = [];
-  try {
-    chatSessions = await chatService.getChatSessionsForUser({
-      userId: dbUser.id,
-    });
-  } catch (error) {
-    console.error(error);
-  }
 
-  // get the users folders - initial data for the mobile dashboard page
-  let userFolders: FolderWithItems[] = [];
-  try {
-    userFolders = await folderService.getUserCreatedFolders(dbUser.id);
-  } catch (error) {
-    console.error(error);
-  }
+  const [notes, chatSessions, userFolders] = await Promise.all([
+    // get the users notes - initial data for the web dashboard page
+    noteService.getAllNotesForUser(dbUser.id).catch((error) => {
+      console.error(error);
+      return [];
+    }),
+    // get the users chat sessions - initial data for the web dashboard page
+    chatService
+      .getChatSessionsForUser({
+        userId: dbUser.id,
+      })
+      .catch((error) => {
+        console.error(error);
+        return [];
+      }),
+    // get the users folders - initial data for the mobile dashboard page
+    folderService.getUserCreatedFolders(dbUser.id).catch((error) => {
+      console.error(error);
+      return [];
+    }),
+  ]);
 
   // Render each view component
   const mobileView = <MobileDashboardContent userFolders={userFolders} />;
