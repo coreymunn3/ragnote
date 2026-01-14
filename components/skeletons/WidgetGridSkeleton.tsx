@@ -6,17 +6,16 @@ interface WidgetGridSkeletonProps {
 }
 
 const WidgetGridSkeleton = ({ title, count = 4 }: WidgetGridSkeletonProps) => (
-  <div className="space-y-4">
-    {title && (
-      <div className="flex items-center gap-2">
-        <Skeleton className="h-6 w-6" />
-        <Skeleton className="h-6 w-32" />
+  <div className="w-full p-4 rounded-md bg-gradient-to-br from-muted/70 via-background to-muted/40">
+    <div className="flex items-center pb-3 space-x-2">
+      {title && <Skeleton className="h-6 w-32" />}
+    </div>
+    <div className="pb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {Array.from({ length: count }).map((_, i) => (
+          <Skeleton key={i} className="h-40 w-full rounded-lg" />
+        ))}
       </div>
-    )}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {Array.from({ length: count }).map((_, i) => (
-        <Skeleton key={i} className="h-32 w-full rounded-lg" />
-      ))}
     </div>
   </div>
 );
