@@ -9,7 +9,6 @@ import {
   updateNoteVersionContentSchema,
   getNoteContentSchema,
   getNoteSchema,
-  updateNoteTitleSchema,
   getNoteVersionsSchema,
   getNoteVersionSchema,
   publishNoteVersionSchema,
@@ -24,10 +23,10 @@ import {
 import { NotFoundError, UnauthorizedError } from "@/lib/errors/apiErrors";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { transformToNote } from "./noteTransformers";
-import { NoteTextExtractor } from "./noteTextExtractor";
 import { AiService } from "../ai/aiService";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
 import { UserService } from "../user/userService";
+import { RichTextExtractor } from "./richTextExtractor";
 
 export class NoteService {
   /**
@@ -378,44 +377,6 @@ export class NoteService {
     }
   );
 
-  /**
-   * Update the note's title
-   */
-  public updateNoteTitle = withErrorHandling(
-    async (params: {
-      noteId: string;
-      title: string;
-      userId: string;
-    }): Promise<PrismaNote> => {
-      const { noteId, userId, title } = updateNoteTitleSchema.parse(params);
-
-      // Verify the note exists and belongs to the user
-      const note = await prisma.note.findFirst({
-        where: {
-          id: noteId,
-          user_id: userId,
-          is_deleted: false,
-        },
-      });
-
-      if (!note) {
-        throw new NotFoundError("Note not found or access denied");
-      }
-
-      // Update the note title
-      const updatedNote = await prisma.note.update({
-        where: {
-          id: noteId,
-        },
-        data: {
-          title: title,
-        },
-      });
-
-      return updatedNote;
-    }
-  );
-
   // soft delete note
   public softDeleteNote = withErrorHandling(
     async (params: { noteId: string; userId: string }): Promise<void> => {
@@ -449,6 +410,7 @@ export class NoteService {
 
   /**
    * Update note content with both rich text and plain text versions
+   * Update the note title, using the first non-empty block from the rich text content
    * Used when saving note edits from the rich text editor
    */
   public updateNoteVersionContent = withErrorHandling(
@@ -477,18 +439,36 @@ export class NoteService {
 
       // Extract plain text from rich text content
       const plainTextContent =
-        NoteTextExtractor.extractPlainText(richTextContent);
+        RichTextExtractor.extractPlainText(richTextContent);
 
-      // Update the version with both rich text and plain text
-      const savedNote = await prisma.note_version.update({
-        where: { id: versionId },
-        data: {
-          rich_text_content: richTextContent,
-          plain_text_content: plainTextContent,
-        },
+      // Extract title from the first line of the rich text content
+      const extractedTitle = RichTextExtractor.extractTitle(richTextContent);
+
+      /**
+       * In a transaction, update the note title and version content.
+       */
+      const updatedVersion = await prisma.$transaction(async (tx) => {
+        // save the new title
+        await tx.note.update({
+          where: {
+            id: noteVersion.note_id,
+          },
+          data: {
+            title: extractedTitle,
+          },
+        });
+        // save the version content
+        const savedVersion = await prisma.note_version.update({
+          where: { id: versionId },
+          data: {
+            rich_text_content: richTextContent,
+            plain_text_content: plainTextContent,
+          },
+        });
+        // return the saved version from transaction
+        return savedVersion;
       });
-      // return the saved note
-      return savedNote;
+      return updatedVersion;
     }
   );
 

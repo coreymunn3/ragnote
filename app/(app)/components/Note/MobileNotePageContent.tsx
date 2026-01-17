@@ -8,12 +8,10 @@ import { useGetNote } from "@/hooks/note/useGetNote";
 import { useGetNoteVersions } from "@/hooks/note/useGetNoteVersions";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import { Button } from "@/components/ui/button";
-import { ArrowLeftIcon, FolderPenIcon, Trash2Icon } from "lucide-react";
-import OptionsMenu from "@/components/OptionsMenu";
+import { Trash2Icon } from "lucide-react";
 import NoteToolbar from "@/components/mobile/NoteToolbar";
 import { toast } from "sonner";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
-import InputDialog from "@/components/dialogs/InputDialog";
 import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 import MobileBackButton from "@/components/mobile/MobileBackButton";
 
@@ -34,7 +32,6 @@ const MobileNotePageContent = ({
     initialNote?.current_version?.id || null
   );
   // dialog state management
-  const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
 
@@ -78,18 +75,6 @@ const MobileNotePageContent = ({
     setChatOpen((prev) => !prev);
   };
 
-  const handleSaveTitle = (newTitle: string) => {
-    if (note) {
-      updateNoteMutation.mutate({
-        noteId: note.id,
-        action: "update_title",
-        title: newTitle,
-      });
-    } else {
-      toast.error("Unable to Update Title");
-    }
-  };
-
   // Handlers for options menu
   const handleDeleteNote = () => {
     setDeleteOpen(true);
@@ -109,20 +94,9 @@ const MobileNotePageContent = ({
         ),
         rightContent: (
           <>
-            <OptionsMenu
-              options={[
-                {
-                  label: "Rename",
-                  icon: <FolderPenIcon className="h-4 w-4" />,
-                  onClick: () => setRenameOpen(true),
-                },
-                {
-                  label: "Delete",
-                  icon: <Trash2Icon className="h-4 w-4" />,
-                  onClick: handleDeleteNote,
-                },
-              ]}
-            />
+            <Button variant={"ghost"} onClick={handleDeleteNote}>
+              <Trash2Icon className="h-4 w-4" />
+            </Button>
           </>
         ),
       });
@@ -161,18 +135,7 @@ const MobileNotePageContent = ({
           />
         )}
       />
-      {/* Rename Dialog */}
-      <InputDialog
-        open={renameOpen}
-        onOpenChange={setRenameOpen}
-        title="Rename This Note"
-        placeholder="Note Title"
-        confirmText="Rename"
-        confirmLoadingText="Renaming..."
-        onConfirm={(inputValue) => handleSaveTitle(inputValue)}
-        isLoading={updateNoteMutation.isPending}
-        validate={(value) => value.trim().length > 0}
-      />
+
       {/* Delete confirmation */}
       <ConfirmationDialog
         open={deleteOpen}

@@ -1,9 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
-import { TypographyMuted } from "../ui/typography";
+import { TypographyH4, TypographyMuted } from "../ui/typography";
 import { BookCheckIcon, MessageCircleIcon, Trash2Icon } from "lucide-react";
-import EditableField from "../EditableField";
 import { DateTime } from "luxon";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
@@ -57,21 +56,6 @@ const NoteToolbar = ({
   });
 
   /**
-   * Save the new note title
-   */
-  const handleSaveTitle = (newTitle: string) => {
-    if (note) {
-      updateNoteMutation.mutate({
-        noteId: note.id,
-        action: "update_title",
-        title: newTitle,
-      });
-    } else {
-      toast.error("Unable to Update Title");
-    }
-  };
-
-  /**
    * Soft delete a note
    */
   const handleDeleteNote = () => {
@@ -101,11 +85,7 @@ const NoteToolbar = ({
     <div className="flex items-center justify-between px-14 py-2">
       {/* left side - title and version */}
       <div className="flex items-center space-x-2">
-        <EditableField
-          value={note.title}
-          variant="bold"
-          onSave={handleSaveTitle}
-        />
+        <TypographyH4 className="mb-0 p-0">{note.title}</TypographyH4>
         {/* select version menu */}
         {selectedVersion && (
           <>

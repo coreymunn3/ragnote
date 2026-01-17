@@ -46,6 +46,10 @@ export function useSaveNoteVersionContent(options?: useSaveNoteVersionOptions) {
       queryClient.invalidateQueries({
         queryKey: ["noteVersions", variables.noteId],
       });
+      // invalidate the note query since the title may have been changed
+      queryClient.invalidateQueries({
+        queryKey: ["note", variables.noteId],
+      });
       // Custom onSuccess callback
       options?.onSuccess?.(updatedNote, variables, context);
     },
