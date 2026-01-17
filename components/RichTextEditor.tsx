@@ -6,7 +6,6 @@ import type { BlockNoteEditor } from "@blocknote/core";
 import type { Theme } from "@blocknote/mantine";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Skeleton } from "./ui/skeleton";
 import { AnimatedContainer } from "@/components/animations/AnimatedContainer";
 import { LockIcon } from "lucide-react";
 import EditorSkeleton from "./skeletons/EditorSkeleton";
@@ -122,8 +121,51 @@ const createCustomTheme = (isDarkMode: boolean, isMounted: boolean): Theme => {
 const RichTextEditor = dynamic(
   async () => {
     const { BlockNoteView } = await import("@blocknote/mantine");
-    const { useCreateBlockNote, SideMenu, SideMenuController, AddBlockButton } =
-      await import("@blocknote/react");
+    const {
+      useCreateBlockNote,
+      SideMenu,
+      SideMenuController,
+      AddBlockButton,
+      getDefaultReactSlashMenuItems,
+      SuggestionMenuController,
+    } = await import("@blocknote/react");
+    const { filterSuggestionItems } = await import("@blocknote/core");
+    const { IndentDecrease, IndentIncrease } = await import("lucide-react");
+
+    // Custom Slash Menu item for Indent
+    const indentItem = (editor: BlockNoteEditor) => ({
+      title: "Indent",
+      onItemClick: () => {
+        if (editor.canNestBlock()) {
+          editor.nestBlock();
+        }
+      },
+      aliases: ["indent", "tab", "increase indent"],
+      group: "Formatting",
+      icon: <IndentIncrease size={18} />,
+      subtext: "Increase block indentation",
+    });
+
+    // Custom Slash Menu item for Outdent
+    const outdentItem = (editor: BlockNoteEditor) => ({
+      title: "Outdent",
+      onItemClick: () => {
+        if (editor.canUnnestBlock()) {
+          editor.unnestBlock();
+        }
+      },
+      aliases: ["outdent", "unindent", "decrease indent"],
+      group: "Formatting",
+      icon: <IndentDecrease size={18} />,
+      subtext: "Decrease block indentation",
+    });
+
+    // Combine default items with custom indent/outdent items
+    const getCustomSlashMenuItems = (editor: BlockNoteEditor) => [
+      ...getDefaultReactSlashMenuItems(editor),
+      indentItem(editor),
+      outdentItem(editor),
+    ];
 
     const BlockNoteEditorComponent = ({
       initialContent,
@@ -176,6 +218,7 @@ const RichTextEditor = dynamic(
             <BlockNoteView
               editor={editor}
               sideMenu={false}
+              slashMenu={false}
               theme={customTheme || undefined}
               editable={!readOnly}
               onChange={onChange}
@@ -186,6 +229,12 @@ const RichTextEditor = dynamic(
                     <AddBlockButton {...props} />
                   </SideMenu>
                 )}
+              />
+              <SuggestionMenuController
+                triggerCharacter={"/"}
+                getItems={async (query) =>
+                  filterSuggestionItems(getCustomSlashMenuItems(editor), query)
+                }
               />
             </BlockNoteView>
           </div>
