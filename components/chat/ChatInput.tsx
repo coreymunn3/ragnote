@@ -168,7 +168,7 @@ const ChatInput = ({
                 disabled={disabled}
                 rows={1}
                 className={cn(
-                  "w-full resize-none bg-transparent border-none p-2 pr-20 text-sm",
+                  "w-full resize-none bg-transparent border-none p-2 pr-20",
                   "placeholder:text-muted-foreground",
                   "focus:outline-none",
                   "disabled:cursor-not-allowed",
