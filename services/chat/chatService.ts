@@ -82,7 +82,7 @@ export class ChatService {
       /**
        * Now, lets fill in the noteVersions array to properly build a fully scoped chat
        */
-      // 1 - scope is note
+      // 1 - scope is note - get the id and most recent published version for the one note
       if (chatScope.scope === "note" && chatScope.scopeId) {
         const note = await prisma.note.findFirst({
           where: {
@@ -90,7 +90,7 @@ export class ChatService {
             user_id: validatedData.userId,
             is_deleted: false,
           },
-          // this includes the most recently published version
+          // this includes only the most recently published version
           include: {
             versions: {
               where: { is_published: true },
@@ -107,8 +107,55 @@ export class ChatService {
           });
         }
       }
-      // 2 - scope is folder (TO DO)
-      // 3 - scope is global (TO DO)
+      // 2 - scope is folder - id & most recent published version of each note in the folder (scopeId)
+      if (chatScope.scope === "folder" && chatScope.scopeId) {
+        // find all notes in the folder with their version data
+        const notes = await prisma.note.findMany({
+          where: {
+            user_id: validatedData.userId,
+            folder_id: chatScope.scopeId,
+            is_deleted: false,
+          },
+          include: {
+            versions: {
+              where: { is_published: true },
+              orderBy: { published_at: "desc" },
+              take: 1,
+            },
+          },
+        });
+        // extract note id and last published version id for the scope
+        notes.forEach((note) => {
+          chatScope.noteVersions.push({
+            noteId: note.id,
+            versionId: note.versions[0].id,
+          });
+        });
+      }
+      // 3 - scope is global - id & most recent published version of each note the user has made
+      if (chatScope.scope === "global" && !chatScope.scopeId) {
+        // find all notes in the folder with their version data
+        const notes = await prisma.note.findMany({
+          where: {
+            user_id: validatedData.userId,
+            is_deleted: false,
+          },
+          include: {
+            versions: {
+              where: { is_published: true },
+              orderBy: { published_at: "desc" },
+              take: 1,
+            },
+          },
+        });
+        // extract note id and last published version id for the scope
+        notes.forEach((note) => {
+          chatScope.noteVersions.push({
+            noteId: note.id,
+            versionId: note.versions[0].id,
+          });
+        });
+      }
       return chatScope;
     }
   );
@@ -298,7 +345,11 @@ export class ChatService {
       const aiService = new AiService(validatedUserId);
 
       // Set note version context for token tracking
-      if (currentChatScope.noteVersions[0]) {
+      // only set for the note scope - folder/global tracking at session level
+      if (
+        currentChatScope.scope === "note" &&
+        currentChatScope.noteVersions[0]
+      ) {
         aiService.setNoteVersionId(currentChatScope.noteVersions[0].versionId);
       }
 
