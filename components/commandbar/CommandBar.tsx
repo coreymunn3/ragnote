@@ -43,6 +43,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
+import { Skeleton } from "../ui/skeleton";
 
 type PrimaryMode = "chat" | "search";
 
@@ -217,22 +218,29 @@ const CommandBar = (props: CommandBarProps) => {
           </DropdownMenu>
         )}
 
-        {/* the input */}
-        <Input
-          placeholder={
-            primaryMode === "chat"
-              ? `Chat with ${scope === "global" ? "all your notes" : scope === "folder" ? "this folder" : "this note"}...`
-              : "Search Your Notes"
-          }
-          className="flex-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0 text-sm placeholder:text-sm"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSubmit();
+        {/* the input (or if chat pending, a skeleton) */}
+        {chatMutation.isPending ? (
+          <div className="flex-1 text-sm">
+            <Skeleton className="w-48 h-6" />
+          </div>
+        ) : (
+          <Input
+            placeholder={
+              primaryMode === "chat"
+                ? `Chat with ${scope === "global" ? "all your notes" : scope === "folder" ? "this folder" : "this note"}...`
+                : "Search Your Notes"
             }
-          }}
-        />
+            className="flex-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0 text-sm placeholder:text-sm"
+            value={query}
+            disabled={chatMutation.isPending}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSubmit();
+              }
+            }}
+          />
+        )}
 
         {/* clear search results button - only shows when there are search results */}
         {primaryMode === "search" && !!searchResults && (
