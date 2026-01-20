@@ -9,6 +9,7 @@ import {
   XIcon,
   MessageSquare,
   Search,
+  ChevronDownIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useSearch } from "@/hooks/search/useSearch";
@@ -35,21 +36,43 @@ import {
   TooltipContent,
 } from "../ui/tooltip";
 import { TypographySmall } from "../ui/typography";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 
 type PrimaryMode = "chat" | "search";
 
 interface CommandBarProps {
   scope: ChatScope;
   scopeId?: string;
+  allowedModes?: PrimaryMode[];
   onSearch?: (query: string) => void;
 }
 
 const CommandBar = (props: CommandBarProps) => {
-  const { scope, scopeId, onSearch } = props;
+  const { scope, scopeId, allowedModes = ["chat", "search"], onSearch } = props;
   const isMobile = useIsMobile();
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [primaryMode, setPrimaryMode] = useState<PrimaryMode>("chat");
+  const { isPro } = useUserSubscription();
+
+  // Filter allowed modes based on subscription
+  const availableModes = allowedModes.filter((mode) => {
+    if (mode === "chat" && !isPro) return false;
+    return true;
+  });
+
+  // Only show mode selector if more than one mode available
+  const showModeSelector = availableModes.length > 1;
+
+  // Default to first available mode
+  const [primaryMode, setPrimaryMode] = useState<PrimaryMode>(
+    availableModes.includes("chat") ? "chat" : "search"
+  );
   const [searchResults, setSearchResults] = useState<
     SearchResult | undefined
   >();
@@ -148,42 +171,51 @@ const CommandBar = (props: CommandBarProps) => {
 
   return (
     <div className="py-2 bg-background flex flex-col justify-center p-1 border border-input dark:border-primary w-full rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
-      <div className="flex space-x-1">
-        {/* Primary Mode Toggle (Chat/Search) - only show 1 toggle button at a time */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <div className="flex items-center justify-center">
-                {primaryMode === "chat" && (
-                  <Button
-                    size="sm"
-                    variant={"ghost"}
-                    onClick={() => {
-                      setPrimaryMode("search");
-                    }}
-                  >
+      <div className="flex items-center space-x-1">
+        {/* Mode Selector Dropdown - only show if multiple modes available */}
+        {showModeSelector && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-2">
+                {primaryMode === "chat" ? (
+                  <>
                     <MessageSquare className="h-4 w-4" />
-                  </Button>
-                )}
-                {primaryMode === "search" && (
-                  <Button
-                    variant={"ghost"}
-                    size="sm"
-                    onClick={() => {
-                      setPrimaryMode("chat");
-                      setSearchResults(undefined); // Clear search results when switching to chat
-                    }}
-                  >
+                    {!isMobile && "Chat"}
+                  </>
+                ) : (
+                  <>
                     <Search className="h-4 w-4" />
-                  </Button>
+                    {!isMobile && "Search"}
+                  </>
                 )}
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <TypographySmall>{`Toggle to ${primaryMode === "chat" ? "Search" : "Chat"}`}</TypographySmall>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+                <ChevronDownIcon className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {availableModes.map((mode) => (
+                <DropdownMenuItem
+                  key={mode}
+                  onClick={() => {
+                    setPrimaryMode(mode);
+                    if (mode === "chat") setSearchResults(undefined);
+                  }}
+                >
+                  {mode === "chat" ? (
+                    <>
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Chat
+                    </>
+                  ) : (
+                    <>
+                      <Search className="h-4 w-4 mr-2" />
+                      Search
+                    </>
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
 
         {/* the input */}
         <Input

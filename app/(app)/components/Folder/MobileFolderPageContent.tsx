@@ -103,8 +103,12 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
   return (
     <div>
       <div className="flex flex-col space-y-8">
-        {/* Folder-scoped command bar */}
-        <CommandBar scope="folder" scopeId={folder.id} />
+        {/* Folder-scoped command bar - chat only (search is always global) */}
+        <CommandBar
+          scope="folder"
+          scopeId={folder.id}
+          allowedModes={["chat"]}
+        />
 
         {/* list of pinned items */}
         {pinnedItems.length > 0 && (

@@ -112,7 +112,7 @@ const MobileChatPageContent = ({
               title={chatSession.data.title || "Chat Session..."}
             />
             {chatSession.data.chat_scope && (
-              <ScopeBadge chatScope={chatSession.data.chat_scope} />
+              <ScopeBadge chatScope={chatSession.data.chat_scope.scope} />
             )}
           </>
         ),

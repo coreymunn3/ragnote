@@ -126,10 +126,12 @@ export class ChatService {
         });
         // extract note id and last published version id for the scope
         notes.forEach((note) => {
-          chatScope.noteVersions.push({
-            noteId: note.id,
-            versionId: note.versions[0].id,
-          });
+          if (note.versions.length > 0) {
+            chatScope.noteVersions.push({
+              noteId: note.id,
+              versionId: note.versions[0].id,
+            });
+          }
         });
       }
       // 3 - scope is global - id & most recent published version of each note the user has made
@@ -150,10 +152,12 @@ export class ChatService {
         });
         // extract note id and last published version id for the scope
         notes.forEach((note) => {
-          chatScope.noteVersions.push({
-            noteId: note.id,
-            versionId: note.versions[0].id,
-          });
+          if (note.versions.length > 0) {
+            chatScope.noteVersions.push({
+              noteId: note.id,
+              versionId: note.versions[0].id,
+            });
+          }
         });
       }
       return chatScope;

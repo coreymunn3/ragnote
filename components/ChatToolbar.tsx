@@ -71,7 +71,7 @@ const ChatToolbar = ({
           onSave={handleSaveTitle}
         />
         {chatSession.chat_scope && (
-          <ScopeBadge chatScope={chatSession.chat_scope} />
+          <ScopeBadge chatScope={chatSession.chat_scope.scope} />
         )}
       </div>
       {/* right side - last activity, controls */}

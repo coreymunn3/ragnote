@@ -113,9 +113,13 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
       </div>
 
       <div className="flex flex-col space-y-4">
-        {/* Folder-scoped command bar */}
+        {/* Folder-scoped command bar - chat only (search is always global) */}
         <AnimatedListItem index={0} animation="fadeIn">
-          <CommandBar scope="folder" scopeId={folder.id} />
+          <CommandBar
+            scope="folder"
+            scopeId={folder.id}
+            allowedModes={["chat"]}
+          />
         </AnimatedListItem>
 
         {/* Display pinned items prominently */}

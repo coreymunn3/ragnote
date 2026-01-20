@@ -48,7 +48,7 @@ const ChatWidget = ({ chatSession }: ChatWidgetProps) => {
               </CardTitle>
               {/* Header right - actions/options */}
               <div className="flex items-center justify-center space-x-2">
-                <ScopeBadge chatScope={chatSession.chat_scope} />
+                <ScopeBadge chatScope={chatSession.chat_scope.scope} />
                 <Button variant={"ghost"} onClick={handleDeleteNote}>
                   <Trash2Icon className="h-4 w-4" />
                 </Button>
