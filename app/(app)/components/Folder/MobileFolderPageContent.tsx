@@ -19,6 +19,7 @@ import { Note } from "@/lib/types/noteTypes";
 import { ChatSession } from "@/lib/types/chatTypes";
 import MobileListSkeleton from "@/components/skeletons/MobileListSkeleton";
 import MobileBackButton from "@/components/mobile/MobileBackButton";
+import CommandBar from "@/components/commandbar/CommandBar";
 
 interface MobileFolderPageContentProps {
   folder: FolderWithItems;
@@ -102,6 +103,9 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
   return (
     <div>
       <div className="flex flex-col space-y-8">
+        {/* Folder-scoped command bar */}
+        <CommandBar scope="folder" scopeId={folder.id} />
+
         {/* list of pinned items */}
         {pinnedItems.length > 0 && (
           <MobileList

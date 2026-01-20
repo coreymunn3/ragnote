@@ -124,6 +124,179 @@ _Goal: The agent works for you while you sleep._
 
 ---
 
+## UX Architecture: CommandBar & Progressive Disclosure
+
+_Implemented: January 2026_
+
+### Overview
+
+The CommandBar component serves as the universal input interface for both chat and search functionality. It follows a "Chat-First" philosophy with toggleable search, implementing a progressive disclosure pattern that adapts complexity to the user's needs.
+
+### CommandBar Component
+
+**Location**: `components/commandbar/CommandBar.tsx`
+
+**Props**:
+
+```typescript
+interface CommandBarProps {
+  scope: ChatScope; // "global" | "folder" | "note"
+  scopeId?: string; // Required for folder/note scopes
+  onSearch?: (query: string) => void;
+}
+```
+
+**Key Features**:
+
+1. **Dual Mode Toggle**: Primary mode switches between Chat and Search
+   - Default: Chat mode (agent-first philosophy)
+   - Toggle allows switching to traditional search
+2. **Scope Awareness**: Automatically displays appropriate scope badge and contextual placeholder
+3. **Conditional UI**: Shows/hides controls based on active mode
+   - Chat mode: Displays scope badge, "Send" button
+   - Search mode: Displays semantic/text toggle, search results, "Clear Results" button
+4. **Smart Placeholders**:
+   - Global chat: "Ask about anything..."
+   - Folder chat: "Ask about this folder..."
+   - Note chat: "Ask about this note..."
+   - Search: "Search Your Notes"
+
+### Integration Points
+
+**Global Scope** (Dashboard):
+
+- `app/(app)/components/Dashboard/WebDashboardContent.tsx`
+- `app/(app)/components/Dashboard/MobileDashboardContent.tsx`
+- Usage: `<CommandBar scope="global" />`
+
+**Folder Scope** (Folder Pages):
+
+- `app/(app)/components/Folder/WebFolderPageContent.tsx`
+- `app/(app)/components/Folder/MobileFolderPageContent.tsx`
+- Usage: `<CommandBar scope="folder" scopeId={folder.id} />`
+
+**Note Scope** (Future):
+
+- Currently uses `ChatPanel` (side drawer)
+- Future: May integrate CommandBar for consistency
+
+### Progressive Disclosure Strategy
+
+**Philosophy**: Match UI complexity to task complexity. Don't fight for sidebar space—embrace full-page navigation.
+
+**Three Levels of Complexity**:
+
+1. **Simple Queries** (Inline):
+   - Search results appear inline below CommandBar
+   - Quick information retrieval without navigation
+2. **Conversations** (Full Page):
+   - Chat messages navigate to `/chat/[sessionId]`
+   - Full-screen dedicated chat interface
+   - Rationale: Multi-turn conversations need space for context and history
+3. **Complex Agent Workflows** (Future - Dedicated Interface):
+   - Multi-step agent tasks navigate to `/agent/[taskId]`
+   - Specialized UI for approval workflows:
+     - Tab interface (Chat / Pending Approvals)
+     - Swipeable approval cards for batch operations
+     - Full-screen unified diff viewer for file changes
+     - Progress tracking and rollback capabilities
+
+### Why Full-Page Navigation?
+
+**Rejected Approaches**:
+
+- ❌ Dual sidebars (chat + notes): Horizontal space squeeze on desktop
+- ❌ Resizable panels: Width management complexity, poor mobile experience
+- ❌ Modal dialogs: Limited screen space, accessibility concerns
+- ❌ Bottom sheets only: Insufficient space for complex conversations
+
+**Chosen Approach**: ✅ Full-page navigation
+
+- **Pros**:
+  - Maximum space for complex interactions
+  - Clean mobile experience
+  - Natural browser back/forward navigation
+  - Each complexity level gets appropriate real estate
+  - Future-proof for agent approval workflows
+- **Cons**:
+  - Navigation overhead (leaving current page)
+  - Mitigated by: Quick navigation, browser history, clear scope context
+
+### Mobile vs Web Differences
+
+**Shared**:
+
+- Same CommandBar component with responsive adjustments
+- Same progressive disclosure philosophy
+- Same full-page navigation for chats
+
+**Mobile-Specific**:
+
+- Compact mode toggles (icons only when `isMobile`)
+- Future: Bottom sheet expansion for simple chats before full-page navigation
+- Future: Swipe gestures for approval workflows in `/agent/[taskId]`
+
+**Web-Specific**:
+
+- Text labels on mode toggle buttons
+- Larger hit targets for mouse interaction
+- More visible scope badges and controls
+
+### Future: Agent Approval Workflows
+
+When Phase 3 (Multi-Note Refactoring) is implemented:
+
+**Route**: `/agent/[taskId]`
+
+**UI Components**:
+
+1. **Tab Navigation**:
+
+   - "Chat" tab: Conversation with agent about the task
+   - "Pending Approvals" tab: Review proposed changes
+
+2. **Approval Cards** (Pending Approvals Tab):
+
+   - Swipeable cards on mobile
+   - Click-to-expand on web
+   - Each card shows:
+     - Note title and folder context
+     - Summary of proposed changes
+     - Quick approve/reject actions
+
+3. **Unified Diff Viewer**:
+
+   - Full-screen view when expanding a specific change
+   - Side-by-side before/after comparison
+   - Syntax highlighting for rich text
+   - Inline comments from agent explaining changes
+   - Individual line-level approve/reject (future)
+
+4. **Progress Tracking**:
+   - Visual indicator of batch operation progress
+   - "Approve All" / "Reject All" bulk actions
+   - Rollback functionality using version history
+
+### Design Principles
+
+1. **Agent-First**: Chat is the primary interaction mode, not an afterthought
+2. **Context Implicit**: User's location (folder/note) automatically provides scope
+3. **Progressive Complexity**: UI grows with task complexity (inline → full page → specialized interface)
+4. **No Sidebar Wars**: Use full-page real estate instead of competing for horizontal space
+5. **Future-Ready**: Architecture supports upcoming multi-agent batch operations
+6. **Consistent Experience**: Same CommandBar component across all contexts
+7. **Mobile-First Responsive**: Works equally well on phones and desktops
+
+### Related Components
+
+- `components/ScopeBadge.tsx`: Visual indicator of chat scope
+- `components/chat/ChatPanel.tsx`: Current note-level chat (side drawer)
+- `app/(app)/chat/[id]/page.tsx`: Full-page chat session view
+- `hooks/chat/useChat.ts`: Chat mutation and navigation logic
+- `hooks/search/useSearch.ts`: Search functionality
+
+---
+
 ## Architecture Notes
 
 - **Single vs Multi-Agent**: We start with Single Agent (Phase 1-2) for simplicity. We migrate to Multi-Agent (Router + Specialist Agents) in Phase 3 to handle the complexity and risk of Batch Editing.

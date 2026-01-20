@@ -18,6 +18,7 @@ import InputDialog from "@/components/dialogs/InputDialog";
 import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
 import CreateNote from "@/components/CreateNote";
 import { ChatSession } from "@/lib/types/chatTypes";
+import CommandBar from "@/components/commandbar/CommandBar";
 
 interface WebFolderPageContentProps {
   folder: FolderWithItems;
@@ -112,6 +113,11 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
       </div>
 
       <div className="flex flex-col space-y-4">
+        {/* Folder-scoped command bar */}
+        <AnimatedListItem index={0} animation="fadeIn">
+          <CommandBar scope="folder" scopeId={folder.id} />
+        </AnimatedListItem>
+
         {/* Display pinned items prominently */}
         {pinnedItems.length > 0 && (
           <AnimatedListItem index={1} animation="fadeIn">

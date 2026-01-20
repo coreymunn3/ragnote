@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import CreateFolder from "@/components/CreateFolder";
 import MobileList, { SystemLinkItem } from "@/components/mobile/MobileList";
-import IntegratedSearch from "@/components/search/IntegratedSearch";
+import CommandBar from "@/components/commandbar/CommandBar";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { FolderWithItems } from "@/lib/types/folderTypes";
 import { useMobileHeader } from "@/contexts/MobileHeaderContext";
@@ -54,7 +54,7 @@ const MobileDashboardContent = ({
 
   return (
     <div className="flex flex-col space-y-4">
-      <IntegratedSearch />
+      <CommandBar scope="global" />
       <MobileList
         title="Your Folders"
         items={folders.data}
