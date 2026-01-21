@@ -10,6 +10,8 @@ import {
   MessageSquare,
   Search,
   ChevronDownIcon,
+  Crown,
+  Loader2Icon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useSearch } from "@/hooks/search/useSearch";
@@ -44,6 +46,7 @@ import {
 } from "../ui/dropdown-menu";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { Skeleton } from "../ui/skeleton";
+import UpgradeDialog from "../dialogs/UpgradeDialog";
 
 type PrimaryMode = "chat" | "search";
 
@@ -70,7 +73,7 @@ const CommandBar = (props: CommandBarProps) => {
       ) : (
         <Search className="h-4 w-4 mr-2" />
       ),
-    disabled: mode === "chat" && !isPro,
+    requiresPro: mode === "chat",
   }));
 
   // Default to chat if pro
@@ -82,6 +85,7 @@ const CommandBar = (props: CommandBarProps) => {
   >();
   const [searchMode, setSearchMode] = useState<SearchMode>("text");
   const [showNoResults, setShowNoResults] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   /**
    * Mutation to execute the chat
@@ -193,19 +197,28 @@ const CommandBar = (props: CommandBarProps) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center">
-            {enhancedModes.map(({ mode, label, icon: ModeIcon, disabled }) => (
-              <DropdownMenuItem
-                key={mode}
-                disabled={disabled}
-                onClick={() => {
-                  setPrimaryMode(mode);
-                  if (mode === "chat") setSearchResults(undefined);
-                }}
-              >
-                {ModeIcon}
-                {label}
-              </DropdownMenuItem>
-            ))}
+            {enhancedModes.map(
+              ({ mode, label, icon: ModeIcon, requiresPro }) => (
+                <DropdownMenuItem
+                  key={mode}
+                  onClick={() => {
+                    // Check if this mode requires Pro and user doesn't have it
+                    if (requiresPro && !isPro) {
+                      setShowUpgradeModal(true);
+                    } else {
+                      setPrimaryMode(mode);
+                      if (mode === "chat") setSearchResults(undefined);
+                    }
+                  }}
+                >
+                  {ModeIcon}
+                  {label}
+                  {requiresPro && !isPro && (
+                    <Crown className="h-3 w-3 ml-auto text-yellow-600" />
+                  )}
+                </DropdownMenuItem>
+              )
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -330,6 +343,12 @@ const CommandBar = (props: CommandBarProps) => {
           </div>
         )}
       </AnimatedExpandable>
+
+      {/* Upgrade Modal */}
+      <UpgradeDialog
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+      />
     </div>
   );
 };
