@@ -61,18 +61,21 @@ const CommandBar = (props: CommandBarProps) => {
   const [query, setQuery] = useState("");
   const { isPro } = useUserSubscription();
 
-  // Filter allowed modes based on subscription
-  const availableModes = allowedModes.filter((mode) => {
-    if (mode === "chat" && !isPro) return false;
-    return true;
-  });
+  const enhancedModes = allowedModes.map((mode) => ({
+    mode,
+    label: mode,
+    icon:
+      mode === "chat" ? (
+        <MessageSquare className="h-4 w-4 mr-2" />
+      ) : (
+        <Search className="h-4 w-4 mr-2" />
+      ),
+    disabled: mode === "chat" && !isPro,
+  }));
 
-  // Only show mode selector if more than one mode available
-  const showModeSelector = availableModes.length > 1;
-
-  // Default to first available mode
+  // Default to chat if pro
   const [primaryMode, setPrimaryMode] = useState<PrimaryMode>(
-    availableModes.includes("chat") ? "chat" : "search"
+    isPro ? "chat" : "search"
   );
   const [searchResults, setSearchResults] = useState<
     SearchResult | undefined
@@ -174,49 +177,37 @@ const CommandBar = (props: CommandBarProps) => {
     <div className="py-2 bg-background flex flex-col justify-center p-1 border border-input dark:border-primary w-full rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
       <div className="flex items-center space-x-1">
         {/* Mode Selector Dropdown - only show if multiple modes available */}
-        {showModeSelector && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2">
-                {primaryMode === "chat" ? (
-                  <>
-                    <MessageSquare className="h-4 w-4" />
-                    {!isMobile && "Chat"}
-                  </>
-                ) : (
-                  <>
-                    <Search className="h-4 w-4" />
-                    {!isMobile && "Search"}
-                  </>
-                )}
-                <ChevronDownIcon className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              {availableModes.map((mode) => (
-                <DropdownMenuItem
-                  key={mode}
-                  onClick={() => {
-                    setPrimaryMode(mode);
-                    if (mode === "chat") setSearchResults(undefined);
-                  }}
-                >
-                  {mode === "chat" ? (
-                    <>
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Chat
-                    </>
-                  ) : (
-                    <>
-                      <Search className="h-4 w-4 mr-2" />
-                      Search
-                    </>
-                  )}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="gap-2">
+              {primaryMode === "chat" ? (
+                <>
+                  <MessageSquare className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  <Search className="h-4 w-4" />
+                </>
+              )}
+              <ChevronDownIcon className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center">
+            {enhancedModes.map(({ mode, label, icon: ModeIcon, disabled }) => (
+              <DropdownMenuItem
+                key={mode}
+                disabled={disabled}
+                onClick={() => {
+                  setPrimaryMode(mode);
+                  if (mode === "chat") setSearchResults(undefined);
+                }}
+              >
+                {ModeIcon}
+                {label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* the input (or if chat pending, a skeleton) */}
         {chatMutation.isPending ? (
