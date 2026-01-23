@@ -32,8 +32,8 @@ export class RichTextExtractor {
       // Return the first non-empty block text we find
       const trimmedText = blockText.trim();
       if (trimmedText) {
-        return trimmedText.length > 40
-          ? trimmedText.substring(0, 40) + "..."
+        return trimmedText.length > 30
+          ? trimmedText.substring(0, 30) + "..."
           : trimmedText;
       }
     }
