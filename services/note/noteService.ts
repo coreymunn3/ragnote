@@ -19,6 +19,7 @@ import {
   PrismaNote,
   PrismaNoteVersion,
   PublishNoteResponse,
+  UpdateNoteVersionContentResponse,
 } from "@/lib/types/noteTypes";
 import { NotFoundError, UnauthorizedError } from "@/lib/errors/apiErrors";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
@@ -418,7 +419,7 @@ export class NoteService {
       versionId: string;
       richTextContent: any;
       userId: string;
-    }): Promise<PrismaNoteVersion> => {
+    }): Promise<UpdateNoteVersionContentResponse> => {
       const validatedData = updateNoteVersionContentSchema.parse(params);
       const { versionId, richTextContent, userId } = validatedData;
 
@@ -447,28 +448,35 @@ export class NoteService {
       /**
        * In a transaction, update the note title and version content.
        */
-      const updatedVersion = await prisma.$transaction(async (tx) => {
+      const result = await prisma.$transaction(async (tx) => {
         // save the new title
-        await tx.note.update({
+        const updatedNote = await tx.note.update({
           where: {
             id: noteVersion.note_id,
           },
           data: {
             title: extractedTitle,
           },
+          select: {
+            id: true,
+            title: true,
+          },
         });
         // save the version content
-        const savedVersion = await prisma.note_version.update({
+        const savedVersion = await tx.note_version.update({
           where: { id: versionId },
           data: {
             rich_text_content: richTextContent,
             plain_text_content: plainTextContent,
           },
         });
-        // return the saved version from transaction
-        return savedVersion;
+        // return both the saved version and updated note
+        return {
+          version: savedVersion,
+          note: updatedNote,
+        };
       });
-      return updatedVersion;
+      return result;
     }
   );
 

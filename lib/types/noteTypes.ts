@@ -46,6 +46,14 @@ export type PublishNoteResponse = {
   nextVersion: PrismaNoteVersion;
 };
 
+export type UpdateNoteVersionContentResponse = {
+  version: PrismaNoteVersion;
+  note: {
+    id: string;
+    title: string;
+  };
+};
+
 /**
  * Request Types for Notes API
  */

@@ -3,7 +3,10 @@ import { withApiErrorHandling } from "@/lib/errors/apiRouteHandlers";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { NoteService } from "@/services/note/noteService";
-import { UpdateNoteVersionContentApiRequest } from "@/lib/types/noteTypes";
+import {
+  UpdateNoteVersionContentApiRequest,
+  UpdateNoteVersionContentResponse,
+} from "@/lib/types/noteTypes";
 
 const noteService = new NoteService();
 
@@ -33,22 +36,23 @@ export const GET = withApiErrorHandling(
 
 /**
  * PUT (update) a notes version including its rich text and plain text content
+ * Returns both the updated version and the note with its new title
  */
 const putHandler = async (
   req: NextRequest,
   { params }: { params: Promise<{ noteId: string; versionId: string }> }
-) => {
+): Promise<NextResponse<UpdateNoteVersionContentResponse>> => {
   auth.protect();
   const { noteId, versionId } = await params;
   const dbUser = await getDbUser();
   const body: UpdateNoteVersionContentApiRequest = await req.json();
-  // update the note
-  const savedNote = await noteService.updateNoteVersionContent({
+  // update the note version and get back both the version and updated note
+  const result = await noteService.updateNoteVersionContent({
     versionId,
     userId: dbUser.id,
     richTextContent: body.richTextContent,
   });
-  return NextResponse.json(savedNote, { status: 200 });
+  return NextResponse.json(result, { status: 200 });
 };
 export const PUT = withApiErrorHandling(
   putHandler,
