@@ -25,6 +25,7 @@ const WebNotePageContent = ({
   const {
     data: note,
     isLoading: noteLoading,
+    isFetching: noteFetching,
     error: noteError,
   } = useGetNote(initialNote.id, {
     enabled: !!initialNote.id,
@@ -37,6 +38,7 @@ const WebNotePageContent = ({
   const {
     data: noteVersions,
     isLoading: versionsLoading,
+    isFetching: versionsFetching,
     error: versionsError,
   } = useGetNoteVersions(initialNote.id, {
     enabled: !!initialNote.id,
@@ -58,7 +60,9 @@ const WebNotePageContent = ({
     setChatOpen((prev) => !prev);
   };
 
-  const isLoading = noteLoading || versionsLoading;
+  // Combine loading states: use isFetching to catch background refetches with initialData
+  const isLoading =
+    noteLoading || noteFetching || versionsLoading || versionsFetching;
   const error = noteError || versionsError;
 
   return (

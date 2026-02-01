@@ -4,19 +4,17 @@ import {
   deleteFolderSchema,
   getFolderByIdSchema,
   renameFolderSchema,
+  getDeletedFoldersSchema,
 } from "./folderValidators";
 import {
   PrismaFolder,
   FolderWithItems,
   FolderItemType,
-  SYSTEM_FOLDERS,
-  SystemFolderId,
 } from "@/lib/types/folderTypes";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { NoteService } from "../note/noteService";
 import { ChatService } from "../chat/chatService";
 import { ForbiddenError, NotFoundError } from "@/lib/errors/apiErrors";
-import { isSystemFolder, getSystemFolderKey } from "@/lib/utils/folderUtils";
 import { DateTime } from "luxon";
 import { Note } from "@/lib/types/noteTypes";
 
@@ -89,29 +87,6 @@ export class FolderService {
     );
   };
 
-  /**
-   * Creates a system folder object with standard properties
-   * @param systemFolderKey - Key from SYSTEM_FOLDERS constant
-   * @param userId - User ID (used for consistency, though not meaningful for system folders)
-   * @returns PrismaFolder object representing the system folder
-   */
-  private createSystemFolder = (
-    systemFolderKey: keyof typeof SYSTEM_FOLDERS,
-    userId: string
-  ): PrismaFolder => {
-    const systemFolder = SYSTEM_FOLDERS[systemFolderKey];
-    const now = new Date();
-
-    return {
-      id: systemFolder.id,
-      folder_name: systemFolder.displayName,
-      created_at: now, // does not matter
-      updated_at: now, // does not matter
-      user_id: userId, // does not matter
-      is_deleted: false, // does not matter
-    };
-  };
-
   /** Create Folder */
   public createFolder = withErrorHandling(
     async (params: {
@@ -161,30 +136,70 @@ export class FolderService {
     }
   );
 
-  /** Soft Delete the folder by setting is_deleted to true */
+  /** Soft Delete the folder by setting is_deleted to true and cascade to notes */
   public softDeleteFolder = withErrorHandling(
     async (folderId: string, userId: string) => {
       const validatedData = deleteFolderSchema.parse({
         folderId,
         userId,
       });
-      // attempt to delete the foler
-      const updatedFolder = await prisma.folder.update({
+
+      // Verify folder exists and belongs to user
+      const folder = await prisma.folder.findFirst({
         where: {
           id: validatedData.folderId,
           user_id: validatedData.userId,
         },
-        data: {
-          is_deleted: true,
-        },
       });
-      // throw error is nothing happened
-      if (!updatedFolder) {
+
+      if (!folder) {
         throw new NotFoundError(
           `Folder ${validatedData.folderId} belonging to user ${validatedData.userId} not found`
         );
       }
-      return updatedFolder;
+
+      // CASCADE: Delete folder AND all notes inside in a transaction
+      await prisma.$transaction([
+        // Delete the folder
+        prisma.folder.update({
+          where: { id: validatedData.folderId },
+          data: { is_deleted: true },
+        }),
+        // Delete all notes in the folder
+        prisma.note.updateMany({
+          where: {
+            folder_id: validatedData.folderId,
+            user_id: validatedData.userId,
+          },
+          data: {
+            is_deleted: true,
+            is_pinned: false,
+          },
+        }),
+      ]);
+
+      return folder;
+    }
+  );
+
+  /** Get all deleted folders for a user */
+  public getDeletedFolders = withErrorHandling(
+    async (userId: string): Promise<PrismaFolder[]> => {
+      const { userId: validatedUserId } = getDeletedFoldersSchema.parse({
+        userId,
+      });
+
+      const folders = await prisma.folder.findMany({
+        where: {
+          user_id: validatedUserId,
+          is_deleted: true,
+        },
+        orderBy: {
+          updated_at: "desc",
+        },
+      });
+
+      return folders;
     }
   );
 
@@ -204,63 +219,12 @@ export class FolderService {
     }
   );
 
-  public getUserSystemFolders = withErrorHandling(
-    async (userId: string): Promise<FolderWithItems[]> => {
-      /**
-       * System folders are not "real" folders like the user created folders.
-       * Instead, they are artificial folders, just groups of items presented to the user the same way a folder would be.
-       */
-
-      // Handle each system folder separately since they need different enrichment types
-      // TODO: Re-enable for shared notes feature
-      // const sharedFolder = await this.enrichFoldersWithItems(
-      //   [this.createSystemFolder("SHARED", userId)],
-      //   userId,
-      //   "note"
-      // );
-
-      const deletedFolder = await this.enrichFoldersWithItems(
-        [this.createSystemFolder("DELETED", userId)],
-        userId,
-        "note"
-      );
-
-      const chatsFolder = await this.enrichFoldersWithItems(
-        [this.createSystemFolder("CHATS", userId)],
-        userId,
-        "chat"
-      );
-
-      return [...chatsFolder, ...deletedFolder]; // removed ...sharedFolder
-    }
-  );
-
   /** Get a single folder by ID with its items */
   public getFolderById = withErrorHandling(
     async (folderId: string, userId: string): Promise<FolderWithItems> => {
       const validatedData = getFolderByIdSchema.parse({ folderId, userId });
 
-      // Check if this is a system folder
-      if (isSystemFolder(validatedData.folderId)) {
-        const systemFolderKey = getSystemFolderKey(validatedData.folderId);
-        const systemFolder = this.createSystemFolder(
-          systemFolderKey,
-          validatedData.userId
-        );
-
-        // Determine item type based on system folder
-        const itemType: FolderItemType =
-          systemFolderKey === "CHATS" ? "chat" : "note";
-
-        const enrichedFolders = await this.enrichFoldersWithItems(
-          [systemFolder],
-          validatedData.userId,
-          itemType
-        );
-        return enrichedFolders[0];
-      }
-
-      // For regular folders, fetch from database
+      // Fetch folder from database
       const folder = await prisma.folder.findFirst({
         where: {
           id: validatedData.folderId,
@@ -273,7 +237,7 @@ export class FolderService {
         throw new NotFoundError("Folder not found or access denied");
       }
 
-      // Use existing helper to enrich with notes
+      // Enrich with notes
       const enrichedFolders = await this.enrichFoldersWithItems(
         [folder],
         validatedData.userId,

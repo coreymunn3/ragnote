@@ -1,8 +1,46 @@
+import { Block } from "@blocknote/core";
+
 /**
  * Utility class for extracting plain text from BlockNote JSON content
  * This is used to generate plain_text_content for chunking and embedding
  */
-export class NoteTextExtractor {
+export class RichTextExtractor {
+  /**
+   * Extract title from the first line of BlockNote content
+   * @param blockNoteContent - The BlockNote JSON content array
+   * @returns The first line of text content, or "Untitled" if empty
+   */
+  static extractTitle(blockNoteContent: Block[]): string {
+    if (!blockNoteContent || !Array.isArray(blockNoteContent)) {
+      return "Untitled";
+    }
+
+    // Try to find the first block with text content
+    for (const block of blockNoteContent) {
+      if (!block || !block.content || !Array.isArray(block.content)) {
+        continue;
+      }
+
+      // Extract text from content items
+      let blockText = "";
+      for (const contentItem of block.content) {
+        if (contentItem.type === "text" && contentItem.text) {
+          blockText += contentItem.text;
+        }
+      }
+
+      // Return the first non-empty block text we find
+      const trimmedText = blockText.trim();
+      if (trimmedText) {
+        return trimmedText.length > 30
+          ? trimmedText.substring(0, 30) + "..."
+          : trimmedText;
+      }
+    }
+
+    // No text found in any block
+    return "Untitled";
+  }
   /**
    * Extract plain text from BlockNote JSON content
    * @param blockNoteContent - The BlockNote JSON content array

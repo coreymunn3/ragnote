@@ -46,6 +46,14 @@ export type PublishNoteResponse = {
   nextVersion: PrismaNoteVersion;
 };
 
+export type UpdateNoteVersionContentResponse = {
+  version: PrismaNoteVersion;
+  note: {
+    id: string;
+    title: string;
+  };
+};
+
 /**
  * Request Types for Notes API
  */
@@ -55,9 +63,8 @@ export type CreateNoteApiRequest = {
 };
 
 export type UpdateNoteApiRequest = {
-  action: "toggle_pin" | "move" | "delete" | "update_title";
+  action: "toggle_pin" | "move" | "delete";
   folderId?: string; // required for the 'move' operation
-  title?: string; // required for the 'rename' operation
 };
 
 export type UpdateNoteVersionContentApiRequest = {

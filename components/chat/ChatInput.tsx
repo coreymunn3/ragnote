@@ -35,6 +35,7 @@ const ChatInput = ({
   const [message, setMessage] = useState("");
   const [isListening, setIsListening] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   // Quick action suggestions
   const suggestions = [
@@ -79,8 +80,15 @@ const ChatInput = ({
     textareaRef.current?.focus();
   };
 
-  // Start voice recognition
-  const startListening = () => {
+  // Toggle voice recognition
+  const toggleListening = () => {
+    // If already listening, stop
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      return;
+    }
+
+    // Check for browser support
     if (
       !("webkitSpeechRecognition" in window) &&
       !("SpeechRecognition" in window)
@@ -94,22 +102,32 @@ const ChatInput = ({
     const recognition = new SpeechRecognition();
 
     recognition.continuous = false; // Stop after user stops talking
-    recognition.interimResults = true; // Show results as user speaks
+    recognition.interimResults = false; // Only get final results to prevent duplication
     recognition.lang = "en-US";
 
-    recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      recognitionRef.current = null;
+    };
 
     recognition.onresult = (event: any) => {
+      // Get the final transcript
       const transcript = event.results[0][0].transcript;
-      setMessage((prev) => prev + transcript); // Append to existing text
+      // Append to existing message (only happens once with interimResults: false)
+      setMessage((prev) => (prev ? prev + " " + transcript : transcript));
     };
 
     recognition.onerror = (event: any) => {
       console.error("Speech recognition error:", event.error);
       setIsListening(false);
+      recognitionRef.current = null;
     };
 
+    recognitionRef.current = recognition;
     recognition.start();
   };
 
@@ -168,7 +186,7 @@ const ChatInput = ({
                 disabled={disabled}
                 rows={1}
                 className={cn(
-                  "w-full resize-none bg-transparent border-none p-2 pr-20 text-sm",
+                  "w-full resize-none bg-transparent border-none p-2 pr-20",
                   "placeholder:text-muted-foreground",
                   "focus:outline-none",
                   "disabled:cursor-not-allowed",
@@ -180,12 +198,12 @@ const ChatInput = ({
               <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                 {/* Voice Input Button */}
                 <Button
-                  onClick={startListening}
-                  disabled={disabled || isListening}
+                  onClick={toggleListening}
+                  disabled={disabled}
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0 hover:bg-muted/50"
-                  title={isListening ? "Listening..." : "Voice input"}
+                  title={isListening ? "Click to stop" : "Voice input"}
                 >
                   {isListening ? (
                     <div className="h-4 w-4 bg-red-500 rounded-full animate-pulse" />

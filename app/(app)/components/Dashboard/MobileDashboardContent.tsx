@@ -1,21 +1,20 @@
 "use client";
 import { useEffect } from "react";
 import CreateFolder from "@/components/CreateFolder";
-import MobileList from "@/components/mobile/MobileList";
-import IntegratedSearch from "@/components/search/IntegratedSearch";
+import MobileList, { SystemLinkItem } from "@/components/mobile/MobileList";
+import CommandBar from "@/components/commandbar/CommandBar";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { FolderWithItems } from "@/lib/types/folderTypes";
 import { useMobileHeader } from "@/contexts/MobileHeaderContext";
 import BrandingHeader from "@/components/BrandingHeader";
+import { MessageSquareIcon, Trash2Icon } from "lucide-react";
 
 interface MobileDashboardContentProps {
   userFolders: FolderWithItems[];
-  systemFolders: FolderWithItems[];
 }
 
 const MobileDashboardContent = ({
   userFolders,
-  systemFolders,
 }: MobileDashboardContentProps) => {
   const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
   // Set header configuration for Dashboard
@@ -32,31 +31,39 @@ const MobileDashboardContent = ({
 
   // immediately re-fetch the user's folders
   const folders = useGetFolders({
-    initialData: {
-      user: userFolders,
-      system: systemFolders,
-    },
+    initialData: userFolders,
     staleTime: 0,
     refetchOnMount: true,
   });
 
+  // Define system links
+  const systemLinks: SystemLinkItem[] = [
+    {
+      id: "chats-link",
+      href: "/chats",
+      icon: MessageSquareIcon,
+      label: "Chats",
+    },
+    {
+      id: "recently-deleted-link",
+      href: "/recently-deleted",
+      icon: Trash2Icon,
+      label: "Recently Deleted",
+    },
+  ];
+
   return (
     <div className="flex flex-col space-y-4">
-      <IntegratedSearch />
+      <CommandBar scope="global" />
       <MobileList
         title="Your Folders"
-        items={folders.data?.user}
+        items={folders.data}
         type="folder"
         isLoading={folders.isLoading}
         action={<CreateFolder />}
         emptyContentMessage="No folders yet. Create a folder to get started."
       />
-      <MobileList
-        title="System Folders"
-        items={folders.data?.system}
-        type="folder"
-        isLoading={folders.isLoading}
-      />
+      <MobileList title="System" items={systemLinks} type="link" />
     </div>
   );
 };

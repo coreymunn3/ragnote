@@ -1,9 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
-import { TypographyMuted } from "../ui/typography";
+import { TypographyH4, TypographyMuted } from "../ui/typography";
 import { BookCheckIcon, MessageCircleIcon, Trash2Icon } from "lucide-react";
-import EditableField from "../EditableField";
 import { DateTime } from "luxon";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
@@ -20,6 +19,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import ConfirmationDialog from "../dialogs/ConfirmationDialog";
+import { useState } from "react";
 
 interface NoteToolbarProps {
   note: Note;
@@ -27,10 +28,7 @@ interface NoteToolbarProps {
   selectedVersion: PrismaNoteVersion | null;
   selectedVersionId: string | null;
   setSelectedVersionId: (versionId: string) => void;
-  loading: {
-    noteLoading: boolean;
-    versionsLoading: boolean;
-  };
+  isLoading: boolean;
   handleToggleChat: () => void;
   saveStatus: SaveStatusType;
 }
@@ -41,12 +39,13 @@ const NoteToolbar = ({
   selectedVersion,
   selectedVersionId,
   setSelectedVersionId,
-  loading,
+  isLoading,
   handleToggleChat,
   saveStatus,
 }: NoteToolbarProps) => {
   const router = useRouter();
   const { isPro } = useUserSubscription();
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const updateNoteMutation = useUpdateNote();
   const publishNoteVersionMutation = usePublishNoteVersion({
@@ -57,32 +56,10 @@ const NoteToolbar = ({
   });
 
   /**
-   * Save the new note title
-   */
-  const handleSaveTitle = (newTitle: string) => {
-    if (note) {
-      updateNoteMutation.mutate({
-        noteId: note.id,
-        action: "update_title",
-        title: newTitle,
-      });
-    } else {
-      toast.error("Unable to Update Title");
-    }
-  };
-
-  /**
    * Soft delete a note
    */
   const handleDeleteNote = () => {
-    if (note) {
-      // soft delete
-      updateNoteMutation.mutate({ action: "delete", noteId: note.id });
-      // route user back to the folder
-      router.push(`/folder/${note.folder_id}`);
-    } else {
-      toast.error("Unable to Delete");
-    }
+    setDeleteOpen(true);
   };
 
   /**
@@ -99,11 +76,8 @@ const NoteToolbar = ({
     }
   };
 
-  // Only show loading if we don't have the essential data (note + versions)
-  const shouldShowLoading = loading.noteLoading || loading.versionsLoading;
-
   // loading state
-  if (shouldShowLoading || !note) {
+  if (isLoading || !note) {
     return <WebToolbarSkeleton variant="note" />;
   }
 
@@ -111,11 +85,7 @@ const NoteToolbar = ({
     <div className="flex items-center justify-between px-14 py-2">
       {/* left side - title and version */}
       <div className="flex items-center space-x-2">
-        <EditableField
-          value={note.title}
-          variant="bold"
-          onSave={handleSaveTitle}
-        />
+        <TypographyH4 className="mb-0 p-0">{note.title}</TypographyH4>
         {/* select version menu */}
         {selectedVersion && (
           <>
@@ -150,14 +120,9 @@ const NoteToolbar = ({
             selectedVersion.updated_at &&
             (!selectedVersion.is_published || selectedVersion.published_at) && (
               <TypographyMuted className="text-xs">
-                {selectedVersion.is_published ? "published" : "saved"}{" "}
-                {selectedVersion.is_published && selectedVersion.published_at
-                  ? DateTime.fromISO(
-                      selectedVersion.published_at.toString()
-                    ).toRelative()
-                  : DateTime.fromISO(
-                      selectedVersion.updated_at.toString()
-                    ).toRelative()}
+                {`saved ${DateTime.fromISO(
+                  selectedVersion.updated_at.toString()
+                ).toRelative()}`}
               </TypographyMuted>
             )}
           {/* publish note */}
@@ -196,6 +161,28 @@ const NoteToolbar = ({
             </TooltipTrigger>
             <TooltipContent>Delete this note</TooltipContent>
           </Tooltip>
+
+          {/* Delete confirmation */}
+          <ConfirmationDialog
+            open={deleteOpen}
+            onOpenChange={setDeleteOpen}
+            title={"Are you sure you want to delete?"}
+            description="You will be able to recover this Note later, for a while"
+            confirmText="Delete"
+            confirmLoadingText="Deleting..."
+            confirmVariant="destructive"
+            onConfirm={() => {
+              // soft delete
+              updateNoteMutation.mutate({
+                noteId: note.id,
+                folderId: note.folder_id,
+                action: "delete",
+              });
+              // route user back to the folder
+              router.push(`/folder/${note.folder_id}`);
+            }}
+            isLoading={updateNoteMutation.isPending}
+          />
         </div>
       </TooltipProvider>
     </div>

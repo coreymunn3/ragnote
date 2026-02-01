@@ -78,7 +78,7 @@ export function useUpdateChat(options?: useUpdateChatOptions) {
             queryKey: ["folders"],
           });
           queryClient.invalidateQueries({
-            queryKey: ["folder", "system_chats"],
+            queryKey: ["chat-sessions"],
           });
           break;
         case "delete":
@@ -87,7 +87,7 @@ export function useUpdateChat(options?: useUpdateChatOptions) {
             queryKey: ["folders"],
           });
           queryClient.invalidateQueries({
-            queryKey: ["folder", "system_chats"],
+            queryKey: ["chat-sessions"],
           });
           break;
         default:

@@ -1,12 +1,9 @@
 import MembershipView from "@/components/MembershipView";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import { getDbUser } from "@/lib/getDbUser";
 
 export default async function UpgradePage() {
-  const { userId } = await auth();
-  if (!userId) {
-    redirect("/");
-  }
+  // Ensure user is authenticated
+  await getDbUser();
 
   return (
     <div>

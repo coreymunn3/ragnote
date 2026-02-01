@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
 import WebDashboardContent from "../components/Dashboard/WebDashboardContent";
 import MobileDashboardContent from "../components/Dashboard/MobileDashboardContent";
 import ResponsivePage from "@/components/ResponsivePage";
@@ -8,58 +6,40 @@ import { getDbUser } from "@/lib/getDbUser";
 import { Note } from "@/lib/types/noteTypes";
 import { ChatService } from "@/services/chat/chatService";
 import { ChatSession } from "@/lib/types/chatTypes";
-import { FolderWithItems, UserAndSystemFolders } from "@/lib/types/folderTypes";
+import { FolderWithItems } from "@/lib/types/folderTypes";
 import { FolderService } from "@/services/folder/folderService";
 
 export default async function Dashboard() {
-  const { userId } = await auth();
   const noteService = new NoteService();
   const chatService = new ChatService();
   const folderService = new FolderService();
 
-  // Protect this page from non-logged-in users
-  if (!userId) {
-    redirect("/");
-  }
-
-  // get the database user
   const dbUser = await getDbUser();
-  // get the users notes - initial data for the web dashboard page
-  let notes: Note[] = [];
-  try {
-    notes = await noteService.getAllNotesForUser(dbUser.id);
-  } catch (error) {
-    console.error(error);
-  }
-  // get the users chat sessions - initial data for the web dashboard page
-  let chatSessions: ChatSession[] = [];
-  try {
-    chatSessions = await chatService.getChatSessionsForUser({
-      userId: dbUser.id,
-    });
-  } catch (error) {
-    console.error(error);
-  }
 
-  // get the users folders - initial data for the mobile dashboard page
-  let userFolders: FolderWithItems[] = [];
-  let systemFolders: FolderWithItems[] = [];
-  try {
-    [userFolders, systemFolders] = await Promise.all([
-      folderService.getUserCreatedFolders(dbUser.id),
-      folderService.getUserSystemFolders(dbUser.id),
-    ]);
-  } catch (error) {
-    console.error(error);
-  }
+  const [notes, chatSessions, userFolders] = await Promise.all([
+    // get the users notes - initial data for the web dashboard page
+    noteService.getAllNotesForUser(dbUser.id).catch((error) => {
+      console.error(error);
+      return [];
+    }),
+    // get the users chat sessions - initial data for the web dashboard page
+    chatService
+      .getChatSessionsForUser({
+        userId: dbUser.id,
+      })
+      .catch((error) => {
+        console.error(error);
+        return [];
+      }),
+    // get the users folders - initial data for the mobile dashboard page
+    folderService.getUserCreatedFolders(dbUser.id).catch((error) => {
+      console.error(error);
+      return [];
+    }),
+  ]);
 
   // Render each view component
-  const mobileView = (
-    <MobileDashboardContent
-      userFolders={userFolders}
-      systemFolders={systemFolders}
-    />
-  );
+  const mobileView = <MobileDashboardContent userFolders={userFolders} />;
   const webView = (
     <WebDashboardContent notes={notes} chatSessions={chatSessions} />
   );

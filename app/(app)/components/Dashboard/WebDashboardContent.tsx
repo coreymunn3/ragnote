@@ -9,7 +9,7 @@ import { useGetNotes } from "@/hooks/note/useGetNotes";
 import { Note } from "@/lib/types/noteTypes";
 import { ChatSession } from "@/lib/types/chatTypes";
 import { useGetChatSessionsForUser } from "@/hooks/chat/useGetChatSessionsForUser";
-import IntegratedSearch from "@/components/search/IntegratedSearch";
+import CommandBar from "@/components/commandbar/CommandBar";
 
 interface WebDashboardContentProps {
   notes: Note[];
@@ -58,7 +58,7 @@ const WebDashboardContent = ({
       <div className="flex flex-col space-y-8">
         {/* global chat input */}
         <AnimatedListItem index={0} animation="fadeIn">
-          <IntegratedSearch />
+          <CommandBar scope="global" />
         </AnimatedListItem>
 
         {/* Pinned Notes - only show if user has pinned notes */}

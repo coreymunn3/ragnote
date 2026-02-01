@@ -29,19 +29,10 @@ export const POST = withApiErrorHandling(postHandler, "POST /api/folder");
 const getHandler = async (req: NextRequest) => {
   auth.protect();
   const dbUser = await getDbUser();
-  // get the user and system folders
-  const [userFolders, systemFolders] = await Promise.all([
-    folderService.getUserCreatedFolders(dbUser.id),
-    folderService.getUserSystemFolders(dbUser.id),
-  ]);
+  // get only the user-created folders
+  const userFolders = await folderService.getUserCreatedFolders(dbUser.id);
 
-  return NextResponse.json(
-    {
-      user: userFolders,
-      system: systemFolders,
-    },
-    { status: 200 }
-  );
+  return NextResponse.json(userFolders, { status: 200 });
 };
 
 export const GET = withApiErrorHandling(getHandler, "GET /api/folder");

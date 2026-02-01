@@ -19,12 +19,10 @@ async function updateNote({
   noteId,
   action,
   folderId,
-  title,
 }: UpdateNoteArg): Promise<UpdateNoteResponse> {
   const res = await axios.put(`/api/note/${noteId}`, {
     action,
     folderId,
-    title,
   });
   return res.data;
 }
@@ -41,50 +39,9 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
   return useMutation({
     ...options,
     mutationFn: updateNote,
-    onMutate: async (variables) => {
-      // Optimistic update for title changes
-      if (variables.action === "update_title" && variables.title) {
-        // Cancel any outgoing refetches
-        await queryClient.cancelQueries({
-          queryKey: ["note", variables.noteId],
-        });
-
-        // Snapshot the previous value
-        const previousNote = queryClient.getQueryData([
-          "note",
-          variables.noteId,
-        ]);
-
-        // Optimistically update the note title
-        queryClient.setQueryData(["note", variables.noteId], (old: any) => {
-          if (!old) return old;
-          return {
-            ...old,
-            title: variables.title,
-          };
-        });
-
-        // Return a context object with the snapshotted value
-        return { previousNote };
-      }
-
-      // Call custom onMutate if provided
-      return options?.onMutate?.(variables);
-    },
     onSuccess: (response, variables, context) => {
       // Handle cache invalidation based on action type
       switch (variables.action) {
-        case "update_title":
-          // For title updates, invalidate the specific note query
-          queryClient.invalidateQueries({
-            queryKey: ["note", variables.noteId],
-          });
-          // Also invalidate folders to update note titles in lists
-          queryClient.invalidateQueries({
-            queryKey: ["folders"],
-          });
-          break;
-
         case "toggle_pin":
           // For pin/unpin, invalidate notes, folders and specific folder if known
           queryClient.invalidateQueries({
@@ -146,7 +103,6 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
             : "Note updated",
         move: "Note moved successfully",
         delete: "Note deleted",
-        update_title: "Note title updated",
       };
 
       toast.success(actionMessages[variables.action] || "Note updated");
@@ -155,19 +111,6 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
       options?.onSuccess?.(response, variables, context);
     },
     onError: (error, variables, context) => {
-      // Rollback optimistic update for title changes
-      if (
-        variables.action === "update_title" &&
-        context &&
-        typeof context === "object" &&
-        "previousNote" in context
-      ) {
-        queryClient.setQueryData(
-          ["note", variables.noteId],
-          (context as { previousNote: any }).previousNote
-        );
-      }
-
       handleClientSideMutationError(error, "Failed to update note");
       // Custom onError callback
       options?.onError?.(error, variables, context);

@@ -1,17 +1,21 @@
-import { ChatScopeObject } from "@/lib/types/chatTypes";
+import { ChatScope } from "@/lib/types/chatTypes";
 import { Badge } from "./ui/badge";
 import { FileTextIcon, FolderIcon, GlobeIcon } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { TooltipProvider } from "@radix-ui/react-tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "./ui/tooltip";
 
 interface ScopeBadgeProps {
-  chatScope: ChatScopeObject;
+  chatScope: ChatScope;
 }
 
 const ScopeBadge = ({ chatScope }: ScopeBadgeProps) => {
   // Determine the icon based on scope
   const getScopeIcon = () => {
-    switch (chatScope.scope) {
+    switch (chatScope) {
       case "note":
         return <FileTextIcon className="h-3 w-3" />;
       case "folder":
@@ -23,13 +27,13 @@ const ScopeBadge = ({ chatScope }: ScopeBadgeProps) => {
 
   // Simple tooltip text
   const getTooltipText = () => {
-    switch (chatScope.scope) {
+    switch (chatScope) {
       case "note":
-        return "Note-specific chat";
+        return "Chat with a Note";
       case "folder":
-        return "Folder-wide chat";
+        return "Chat with a Folder";
       case "global":
-        return "Global knowledge base";
+        return "Global Chat";
     }
   };
 

@@ -9,7 +9,6 @@ import {
   updateNoteVersionContentSchema,
   getNoteContentSchema,
   getNoteSchema,
-  updateNoteTitleSchema,
   getNoteVersionsSchema,
   getNoteVersionSchema,
   publishNoteVersionSchema,
@@ -20,16 +19,15 @@ import {
   PrismaNote,
   PrismaNoteVersion,
   PublishNoteResponse,
+  UpdateNoteVersionContentResponse,
 } from "@/lib/types/noteTypes";
 import { NotFoundError, UnauthorizedError } from "@/lib/errors/apiErrors";
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { transformToNote } from "./noteTransformers";
-import { SYSTEM_FOLDERS } from "@/lib/types/folderTypes";
-import { isSystemFolder } from "@/lib/utils/folderUtils";
-import { NoteTextExtractor } from "./noteTextExtractor";
 import { AiService } from "../ai/aiService";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
 import { UserService } from "../user/userService";
+import { RichTextExtractor } from "./richTextExtractor";
 
 export class NoteService {
   /**
@@ -113,28 +111,6 @@ export class NoteService {
   );
 
   /**
-   * Get the notes for a system folder
-   */
-  private async getSystemFolderNotes(
-    systemFolderId: string,
-    userId: string
-  ): Promise<Note[]> {
-    switch (systemFolderId) {
-      // TODO: Re-enable for shared notes feature
-      // case SYSTEM_FOLDERS.SHARED.id:
-      //   // get shared notes
-      //   return await this.getSharedNotes(userId);
-
-      case SYSTEM_FOLDERS.DELETED.id:
-        // get deleted notes
-        return await this.getDeletedNotes(userId);
-
-      default:
-        throw new NotFoundError(`Unknown system folder: ${systemFolderId}`);
-    }
-  }
-
-  /**
    * Get all the notes for a user given user id
    */
   public getAllNotesForUser = withErrorHandling(
@@ -175,14 +151,6 @@ export class NoteService {
     async (folderId: string, userId: string): Promise<Note[]> => {
       // validate request data
       const validatedData = getNotesInFolderSchema.parse({ folderId, userId });
-
-      // check if this is a system folder, then return the system folder notes
-      if (isSystemFolder(validatedData.folderId)) {
-        return await this.getSystemFolderNotes(
-          validatedData.folderId,
-          validatedData.userId
-        );
-      }
 
       // otherwise, its a regular folder so we get all notes in this folder
       const notes = await prisma.note.findMany({
@@ -410,44 +378,6 @@ export class NoteService {
     }
   );
 
-  /**
-   * Update the note's title
-   */
-  public updateNoteTitle = withErrorHandling(
-    async (params: {
-      noteId: string;
-      title: string;
-      userId: string;
-    }): Promise<PrismaNote> => {
-      const { noteId, userId, title } = updateNoteTitleSchema.parse(params);
-
-      // Verify the note exists and belongs to the user
-      const note = await prisma.note.findFirst({
-        where: {
-          id: noteId,
-          user_id: userId,
-          is_deleted: false,
-        },
-      });
-
-      if (!note) {
-        throw new NotFoundError("Note not found or access denied");
-      }
-
-      // Update the note title
-      const updatedNote = await prisma.note.update({
-        where: {
-          id: noteId,
-        },
-        data: {
-          title: title,
-        },
-      });
-
-      return updatedNote;
-    }
-  );
-
   // soft delete note
   public softDeleteNote = withErrorHandling(
     async (params: { noteId: string; userId: string }): Promise<void> => {
@@ -481,6 +411,7 @@ export class NoteService {
 
   /**
    * Update note content with both rich text and plain text versions
+   * Update the note title, using the first non-empty block from the rich text content
    * Used when saving note edits from the rich text editor
    */
   public updateNoteVersionContent = withErrorHandling(
@@ -488,7 +419,7 @@ export class NoteService {
       versionId: string;
       richTextContent: any;
       userId: string;
-    }): Promise<PrismaNoteVersion> => {
+    }): Promise<UpdateNoteVersionContentResponse> => {
       const validatedData = updateNoteVersionContentSchema.parse(params);
       const { versionId, richTextContent, userId } = validatedData;
 
@@ -509,18 +440,43 @@ export class NoteService {
 
       // Extract plain text from rich text content
       const plainTextContent =
-        NoteTextExtractor.extractPlainText(richTextContent);
+        RichTextExtractor.extractPlainText(richTextContent);
 
-      // Update the version with both rich text and plain text
-      const savedNote = await prisma.note_version.update({
-        where: { id: versionId },
-        data: {
-          rich_text_content: richTextContent,
-          plain_text_content: plainTextContent,
-        },
+      // Extract title from the first line of the rich text content
+      const extractedTitle = RichTextExtractor.extractTitle(richTextContent);
+
+      /**
+       * In a transaction, update the note title and version content.
+       */
+      const result = await prisma.$transaction(async (tx) => {
+        // save the new title
+        const updatedNote = await tx.note.update({
+          where: {
+            id: noteVersion.note_id,
+          },
+          data: {
+            title: extractedTitle,
+          },
+          select: {
+            id: true,
+            title: true,
+          },
+        });
+        // save the version content
+        const savedVersion = await tx.note_version.update({
+          where: { id: versionId },
+          data: {
+            rich_text_content: richTextContent,
+            plain_text_content: plainTextContent,
+          },
+        });
+        // return both the saved version and updated note
+        return {
+          version: savedVersion,
+          note: updatedNote,
+        };
       });
-      // return the saved note
-      return savedNote;
+      return result;
     }
   );
 

@@ -1,8 +1,11 @@
 "use client";
 import Link from "next/link";
-import { Button } from "../ui/button";
 import { getFolderIcon } from "@/lib/utils";
-import { MobileListItemType, MobileListType } from "./MobileList";
+import {
+  MobileListItemType,
+  MobileListType,
+  SystemLinkItem,
+} from "./MobileList";
 import { FolderWithItems } from "@/lib/types/folderTypes";
 import { Note } from "@/lib/types/noteTypes";
 import { ChatSession } from "@/lib/types/chatTypes";
@@ -56,8 +59,17 @@ const MobileListItem = ({ type, item, isLastItem }: MobileListItemProps) => {
         return {
           displayName: chat.title || "your chat",
           href: `/chat/${chat.id}`,
-          icon: getFolderIcon("system_chats"),
-          detailElement: <MobileListItemChatDetail chat={chat} />,
+          icon: getFolderIcon("chat"),
+          detailElement: <MobileListItemChatDetail chatSession={chat} />,
+        };
+      case "link":
+        const link = item as SystemLinkItem;
+        const Icon = link.icon;
+        return {
+          displayName: link.label,
+          href: link.href,
+          icon: <Icon className="h-5 w-5 text-muted-foreground" />,
+          detailElement: undefined,
         };
     }
   })();

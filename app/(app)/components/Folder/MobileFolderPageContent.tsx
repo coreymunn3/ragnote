@@ -7,7 +7,6 @@ import { FolderWithItems } from "@/lib/types/folderTypes";
 import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 import InputDialog from "@/components/dialogs/InputDialog";
 import MobileList from "@/components/mobile/MobileList";
-import { isSystemFolder } from "@/lib/utils/folderUtils";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
 import { ArrowLeftIcon, FolderPenIcon, Trash2Icon } from "lucide-react";
@@ -19,6 +18,8 @@ import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import { Note } from "@/lib/types/noteTypes";
 import { ChatSession } from "@/lib/types/chatTypes";
 import MobileListSkeleton from "@/components/skeletons/MobileListSkeleton";
+import MobileBackButton from "@/components/mobile/MobileBackButton";
+import CommandBar from "@/components/commandbar/CommandBar";
 
 interface MobileFolderPageContentProps {
   folder: FolderWithItems;
@@ -44,21 +45,14 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
   // Set header configuration for Folder page (must call useEffect before any returns)
   useEffect(() => {
     if (folderData.data) {
-      const isUserFolder = !isSystemFolder(folderData.data.id);
       setHeaderConfig({
         leftContent: (
           <>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/dashboard")}
-            >
-              <ArrowLeftIcon className="h-4 w-4" />
-            </Button>
+            <MobileBackButton onClick={() => router.push("/dashboard")} />
             <MobilePageTitle title={folderData.data.folder_name} />
           </>
         ),
-        rightContent: isUserFolder ? (
+        rightContent: (
           <>
             <CreateNote folderId={folderData.data.id} />
             <OptionsMenu
@@ -76,8 +70,6 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
               ]}
             />
           </>
-        ) : (
-          <CreateNote folderId={folderData.data.id} />
         ),
       });
     }
@@ -111,15 +103,22 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
   return (
     <div>
       <div className="flex flex-col space-y-8">
+        {/* Folder-scoped command bar - chat only (search is always global) */}
+        <CommandBar
+          scope="folder"
+          scopeId={folder.id}
+          allowedModes={["chat"]}
+        />
+
         {/* list of pinned items */}
-        {
+        {pinnedItems.length > 0 && (
           <MobileList
             type={folderData.data!.itemType}
             items={pinnedItems}
             title="Pinned"
             emptyContentMessage="No pinned items yet"
           />
-        }
+        )}
 
         {/* list of unpinned items */}
         {
@@ -153,8 +152,8 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
       <ConfirmationDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Are You Sure?"
-        description="You will be able to recover this folder later, for a while"
+        title={"Are you sure you want to delete?"}
+        description="Any notes still in this folder will be deleted when the folder is deleted. You will still be able to recover them in the recently deleted folder."
         confirmText="Delete"
         confirmLoadingText="Deleting..."
         confirmVariant="destructive"

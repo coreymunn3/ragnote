@@ -5,12 +5,12 @@ import { prisma } from "@/lib/prisma";
 import { PrismaTransaction } from "@/lib/types/sharedTypes";
 import { RateLimitError } from "@/lib/errors/apiErrors";
 import { ChatScopeObject, ChatMessage } from "@/lib/types/chatTypes";
-import { createNoteChatAgent } from "./agents/noteChatAgent";
 import { AgentWorkflow } from "@llamaindex/workflow";
 import { tokenTrackingService } from "../tokenTracking/tokenTrackingService";
 import { OpenAIResponse, EmbeddedChunks } from "@/lib/types/aiTypes";
 import { createVectorStoreIndex } from "./agents/utils/vectorStoreUtils";
 import { transformNodesToSearchResult } from "./aiTransformers";
+import { createScopedChatAgent } from "./agents/scopedChatAgent/scopedChatAgent";
 
 export class AiService {
   private static readonly SINGLE_CHUNK_THRESHOLD = 500;
@@ -425,25 +425,7 @@ export class AiService {
     chatScope: ChatScopeObject,
     messageHistory?: ChatMessage[]
   ): Promise<AgentWorkflow | undefined> {
-    switch (chatScope.scope) {
-      case "note":
-        const agent = await createNoteChatAgent(
-          userId,
-          chatScope,
-          messageHistory
-        );
-        return agent;
-      // TO DO
-      case "folder":
-        // create the note chat agent
-        break;
-      // TO DO
-      case "global":
-        // create the note chat agent
-        break;
-      default:
-        throw new Error(`Unknown agent scope: ${chatScope.scope}`);
-    }
+    return createScopedChatAgent(userId, chatScope, messageHistory);
   }
 
   /**

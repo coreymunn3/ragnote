@@ -11,9 +11,10 @@ import WebSidebarInternalTrigger from "./WebSidebarInternalTrigger";
 import BrandingHeader from "@/components/BrandingHeader";
 import { SignedIn, useUser } from "@clerk/nextjs";
 import UserButtonCustom from "@/components/UserButtonCustom";
-import ThemeSwitch from "@/components/ThemeSwitch";
 import WebSidebarFolderGroup from "./WebSidebarFolderGroup";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
+import { MessageSquareIcon, Trash2Icon, TrashIcon } from "lucide-react";
+import WebSidebarLinkGroup from "./WebSidebarLinkGroup";
 
 const WebSidebar = () => {
   const { user } = useUser();
@@ -69,16 +70,22 @@ const WebSidebar = () => {
         {/* Your Folders */}
         <WebSidebarFolderGroup
           groupName="Your Folders"
-          folders={folders.data?.user}
+          folders={folders.data}
           isLoading={folders.isLoading}
           allowCreateFolder={true}
           allowCreateNote={true}
         />
-        {/* system folders */}
-        <WebSidebarFolderGroup
-          groupName="System Folders"
-          folders={folders.data?.system}
-          isLoading={folders.isLoading}
+        {/* Special Views */}
+        <WebSidebarLinkGroup
+          groupName="System"
+          links={[
+            { href: "/chats", icon: MessageSquareIcon, label: "Chats" },
+            {
+              href: "/recently-deleted",
+              icon: Trash2Icon,
+              label: "Recently Deleted",
+            },
+          ]}
         />
       </SidebarContent>
       <SidebarFooter>

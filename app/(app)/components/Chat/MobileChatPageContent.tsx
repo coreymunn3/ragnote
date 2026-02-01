@@ -17,6 +17,7 @@ import OptionsMenu from "@/components/OptionsMenu";
 import { toast } from "sonner";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import InputDialog from "@/components/dialogs/InputDialog";
+import MobileBackButton from "@/components/mobile/MobileBackButton";
 
 interface MobileChatPageContentProps {
   chatSessionId: string;
@@ -82,7 +83,7 @@ const MobileChatPageContent = ({
         sessionId: chatSession.data.id,
         action: "delete",
       });
-      router.push(`/folder/system_chats`);
+      router.push(`/chats`);
     } else {
       toast.error("Unable to Delete");
     }
@@ -106,18 +107,12 @@ const MobileChatPageContent = ({
       setHeaderConfig({
         leftContent: (
           <>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push(`/folder/system_chats`)}
-            >
-              <ArrowLeftIcon className="h-4 w-4" />
-            </Button>
+            <MobileBackButton onClick={() => router.push(`/chats`)} />
             <MobilePageTitle
               title={chatSession.data.title || "Chat Session..."}
             />
             {chatSession.data.chat_scope && (
-              <ScopeBadge chatScope={chatSession.data.chat_scope} />
+              <ScopeBadge chatScope={chatSession.data.chat_scope.scope} />
             )}
           </>
         ),

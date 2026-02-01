@@ -30,3 +30,7 @@ export const getFolderByIdSchema = z.object({
   folderId: z.string().min(1, "Folder ID is required"),
   userId: z.string().uuid("Invalid user ID format"),
 });
+
+export const getDeletedFoldersSchema = z.object({
+  userId: z.string().uuid("Invalid user ID format"),
+});

@@ -1,5 +1,4 @@
-import { redirect, notFound } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
+import { notFound } from "next/navigation";
 import MobileNotePageContent from "@/app/(app)/components/Note/MobileNotePageContent";
 import WebNotePageContent from "@/app/(app)/components/Note/WebNotePageContent";
 import ResponsivePage from "@/components/ResponsivePage";
@@ -11,17 +10,8 @@ export default async function NotePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { userId } = await auth();
-
   // Await params before using
   const { id: noteId } = await params;
-
-  // Protect this page from non-logged-in users
-  if (!userId) {
-    redirect("/");
-  }
-
-  // Get the database user
   const dbUser = await getDbUser();
 
   // Server-side data fetching

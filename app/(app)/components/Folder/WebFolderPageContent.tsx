@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
-import { Separator } from "@/components/ui/separator";
 import { TypographyMuted } from "@/components/ui/typography";
 import WidgetGrid from "@/components/web/WidgetGrid";
 import NoteWidget from "@/components/web/NoteWidget";
@@ -19,7 +18,7 @@ import InputDialog from "@/components/dialogs/InputDialog";
 import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
 import CreateNote from "@/components/CreateNote";
 import { ChatSession } from "@/lib/types/chatTypes";
-import { isSystemFolder } from "@/lib/utils/folderUtils";
+import CommandBar from "@/components/commandbar/CommandBar";
 
 interface WebFolderPageContentProps {
   folder: FolderWithItems;
@@ -36,8 +35,6 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
     staleTime: 0,
     refetchOnMount: true,
   });
-  // determine if this is a system folder or user folder
-  const isUserFolder = !isSystemFolder(folderData.data!.id);
   // hooks for folder operations
   const renameFolder = useRenameFolder();
   const deleteFolder = useDeleteFolder();
@@ -52,7 +49,8 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
   // Render method that handles both Note and ChatSession types based on folder.itemType
   const renderItemWidgetGrid = (
     items: (Note | ChatSession)[],
-    delay: number
+    delay: number,
+    emptyContentMessage: string
   ) => {
     if (folder.itemType === "note") {
       const notes = items as Note[];
@@ -67,6 +65,7 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
             />
           )}
           delay={delay}
+          emptyContentMessage={emptyContentMessage}
         />
       );
     } else if (folder.itemType === "chat") {
@@ -92,40 +91,47 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
         </AnimatedTypography>
         <div className="flex space-x-2 items-center">
           <TypographyMuted>{`${folderData.data!.items.length} Items`}</TypographyMuted>
-          {/* additinal actions/options for user created folders only */}
-          {isUserFolder && (
-            <Fragment>
-              <CreateNote folderId={folder.id} />
-              <OptionsMenu
-                options={[
-                  {
-                    label: "Rename",
-                    icon: <FolderPenIcon className="h-4 w-4" />,
-                    onClick: () => setRenameOpen(true),
-                  },
-                  {
-                    label: "Delete",
-                    icon: <Trash2Icon className="h-4 w-4" />,
-                    onClick: () => setDeleteOpen(true),
-                  },
-                ]}
-              />
-            </Fragment>
-          )}
+
+          <Fragment>
+            <CreateNote folderId={folder.id} />
+            <OptionsMenu
+              options={[
+                {
+                  label: "Rename",
+                  icon: <FolderPenIcon className="h-4 w-4" />,
+                  onClick: () => setRenameOpen(true),
+                },
+                {
+                  label: "Delete",
+                  icon: <Trash2Icon className="h-4 w-4" />,
+                  onClick: () => setDeleteOpen(true),
+                },
+              ]}
+            />
+          </Fragment>
         </div>
       </div>
 
       <div className="flex flex-col space-y-4">
-        {/* Display pinned items prominently - but only for user created folders (no pinning in system folders) */}
-        {isUserFolder && pinnedItems.length > 0 && (
+        {/* Folder-scoped command bar - chat only (search is always global) */}
+        <AnimatedListItem index={0} animation="fadeIn">
+          <CommandBar
+            scope="folder"
+            scopeId={folder.id}
+            allowedModes={["chat"]}
+          />
+        </AnimatedListItem>
+
+        {/* Display pinned items prominently */}
+        {pinnedItems.length > 0 && (
           <AnimatedListItem index={1} animation="fadeIn">
-            {renderItemWidgetGrid(pinnedItems, 1)}
+            {renderItemWidgetGrid(pinnedItems, 1, "No pinned items yet")}
           </AnimatedListItem>
         )}
 
         {/* Display unpinned items in a responsive grid layout */}
         <AnimatedListItem index={2} animation="fadeIn">
-          {renderItemWidgetGrid(unpinnedItems, 2)}
+          {renderItemWidgetGrid(unpinnedItems, 2, "No items yet")}
         </AnimatedListItem>
       </div>
 
@@ -151,8 +157,8 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
       <ConfirmationDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Are You Sure?"
-        description="You will be able to recover this folder later, for a while"
+        title={"Are you sure you want to delete?"}
+        description="Any notes still in this folder will be deleted when the folder is deleted. You will still be able to recover them in the recently deleted folder."
         confirmText="Delete"
         confirmLoadingText="Deleting..."
         confirmVariant="destructive"

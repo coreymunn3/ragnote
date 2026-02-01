@@ -6,9 +6,21 @@ import OptionsMenu, { Option } from "../OptionsMenu";
 import { ChatSession } from "@/lib/types/chatTypes";
 import { TypographyMuted, TypographyP } from "../ui/typography";
 import MobileListSkeleton from "../skeletons/MobileListSkeleton";
+import { LucideIcon } from "lucide-react";
 
-export type MobileListItemType = FolderWithItems | Note | ChatSession;
-export type MobileListType = "folder" | "note" | "chat";
+export interface SystemLinkItem {
+  id: string; // a placeholder
+  href: string;
+  icon: LucideIcon;
+  label: string;
+}
+
+export type MobileListItemType =
+  | FolderWithItems
+  | Note
+  | ChatSession
+  | SystemLinkItem;
+export type MobileListType = "folder" | "note" | "chat" | "link";
 
 interface MobileListProps {
   type: MobileListType;
