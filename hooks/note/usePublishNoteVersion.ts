@@ -15,7 +15,7 @@ async function publishNoteVersion({
   versionId,
 }: PublishNoteVersionArg): Promise<PublishNoteResponse> {
   const res = await axios.post(
-    `/api/note/${noteId}/version/${versionId}/publish`
+    `/api/note/${noteId}/version/${versionId}/publish`,
   );
   return res.data;
 }
@@ -32,7 +32,7 @@ export function usePublishNoteVersion(options?: usePublishNoteVersionOptions) {
   return useMutation({
     ...options,
     mutationFn: publishNoteVersion,
-    onSuccess: (updatedNote, variables, context) => {
+    onSuccess: (updatedNote, variables, onMutateResult, context) => {
       toast.success("Version has been Published");
       // invalidate the versions query - we will have one more version now, and a previous version will now be published
       queryClient.invalidateQueries({
@@ -43,13 +43,13 @@ export function usePublishNoteVersion(options?: usePublishNoteVersionOptions) {
         queryKey: ["note", variables.noteId],
       });
       // Custom onSuccess callback
-      options?.onSuccess?.(updatedNote, variables, context);
+      options?.onSuccess?.(updatedNote, variables, onMutateResult, context);
     },
-    onError: (error, variables, context) => {
+    onError: (error, variables, onMutateResult, context) => {
       // handle the error
       handleClientSideMutationError(error, "Failed to publish note");
       // Custom onError callback
-      options?.onError?.(error, variables, context);
+      options?.onError?.(error, variables, onMutateResult, context);
     },
   });
 }

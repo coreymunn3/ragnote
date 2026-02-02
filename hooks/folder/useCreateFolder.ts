@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { handleClientSideMutationError } from "@/lib/errors/handleClientSideMutationError";
 
 async function createFolder(
-  data: CreateFolderApiRequest
+  data: CreateFolderApiRequest,
 ): Promise<PrismaFolder> {
   const res = await axios.post<PrismaFolder>("/api/folder", data);
   return res.data;
@@ -24,18 +24,18 @@ export function useCreateFolder(options?: UseCreateFolderOptions) {
   return useMutation({
     ...options,
     mutationFn: createFolder,
-    onSuccess: (newFolder, variables, context) => {
+    onSuccess: (newFolder, variables, onMutateResult, context) => {
       // Force invalidate and refetch the folders query
       queryClient.invalidateQueries({ queryKey: ["folders"] });
       toast.success(`${newFolder.folder_name} has been created!`);
 
       // Custom onSuccess callback
-      options?.onSuccess?.(newFolder, variables, context);
+      options?.onSuccess?.(newFolder, variables, onMutateResult, context);
     },
-    onError: (error, variables, context) => {
+    onError: (error, variables, onMutateResult, context) => {
       handleClientSideMutationError(error, "Failed to create folder");
       // Custom onError callback
-      options?.onError?.(error, variables, context);
+      options?.onError?.(error, variables, onMutateResult, context);
     },
   });
 }

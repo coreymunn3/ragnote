@@ -27,23 +27,23 @@ export function useRenameFolder(options?: UseRenameFolderOptions) {
   return useMutation({
     ...options,
     mutationFn: renameFolder,
-    onSuccess: (updatedFolder, variables, context) => {
+    onSuccess: (updatedFolder, variables, onMutateResult, context) => {
       // Default behavior
       queryClient.invalidateQueries({ queryKey: ["folders"] });
       queryClient.invalidateQueries({
         queryKey: ["folder", variables.folderId],
       });
       toast.success(
-        `...and it shall hereby be known as ${updatedFolder.folder_name}`
+        `...and it shall hereby be known as ${updatedFolder.folder_name}`,
       );
 
       // Custom onSuccess callback
-      options?.onSuccess?.(updatedFolder, variables, context);
+      options?.onSuccess?.(updatedFolder, variables, onMutateResult, context);
     },
-    onError: (error, variables, context) => {
+    onError: (error, variables, onMutateResult, context) => {
       handleClientSideMutationError(error, "Failed to rename folder");
       // Custom onError callback
-      options?.onError?.(error, variables, context);
+      options?.onError?.(error, variables, onMutateResult, context);
     },
   });
 }

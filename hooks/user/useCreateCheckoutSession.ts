@@ -9,11 +9,11 @@ import {
 } from "@/lib/types/stripeTypes";
 
 async function createCheckoutSession(
-  data: CreateCheckoutSessionRequest
+  data: CreateCheckoutSessionRequest,
 ): Promise<CreateCheckoutSessionResponse> {
   const res = await axios.post<CreateCheckoutSessionResponse>(
     "/api/stripe/checkout",
-    data
+    data,
   );
   return res.data;
 }
@@ -25,21 +25,21 @@ export type UseCreateCheckouSessionOptions = UseMutationHookOptions<
 >;
 
 export function useCreateCheckoutSession(
-  options?: UseCreateCheckouSessionOptions
+  options?: UseCreateCheckouSessionOptions,
 ) {
   return useMutation({
     ...options,
     mutationFn: createCheckoutSession,
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data, variables, onMutateResult, context) => {
       // redirect to checkout session
       window.location.href = data.url;
       // any custom on Success cb
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, onMutateResult, context);
     },
-    onError: (error, variables, context) => {
+    onError: (error, variables, onMutateResult, context) => {
       handleClientSideMutationError(error, "Failed to open checkout session");
       // Custom onError callback
-      options?.onError?.(error, variables, context);
+      options?.onError?.(error, variables, onMutateResult, context);
     },
   });
 }

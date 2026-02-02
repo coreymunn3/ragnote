@@ -14,7 +14,7 @@ const executeSearch = async ({
   searchMode,
 }: SearchParams): Promise<SearchResult> => {
   const res = await axios.get(
-    `/api/search?query=${encodeURIComponent(query)}&mode=${encodeURIComponent(searchMode)}`
+    `/api/search?query=${encodeURIComponent(query)}&mode=${encodeURIComponent(searchMode)}`,
   );
   return res.data;
 };
@@ -29,10 +29,10 @@ export function useSearch(options?: useSearchOptions) {
   return useMutation({
     ...options,
     mutationFn: executeSearch,
-    onError: (error, variables, context) => {
+    onError: (error, variables, onMutateResult, context) => {
       handleClientSideMutationError(error, "Failed to search");
       // custom onError callback
-      options?.onError?.(error, variables, context);
+      options?.onError?.(error, variables, onMutateResult, context);
     },
   });
 }

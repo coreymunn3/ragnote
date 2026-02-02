@@ -42,13 +42,13 @@ export function useChat(options?: UseChatOptions) {
   return useMutation({
     ...options,
     mutationFn: sendChat,
-    onError: (error, variables, context) => {
+    onError: (error, variables, onMutateResult, context) => {
       handleClientSideMutationError(
         error,
-        `Failed to send chat with scope ${variables.scope}`
+        `Failed to send chat with scope ${variables.scope}`,
       );
       // custom onError callback
-      options?.onError?.(error, variables, context);
+      options?.onError?.(error, variables, onMutateResult, context);
     },
   });
 }
