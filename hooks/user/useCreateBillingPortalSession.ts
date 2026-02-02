@@ -8,11 +8,11 @@ import {
 } from "@/lib/types/stripeTypes";
 
 async function createBillingPortalSession(
-  data: CreateBillingPortalSessionRequest
+  data: CreateBillingPortalSessionRequest,
 ): Promise<CreateBillingPortalSessionResponse> {
   const res = await axios.post<CreateBillingPortalSessionResponse>(
     "/api/stripe/billingportal",
-    data
+    data,
   );
   return res.data;
 }
@@ -24,22 +24,22 @@ export type UseCreateBillingPortalSessionOptions = UseMutationHookOptions<
 >;
 
 export function useCreateBillingPortalSession(
-  options?: UseCreateBillingPortalSessionOptions
+  options?: UseCreateBillingPortalSessionOptions,
 ) {
   return useMutation({
     ...options,
     mutationFn: createBillingPortalSession,
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data, variables, onMutateResult, context) => {
       // Redirect to billing portal
       window.location.href = data.url;
 
       // Custom onSuccess callback
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, onMutateResult, context);
     },
-    onError: (error, variables, context) => {
+    onError: (error, variables, onMutateResult, context) => {
       handleClientSideMutationError(error, "Failed to open billing portal");
       // Custom onError callback
-      options?.onError?.(error, variables, context);
+      options?.onError?.(error, variables, onMutateResult, context);
     },
   });
 }

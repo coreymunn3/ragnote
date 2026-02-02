@@ -22,7 +22,7 @@ export function useCreateNote(options?: UseCreateNoteOptions) {
   return useMutation({
     ...options,
     mutationFn: createNote,
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data, variables, onMutateResult, context) => {
       // refetch the folders since one of them will have a new note inside of it
       queryClient.invalidateQueries({ queryKey: ["folders"] });
       queryClient.invalidateQueries({
@@ -30,12 +30,12 @@ export function useCreateNote(options?: UseCreateNoteOptions) {
       });
       toast.success(`New note has been created!`);
       // run the custom onSuccess cb if provided
-      options?.onSuccess?.(data, variables, context);
+      options?.onSuccess?.(data, variables, onMutateResult, context);
     },
-    onError: (error, variables, context) => {
+    onError: (error, variables, onMutateResult, context) => {
       handleClientSideMutationError(error, "Failed to create note");
       // Custom onError callback
-      options?.onError?.(error, variables, context);
+      options?.onError?.(error, variables, onMutateResult, context);
     },
   });
 }
