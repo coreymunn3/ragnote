@@ -29,7 +29,7 @@ const WebSidebarLinkGroup = ({
         <SidebarMenu>
           {links.length > 0 &&
             links.map(({ href, icon, label }) => (
-              <SidebarMenuItem>
+              <SidebarMenuItem key={label}>
                 <WebSidebarLink href={href} icon={icon} label={label} />
               </SidebarMenuItem>
             ))}
