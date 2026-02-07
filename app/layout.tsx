@@ -2,13 +2,16 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import { Providers } from "./providers";
+import OfflineModeBanner from "@/components/OfflineModeBanner";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || siteConfig.url || "http://localhost:3000"
+    process.env.NEXT_PUBLIC_APP_URL ||
+      siteConfig.url ||
+      "http://localhost:3000",
   ),
   title: {
     default: siteConfig.name,
@@ -50,7 +53,7 @@ export const metadata: Metadata = {
     shortcut: ["/favicon.ico", "/favicon.svg"],
     apple: "/icons/apple-touch-icon.png",
   },
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   robots: {
     index: true,
     follow: true,
@@ -88,7 +91,7 @@ export default function RootLayout({
       <body
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
         )}
       >
         <Providers
@@ -100,6 +103,7 @@ export default function RootLayout({
           }}
         >
           <div className="relative flex flex-col min-h-screen">
+            <OfflineModeBanner />
             <main className="">{children}</main>
             <Toaster />
           </div>
