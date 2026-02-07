@@ -39,7 +39,7 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
   return useMutation({
     ...options,
     mutationFn: updateNote,
-    onSuccess: (response, variables, onMutateResult, context) => {
+    onSuccess: (response, variables, context) => {
       // Handle cache invalidation based on action type
       switch (variables.action) {
         case "toggle_pin":
@@ -108,12 +108,12 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
       toast.success(actionMessages[variables.action] || "Note updated");
 
       // Custom onSuccess callback
-      options?.onSuccess?.(response, variables, onMutateResult, context);
+      options?.onSuccess?.(response, variables, context);
     },
-    onError: (error, variables, onMutateResult, context) => {
+    onError: (error, variables, context) => {
       handleClientSideMutationError(error, "Failed to update note");
       // Custom onError callback
-      options?.onError?.(error, variables, onMutateResult, context);
+      options?.onError?.(error, variables, context);
     },
   });
 }

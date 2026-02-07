@@ -22,18 +22,18 @@ export function useDeleteFolder(options?: UseDeleteFolderOptions) {
   return useMutation({
     ...options,
     mutationFn: deleteFolder,
-    onSuccess: (deletedFolder, variables, onMutateResult, context) => {
+    onSuccess: (deletedFolder, variables, context) => {
       // Invalidate the list of folders
       queryClient.invalidateQueries({ queryKey: ["folders"] });
       toast.success(`${deletedFolder.folder_name} has been deleted`);
 
       // Custom onSuccess callback
-      options?.onSuccess?.(deletedFolder, variables, onMutateResult, context);
+      options?.onSuccess?.(deletedFolder, variables, context);
     },
-    onError: (error, variables, onMutateResult, context) => {
+    onError: (error, variables, context) => {
       handleClientSideMutationError(error, "Failed to delete folder");
       // Custom onError callback
-      options?.onError?.(error, variables, onMutateResult, context);
+      options?.onError?.(error, variables, context);
     },
   });
 }

@@ -37,7 +37,7 @@ export function useUpdateChat(options?: useUpdateChatOptions) {
   return useMutation({
     ...options,
     mutationFn: updateChat,
-    onMutate: async (variables, context) => {
+    onMutate: async (variables) => {
       // optimistic update for title change
       if (variables.action === "update_title" && variables.title) {
         // cancel outgoing queries
@@ -58,13 +58,13 @@ export function useUpdateChat(options?: useUpdateChatOptions) {
               ...old,
               title: variables.title,
             };
-          },
+          }
         );
         // return the previous session
         return { previousSession };
       }
       // Call custom onMutate if provided
-      return options?.onMutate?.(variables, context);
+      return options?.onMutate?.(variables);
     },
     onSuccess: (response, variables, context) => {
       switch (variables.action) {
