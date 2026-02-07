@@ -17,9 +17,23 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
-        staleTime: 60 * 1000,
+        // Cache data for 24 hours
+        gcTime: 24 * 60 * 60 * 1000,
+        // Consider data stale after 5 minutes
+        staleTime: 5 * 60 * 1000,
+        // Retry failed queries when back online
+        retry: (failureCount, error) => {
+          if (typeof navigator !== "undefined" && !navigator.onLine)
+            return false;
+          return failureCount < 3;
+        },
+        // Use cache when offline
+        networkMode: "offlineFirst",
+      },
+      mutations: {
+        // Don't retry mutations when offline
+        retry: false,
+        networkMode: "online",
       },
     },
   });
