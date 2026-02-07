@@ -11,6 +11,7 @@ import {
 import { EllipsisVerticalIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import React from "react";
+import { useOfflineGuard } from "@/hooks/useOfflineGuard";
 
 export interface Option {
   label: string;
@@ -23,6 +24,7 @@ interface OptionsMenuProps {
 }
 
 const OptionsMenu = ({ options }: OptionsMenuProps) => {
+  const { guardMutation } = useOfflineGuard();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -35,7 +37,7 @@ const OptionsMenu = ({ options }: OptionsMenuProps) => {
           <DropdownMenuItem
             key={option.label}
             onClick={(e) => {
-              option.onClick(e);
+              guardMutation(() => option.onClick(e));
             }}
           >
             <div className="flex items-center space-x-2">

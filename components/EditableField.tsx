@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { useOfflineGuard } from "@/hooks/useOfflineGuard";
 
 type TypographyVariant = "default" | "bold" | "small" | "large" | "muted";
 
@@ -37,8 +38,9 @@ const EditableField = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const typographyRef = useRef<HTMLElement>(null);
   const [elementWidth, setElementWidth] = useState<number | undefined>(
-    undefined
+    undefined,
   );
+  const { isOnline } = useOfflineGuard();
 
   // Update local value when prop value changes
   useEffect(() => {
@@ -102,6 +104,7 @@ const EditableField = ({
 
   // Handle entering edit mode
   const handleStartEditing = () => {
+    if (!isOnline) return;
     // Measure the typography element width when entering edit mode
     if (typographyRef.current) {
       setElementWidth(typographyRef.current.offsetWidth);
@@ -114,7 +117,7 @@ const EditableField = ({
     const commonProps = {
       className: cn(
         "px-2 py-1 cursor-text hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-all max-w-[200px] truncate",
-        className
+        className,
       ),
       onClick: handleStartEditing,
       ref: typographyRef as RefObject<any>,

@@ -13,6 +13,7 @@ import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import VersionSelector from "../VersionSelector";
 import { Button } from "../ui/button";
 import SaveStatus, { SaveStatusType } from "../SaveStatus";
+import { useOfflineGuard } from "@/hooks/useOfflineGuard";
 import {
   Tooltip,
   TooltipContent,
@@ -46,6 +47,7 @@ const NoteToolbar = ({
   const router = useRouter();
   const { isPro } = useUserSubscription();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const { isOnline, guardMutation } = useOfflineGuard();
 
   const updateNoteMutation = useUpdateNote();
   const publishNoteVersionMutation = usePublishNoteVersion({
@@ -59,21 +61,23 @@ const NoteToolbar = ({
    * Soft delete a note
    */
   const handleDeleteNote = () => {
-    setDeleteOpen(true);
+    guardMutation(() => setDeleteOpen(true));
   };
 
   /**
    * Publish the note version
    */
   const handlePublishNote = () => {
-    if (note && selectedVersionId) {
-      publishNoteVersionMutation.mutate({
-        versionId: selectedVersionId,
-        noteId: note.id,
-      });
-    } else {
-      toast.error("Unable to Publish");
-    }
+    guardMutation(() => {
+      if (note && selectedVersionId) {
+        publishNoteVersionMutation.mutate({
+          versionId: selectedVersionId,
+          noteId: note.id,
+        });
+      } else {
+        toast.error("Unable to Publish");
+      }
+    });
   };
 
   // loading state
@@ -121,7 +125,7 @@ const NoteToolbar = ({
             (!selectedVersion.is_published || selectedVersion.published_at) && (
               <TypographyMuted className="text-xs">
                 {`saved ${DateTime.fromISO(
-                  selectedVersion.updated_at.toString()
+                  selectedVersion.updated_at.toString(),
                 ).toRelative()}`}
               </TypographyMuted>
             )}
@@ -134,10 +138,14 @@ const NoteToolbar = ({
                 className="text-primary"
                 onClick={handlePublishNote}
                 isLoading={publishNoteVersionMutation.isPending}
-                disabled={!selectedVersion || selectedVersion?.is_published}
+                disabled={
+                  !selectedVersion || selectedVersion?.is_published || !isOnline
+                }
               />
             </TooltipTrigger>
-            <TooltipContent>Pubilsh this note</TooltipContent>
+            <TooltipContent>
+              {!isOnline ? "You are offline" : "Pubilsh this note"}
+            </TooltipContent>
           </Tooltip>
 
           {/* chat with note entry */}
@@ -155,11 +163,17 @@ const NoteToolbar = ({
           {/* delete */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant={"ghost"} onClick={handleDeleteNote}>
+              <Button
+                variant={"ghost"}
+                onClick={handleDeleteNote}
+                disabled={!isOnline}
+              >
                 <Trash2Icon className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Delete this note</TooltipContent>
+            <TooltipContent>
+              {!isOnline ? "You are offline" : "Delete this note"}
+            </TooltipContent>
           </Tooltip>
 
           {/* Delete confirmation */}
