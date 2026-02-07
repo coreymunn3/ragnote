@@ -36,7 +36,7 @@ export function useSaveNoteVersionContent(options?: useSaveNoteVersionOptions) {
   return useMutation({
     ...options,
     mutationFn: saveNoteVersionContent,
-    onSuccess: (result, variables, onMutateResult, context) => {
+    onSuccess: (result, variables, context) => {
       // invalidate the single note version query for this specific version
       // Note: This query is currently not being used/called anywhere!
       queryClient.invalidateQueries({
@@ -76,12 +76,12 @@ export function useSaveNoteVersionContent(options?: useSaveNoteVersionOptions) {
       }
 
       // Custom onSuccess callback
-      options?.onSuccess?.(result, variables, onMutateResult, context);
+      options?.onSuccess?.(result, variables, context);
     },
-    onError: (error, variables, onMutateResult, context) => {
+    onError: (error, variables, context) => {
       handleClientSideMutationError(error, "Failed to save note");
       // Custom onError callback
-      options?.onError?.(error, variables, onMutateResult, context);
+      options?.onError?.(error, variables, context);
     },
   });
 }
