@@ -41,6 +41,8 @@ function makeQueryClient() {
         refetchOnWindowFocus: false,
         // Do refetch when reconnecting to internet
         refetchOnReconnect: true,
+        // Don't refetch on mount by default (let cached data show first)
+        refetchOnMount: false,
         // REMOVE placeholderData - it prevents new pages from loading
         // The offlineFirst networkMode already handles cached data
       },
