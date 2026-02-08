@@ -2,7 +2,6 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import { Providers } from "./providers";
-import OfflineModeBanner from "@/components/OfflineModeBanner";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Toaster } from "sonner";
@@ -103,7 +102,6 @@ export default function RootLayout({
           }}
         >
           <div className="relative flex flex-col min-h-screen">
-            <OfflineModeBanner />
             <main className="">{children}</main>
             <Toaster />
           </div>
