@@ -155,6 +155,7 @@ const NoteToolbar = ({
                 variant={"ghost"}
                 icon={<MessageCircleIcon className="h-4 w-4" />}
                 onClick={handleToggleChat}
+                disabled={!isOnline}
               />
             </TooltipTrigger>
             <TooltipContent>Chat with this note</TooltipContent>
