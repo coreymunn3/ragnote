@@ -33,15 +33,13 @@ const MobileChatsContent = ({ chatSessions }: MobileChatsContentProps) => {
   // re-fetch the user's chat sessions
   const userChatSessions = useGetChatSessionsForUser({
     initialData: chatSessions,
-    staleTime: 0,
-    refetchOnMount: true,
   });
 
   // Sort chat sessions by last updated time
   const sortedChats =
     userChatSessions.data?.sort(
       (a, b) =>
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
     ) || [];
 
   return (

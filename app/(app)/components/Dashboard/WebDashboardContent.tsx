@@ -23,14 +23,10 @@ const WebDashboardContent = ({
   // re-fetch the user's notes
   const userNotes = useGetNotes({
     initialData: notes,
-    staleTime: 0,
-    refetchOnMount: true,
   });
   // re-fetch the user's chat sessions
   const userChatSessions = useGetChatSessionsForUser({
     initialData: chatSessions,
-    staleTime: 0,
-    refetchOnMount: true,
   });
 
   // Separate pinned and unpinned notes
@@ -42,14 +38,14 @@ const WebDashboardContent = ({
       .sort(
         (a, b) =>
           new Date(b.current_version.updated_at).getTime() -
-          new Date(a.current_version.updated_at).getTime()
+          new Date(a.current_version.updated_at).getTime(),
       ) || [];
 
   // Sort chat sessions by last updated time
   const recentChats =
     userChatSessions.data?.sort(
       (a, b) =>
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
     ) || [];
 
   return (

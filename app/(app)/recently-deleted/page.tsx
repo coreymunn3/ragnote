@@ -3,24 +3,25 @@ import MobileRecentlyDeletedContent from "../components/RecentlyDeleted/MobileRe
 import ResponsivePage from "@/components/ResponsivePage";
 import { getDbUser } from "@/lib/getDbUser";
 import { DeletedItemsService } from "@/services/deleted/deletedItemsService";
+import { DeletedItemsCollection } from "@/lib/types/deletedTypes";
 
 export default async function RecentlyDeletedPage() {
   const deletedItemsService = new DeletedItemsService();
-  // get the database user
-  const dbUser = await getDbUser();
+
   // get the deleted items
-  let deletedItems;
+  let deletedItems: DeletedItemsCollection = {
+    notes: [],
+    folders: [],
+    chats: [],
+    counts: { notes: 0, folders: 0, chats: 0, total: 0 },
+  };
+
   try {
+    const dbUser = await getDbUser();
     deletedItems = await deletedItemsService.getDeletedItems(dbUser.id);
   } catch (error) {
-    console.error(error);
-    // Initialize with empty data if fetch fails
-    deletedItems = {
-      notes: [],
-      folders: [],
-      chats: [],
-      counts: { notes: 0, folders: 0, chats: 0, total: 0 },
-    };
+    console.error("Failed to fetch deleted items server-side:", error);
+    // deletedItems already initialized with empty data
   }
 
   // Render each view component

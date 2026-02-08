@@ -14,22 +14,25 @@ import { toast } from "sonner";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 import MobileBackButton from "@/components/mobile/MobileBackButton";
+import MobileNotePageSkeleton from "@/components/skeletons/MobileNotePageSkeleton";
 
 interface MobileNotePageContentProps {
-  note: Note;
-  noteVersions: PrismaNoteVersion[];
+  noteId: string;
+  initialNote: Note | null;
+  initialNoteVersions: PrismaNoteVersion[];
 }
 
 const MobileNotePageContent = ({
-  note: initialNote,
-  noteVersions: initialNoteVersions,
+  noteId,
+  initialNote,
+  initialNoteVersions,
 }: MobileNotePageContentProps) => {
   const router = useRouter();
   const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
 
   // State management
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
-    initialNote?.current_version?.id || null
+    initialNote?.current_version?.id || null,
   );
   // dialog state management
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -37,14 +40,12 @@ const MobileNotePageContent = ({
 
   // Re-fetch note data with initial data
   const {
-    data: note,
+    data: noteData,
     isLoading: noteLoading,
     error: noteError,
-  } = useGetNote(initialNote.id, {
-    enabled: !!initialNote.id,
-    initialData: initialNote,
-    staleTime: 0,
-    refetchOnMount: true,
+  } = useGetNote(noteId, {
+    initialData: initialNote || undefined,
+    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
 
   // Re-fetch note versions with initial data
@@ -52,11 +53,9 @@ const MobileNotePageContent = ({
     data: noteVersions,
     isLoading: versionsLoading,
     error: versionsError,
-  } = useGetNoteVersions(initialNote.id, {
-    enabled: !!initialNote.id,
+  } = useGetNoteVersions(noteId, {
     initialData: initialNoteVersions,
-    staleTime: 0,
-    refetchOnMount: true,
+    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
 
   // Compute selected version
@@ -82,14 +81,14 @@ const MobileNotePageContent = ({
 
   // Set mobile header configuration
   useEffect(() => {
-    if (note) {
+    if (noteData) {
       setHeaderConfig({
         leftContent: (
           <>
             <MobileBackButton
-              onClick={() => router.push(`/folder/${note.folder_id}`)}
+              onClick={() => router.push(`/folder/${noteData.folder_id}`)}
             />
-            <MobilePageTitle title={note.title} />
+            <MobilePageTitle title={noteData.title} />
           </>
         ),
         rightContent: (
@@ -105,17 +104,28 @@ const MobileNotePageContent = ({
         resetHeaderConfig();
       };
     }
-  }, [note, router, setHeaderConfig, resetHeaderConfig]);
+  }, [noteData, router, setHeaderConfig, resetHeaderConfig]);
 
-  const isLoading = noteLoading || versionsLoading;
-  const error = noteError || versionsError;
+  const isLoading = noteLoading || versionsLoading || !noteData;
+  const error =
+    (!noteData && noteError) || (!noteVersions && versionsError)
+      ? noteError || versionsError
+      : null;
+
+  if (isLoading && !noteData) {
+    return <MobileNotePageSkeleton />;
+  }
+
+  if (!noteData) {
+    return <MobileNotePageSkeleton />;
+  }
 
   return (
     <>
       <BaseNotePageContent
         isMobile={true}
-        note={note || initialNote}
-        noteVersions={noteVersions || initialNoteVersions}
+        note={noteData}
+        noteVersions={noteVersions || []}
         selectedVersionId={selectedVersionId}
         setSelectedVersionId={setSelectedVersionId}
         selectedVersion={selectedVersion}
@@ -146,13 +156,13 @@ const MobileNotePageContent = ({
         confirmLoadingText="Deleting..."
         confirmVariant="destructive"
         onConfirm={() => {
-          if (note) {
+          if (noteData) {
             updateNoteMutation.mutate({
-              noteId: note.id,
-              folderId: note.folder_id,
+              noteId: noteData.id,
+              folderId: noteData.folder_id,
               action: "delete",
             });
-            router.push(`/folder/${note.folder_id}`);
+            router.push(`/folder/${noteData.folder_id}`);
           } else {
             toast.error("Unable to Delete");
           }

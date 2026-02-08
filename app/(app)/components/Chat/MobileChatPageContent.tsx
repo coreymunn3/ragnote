@@ -18,17 +18,18 @@ import { toast } from "sonner";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import InputDialog from "@/components/dialogs/InputDialog";
 import MobileBackButton from "@/components/mobile/MobileBackButton";
+import MobileChatPageSkeleton from "@/components/skeletons/MobileChatPageSkeleton";
 
 interface MobileChatPageContentProps {
   chatSessionId: string;
-  chatSession: ChatSession;
-  chatMessages: ChatMessage[];
+  initialChatSession: ChatSession | null;
+  initialChatMessages: ChatMessage[];
 }
 
 const MobileChatPageContent = ({
   chatSessionId,
-  chatSession: initialChatSession,
-  chatMessages: initialChatMessages,
+  initialChatSession,
+  initialChatMessages,
 }: MobileChatPageContentProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -41,16 +42,14 @@ const MobileChatPageContent = ({
 
   // Re-fetch chat session
   const chatSession = useGetChatSession(chatSessionId, {
-    initialData: initialChatSession,
-    staleTime: 0,
-    refetchOnMount: true,
+    initialData: initialChatSession || undefined,
+    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
 
   // Re-fetch chat messages
   const chatMessages = useGetChatMessagesForSession(chatSessionId, {
     initialData: initialChatMessages,
-    staleTime: 0,
-    refetchOnMount: true,
+    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
 
   // Mutations
@@ -142,11 +141,20 @@ const MobileChatPageContent = ({
 
   const isLoading = chatSession.isLoading || chatMessages.isLoading;
 
+  if (isLoading && !chatSession.data) {
+    return <MobileChatPageSkeleton />;
+  }
+
+  // If we have no session data (error or offline uncached), show skeleton
+  if (!chatSession.data) {
+    return <MobileChatPageSkeleton />;
+  }
+
   return (
     <>
       <BaseChatPageContent
-        chatSession={chatSession.data || initialChatSession}
-        chatMessages={chatMessages.data || initialChatMessages}
+        chatSession={chatSession.data}
+        chatMessages={chatMessages.data || []}
         pendingUserMessage={pendingUserMessage}
         isLoading={isLoading}
         isPro={isPro}

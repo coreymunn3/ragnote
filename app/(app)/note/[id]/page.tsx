@@ -16,22 +16,34 @@ export default async function NotePage({
 
   // Server-side data fetching
   const noteService = new NoteService();
-  let note, noteVersions;
+  let note = null;
+  let noteVersions = null;
+
   try {
     [note, noteVersions] = await Promise.all([
       noteService.getNoteById({ noteId, userId: dbUser.id }),
       noteService.getNoteVersions({ noteId, userId: dbUser.id }),
     ]);
   } catch (error) {
-    console.error(error);
-    notFound();
+    // If we're offline and can't fetch, we'll return null for initialData
+    // and let the client-side query handle it (potentially using cache)
+    console.error("Failed to fetch note server-side:", error);
+    // Don't notFound() here, as we want to try client-side fetch/cache
   }
 
   const mobileView = (
-    <MobileNotePageContent note={note} noteVersions={noteVersions} />
+    <MobileNotePageContent
+      noteId={noteId}
+      initialNote={note}
+      initialNoteVersions={noteVersions || []}
+    />
   );
   const webView = (
-    <WebNotePageContent note={note} noteVersions={noteVersions} />
+    <WebNotePageContent
+      noteId={noteId}
+      initialNote={note}
+      initialNoteVersions={noteVersions || []}
+    />
   );
 
   return <ResponsivePage mobileView={mobileView} webView={webView} />;

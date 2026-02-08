@@ -15,48 +15,54 @@ export default async function ChatPage({
   const { id: chatSessionId } = await params;
   const dbUser = await getDbUser();
 
-  const [chatSession, chatMessages] = await Promise.all([
-    // get the chat session
-    chatService
-      .getChatSession({
-        userId: dbUser.id,
-        sessionId: chatSessionId,
-      })
-      .catch((error) => {
-        console.error(error);
-        return null;
-      }),
-    // get the chat messages for this session
-    chatService
-      .getChatMessagesForSession({
-        sessionId: chatSessionId,
-        userId: dbUser.id,
-      })
-      .catch((error) => {
-        console.error(
-          `Unable to get chat messages for session ${chatSessionId}`
-        );
-        console.error(error);
-        return [];
-      }),
-  ]);
+  let chatSession = null;
+  let chatMessages: ChatMessage[] = [];
 
-  if (!chatSession) {
-    notFound();
+  try {
+    [chatSession, chatMessages] = await Promise.all([
+      // get the chat session
+      chatService
+        .getChatSession({
+          userId: dbUser.id,
+          sessionId: chatSessionId,
+        })
+        .catch((error) => {
+          console.error(error);
+          return null;
+        }),
+      // get the chat messages for this session
+      chatService
+        .getChatMessagesForSession({
+          sessionId: chatSessionId,
+          userId: dbUser.id,
+        })
+        .catch((error) => {
+          console.error(
+            `Unable to get chat messages for session ${chatSessionId}`,
+          );
+          console.error(error);
+          return [];
+        }),
+    ]);
+  } catch (error) {
+    console.error("Failed to fetch chat server-side:", error);
   }
+
+  // If we fetched successfully but got null (e.g. 404), we might want to let client decide
+  // or handle it. For now we pass null to client which will show skeleton/error
 
   const mobileView = (
     <MobileChatPageContent
       chatSessionId={chatSessionId}
-      chatSession={chatSession}
-      chatMessages={chatMessages}
+      initialChatSession={chatSession}
+      initialChatMessages={chatMessages}
     />
   );
   const webView = (
     <WebChatPageContent
       chatSessionId={chatSessionId}
-      chatSession={chatSession}
-      chatMessages={chatMessages}
+      initialChatSession={chatSession}
+      initialChatMessages={chatMessages}
     />
   );
 

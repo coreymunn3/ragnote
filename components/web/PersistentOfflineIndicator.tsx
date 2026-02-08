@@ -20,7 +20,7 @@ export default function PersistentOfflineIndicator() {
             <TooltipTrigger asChild>
               <div className="bg-amber-500/10 text-amber-600 dark:text-amber-400 px-4 py-2 rounded-full border border-amber-500/20 cursor-help transition-all hover:bg-amber-500/20 flex items-center gap-2">
                 <WifiOffIcon className="w-4 h-4" />
-                <span className="text-sm font-medium">Offline Mode</span>
+                <span className="text-sm font-medium">You Are Offline</span>
               </div>
             </TooltipTrigger>
             <TooltipContent side="top">
