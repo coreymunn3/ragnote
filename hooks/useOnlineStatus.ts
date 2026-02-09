@@ -2,7 +2,14 @@
 import { useState, useEffect } from "react";
 
 export function useOnlineStatus() {
-  const [isOnline, setIsOnline] = useState(true);
+  // Initialize from navigator.onLine instead of hardcoded true
+  const [isOnline, setIsOnline] = useState(() => {
+    // Check if we're in browser environment
+    if (typeof window !== "undefined") {
+      return navigator.onLine;
+    }
+    return true; // SSR fallback
+  });
 
   useEffect(() => {
     // Set initial state
