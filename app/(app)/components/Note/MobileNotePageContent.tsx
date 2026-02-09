@@ -44,7 +44,7 @@ const MobileNotePageContent = ({
     isLoading: noteLoading,
     error: noteError,
   } = useGetNote(noteId, {
-    initialData: initialNote || undefined,
+    placeholderData: initialNote || undefined,
     // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
 
@@ -54,7 +54,7 @@ const MobileNotePageContent = ({
     isLoading: versionsLoading,
     error: versionsError,
   } = useGetNoteVersions(noteId, {
-    initialData: initialNoteVersions,
+    placeholderData: initialNoteVersions,
     // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
 

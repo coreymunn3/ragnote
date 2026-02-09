@@ -25,7 +25,7 @@ export default async function NotePage({
       noteService.getNoteVersions({ noteId, userId: dbUser.id }),
     ]);
   } catch (error) {
-    // If we're offline and can't fetch, we'll return null for initialData
+    // If we're offline and can't fetch, we'll return null for placeholderData
     // and let the client-side query handle it (potentially using cache)
     console.error("Failed to fetch note server-side:", error);
     // Don't notFound() here, as we want to try client-side fetch/cache

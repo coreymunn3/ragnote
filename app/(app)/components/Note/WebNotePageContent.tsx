@@ -31,7 +31,7 @@ const WebNotePageContent = ({
     isFetching: noteFetching,
     error: noteError,
   } = useGetNote(noteId, {
-    initialData: initialNote || undefined,
+    placeholderData: initialNote || undefined,
   });
 
   // Re-fetch note versions with initial data
@@ -41,7 +41,7 @@ const WebNotePageContent = ({
     isFetching: versionsFetching,
     error: versionsError,
   } = useGetNoteVersions(noteId, {
-    initialData: initialNoteVersions,
+    placeholderData: initialNoteVersions,
   });
 
   // Compute selected version

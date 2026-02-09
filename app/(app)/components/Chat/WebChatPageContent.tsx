@@ -30,13 +30,13 @@ const WebChatPageContent = ({
 
   // Re-fetch chat session
   const chatSession = useGetChatSession(chatSessionId, {
-    initialData: initialChatSession || undefined,
+    placeholderData: initialChatSession || undefined,
     // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
 
   // Re-fetch chat messages
   const chatMessages = useGetChatMessagesForSession(chatSessionId, {
-    initialData: initialChatMessages,
+    placeholderData: initialChatMessages,
     // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
 

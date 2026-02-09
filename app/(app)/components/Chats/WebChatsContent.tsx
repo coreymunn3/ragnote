@@ -14,7 +14,7 @@ interface WebChatsContentProps {
 const WebChatsContent = ({ chatSessions }: WebChatsContentProps) => {
   // re-fetch the user's chat sessions
   const userChatSessions = useGetChatSessionsForUser({
-    initialData: chatSessions,
+    placeholderData: chatSessions,
   });
 
   // Sort chat sessions by last updated time

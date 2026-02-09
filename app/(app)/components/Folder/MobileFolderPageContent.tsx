@@ -37,7 +37,7 @@ const MobileFolderPageContent = ({
   const [deleteOpen, setDeleteOpen] = useState(false);
   // get the folder data
   const folderData = useGetFolderById(folderId, {
-    initialData: initialFolder || undefined,
+    placeholderData: initialFolder || undefined,
     // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
 

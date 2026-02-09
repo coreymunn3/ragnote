@@ -39,7 +39,7 @@ const MobileRecentlyDeletedContent = ({
 
   // re-fetch the deleted items
   const deletedData = useGetDeletedItems({
-    initialData: deletedItems,
+    placeholderData: deletedItems,
   });
 
   // Transform PrismaFolder to FolderWithItems for MobileList

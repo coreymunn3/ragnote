@@ -22,11 +22,11 @@ const WebDashboardContent = ({
 }: WebDashboardContentProps) => {
   // re-fetch the user's notes
   const userNotes = useGetNotes({
-    initialData: notes,
+    placeholderData: notes,
   });
   // re-fetch the user's chat sessions
   const userChatSessions = useGetChatSessionsForUser({
-    initialData: chatSessions,
+    placeholderData: chatSessions,
   });
 
   // Separate pinned and unpinned notes
