@@ -15,7 +15,6 @@ import WebSidebarFolderGroup from "./WebSidebarFolderGroup";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { MessageSquareIcon, Trash2Icon, TrashIcon } from "lucide-react";
 import WebSidebarLinkGroup from "./WebSidebarLinkGroup";
-import PersistentOfflineIndicator from "../PersistentOfflineIndicator";
 
 const WebSidebar = () => {
   const { user } = useUser();
@@ -50,7 +49,6 @@ const WebSidebar = () => {
       </SidebarHeader>
       {/* The Sidebar Content pane */}
       <SidebarContent className="p-2">
-        <PersistentOfflineIndicator />
         {/* Home */}
         <WebSidebarFolderGroup
           groupName="Get Started"
