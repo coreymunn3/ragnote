@@ -7,6 +7,9 @@ const withSerwist = withSerwistInit({
   cacheOnNavigation: true,
   reloadOnOnline: true,
   disable: process.env.NODE_ENV === "development",
+  additionalPrecacheEntries: [
+    { url: "/offline", revision: Date.now().toString() },
+  ],
 });
 
 const nextConfig: NextConfig = {

@@ -15,15 +15,29 @@ const CACHE_VERSION = "v1";
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: false,
-  clientsClaim: true,
+  skipWaiting: true, // maybe causes installation issues
+  clientsClaim: true, // Service worker takes control of the page immediately
   navigationPreload: true,
+  disableDevLogs: true,
+  fallbacks: {
+    entries: [
+      {
+        url: "/offline",
+        matcher({ request }) {
+          return request.destination === "document";
+        },
+      },
+    ],
+  },
+  precacheOptions: {
+    cleanupOutdatedCaches: true, // clean up old assets
+  },
   runtimeCaching: [
     {
       matcher: ({ url }) => url.pathname.startsWith("/api/"),
       handler: new NetworkFirst({
         cacheName: `api-cache-${CACHE_VERSION}`,
-        networkTimeoutSeconds: 3,
+        networkTimeoutSeconds: 10,
         plugins: [
           {
             cacheWillUpdate: async ({ response }) => {

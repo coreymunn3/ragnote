@@ -6,6 +6,7 @@ const isPublicRoute = createRouteMatcher([
   "/sign-in(.*)", // Sign-in pages
   "/sign-up(.*)", // Sign-up pages
   "/api/stripe/webhook", // Stripe webhooks (uses signature verification instead)
+  "/robots.txt", // Allow access to robots.txt
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
