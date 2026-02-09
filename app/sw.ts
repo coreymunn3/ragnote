@@ -47,16 +47,6 @@ const serwist = new Serwist({
     },
     ...defaultCache,
   ],
-  fallbacks: {
-    entries: [
-      {
-        url: "/offline",
-        matcher({ request }) {
-          return request.mode === "navigate";
-        },
-      },
-    ],
-  },
 });
 
 serwist.addEventListeners();
