@@ -12,7 +12,6 @@ export default async function NotePage({
 }) {
   // Await params before using
   const { id: noteId } = await params;
-  const dbUser = await getDbUser();
 
   // Server-side data fetching
   const noteService = new NoteService();
@@ -20,6 +19,7 @@ export default async function NotePage({
   let noteVersions = null;
 
   try {
+    const dbUser = await getDbUser();
     [note, noteVersions] = await Promise.all([
       noteService.getNoteById({ noteId, userId: dbUser.id }),
       noteService.getNoteVersions({ noteId, userId: dbUser.id }),

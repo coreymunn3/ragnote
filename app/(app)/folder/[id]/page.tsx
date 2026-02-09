@@ -14,11 +14,11 @@ export default async function FolderPage({
 
   // Await params before using
   const { id } = await params;
-  const dbUser = await getDbUser();
 
   // get the folder - initial data for folder page
   let folder = null;
   try {
+    const dbUser = await getDbUser();
     folder = await folderService.getFolderById(id, dbUser.id);
   } catch (error) {
     // If we're offline and can't fetch, we'll return null for placeholderData

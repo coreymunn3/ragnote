@@ -13,12 +13,12 @@ export default async function ChatPage({
 }) {
   const chatService = new ChatService();
   const { id: chatSessionId } = await params;
-  const dbUser = await getDbUser();
 
   let chatSession = null;
   let chatMessages: ChatMessage[] = [];
 
   try {
+    const dbUser = await getDbUser();
     [chatSession, chatMessages] = await Promise.all([
       // get the chat session
       chatService
