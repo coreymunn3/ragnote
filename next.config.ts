@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 import withSerwistInit from "@serwist/next";
 
+const REVISION = Date.now().toString();
+
 const withSerwist = withSerwistInit({
   swSrc: "app/sw.ts",
   swDest: "public/sw.js",
@@ -8,7 +10,11 @@ const withSerwist = withSerwistInit({
   reloadOnOnline: true,
   disable: process.env.NODE_ENV === "development",
   additionalPrecacheEntries: [
-    { url: "/offline", revision: Date.now().toString() },
+    { url: "/offline", revision: REVISION },
+    { url: "/", revision: REVISION },
+    { url: "/dashboard", revision: REVISION },
+    { url: "/chats", revision: REVISION },
+    { url: "/recently-deleted", revision: REVISION },
   ],
 });
 
