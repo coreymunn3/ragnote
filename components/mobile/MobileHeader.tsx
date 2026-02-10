@@ -5,9 +5,11 @@ import { SignedIn } from "@clerk/nextjs";
 import BrandingHeader from "@/components/BrandingHeader";
 import UserButtonCustom from "../UserButtonCustom";
 import { useMobileHeader } from "@/contexts/MobileHeaderContext";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 const MobileHeader = () => {
   const { headerConfig } = useMobileHeader();
+  const isOnline = useOnlineStatus();
 
   // Default content if none is set (Dashboard page behavior)
   const leftContent = headerConfig.leftContent || null;
@@ -28,7 +30,9 @@ const MobileHeader = () => {
       <div className="flex items-center space-x-2">
         {rightContent}
         <SignedIn>
-          <UserButtonCustom />
+          <div className={!isOnline ? "pointer-events-none opacity-80" : ""}>
+            <UserButtonCustom />
+          </div>
         </SignedIn>
       </div>
     </header>

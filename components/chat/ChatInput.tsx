@@ -191,8 +191,8 @@ const ChatInput = ({
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyPress}
-                placeholder={placeholder}
-                disabled={disabled}
+                placeholder={!isOnline ? "You are offline..." : placeholder}
+                disabled={disabled || !isOnline}
                 rows={1}
                 className={cn(
                   "w-full resize-none bg-transparent border-none p-2 pr-20",

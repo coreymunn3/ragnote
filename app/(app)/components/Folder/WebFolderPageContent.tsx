@@ -6,7 +6,7 @@ import WidgetGrid from "@/components/web/WidgetGrid";
 import NoteWidget from "@/components/web/NoteWidget";
 import ChatWidget from "@/components/web/ChatWidget";
 import OptionsMenu from "@/components/OptionsMenu";
-import { FilePlus2Icon, FolderPenIcon, Trash2Icon } from "lucide-react";
+import { FolderPenIcon, Trash2Icon } from "lucide-react";
 import { FolderWithItems } from "@/lib/types/folderTypes";
 import { Note } from "@/lib/types/noteTypes";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
