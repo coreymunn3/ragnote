@@ -12,25 +12,25 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "portrait-primary",
     icons: [
       {
-        src: "/icons/icon-light-192.png",
+        src: "/icons/icon-light-192-v2.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/icons/icon-light-512.png",
+        src: "/icons/icon-light-512-v2.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/icons/icon-dark-192.png",
+        src: "/icons/icon-dark-192-v2.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/icon-dark-512.png",
+        src: "/icons/icon-dark-512-v2.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
