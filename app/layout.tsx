@@ -5,6 +5,8 @@ import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Toaster } from "sonner";
+import OfflineModeBanner from "@/components/OfflineModeBanner";
+import PersistentOfflineIndicator from "@/components/PersistentOfflineIndicator";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -102,6 +104,8 @@ export default function RootLayout({
           }}
         >
           <div className="relative flex flex-col min-h-screen">
+            <OfflineModeBanner />
+            <PersistentOfflineIndicator />
             <main className="">{children}</main>
             <Toaster />
           </div>

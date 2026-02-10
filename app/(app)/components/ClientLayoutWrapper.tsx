@@ -6,8 +6,6 @@ import ResponsiveLayout from "../../../components/ResponsiveLayout";
 import WelcomeToProDialog from "../../../components/dialogs/WelcomeToProDialog";
 import { useUpgradeSuccess } from "../../../hooks/useUpgradeSuccess";
 import { MobileHeaderProvider } from "@/contexts/MobileHeaderContext";
-import OfflineModeBanner from "@/components/OfflineModeBanner";
-import PersistentOfflineIndicator from "@/components/PersistentOfflineIndicator";
 
 export default function ClientLayoutWrapper({
   children,
@@ -18,8 +16,6 @@ export default function ClientLayoutWrapper({
 
   return (
     <div>
-      <OfflineModeBanner />
-      <PersistentOfflineIndicator />
       <MobileHeaderProvider>
         <ResponsiveLayout MobileLayout={MobileLayout} WebLayout={WebLayout}>
           {children}
