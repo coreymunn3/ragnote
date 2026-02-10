@@ -26,14 +26,16 @@ export default function OfflinePage() {
 
       <div className="flex flex-col gap-4 sm:flex-row">
         <Button
-          asChild
           size="lg"
           className="px-8 gap-2 shadow-lg shadow-primary/20"
+          onClick={() => {
+            // Direct navigation is the most reliable way to
+            // trigger a clean Service Worker cache hit while offline.
+            window.location.href = "/dashboard";
+          }}
         >
-          <Link href="/dashboard">
-            <Home className="h-4 w-4" />
-            Return Home
-          </Link>
+          <Home className="h-4 w-4" />
+          Return Home
         </Button>
 
         <Button
@@ -48,7 +50,7 @@ export default function OfflinePage() {
       </div>
 
       <div className="mt-16 flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm text-muted-foreground shadow-sm">
-        <div className="h-2 w-2 animate-pulse rounded-full bg-secondary" />
+        <div className="h-2 w-2 animate-pulse rounded-full bg-primary" />
         Tip: Any page you visit while online is saved for later.
       </div>
     </div>

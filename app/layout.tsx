@@ -95,21 +95,22 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        <Providers
-          themeProps={{
-            attribute: "class",
-            defaultTheme: "system",
-            enableSystem: true,
-            disableTransitionOnChange: true,
-          }}
-        >
-          <div className="relative flex flex-col min-h-screen">
-            <OfflineModeBanner />
-            <PersistentOfflineIndicator />
-            <main className="">{children}</main>
+        <div className="relative flex flex-col min-h-screen">
+          <Providers
+            themeProps={{
+              attribute: "class",
+              defaultTheme: "system",
+              enableSystem: true,
+              disableTransitionOnChange: true,
+            }}
+          >
+            <main className="flex-1">{children}</main>
             <Toaster />
-          </div>
-        </Providers>
+          </Providers>
+        </div>
+        {/* indicators for offline usage */}
+        <OfflineModeBanner />
+        <PersistentOfflineIndicator />
       </body>
     </html>
   );

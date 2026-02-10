@@ -2,29 +2,23 @@
 import { useState, useEffect } from "react";
 
 export function useOnlineStatus() {
-  // Initialize from navigator.onLine instead of hardcoded true
+  // Initialize state with current navigator status if available
   const [isOnline, setIsOnline] = useState(() => {
-    // Check if we're in browser environment
-    if (typeof window !== "undefined") {
-      return navigator.onLine;
-    }
-    return true; // SSR fallback
+    // Use the actual browser state immediately
+    if (typeof window !== "undefined") return navigator.onLine;
+    return true;
   });
 
   useEffect(() => {
-    // Set initial state
+    // Re-check on mount to sync with reality immediately
     setIsOnline(navigator.onLine);
-
-    // Listen for online/offline events
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-
+    const sync = () => setIsOnline(navigator.onLine);
+    // sync every time there's a change to the windows online/offline status
+    window.addEventListener("online", sync);
+    window.addEventListener("offline", sync);
     return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", sync);
+      window.removeEventListener("offline", sync);
     };
   }, []);
 
