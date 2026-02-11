@@ -15,6 +15,7 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import ConfirmationDialog from "../dialogs/ConfirmationDialog";
 import { useUpdateChat } from "@/hooks/chat/useUpdateChat";
+import { useOfflineGuard } from "@/hooks/useOfflineGuard";
 
 interface ChatWidgetProps {
   chatSession: ChatSession;
@@ -26,6 +27,7 @@ const ChatWidget = ({ chatSession }: ChatWidgetProps) => {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const updateChatMutation = useUpdateChat();
+  const { isOnline } = useOfflineGuard();
 
   const handleDeleteNote = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -49,7 +51,11 @@ const ChatWidget = ({ chatSession }: ChatWidgetProps) => {
               {/* Header right - actions/options */}
               <div className="flex items-center justify-center space-x-2">
                 <ScopeBadge chatScope={chatSession.chat_scope.scope} />
-                <Button variant={"ghost"} onClick={handleDeleteNote}>
+                <Button
+                  variant={"ghost"}
+                  onClick={handleDeleteNote}
+                  disabled={!isOnline}
+                >
                   <Trash2Icon className="h-4 w-4" />
                 </Button>
               </div>

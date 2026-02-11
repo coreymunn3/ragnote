@@ -4,8 +4,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { EllipsisVerticalIcon } from "lucide-react";
@@ -16,6 +14,7 @@ import { useOfflineGuard } from "@/hooks/useOfflineGuard";
 export interface Option {
   label: string;
   icon?: React.ReactNode;
+  disableWhenOffline?: boolean;
   onClick: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
@@ -24,11 +23,11 @@ interface OptionsMenuProps {
 }
 
 const OptionsMenu = ({ options }: OptionsMenuProps) => {
-  const { guardMutation } = useOfflineGuard();
+  const { isOnline, guardMutation } = useOfflineGuard();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={`ghost`} className="">
+        <Button variant={`ghost`}>
           <EllipsisVerticalIcon className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -36,6 +35,7 @@ const OptionsMenu = ({ options }: OptionsMenuProps) => {
         {options.map((option) => (
           <DropdownMenuItem
             key={option.label}
+            disabled={!isOnline && (option?.disableWhenOffline || true)}
             onClick={(e) => {
               guardMutation(() => option.onClick(e));
             }}
