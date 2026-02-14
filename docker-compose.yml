@@ -6,11 +6,11 @@ services:
     image: ankane/pgvector:latest 
     restart: always
     environment:
-      POSTGRES_DB: ragnote 
+      POSTGRES_DB: wysenote 
       POSTGRES_USER: postgres    
       POSTGRES_PASSWORD: admin 
     ports:
-      - "35432:5432" 
+      - "5432:5432" 
     volumes:
       - db_data:/var/lib/postgresql/data # Persistent data volume
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Script to enable pgvector
