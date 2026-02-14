@@ -36,4 +36,7 @@ agent-response.json
 *.tsbuildinfo
 next-env.d.ts
 
+# clerk keyless folder
+.clerk/*
+
 /generated/prisma
