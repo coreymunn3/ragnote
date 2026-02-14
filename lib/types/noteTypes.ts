@@ -51,6 +51,7 @@ export type UpdateNoteVersionContentResponse = {
   note: {
     id: string;
     title: string;
+    updated_at: Date;
   };
 };
 

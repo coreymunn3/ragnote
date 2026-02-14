@@ -1,4 +1,6 @@
 import {
+  Note,
+  PrismaNoteVersion,
   UpdateNoteVersionContentApiRequest,
   UpdateNoteVersionContentResponse,
 } from "@/lib/types/noteTypes";
@@ -37,19 +39,31 @@ export function useSaveNoteVersionContent(options?: useSaveNoteVersionOptions) {
     ...options,
     mutationFn: saveNoteVersionContent,
     onSuccess: (result, variables, context) => {
-      // invalidate the single note version query for this specific version
-      // Note: This query is currently not being used/called anywhere!
-      queryClient.invalidateQueries({
-        queryKey: ["noteVersion", variables.noteId, variables.versionId],
-      });
-      // invalidate the note versions list query to update the selectedVersion in the toolbar
-      queryClient.invalidateQueries({
-        queryKey: ["noteVersions", variables.noteId],
-      });
-      // invalidate the note query since the title may have been changed
-      queryClient.invalidateQueries({
-        queryKey: ["note", variables.noteId],
-      });
+      // Directly update the note cache with the response data
+      queryClient.setQueryData(
+        ["note", variables.noteId],
+        (oldNote: Note | undefined) => {
+          if (!oldNote) return oldNote;
+          return {
+            ...oldNote,
+            title: result.note.title, // Update title from API response
+            updated_at: result.note.updated_at,
+          };
+        },
+      );
+
+      // Directly update the note versions cache
+      queryClient.setQueryData<PrismaNoteVersion[]>(
+        ["noteVersions", variables.noteId],
+        (oldVersions) => {
+          if (!oldVersions) return oldVersions;
+          return oldVersions.map((v) =>
+            v.id === variables.versionId
+              ? result.version // Replace with updated version from API
+              : v,
+          );
+        },
+      );
 
       // Optimistically update the folders cache with the new title from the API response
       // This avoids refetching all folders just to update one note's title in the sidebar
