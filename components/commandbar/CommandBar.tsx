@@ -78,7 +78,7 @@ const CommandBar = (props: CommandBarProps) => {
 
   // Default to chat if pro
   const [primaryMode, setPrimaryMode] = useState<PrimaryMode>(
-    isPro ? "chat" : "search"
+    isPro ? "chat" : "search",
   );
   const [searchResults, setSearchResults] = useState<
     SearchResult | undefined
@@ -117,7 +117,7 @@ const CommandBar = (props: CommandBarProps) => {
       toast.info(
         primaryMode === "chat"
           ? "Please enter a message"
-          : "Please enter a search query"
+          : "Please enter a search query",
       );
       return;
     }
@@ -217,7 +217,7 @@ const CommandBar = (props: CommandBarProps) => {
                     <Crown className="h-3 w-3 ml-auto text-yellow-600" />
                   )}
                 </DropdownMenuItem>
-              )
+              ),
             )}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -234,7 +234,7 @@ const CommandBar = (props: CommandBarProps) => {
                 ? `Chat with ${scope === "global" ? "all your notes" : scope === "folder" ? "this folder" : "this note"}...`
                 : "Search Your Notes"
             }
-            className="flex-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0 text-sm placeholder:text-sm"
+            className="flex-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0"
             value={query}
             disabled={chatMutation.isPending}
             onChange={(e) => setQuery(e.target.value)}
