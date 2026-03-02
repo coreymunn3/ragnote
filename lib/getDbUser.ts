@@ -23,7 +23,7 @@ const getCachedDbUserFromDb = unstable_cache(
   {
     revalidate: 60, // Cache for 60 seconds
     tags: ["user"],
-  }
+  },
 );
 
 export async function getDbUser(safeMode = false) {
@@ -34,11 +34,28 @@ export async function getDbUser(safeMode = false) {
     throw new Error("No authenticated user found");
   }
 
-  const dbUser = await getCachedDbUserFromDb(clerkUserId!, safeMode);
+  let dbUser = await getCachedDbUserFromDb(clerkUserId!, safeMode);
+
+  // If not found in cache, try direct query to handle race conditions
+  // This can happen when a user just signed up and the webhook created them
+  // but the cache hasn't been invalidated yet
+  if (!dbUser) {
+    dbUser = await prisma.app_user.findFirst({
+      where: {
+        clerk_id: clerkUserId,
+      },
+      ...(safeMode && {
+        select: {
+          username: true,
+          avatar_url: true,
+        },
+      }),
+    });
+  }
 
   if (!dbUser) {
     throw new Error(
-      `Unable to find a database user with this Clerk Id: ${clerkUserId}`
+      `Unable to find a database user with this Clerk Id: ${clerkUserId}`,
     );
   }
 
