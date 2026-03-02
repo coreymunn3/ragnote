@@ -93,7 +93,9 @@ const BaseNotePageContent = ({
     <div className="flex flex-col h-[calc(100vh-4rem)]">
       {/* Toolbar - fixed at top (only for web view) */}
       {renderToolbar && (
-        <div className="flex-shrink-0">{renderToolbar(toolbarProps)}</div>
+        <div className="flex-shrink-0 sticky top-0 z-40 bg-transparent">
+          {renderToolbar(toolbarProps)}
+        </div>
       )}
       {/* Editor - scrollable content */}
       <div className="flex-1 overflow-auto pt-2">
