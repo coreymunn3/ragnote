@@ -2,17 +2,14 @@ import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { prisma } from "@/lib/prisma";
 import {
   upsertUserFromClerkSchema,
-  updateUserFromClerkSchema,
   softDeleteUserFromClerkSchema,
 } from "./clerkValidators";
 import {
   CreateUserFromClerkParams,
-  UpdateUserFromClerkParams,
   SoftDeleteUserFromClerkParams,
 } from "@/lib/types/clerkTypes";
 import { NotFoundError } from "@/lib/errors/apiErrors";
 import { randomBytes } from "crypto";
-import { revalidateTag } from "next/cache";
 
 export class ClerkService {
   /**
@@ -81,10 +78,6 @@ export class ClerkService {
 
         return upsertedUser;
       });
-
-      // Invalidate the user cache immediately to prevent race conditions
-      // This ensures subsequent requests can find the newly created user
-      revalidateTag("user", "default");
 
       console.log(`Successfully upserted user with clerk_id: ${clerkId}`);
       return user;
