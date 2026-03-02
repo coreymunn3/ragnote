@@ -4,20 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { unstable_cache } from "next/cache";
 import { ClerkService } from "@/services/clerk/clerkService";
+import { app_user } from "@prisma/client";
 
 // Cache the database query for 60 seconds to reduce DB calls
 const getCachedDbUserFromDb = unstable_cache(
-  async (clerkUserId: string, safeMode: boolean) => {
+  async (clerkUserId: string) => {
     return await prisma.app_user.findFirst({
       where: {
         clerk_id: clerkUserId,
       },
-      ...(safeMode && {
-        select: {
-          username: true,
-          avatar_url: true,
-        },
-      }),
     });
   },
   ["db-user"],
@@ -27,7 +22,7 @@ const getCachedDbUserFromDb = unstable_cache(
   },
 );
 
-export async function getDbUser(safeMode = false) {
+export async function getDbUser(): Promise<app_user> {
   // get the user's database ID. the clerkUserId above is not what we want to use for the user Id
   // we need user Id from the app_user table since user_id will be foreign keys in many places
   const { userId: clerkUserId } = await auth();
@@ -35,7 +30,7 @@ export async function getDbUser(safeMode = false) {
     throw new Error("No authenticated user found");
   }
 
-  let dbUser = await getCachedDbUserFromDb(clerkUserId!, safeMode);
+  let dbUser = await getCachedDbUserFromDb(clerkUserId);
 
   // If not found in cache, try direct query to handle race conditions
   if (!dbUser) {
@@ -43,12 +38,6 @@ export async function getDbUser(safeMode = false) {
       where: {
         clerk_id: clerkUserId,
       },
-      ...(safeMode && {
-        select: {
-          username: true,
-          avatar_url: true,
-        },
-      }),
     });
   }
 
@@ -66,7 +55,7 @@ export async function getDbUser(safeMode = false) {
 
       // Use the ClerkService to upsert the user
       const clerkService = new ClerkService();
-      const createdUser = await clerkService.upsertUserFromClerk({
+      dbUser = await clerkService.upsertUserFromClerk({
         clerkId: clerkUser.id,
         email:
           clerkUser.emailAddresses[0]?.emailAddress ||
@@ -78,15 +67,6 @@ export async function getDbUser(safeMode = false) {
       });
 
       console.log(`Successfully created user ${clerkUserId} via JIT creation`);
-
-      // Return the created user (respecting safeMode)
-      if (safeMode) {
-        return {
-          username: createdUser.username,
-          avatar_url: createdUser.avatar_url,
-        };
-      }
-      return createdUser;
     } catch (error) {
       console.error(`Failed to create user ${clerkUserId} via JIT:`, error);
       throw new Error(
