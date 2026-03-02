@@ -7,6 +7,7 @@ const isPublicRoute = createRouteMatcher([
   "/sign-in(.*)", // Sign-in pages
   "/sign-up(.*)", // Sign-up pages
   "/api/stripe/webhook", // Stripe webhooks (uses signature verification instead)
+  "/api/clerk/webhook", // Clerk webhooks
   "/robots.txt", // Allow access to robots.txt
 ]);
 
