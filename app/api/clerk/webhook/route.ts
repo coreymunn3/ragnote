@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
   if (!CLERK_WEBHOOK_SIGNING_SECRET) {
     throw new Error(
-      "Error: Please add CLERK_WEBHOOK_SIGNING_SECRET from Clerk Dashboard to .env or .env.local"
+      "Error: Please add CLERK_WEBHOOK_SIGNING_SECRET from Clerk Dashboard to .env or .env.local",
     );
   }
 
@@ -81,27 +81,8 @@ export async function POST(req: Request) {
   try {
     switch (evt.type) {
       case "user.created":
-        // Validate we have the required user data
-        if (!id) {
-          console.error("Incomplete Webhook Payload: missing id");
-          return new Response("Incomplete Webhook Payload: missing id", {
-            status: 400,
-          });
-        }
-
-        const createUserData = transformClerkUserData(evt.data);
-        if (!createUserData.email) {
-          console.error("Incomplete Webhook Payload: missing email_address");
-          return new Response(
-            "Incomplete Webhook Payload: missing email_address",
-            { status: 400 }
-          );
-        }
-
-        await clerkService.createUserFromClerk(createUserData);
-        break;
-
       case "user.updated":
+        // Both create and update use upsert for idempotency
         // Validate we have the required user data
         if (!id) {
           console.error("Incomplete Webhook Payload: missing id");
@@ -110,16 +91,17 @@ export async function POST(req: Request) {
           });
         }
 
-        const updateUserData = transformClerkUserData(evt.data);
-        if (!updateUserData.email) {
+        const userData = transformClerkUserData(evt.data);
+        if (!userData.email) {
           console.error("Incomplete Webhook Payload: missing email_address");
           return new Response(
             "Incomplete Webhook Payload: missing email_address",
-            { status: 400 }
+            { status: 400 },
           );
         }
 
-        await clerkService.updateUserFromClerk(updateUserData);
+        // Use upsert for both create and update
+        await clerkService.upsertUserFromClerk(userData);
         break;
 
       case "user.deleted":
