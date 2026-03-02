@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const createUserFromClerkSchema = z.object({
+export const upsertUserFromClerkSchema = z.object({
   clerkId: z.string(),
   email: z.string().email(),
   username: z.string().nullable().optional(),
