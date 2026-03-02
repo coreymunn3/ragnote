@@ -1,18 +1,15 @@
 import { withErrorHandling } from "@/lib/errors/errorHandlers";
 import { prisma } from "@/lib/prisma";
 import {
-  createUserFromClerkSchema,
-  updateUserFromClerkSchema,
+  upsertUserFromClerkSchema,
   softDeleteUserFromClerkSchema,
 } from "./clerkValidators";
 import {
   CreateUserFromClerkParams,
-  UpdateUserFromClerkParams,
   SoftDeleteUserFromClerkParams,
 } from "@/lib/types/clerkTypes";
 import { NotFoundError } from "@/lib/errors/apiErrors";
 import { randomBytes } from "crypto";
-import { revalidateTag } from "next/cache";
 
 export class ClerkService {
   /**
@@ -26,19 +23,35 @@ export class ClerkService {
   }
 
   /**
-   * Create a new user from Clerk webhook data
-   * Creates both the user record and their initial FREE subscription
+   * Upsert a user from Clerk data (webhook or JIT creation)
+   * This is idempotent and safe to call from both webhooks and first request
+   *
+   * Uses upsert to handle race conditions:
+   * - If user exists: updates their data
+   * - If user doesn't exist: creates them with a FREE subscription
    */
-  public createUserFromClerk = withErrorHandling(
-    async (params: CreateUserFromClerkParams): Promise<void> => {
+  public upsertUserFromClerk = withErrorHandling(
+    async (params: CreateUserFromClerkParams) => {
       const { clerkId, email, username, firstName, lastName, avatarUrl } =
-        createUserFromClerkSchema.parse(params);
+        upsertUserFromClerkSchema.parse(params);
 
-      // Use transaction to ensure both user and subscription are created atomically
-      await prisma.$transaction(async (tx) => {
-        // 1. Create the user
-        const newUser = await tx.app_user.create({
-          data: {
+      // Use transaction to ensure both user and subscription are upserted atomically
+      const user = await prisma.$transaction(async (tx) => {
+        // 1. Upsert the user
+        const upsertedUser = await tx.app_user.upsert({
+          where: {
+            clerk_id: clerkId,
+          },
+          update: {
+            // Update user data if they already exist
+            username: username || null,
+            email: email,
+            first_name: firstName || null,
+            last_name: lastName || null,
+            avatar_url: avatarUrl || null,
+          },
+          create: {
+            // Create new user if they don't exist
             clerk_id: clerkId,
             username: username || null,
             email: email,
@@ -48,69 +61,40 @@ export class ClerkService {
           },
         });
 
-        // 2. Create the user subscription with FREE tier
-        await tx.user_subscription.create({
-          data: {
-            user_id: newUser.id,
+        // 2. Ensure user has a subscription (upsert to handle race conditions)
+        await tx.user_subscription.upsert({
+          where: {
+            user_id: upsertedUser.id,
+          },
+          update: {
+            // If subscription exists, don't change it (preserve tier/stripe data)
+          },
+          create: {
+            // Create FREE subscription if it doesn't exist
+            user_id: upsertedUser.id,
             tier: "FREE",
           },
         });
+
+        return upsertedUser;
       });
 
-      // Invalidate the user cache immediately to prevent race conditions
-      // This ensures subsequent requests can find the newly created user
-      revalidateTag("user", "default");
-
-      console.log(`Successfully created user with clerk_id: ${clerkId}`);
+      console.log(`Successfully upserted user with clerk_id: ${clerkId}`);
+      return user;
     },
   );
 
   /**
-   * Update user profile data from Clerk webhook
-   * Uses upsert to handle cases where user might not exist yet
+   * @deprecated Use upsertUserFromClerk instead
+   * Kept for backward compatibility
    */
-  public updateUserFromClerk = withErrorHandling(
-    async (params: UpdateUserFromClerkParams): Promise<void> => {
-      const { clerkId, email, username, firstName, lastName, avatarUrl } =
-        updateUserFromClerkSchema.parse(params);
+  public createUserFromClerk = this.upsertUserFromClerk;
 
-      // see if this user exists in our database
-      const user = await prisma.app_user.findUnique({
-        where: {
-          clerk_id: clerkId,
-        },
-      });
-
-      // if the user exists, update them
-      // otherwise, create them
-      if (user) {
-        await prisma.app_user.update({
-          where: { clerk_id: clerkId },
-          data: {
-            username: username || null,
-            email: email,
-            first_name: firstName || null,
-            last_name: lastName || null,
-            avatar_url: avatarUrl || null,
-          },
-        });
-
-        // Invalidate cache after update
-        revalidateTag("user", "default");
-      } else {
-        this.createUserFromClerk({
-          clerkId,
-          email,
-          firstName,
-          lastName,
-          avatarUrl,
-          username,
-        });
-      }
-
-      console.log(`Successfully updated user with clerk_id: ${clerkId}`);
-    },
-  );
+  /**
+   * @deprecated Use upsertUserFromClerk instead
+   * Kept for backward compatibility
+   */
+  public updateUserFromClerk = this.upsertUserFromClerk;
 
   /**
    * Soft delete user and all their content from Clerk webhook
