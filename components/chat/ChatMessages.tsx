@@ -75,9 +75,7 @@ const ChatMessages = ({ messages, pendingUserMessage }: ChatMessagesProps) => {
           <AnimatedListItem
             key={message.id}
             index={index}
-            animation={
-              message.sender_type === "USER" ? "fadeInRight" : "fadeInLeft"
-            }
+            animation="fadeIn"
             delay={0.05}
           >
             <ChatMessage message={message} />

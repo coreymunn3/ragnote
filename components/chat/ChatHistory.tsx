@@ -112,7 +112,7 @@ const ChatHistory = ({
                 <AnimatedListItem
                   key={session.id}
                   index={index}
-                  animation="fadeInRight"
+                  animation="fadeIn"
                 >
                   <ChatHistoryItem
                     session={session}
