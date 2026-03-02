@@ -23,9 +23,7 @@ const WebRecentlyDeletedContent = ({
 }: WebRecentlyDeletedContentProps) => {
   // re-fetch the deleted items
   const deletedData = useGetDeletedItems({
-    initialData: deletedItems,
-    staleTime: 0,
-    refetchOnMount: true,
+    placeholderData: deletedItems,
   });
 
   const data = deletedData.data;

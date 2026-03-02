@@ -5,33 +5,33 @@ import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import BaseNotePageContent from "./BaseNotePageContent";
 import { useGetNote } from "@/hooks/note/useGetNote";
 import { useGetNoteVersions } from "@/hooks/note/useGetNoteVersions";
+import EditorSkeleton from "@/components/skeletons/EditorSkeleton";
 
 interface WebNotePageContentProps {
-  note: Note;
-  noteVersions: PrismaNoteVersion[];
+  noteId: string;
+  initialNote: Note | null;
+  initialNoteVersions: PrismaNoteVersion[];
 }
 
 const WebNotePageContent = ({
-  note: initialNote,
-  noteVersions: initialNoteVersions,
+  noteId,
+  initialNote,
+  initialNoteVersions,
 }: WebNotePageContentProps) => {
   // State management
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
-    initialNote?.current_version?.id || null
+    initialNote?.current_version?.id || null,
   );
   const [chatOpen, setChatOpen] = useState(false);
 
   // Re-fetch note data with initial data
   const {
-    data: note,
+    data: noteData,
     isLoading: noteLoading,
     isFetching: noteFetching,
     error: noteError,
-  } = useGetNote(initialNote.id, {
-    enabled: !!initialNote.id,
-    initialData: initialNote,
-    staleTime: 0,
-    refetchOnMount: true,
+  } = useGetNote(noteId, {
+    placeholderData: initialNote || undefined,
   });
 
   // Re-fetch note versions with initial data
@@ -40,11 +40,8 @@ const WebNotePageContent = ({
     isLoading: versionsLoading,
     isFetching: versionsFetching,
     error: versionsError,
-  } = useGetNoteVersions(initialNote.id, {
-    enabled: !!initialNote.id,
-    initialData: initialNoteVersions,
-    staleTime: 0,
-    refetchOnMount: true,
+  } = useGetNoteVersions(noteId, {
+    placeholderData: initialNoteVersions,
   });
 
   // Compute selected version
@@ -60,15 +57,34 @@ const WebNotePageContent = ({
     setChatOpen((prev) => !prev);
   };
 
-  // Combine loading states: use isFetching to catch background refetches with initialData
+  // Combine loading states
   const isLoading =
-    noteLoading || noteFetching || versionsLoading || versionsFetching;
-  const error = noteError || versionsError;
+    noteLoading ||
+    noteFetching ||
+    versionsLoading ||
+    versionsFetching ||
+    !noteData;
+
+  // Determine error state
+  const error =
+    (!noteData && noteError) || (!noteVersions && versionsError)
+      ? noteError || versionsError
+      : null;
+
+  if (isLoading && !noteData) {
+    return <EditorSkeleton />;
+  }
+
+  // If we still don't have a note after loading, return skeleton or error
+  // The offline banner handles the "offline" notification
+  if (!noteData) {
+    return <EditorSkeleton />;
+  }
 
   return (
     <BaseNotePageContent
-      note={note || initialNote}
-      noteVersions={noteVersions || initialNoteVersions}
+      note={noteData}
+      noteVersions={noteVersions || []}
       selectedVersionId={selectedVersionId}
       setSelectedVersionId={setSelectedVersionId}
       selectedVersion={selectedVersion}

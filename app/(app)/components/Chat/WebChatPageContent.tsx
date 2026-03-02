@@ -9,17 +9,18 @@ import { useGetChatMessagesForSession } from "@/hooks/chat/useGetChatMessagesFor
 import { useChat } from "@/hooks/chat/useChat";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { useQueryClient } from "@tanstack/react-query";
+import ChatPageSkeleton from "@/components/skeletons/ChatPageSkeleton";
 
 interface WebChatPageContentProps {
   chatSessionId: string;
-  chatSession: ChatSession;
-  chatMessages: ChatMessage[];
+  initialChatSession: ChatSession | null;
+  initialChatMessages: ChatMessage[];
 }
 
 const WebChatPageContent = ({
   chatSessionId,
-  chatSession: initialChatSession,
-  chatMessages: initialChatMessages,
+  initialChatSession,
+  initialChatMessages,
 }: WebChatPageContentProps) => {
   const queryClient = useQueryClient();
   const { isPro } = useUserSubscription();
@@ -29,16 +30,14 @@ const WebChatPageContent = ({
 
   // Re-fetch chat session
   const chatSession = useGetChatSession(chatSessionId, {
-    initialData: initialChatSession,
-    staleTime: 0,
-    refetchOnMount: true,
+    placeholderData: initialChatSession || undefined,
+    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
 
   // Re-fetch chat messages
   const chatMessages = useGetChatMessagesForSession(chatSessionId, {
-    initialData: initialChatMessages,
-    staleTime: 0,
-    refetchOnMount: true,
+    placeholderData: initialChatMessages,
+    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
 
   // Mutation to send chat
@@ -66,10 +65,19 @@ const WebChatPageContent = ({
 
   const isLoading = chatSession.isLoading || chatMessages.isLoading;
 
+  if (isLoading && !chatSession.data) {
+    return <ChatPageSkeleton />;
+  }
+
+  // If we have no session data (error or offline uncached), show skeleton
+  if (!chatSession.data) {
+    return <ChatPageSkeleton />;
+  }
+
   return (
     <BaseChatPageContent
-      chatSession={chatSession.data || initialChatSession}
-      chatMessages={chatMessages.data || initialChatMessages}
+      chatSession={chatSession.data}
+      chatMessages={chatMessages.data || []}
       pendingUserMessage={pendingUserMessage}
       isLoading={isLoading}
       isPro={isPro}

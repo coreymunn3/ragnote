@@ -14,20 +14,24 @@ export default async function FolderPage({
 
   // Await params before using
   const { id } = await params;
-  const dbUser = await getDbUser();
 
   // get the folder - initial data for folder page
-  let folder;
+  let folder = null;
   try {
+    const dbUser = await getDbUser();
     folder = await folderService.getFolderById(id, dbUser.id);
   } catch (error) {
-    console.error(error);
-    notFound();
+    // If we're offline and can't fetch, we'll return null for placeholderData
+    // and let the client-side query handle it (potentially using cache)
+    console.error("Failed to fetch folder server-side:", error);
+    // Don't notFound() here, as we want to try client-side fetch/cache
   }
 
   // Render each view component
-  const mobileView = <MobileFolderPageContent folder={folder} />;
-  const webView = <WebFolderPageContent folder={folder} />;
+  const mobileView = (
+    <MobileFolderPageContent folderId={id} initialFolder={folder} />
+  );
+  const webView = <WebFolderPageContent folderId={id} initialFolder={folder} />;
 
   return <ResponsivePage mobileView={mobileView} webView={webView} />;
 }

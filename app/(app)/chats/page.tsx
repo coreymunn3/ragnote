@@ -7,17 +7,16 @@ import { ChatSession } from "@/lib/types/chatTypes";
 
 export default async function ChatsPage() {
   const chatService = new ChatService();
-  // get the database user
-  const dbUser = await getDbUser();
 
   // get the chat sessions
   let chatSessions: ChatSession[] = [];
   try {
+    const dbUser = await getDbUser();
     chatSessions = await chatService.getChatSessionsForUser({
       userId: dbUser.id,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Failed to fetch chats server-side:", error);
   }
 
   // Render each view component

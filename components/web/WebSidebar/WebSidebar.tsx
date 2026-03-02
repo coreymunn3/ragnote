@@ -12,6 +12,7 @@ import BrandingHeader from "@/components/BrandingHeader";
 import { SignedIn, useUser } from "@clerk/nextjs";
 import UserButtonCustom from "@/components/UserButtonCustom";
 import WebSidebarFolderGroup from "./WebSidebarFolderGroup";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { MessageSquareIcon, Trash2Icon, TrashIcon } from "lucide-react";
 import WebSidebarLinkGroup from "./WebSidebarLinkGroup";
@@ -19,6 +20,7 @@ import WebSidebarLinkGroup from "./WebSidebarLinkGroup";
 const WebSidebar = () => {
   const { user } = useUser();
   const folders = useGetFolders();
+  const isOnline = useOnlineStatus();
 
   return (
     <Sidebar>
@@ -26,7 +28,9 @@ const WebSidebar = () => {
         <div className="flex justify-between items-center">
           {/* User Button */}
           <SignedIn>
-            <div className="flex items-center space-x-2">
+            <div
+              className={`flex items-center space-x-2 ${!isOnline ? "pointer-events-none opacity-80" : ""}`}
+            >
               <UserButtonCustom />
               <div className="flex flex-col">
                 <p className="text-sm font-semibold">

@@ -1,13 +1,13 @@
 "use client";
 import { useParams } from "next/navigation";
 import RichTextEditor from "@/components/RichTextEditor";
-import { Skeleton } from "@/components/ui/skeleton";
 import MessageAlert from "@/components/MessageAlert";
 import ChatPanel from "@/components/chat/ChatPanel";
 import NotePageSkeleton from "@/components/skeletons/NotePageSkeleton";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import { SaveStatusType } from "@/components/SaveStatus";
 import { useNoteAutoSave } from "@/hooks/note/useNoteAutoSave";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 interface ToolbarProps {
   note: Note;
@@ -49,6 +49,7 @@ const BaseNotePageContent = ({
 }: BaseNotePageContentProps) => {
   const params: { id: string } = useParams();
   const { id: noteId } = params;
+  const isOnline = useOnlineStatus();
 
   // Auto-save hook handles all save logic
   const { saveStatus, handleEditorChange } = useNoteAutoSave({
@@ -103,7 +104,9 @@ const BaseNotePageContent = ({
           key={selectedVersionId}
           initialContent={selectedVersion.rich_text_content}
           onChange={handleEditorChange}
-          readOnly={selectedVersion.is_published || note.is_deleted}
+          readOnly={
+            selectedVersion.is_published || note.is_deleted || !isOnline
+          }
         />
       </div>
       {/* Chat Panel */}

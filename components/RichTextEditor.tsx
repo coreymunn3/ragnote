@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { AnimatedContainer } from "@/components/animations/AnimatedContainer";
 import { LockIcon } from "lucide-react";
 import EditorSkeleton from "./skeletons/EditorSkeleton";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 export interface RichTextEditorProps {
   initialContent?: any; // BlockNote JSON content
@@ -176,6 +177,10 @@ const RichTextEditor = dynamic(
       const { resolvedTheme } = useTheme();
       const [customTheme, setCustomTheme] = useState<Theme | null>(null);
       const [isMounted, setIsMounted] = useState(false);
+      const isOnline = useOnlineStatus();
+
+      // If offline, force read-only mode
+      const isReadOnly = readOnly || !isOnline;
 
       const editor = useCreateBlockNote({
         initialContent,
@@ -204,13 +209,13 @@ const RichTextEditor = dynamic(
 
       return (
         <div className={`h-full w-full ${className} relative`}>
-          <div className={`${readOnly && "bg-muted"} rounded-md relative`}>
-            {readOnly && (
+          <div className={`${isReadOnly && "bg-muted"} rounded-md relative`}>
+            {isReadOnly && (
               <AnimatedContainer withPresence>
                 <div className="w-full flex items-center justify-center gap-2 py-1.5 px-3 bg-muted dark:bg-muted rounded-t-md">
                   <LockIcon className="h-3.5 w-3.5 text-muted-foreground dark:text-white" />
                   <span className="text-xs text-muted-foreground dark:text-white">
-                    Read Only
+                    {readOnly ? "Read Only" : "Read Only (Offline)"}
                   </span>
                 </div>
               </AnimatedContainer>
@@ -220,7 +225,7 @@ const RichTextEditor = dynamic(
               sideMenu={false}
               slashMenu={false}
               theme={customTheme || undefined}
-              editable={!readOnly}
+              editable={!isReadOnly}
               onChange={onChange}
             >
               <SideMenuController
@@ -251,7 +256,7 @@ const RichTextEditor = dynamic(
         <EditorSkeleton />
       </div>
     ),
-  }
+  },
 );
 
 export default RichTextEditor;
