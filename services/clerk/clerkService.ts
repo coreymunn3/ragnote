@@ -12,6 +12,7 @@ import {
 } from "@/lib/types/clerkTypes";
 import { NotFoundError } from "@/lib/errors/apiErrors";
 import { randomBytes } from "crypto";
+import { revalidateTag } from "next/cache";
 
 export class ClerkService {
   /**
@@ -56,8 +57,12 @@ export class ClerkService {
         });
       });
 
+      // Invalidate the user cache immediately to prevent race conditions
+      // This ensures subsequent requests can find the newly created user
+      revalidateTag("user", "default");
+
       console.log(`Successfully created user with clerk_id: ${clerkId}`);
-    }
+    },
   );
 
   /**
@@ -89,6 +94,9 @@ export class ClerkService {
             avatar_url: avatarUrl || null,
           },
         });
+
+        // Invalidate cache after update
+        revalidateTag("user", "default");
       } else {
         this.createUserFromClerk({
           clerkId,
@@ -101,7 +109,7 @@ export class ClerkService {
       }
 
       console.log(`Successfully updated user with clerk_id: ${clerkId}`);
-    }
+    },
   );
 
   /**
@@ -171,8 +179,8 @@ export class ClerkService {
       });
 
       console.log(
-        `Successfully soft deleted user ${clerkId} and all their content`
+        `Successfully soft deleted user ${clerkId} and all their content`,
       );
-    }
+    },
   );
 }
