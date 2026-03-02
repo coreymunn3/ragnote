@@ -1,5 +1,4 @@
 import { FolderWithItems } from "@/lib/types/folderTypes";
-import { AnimatedListItem, AnimatedTypography } from "../animations";
 import MobileListItem from "./MobileListItem";
 import { Note } from "@/lib/types/noteTypes";
 import OptionsMenu, { Option } from "../OptionsMenu";
@@ -75,26 +74,19 @@ const MobileList = ({
       <div className="rounded-md bg-background">
         {/* display an empty content message if no items */}
         {!items.length && (
-          <AnimatedListItem index={0} animation="fadeInRight">
-            <div className="w-full px-4 h-14 flex items-center justify-between hover:bg-accent/50 transition-colors">
-              <TypographyMuted>{emptyContentMessage}</TypographyMuted>
-            </div>
-          </AnimatedListItem>
+          <div className="w-full px-4 h-14 flex items-center justify-between hover:bg-accent/50 transition-colors">
+            <TypographyMuted>{emptyContentMessage}</TypographyMuted>
+          </div>
         )}
         {/* otherwise, display the items */}
         {items.length > 0 &&
           items.map((item, index) => (
-            <AnimatedListItem
+            <MobileListItem
               key={item.id}
-              index={index}
-              animation="fadeInRight"
-            >
-              <MobileListItem
-                type={type}
-                item={item}
-                isLastItem={index !== items.length - 1}
-              />
-            </AnimatedListItem>
+              type={type}
+              item={item}
+              isLastItem={index !== items.length - 1}
+            />
           ))}
       </div>
     </div>

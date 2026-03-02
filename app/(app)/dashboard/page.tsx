@@ -14,29 +14,37 @@ export default async function Dashboard() {
   const chatService = new ChatService();
   const folderService = new FolderService();
 
-  const dbUser = await getDbUser();
+  let notes: Note[] = [];
+  let chatSessions: ChatSession[] = [];
+  let userFolders: FolderWithItems[] = [];
 
-  const [notes, chatSessions, userFolders] = await Promise.all([
-    // get the users notes - initial data for the web dashboard page
-    noteService.getAllNotesForUser(dbUser.id).catch((error) => {
-      console.error(error);
-      return [];
-    }),
-    // get the users chat sessions - initial data for the web dashboard page
-    chatService
-      .getChatSessionsForUser({
-        userId: dbUser.id,
-      })
-      .catch((error) => {
+  try {
+    const dbUser = await getDbUser();
+
+    [notes, chatSessions, userFolders] = await Promise.all([
+      // get the users notes - initial data for the web dashboard page
+      noteService.getAllNotesForUser(dbUser.id).catch((error) => {
         console.error(error);
         return [];
       }),
-    // get the users folders - initial data for the mobile dashboard page
-    folderService.getUserCreatedFolders(dbUser.id).catch((error) => {
-      console.error(error);
-      return [];
-    }),
-  ]);
+      // get the users chat sessions - initial data for the web dashboard page
+      chatService
+        .getChatSessionsForUser({
+          userId: dbUser.id,
+        })
+        .catch((error) => {
+          console.error(error);
+          return [];
+        }),
+      // get the users folders - initial data for the mobile dashboard page
+      folderService.getUserCreatedFolders(dbUser.id).catch((error) => {
+        console.error(error);
+        return [];
+      }),
+    ]);
+  } catch (error) {
+    console.error("Failed to fetch dashboard data server-side:", error);
+  }
 
   // Render each view component
   const mobileView = <MobileDashboardContent userFolders={userFolders} />;

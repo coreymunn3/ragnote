@@ -47,7 +47,7 @@ const FolderList = ({
       {folders &&
         folders.map((folder: FolderWithItems, index) => (
           <SidebarMenuItem key={folder.id}>
-            <AnimatedListItem index={index} animation="fadeInRight">
+            <AnimatedListItem index={index} animation="fadeIn">
               <FolderListItem
                 folder={folder}
                 Icon={getFolderIcon(folder.id)}
@@ -60,7 +60,7 @@ const FolderList = ({
           </SidebarMenuItem>
         ))}
       {allowCreateFolder && (
-        <AnimatedListItem index={folders?.length || 0} animation="fadeInRight">
+        <AnimatedListItem index={folders?.length || 0} animation="fadeIn">
           <CreateFolder />
         </AnimatedListItem>
       )}

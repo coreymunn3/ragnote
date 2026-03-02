@@ -37,7 +37,7 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
       onClick: intendedOnClick,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
@@ -51,6 +51,13 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
 
     // Determine click handler: Pro users get intended action, others get upgrade modal
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      // Don't handle click if button is disabled
+      if (disabled) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+
       if (userIsPro && !subscriptionError) {
         intendedOnClick?.(e);
       } else {
@@ -85,7 +92,7 @@ const ProButton = forwardRef<HTMLButtonElement, ProButtonProps>(
         />
       </>
     );
-  }
+  },
 );
 
 ProButton.displayName = "ProButton";

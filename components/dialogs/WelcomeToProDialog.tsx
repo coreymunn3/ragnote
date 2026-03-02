@@ -70,7 +70,7 @@ const WelcomeToProDialog = ({
                 <AnimatedListItem
                   index={index + 1}
                   key={index}
-                  animation="fadeInRight"
+                  animation="fadeIn"
                 >
                   <div className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 transition-colors">
                     <div className="p-1 rounded-full bg-muted">

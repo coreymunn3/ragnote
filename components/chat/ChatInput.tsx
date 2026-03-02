@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/tooltip";
 import { SendIcon, MicIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useOfflineGuard } from "@/hooks/useOfflineGuard";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -36,6 +37,7 @@ const ChatInput = ({
   const [isListening, setIsListening] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<any>(null);
+  const { isOnline, guardMutation } = useOfflineGuard();
 
   // Quick action suggestions
   const suggestions = [
@@ -55,14 +57,16 @@ const ChatInput = ({
 
   // Handle send
   const handleSend = () => {
-    if (message.trim() && !disabled) {
-      onSend(message.trim());
-      setMessage("");
-      // Reset height after sending
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
+    guardMutation(() => {
+      if (message.trim() && !disabled) {
+        onSend(message.trim());
+        setMessage("");
+        // Reset height after sending
+        if (textareaRef.current) {
+          textareaRef.current.style.height = "auto";
+        }
       }
-    }
+    });
   };
 
   // Handle key press
@@ -82,6 +86,11 @@ const ChatInput = ({
 
   // Toggle voice recognition
   const toggleListening = () => {
+    if (!isOnline) {
+      guardMutation(() => {}); // Trigger offline toast
+      return;
+    }
+
     // If already listening, stop
     if (isListening && recognitionRef.current) {
       recognitionRef.current.stop();
@@ -155,7 +164,7 @@ const ChatInput = ({
                 variant={"secondary"}
                 key={suggestion.id}
                 onClick={() => handleSuggestionClick(suggestion.label)}
-                disabled={disabled}
+                disabled={disabled || !isOnline}
                 className="text-sm"
               >
                 {suggestion.label}
@@ -174,7 +183,7 @@ const ChatInput = ({
                 "flex flex-row, items-center",
                 "relative rounded-2xl border border-input bg-background",
                 "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
-                disabled && "opacity-50 cursor-not-allowed"
+                disabled && "opacity-50 cursor-not-allowed",
               )}
             >
               <textarea
@@ -182,15 +191,15 @@ const ChatInput = ({
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyPress}
-                placeholder={placeholder}
-                disabled={disabled}
+                placeholder={!isOnline ? "You are offline..." : placeholder}
+                disabled={disabled || !isOnline}
                 rows={1}
                 className={cn(
                   "w-full resize-none bg-transparent border-none p-2 pr-20",
                   "placeholder:text-muted-foreground",
                   "focus:outline-none",
                   "disabled:cursor-not-allowed",
-                  "max-h-[120px]" // 1-5 lines
+                  "max-h-[120px]", // 1-5 lines
                 )}
               />
 
@@ -199,11 +208,17 @@ const ChatInput = ({
                 {/* Voice Input Button */}
                 <Button
                   onClick={toggleListening}
-                  disabled={disabled}
+                  disabled={disabled || !isOnline}
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0 hover:bg-muted/50"
-                  title={isListening ? "Click to stop" : "Voice input"}
+                  title={
+                    !isOnline
+                      ? "You are offline"
+                      : isListening
+                        ? "Click to stop"
+                        : "Voice input"
+                  }
                 >
                   {isListening ? (
                     <div className="h-4 w-4 bg-red-500 rounded-full animate-pulse" />
@@ -215,18 +230,18 @@ const ChatInput = ({
                 {/* Send Button */}
                 <Button
                   onClick={handleSend}
-                  disabled={!message.trim() || disabled}
+                  disabled={!message.trim() || disabled || !isOnline}
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0 hover:bg-muted/50"
-                  title="Send message"
+                  title={!isOnline ? "You are offline" : "Send message"}
                 >
                   <SendIcon
                     className={cn(
                       "h-4 w-4 transition-colors",
                       message.trim() && !disabled
                         ? "text-primary hover:text-primary/80"
-                        : "text-muted-foreground"
+                        : "text-muted-foreground",
                     )}
                   />
                 </Button>

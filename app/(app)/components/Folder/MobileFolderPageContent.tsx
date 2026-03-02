@@ -22,20 +22,23 @@ import MobileBackButton from "@/components/mobile/MobileBackButton";
 import CommandBar from "@/components/commandbar/CommandBar";
 
 interface MobileFolderPageContentProps {
-  folder: FolderWithItems;
+  folderId: string;
+  initialFolder: FolderWithItems | null;
 }
 
-const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
+const MobileFolderPageContent = ({
+  folderId,
+  initialFolder,
+}: MobileFolderPageContentProps) => {
   const router = useRouter();
   const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
   // dialog state management
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   // get the folder data
-  const folderData = useGetFolderById(folder.id, {
-    initialData: folder,
-    staleTime: 0,
-    refetchOnMount: true,
+  const folderData = useGetFolderById(folderId, {
+    placeholderData: initialFolder || undefined,
+    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
 
   // hooks
@@ -79,8 +82,8 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
     };
   }, [folderData.data, router, setHeaderConfig, resetHeaderConfig]);
 
-  // Show loading skeleton while fetching (check AFTER all hooks are called)
-  if (folderData.isFetching) {
+  // Show loading skeleton while fetching
+  if (folderData.isLoading || !folderData.data) {
     return (
       <div>
         <MobileListSkeleton
@@ -93,27 +96,23 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
   }
 
   // Separate pinned and unpinned items - both Note and ChatSession have is_pinned
-  const unpinnedItems = folderData.data!.items.filter(
-    (item: Note | ChatSession) => !item.is_pinned
+  const unpinnedItems = folderData.data.items.filter(
+    (item: Note | ChatSession) => !item.is_pinned,
   );
-  const pinnedItems = folderData.data!.items.filter(
-    (item: Note | ChatSession) => item.is_pinned
+  const pinnedItems = folderData.data.items.filter(
+    (item: Note | ChatSession) => item.is_pinned,
   );
 
   return (
     <div>
       <div className="flex flex-col space-y-8">
         {/* Folder-scoped command bar - chat only (search is always global) */}
-        <CommandBar
-          scope="folder"
-          scopeId={folder.id}
-          allowedModes={["chat"]}
-        />
+        <CommandBar scope="folder" scopeId={folderId} allowedModes={["chat"]} />
 
         {/* list of pinned items */}
         {pinnedItems.length > 0 && (
           <MobileList
-            type={folderData.data!.itemType}
+            type={folderData.data.itemType}
             items={pinnedItems}
             title="Pinned"
             emptyContentMessage="No pinned items yet"
@@ -123,7 +122,7 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
         {/* list of unpinned items */}
         {
           <MobileList
-            type={folderData.data!.itemType}
+            type={folderData.data.itemType}
             items={unpinnedItems}
             emptyContentMessage="No items yet"
           />
@@ -140,7 +139,7 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
         confirmLoadingText="Renaming..."
         onConfirm={(inputValue) => {
           renameFolder.mutate({
-            folderId: folder.id,
+            folderId: folderId,
             newFolderName: inputValue,
           });
         }}
@@ -158,7 +157,7 @@ const MobileFolderPageContent = ({ folder }: MobileFolderPageContentProps) => {
         confirmLoadingText="Deleting..."
         confirmVariant="destructive"
         onConfirm={() => {
-          deleteFolder.mutate({ folderId: folder.id });
+          deleteFolder.mutate({ folderId: folderId });
           router.push("/dashboard");
         }}
         isLoading={deleteFolder.isPending}

@@ -2,18 +2,37 @@
 
 ## Overview
 
-We've successfully implemented a clean, organized animation system using Framer Motion that eliminates messy inline motion divs and provides reusable, semantic animation components. The system is extensible and allows for easy customization of animations.
+We've successfully implemented a clean, organized animation system using Framer Motion that eliminates messy inline motion divs and provides reusable, semantic animation components. The system follows a clear platform-specific strategy: **animations are ONLY used on web, and ONLY use `fadeIn` (opacity-only) animations**.
+
+## Platform-Specific Animation Strategy
+
+### ✅ Web (Desktop)
+
+- **Animations Enabled**: Yes
+- **Animation Type**: `fadeIn` only (opacity-based, no directional movement)
+- **Rationale**: Subtle, smooth animations that enhance UX without being distracting
+
+### ❌ Mobile
+
+- **Animations Enabled**: No
+- **Rationale**: Animations on mobile can feel janky/shaky due to performance constraints and detract from the user experience
+
+### 🎨 Landing Pages
+
+- **Animations Enabled**: Yes
+- **Animation Types**: Various (`fadeInUp`, `fadeInLeft`, `fadeInRight`, etc.)
+- **Rationale**: Marketing pages benefit from more dynamic animations to capture attention
 
 ## Architecture
 
-### Core Files Created
+### Core Files
 
 #### `lib/animations.ts`
 
 - **Purpose**: Centralized animation variants and constants
 - **Features**:
   - Consistent timing and easing values
-  - Reusable animation variants (fadeInUp, fadeInRight, expandHeight)
+  - Reusable animation variants (fadeIn, fadeInUp, fadeInRight, fadeInLeft, expandHeight)
   - Generic stagger animation creator that supports multiple animation types
   - Stagger container patterns
   - Reduced motion support for accessibility
@@ -21,51 +40,31 @@ We've successfully implemented a clean, organized animation system using Framer 
 #### `components/animations/`
 
 - **AnimatedListItem**: Handles staggered list item animations with customizable animation types
+- **AnimatedScrollItem**: Scroll-triggered animations (primarily for landing pages)
 - **AnimatedContainer**: Container with stagger support
 - **AnimatedExpandable**: Smooth height expansion/collapse
+- **AnimatedTypography**: Character-by-character text animations
 - **index.ts**: Clean exports for easy importing
 
-## Refactored Components
+## Usage Guidelines
 
-### Before (Messy)
+### Web Application Components
 
-```tsx
-<motion.div
-  initial={{ opacity: 0, x: 20 }}
-  animate={{ opacity: 1, x: 0 }}
-  transition={{ delay: index * 0.1, duration: 0.2 }}
->
-  <SomeComponent />
-</motion.div>
-```
-
-### After (Clean)
-
-```tsx
-<AnimatedListItem index={index}>
-  <SomeComponent />
-</AnimatedListItem>
-```
-
-## Benefits Achieved
-
-1. **Cleaner JSX**: No more inline motion divs cluttering components
-2. **Reusable**: Same animation patterns across different components
-3. **Consistent**: Centralized animation timing and easing
-4. **Maintainable**: Easy to update animations globally
-5. **Accessible**: Built-in reduced motion support
-6. **Type Safe**: Full TypeScript support
-
-## Usage Examples
-
-### Staggered List Animation
-
-You can now specify which animation to use with the `animation` prop:
+**ALWAYS use `fadeIn` animation for web app components:**
 
 ```tsx
 import { AnimatedListItem } from "@/components/animations";
 
-// Slide in from right (default)
+// ✅ CORRECT - Web app usage
+{
+  items.map((item, index) => (
+    <AnimatedListItem key={item.id} index={index} animation="fadeIn">
+      <ItemComponent item={item} />
+    </AnimatedListItem>
+  ));
+}
+
+// ❌ INCORRECT - Don't use directional animations in web app
 {
   items.map((item, index) => (
     <AnimatedListItem key={item.id} index={index} animation="fadeInRight">
@@ -73,35 +72,162 @@ import { AnimatedListItem } from "@/components/animations";
     </AnimatedListItem>
   ));
 }
+```
 
-// Fade in and slide up
+### Mobile Components
+
+**DO NOT use animation components in mobile:**
+
+```tsx
+// ✅ CORRECT - Mobile usage (no animations)
+{
+  items.map((item) => <MobileListItem key={item.id} item={item} />);
+}
+
+// ❌ INCORRECT - Don't wrap mobile components with animations
 {
   items.map((item, index) => (
-    <AnimatedListItem key={item.id} index={index} animation="fadeInUp">
-      <ItemComponent item={item} />
+    <AnimatedListItem key={item.id} index={index} animation="fadeIn">
+      <MobileListItem item={item} />
     </AnimatedListItem>
   ));
 }
 ```
 
-### Expandable Content
+### Landing Pages
+
+**Can use various animation types for marketing effect:**
+
+```tsx
+import { AnimatedScrollItem } from "@/components/animations";
+
+// ✅ CORRECT - Landing page usage
+<AnimatedScrollItem animation="fadeInUp" distance={30}>
+  <FeatureCard />
+</AnimatedScrollItem>
+
+<AnimatedScrollItem animation="fadeInLeft" distance={40}>
+  <HeroSection />
+</AnimatedScrollItem>
+```
+
+## Animation Types
+
+### Web App Animations
+
+| Animation Type | Description          | Usage                                   |
+| -------------- | -------------------- | --------------------------------------- |
+| `fadeIn`       | Opacity-only fade in | **Use this for ALL web app components** |
+
+### Landing Page Animations
+
+| Animation Type | Description                    | Usage                         |
+| -------------- | ------------------------------ | ----------------------------- |
+| `fadeIn`       | Opacity-only fade in           | Headers, simple elements      |
+| `fadeInUp`     | Fades in and slides up         | Feature cards, content blocks |
+| `fadeInLeft`   | Fades in and slides from left  | Left-aligned content          |
+| `fadeInRight`  | Fades in and slides from right | Right-aligned content         |
+
+## Component Examples
+
+### Expandable Content (Web & Mobile)
 
 ```tsx
 import { AnimatedExpandable } from "@/components/animations";
 
+// Works on both web and mobile - height animations are acceptable
 <AnimatedExpandable isOpen={isOpen}>
   <div>Content that expands/collapses</div>
 </AnimatedExpandable>;
 ```
 
-### Container with Stagger
+### Container with Stagger (Web Only)
 
 ```tsx
 import { AnimatedContainer } from "@/components/animations";
 
+// Use only in web components
 <AnimatedContainer>
   {/* Child components will animate in sequence */}
 </AnimatedContainer>;
+```
+
+## Best Practices
+
+### DO ✅
+
+1. Use `fadeIn` animation for ALL web app list items and components
+2. Remove animation wrappers entirely from mobile components
+3. Use directional animations (`fadeInUp`, `fadeInLeft`, etc.) on landing pages
+4. Use `AnimatedExpandable` for collapsible content on both platforms
+5. Test with reduced motion preferences enabled
+6. Keep animation timing consistent using centralized constants
+
+### DON'T ❌
+
+1. Don't wrap mobile components with `AnimatedListItem` or similar animation wrappers
+2. Don't add new animation types without considering the platform-specific strategy
+3. Don't use animations that cause layout thrashing or performance issues
+
+## Migration Guide
+
+### Migrating Web Components
+
+1. Find all `AnimatedListItem` usages in web components
+2. Change `animation="fadeInRight"` or `animation="fadeInUp"` to `animation="fadeIn"`
+3. Test to ensure smooth fade-in behavior
+
+### Migrating Mobile Components
+
+1. Find all `AnimatedListItem` usages in mobile components
+2. Remove the `AnimatedListItem` wrapper entirely
+3. Render the child component directly
+4. Test to ensure no performance issues
+
+## Real-World Examples
+
+### Web Folder List (Correct)
+
+```tsx
+// components/web/FolderList.tsx
+<SidebarMenu>
+  {folders.map((folder, index) => (
+    <SidebarMenuItem key={folder.id}>
+      <AnimatedListItem index={index} animation="fadeIn">
+        <FolderListItem folder={folder} />
+      </AnimatedListItem>
+    </SidebarMenuItem>
+  ))}
+</SidebarMenu>
+```
+
+### Mobile List (Correct)
+
+```tsx
+// components/mobile/MobileList.tsx
+<div className="rounded-md bg-background">
+  {items.map((item) => (
+    <MobileListItem key={item.id} type={type} item={item} />
+  ))}
+</div>
+```
+
+### Landing Page Features (Correct)
+
+```tsx
+// components/landing/FeaturesSection.tsx
+{
+  features.map((feature, index) => (
+    <AnimatedScrollItem
+      key={index}
+      index={index}
+      animation="fadeInUp"
+      distance={30}
+    >
+      <FeatureCard feature={feature} />
+    </AnimatedScrollItem>
+  ));
+}
 ```
 
 ## Accessibility Features
@@ -109,114 +235,12 @@ import { AnimatedContainer } from "@/components/animations";
 - **Reduced Motion**: Automatically respects `prefers-reduced-motion` setting
 - **Performance**: Optimized animations that don't cause layout thrashing
 - **Semantic**: Uses proper HTML elements with animation enhancements
+- **Platform-Aware**: No animations on mobile where they can cause issues
 
-## Animation Types
+## Summary
 
-The system now supports the following animation types:
+This animation system provides a solid foundation for consistent, maintainable, and platform-appropriate animations throughout the application:
 
-| Animation Type | Description                        | Usage                                        |
-| -------------- | ---------------------------------- | -------------------------------------------- |
-| `fadeInRight`  | Fades in and slides from right     | `<AnimatedListItem animation="fadeInRight">` |
-| `fadeInUp`     | Fades in and slides up from bottom | `<AnimatedListItem animation="fadeInUp">`    |
-
-To add new animation types:
-
-1. Add the animation variant to `createStaggerAnimation` in `lib/animations.ts`:
-
-```typescript
-switch (animationType) {
-  case "fadeInUp":
-    return {
-      hidden: { opacity: 0, y: 10 },
-      visible: { opacity: 1, y: 0, transition },
-    };
-  case "fadeInDown": // New animation type
-    return {
-      hidden: { opacity: 0, y: -10 },
-      visible: { opacity: 1, y: 0, transition },
-    };
-  case "fadeInRight":
-  default:
-    return {
-      hidden: { opacity: 0, x: 10 },
-      visible: { opacity: 1, x: 0, transition },
-    };
-}
-```
-
-2. Update the `AnimationVariant` type in `AnimatedListItem.tsx`:
-
-```typescript
-type AnimationVariant = "fadeInRight" | "fadeInUp" | "fadeInDown";
-```
-
-## Future Enhancements
-
-Consider adding these components as needed:
-
-1. **AnimatedModal**: For modal entrance/exit animations
-2. **AnimatedRoute**: For page transition animations
-3. **AnimatedNumber**: For counting/number animations
-4. **AnimatedProgress**: For progress bar animations
-5. **Additional Animation Types**: fadeInLeft, zoomIn, rotateIn, etc.
-
-## Best Practices
-
-1. Always use semantic animation component names
-2. Keep animation timing consistent across the app
-3. Test with reduced motion preferences enabled
-4. Use the centralized animation constants from `lib/animations.ts`
-5. Prefer declarative animation components over imperative motion divs
-6. Always specify the animation type when using AnimatedListItem
-7. Use animation types that match the UI context (e.g., horizontal lists might look better with fadeInRight)
-
-## Migration Guide
-
-To migrate existing motion divs:
-
-1. Identify the animation pattern (list item, expandable, etc.)
-2. Replace with appropriate animated component
-3. Remove inline animation props
-4. For AnimatedListItem, specify which animation type to use
-5. Test functionality and timing
-6. Update any custom timing to use centralized constants
-
-## Real-World Examples
-
-### Notes List with Upward Animation
-
-```tsx
-// components/web/NotesList.tsx
-<ScrollableContainer containerClassName="pb-4 pt-1 px-1 -mx-1 space-x-5 scrollbar-hide">
-  {notes.map((note, index) => (
-    <AnimatedListItem key={note.id} index={index} animation="fadeInUp">
-      <div className="flex-shrink-0">
-        <NoteWidget note={note} />
-      </div>
-    </AnimatedListItem>
-  ))}
-</ScrollableContainer>
-```
-
-### Folder List with Side Animation
-
-```tsx
-// components/web/FolderList.tsx
-<SidebarMenu>
-  {allFolders.map((folder: Folder, index) => (
-    <SidebarMenuItem key={folder.id}>
-      <AnimatedListItem index={index} animation="fadeInRight">
-        <FolderItem
-          folder={folder}
-          Icon={getFolderIcon(folder.folder_name)}
-          showCount={showCount}
-          isOpen={openFolderId === folder.id}
-          onToggle={() => toggleFolder(folder.id)}
-        />
-      </AnimatedListItem>
-    </SidebarMenuItem>
-  ))}
-</SidebarMenu>
-```
-
-This system provides a solid foundation for consistent, maintainable, and customizable animations throughout your application.
+- **Web**: Subtle `fadeIn` animations only
+- **Mobile**: No animations for better performance
+- **Landing**: Dynamic animations for marketing impact

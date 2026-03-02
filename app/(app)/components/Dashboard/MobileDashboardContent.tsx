@@ -31,9 +31,7 @@ const MobileDashboardContent = ({
 
   // immediately re-fetch the user's folders
   const folders = useGetFolders({
-    initialData: userFolders,
-    staleTime: 0,
-    refetchOnMount: true,
+    placeholderData: userFolders,
   });
 
   // Define system links

@@ -6,7 +6,7 @@ import WidgetGrid from "@/components/web/WidgetGrid";
 import NoteWidget from "@/components/web/NoteWidget";
 import ChatWidget from "@/components/web/ChatWidget";
 import OptionsMenu from "@/components/OptionsMenu";
-import { FilePlus2Icon, FolderPenIcon, Trash2Icon } from "lucide-react";
+import { FolderPenIcon, Trash2Icon } from "lucide-react";
 import { FolderWithItems } from "@/lib/types/folderTypes";
 import { Note } from "@/lib/types/noteTypes";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
@@ -19,38 +19,57 @@ import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
 import CreateNote from "@/components/CreateNote";
 import { ChatSession } from "@/lib/types/chatTypes";
 import CommandBar from "@/components/commandbar/CommandBar";
+import FolderPageSkeleton from "@/components/skeletons/FolderPageSkeleton";
 
 interface WebFolderPageContentProps {
-  folder: FolderWithItems;
+  folderId: string;
+  initialFolder: FolderWithItems | null;
 }
 
-const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
+const WebFolderPageContent = ({
+  folderId,
+  initialFolder,
+}: WebFolderPageContentProps) => {
   const router = useRouter();
   // dialog state management
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+
   // get the folder data
-  const folderData = useGetFolderById(folder.id, {
-    initialData: folder,
-    staleTime: 0,
-    refetchOnMount: true,
+  const folderData = useGetFolderById(folderId, {
+    placeholderData: initialFolder || undefined,
+    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
   });
+
   // hooks for folder operations
   const renameFolder = useRenameFolder();
   const deleteFolder = useDeleteFolder();
+
+  // Handle loading state
+  if (folderData.isLoading) {
+    return <FolderPageSkeleton />;
+  }
+
+  // Handle error/no data - just show loading skeleton (or could show specific error state)
+  if (!folderData.data) {
+    return <FolderPageSkeleton />;
+  }
+
+  const folder = folderData.data;
+
   // Separate pinned and unpinned items - both Note and ChatSession have is_pinned
-  const unpinnedItems = folderData.data!.items.filter(
-    (item: Note | ChatSession) => !item.is_pinned
+  const unpinnedItems = folder.items.filter(
+    (item: Note | ChatSession) => !item.is_pinned,
   );
-  const pinnedItems = folderData.data!.items.filter(
-    (item: Note | ChatSession) => item.is_pinned
+  const pinnedItems = folder.items.filter(
+    (item: Note | ChatSession) => item.is_pinned,
   );
 
   // Render method that handles both Note and ChatSession types based on folder.itemType
   const renderItemWidgetGrid = (
     items: (Note | ChatSession)[],
     delay: number,
-    emptyContentMessage: string
+    emptyContentMessage: string,
   ) => {
     if (folder.itemType === "note") {
       const notes = items as Note[];
@@ -87,10 +106,10 @@ const WebFolderPageContent = ({ folder }: WebFolderPageContentProps) => {
     <div>
       <div className="flex items-center justify-between">
         <AnimatedTypography variant="h1">
-          {folderData.data!.folder_name}
+          {folder.folder_name}
         </AnimatedTypography>
         <div className="flex space-x-2 items-center">
-          <TypographyMuted>{`${folderData.data!.items.length} Items`}</TypographyMuted>
+          <TypographyMuted>{`${folder.items.length} Items`}</TypographyMuted>
 
           <Fragment>
             <CreateNote folderId={folder.id} />

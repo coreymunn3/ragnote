@@ -14,7 +14,8 @@ export type UseMutationHookOptions<
   TData,
   TError = Error,
   TVariables = void,
-> = Omit<UseMutationOptions<TData, TError, TVariables>, "mutationFn">;
+  TContext = any,
+> = Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn">;
 
 /**
  * Custom type for prisma transaction

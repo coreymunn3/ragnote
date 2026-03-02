@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import {
   CircleAlertIcon,
@@ -47,6 +48,7 @@ import {
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { Skeleton } from "../ui/skeleton";
 import UpgradeDialog from "../dialogs/UpgradeDialog";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 type PrimaryMode = "chat" | "search";
 
@@ -63,6 +65,7 @@ const CommandBar = (props: CommandBarProps) => {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const { isPro } = useUserSubscription();
+  const isOnline = useOnlineStatus();
 
   const enhancedModes = allowedModes.map((mode) => ({
     mode,
@@ -78,7 +81,7 @@ const CommandBar = (props: CommandBarProps) => {
 
   // Default to chat if pro
   const [primaryMode, setPrimaryMode] = useState<PrimaryMode>(
-    isPro ? "chat" : "search"
+    isPro ? "chat" : "search",
   );
   const [searchResults, setSearchResults] = useState<
     SearchResult | undefined
@@ -117,7 +120,7 @@ const CommandBar = (props: CommandBarProps) => {
       toast.info(
         primaryMode === "chat"
           ? "Please enter a message"
-          : "Please enter a search query"
+          : "Please enter a search query",
       );
       return;
     }
@@ -178,12 +181,22 @@ const CommandBar = (props: CommandBarProps) => {
   }, [searchResults]);
 
   return (
-    <div className="py-2 bg-background flex flex-col justify-center p-1 border border-input dark:border-primary w-full rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm">
+    <div
+      className={cn(
+        "py-2 bg-background flex flex-col justify-center p-1 border border-input dark:border-primary w-full rounded-md focus-visible:ring-1 focus-visible:ring-ring shadow-sm",
+        !isOnline && "opacity-50 grayscale pointer-events-none",
+      )}
+    >
       <div className="flex items-center space-x-1">
         {/* Mode Selector Dropdown - only show if multiple modes available */}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="gap-2">
+          <DropdownMenuTrigger asChild disabled={!isOnline}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2"
+              disabled={!isOnline}
+            >
               {primaryMode === "chat" ? (
                 <>
                   <MessageSquare className="h-4 w-4" />
@@ -217,7 +230,7 @@ const CommandBar = (props: CommandBarProps) => {
                     <Crown className="h-3 w-3 ml-auto text-yellow-600" />
                   )}
                 </DropdownMenuItem>
-              )
+              ),
             )}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -230,13 +243,15 @@ const CommandBar = (props: CommandBarProps) => {
         ) : (
           <Input
             placeholder={
-              primaryMode === "chat"
-                ? `Chat with ${scope === "global" ? "all your notes" : scope === "folder" ? "this folder" : "this note"}...`
-                : "Search Your Notes"
+              !isOnline
+                ? "Offline - search and chat unavailable"
+                : primaryMode === "chat"
+                  ? `Chat with ${scope === "global" ? "all your notes" : scope === "folder" ? "this folder" : "this note"}...`
+                  : "Search Your Notes"
             }
-            className="flex-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0 text-sm placeholder:text-sm"
+            className="flex-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0"
             value={query}
-            disabled={chatMutation.isPending}
+            disabled={chatMutation.isPending || !isOnline}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -268,7 +283,7 @@ const CommandBar = (props: CommandBarProps) => {
             variant={"ghost"}
             className="text-primary hover:text-primary"
             onClick={handleSubmit}
-            disabled={chatMutation.isPending}
+            disabled={chatMutation.isPending || !isOnline}
           >
             <span>
               {!isMobile &&

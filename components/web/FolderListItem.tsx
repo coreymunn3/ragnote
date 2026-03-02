@@ -94,11 +94,7 @@ const FolderListItem = ({
         <div className="p-1 flex flex-col space-y-1">
           {items.map((item: Note | ChatSession, index: number) => {
             return (
-              <AnimatedListItem
-                key={item.id}
-                index={index}
-                animation="fadeInRight"
-              >
+              <AnimatedListItem key={item.id} index={index} animation="fadeIn">
                 <FolderItemRenderer item={item} itemType={itemType} />
               </AnimatedListItem>
             );

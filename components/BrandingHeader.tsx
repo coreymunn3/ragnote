@@ -11,7 +11,7 @@ const BrandingHeader = ({ className }: { className?: string }) => {
       href="/dashboard"
       className={cn(className, "flex items-center justify-center")}
     >
-      <Logo width={isMobile ? 40 : 70} height={30} variant={"iconWithText"} />
+      <Logo width={isMobile ? 40 : 70} height={30} />
     </Link>
   );
 };

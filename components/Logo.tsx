@@ -8,14 +8,12 @@ interface LogoProps {
   className?: string;
   width?: number;
   height?: number;
-  variant?: "iconOnly" | "iconWithText";
 }
 
 export default function Logo({
   className = "",
   width = 30,
   height = 30,
-  variant = "iconOnly",
 }: LogoProps) {
   const { theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -34,36 +32,17 @@ export default function Logo({
 
   let logoSrc =
     currentResolvedTheme === "dark"
-      ? "/icons/icon-dark-512.png"
-      : "/icons/icon-light-512.png";
+      ? "/icons/icon-dark-512-v2.png"
+      : "/icons/icon-light-512-v2.png";
 
-  if (variant === "iconOnly") {
-    return (
-      <Image
-        src={logoSrc}
-        alt="Wysenote"
-        width={width}
-        height={height}
-        className={className}
-        priority
-      />
-    );
-  }
-  if (variant === "iconWithText") {
-    return (
-      <div className={`flex items-center justify-center space-x-2`}>
-        <Image
-          src={logoSrc}
-          alt="Wysenote"
-          width={width}
-          height={height}
-          className={className}
-          priority
-        />
-        <span className="text-lg font-semibold text-foreground text-primary">
-          Wysenote
-        </span>
-      </div>
-    );
-  }
+  return (
+    <Image
+      src={logoSrc}
+      alt="Wysenote"
+      width={width}
+      height={height}
+      className={className}
+      priority
+    />
+  );
 }

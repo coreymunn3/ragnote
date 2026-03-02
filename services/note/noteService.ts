@@ -40,7 +40,7 @@ export class NoteService {
       notes.map(async (note) => ({
         ...note,
         preview: await this.getNotePreview(note.current_version_id!),
-      }))
+      })),
     );
   }
 
@@ -107,7 +107,7 @@ export class NoteService {
       });
 
       return newNote;
-    }
+    },
   );
 
   /**
@@ -138,10 +138,10 @@ export class NoteService {
 
       // transform the notes into the correct type and structure
       const transformedNotes = notesWithPreviews.map((note) =>
-        transformToNote(note)
+        transformToNote(note),
       );
       return transformedNotes;
-    }
+    },
   );
 
   /**
@@ -173,10 +173,10 @@ export class NoteService {
 
       // transform the notes into the correct type and structure
       const transformedNotes = notesWithPreviews.map((note) =>
-        transformToNote(note)
+        transformToNote(note),
       );
       return transformedNotes;
-    }
+    },
   );
 
   /**
@@ -214,7 +214,7 @@ export class NoteService {
       }
 
       return plainText;
-    }
+    },
   );
 
   // Get all Shared Notes
@@ -249,10 +249,10 @@ export class NoteService {
 
       // Transform the notes into the correct type and structure
       const transformedSharedNotes = notesWithPreviews.map((note) =>
-        transformToNote(note)
+        transformToNote(note),
       );
       return transformedSharedNotes;
-    }
+    },
   );
 
   // Get all Deleted Notes
@@ -283,10 +283,10 @@ export class NoteService {
 
       // transform response
       const transformedDeleted = notesWithPreviews.map((note) =>
-        transformToNote(note)
+        transformToNote(note),
       );
       return transformedDeleted;
-    }
+    },
   );
 
   // toggle the note to pinned/unpinned
@@ -325,7 +325,7 @@ export class NoteService {
         },
       });
       return updatedNote;
-    }
+    },
   );
 
   // move not to another folder
@@ -375,7 +375,7 @@ export class NoteService {
         },
       });
       return updatedNote;
-    }
+    },
   );
 
   // soft delete note
@@ -406,7 +406,7 @@ export class NoteService {
           is_pinned: false,
         },
       });
-    }
+    },
   );
 
   /**
@@ -460,6 +460,7 @@ export class NoteService {
           select: {
             id: true,
             title: true,
+            updated_at: true,
           },
         });
         // save the version content
@@ -477,7 +478,7 @@ export class NoteService {
         };
       });
       return result;
-    }
+    },
   );
 
   /**
@@ -505,7 +506,7 @@ export class NoteService {
 
       if (!versionContent) {
         throw new NotFoundError(
-          `Note version not found for version ${versionId} or access denied`
+          `Note version not found for version ${versionId} or access denied`,
         );
       }
 
@@ -513,7 +514,7 @@ export class NoteService {
         plainTextContent: versionContent.plain_text_content,
         richTextContent: versionContent.rich_text_content,
       };
-    }
+    },
   );
 
   /**
@@ -553,7 +554,7 @@ export class NoteService {
 
       if (!note) {
         throw new NotFoundError(
-          `Note not found for note ${noteId} or access denied`
+          `Note not found for note ${noteId} or access denied`,
         );
       }
 
@@ -562,7 +563,7 @@ export class NoteService {
 
       // Transform and return
       return transformToNote(noteWithPreview[0]);
-    }
+    },
   );
 
   /**
@@ -595,7 +596,7 @@ export class NoteService {
 
       if (!note) {
         throw new NotFoundError(
-          `Note not found for note ${noteId} or access denied`
+          `Note not found for note ${noteId} or access denied`,
         );
       }
 
@@ -623,12 +624,12 @@ export class NoteService {
 
       if (!noteVersions) {
         throw new NotFoundError(
-          `Note Versions not found for note ${noteId} or access denied`
+          `Note Versions not found for note ${noteId} or access denied`,
         );
       }
 
       return noteVersions;
-    }
+    },
   );
 
   /**
@@ -655,7 +656,7 @@ export class NoteService {
 
       if (!noteVersionWithNote) {
         throw new NotFoundError(
-          `Note Version not found for version ${versionId} or access denied`
+          `Note Version not found for version ${versionId} or access denied`,
         );
       }
 
@@ -669,7 +670,7 @@ export class NoteService {
 
         if (!hasProAccess) {
           throw new UnauthorizedError(
-            "Accessing version history requires an active Pro subscription"
+            "Accessing version history requires an active Pro subscription",
           );
         }
       }
@@ -677,7 +678,7 @@ export class NoteService {
       // Return just the version without the note relation
       const { note, ...noteVersion } = noteVersionWithNote;
       return noteVersion;
-    }
+    },
   );
 
   /**
@@ -686,7 +687,7 @@ export class NoteService {
   private incrimentNoteVersion = withErrorHandling(
     async (
       currentVersion: PrismaNoteVersion,
-      prismaTransaction?: PrismaTransaction
+      prismaTransaction?: PrismaTransaction,
     ) => {
       // Determine which client to use - transaction or global prisma
       const prismaObj = prismaTransaction || prisma;
@@ -704,7 +705,7 @@ export class NoteService {
         },
       });
       return nextVersion;
-    }
+    },
   );
 
   /**
@@ -728,7 +729,7 @@ export class NoteService {
 
       if (!hasProAccess) {
         throw new UnauthorizedError(
-          "Publishing notes requires an active Pro subscription"
+          "Publishing notes requires an active Pro subscription",
         );
       }
 
@@ -766,7 +767,7 @@ export class NoteService {
             validatedVersionId,
             note.title,
             plainTextContent,
-            tx
+            tx,
           );
 
           // Update the version's published status
@@ -783,7 +784,7 @@ export class NoteService {
           // Create a new incremented version as the next draft
           const nextVersion = await this.incrimentNoteVersion(
             publishedVersion,
-            tx
+            tx,
           );
 
           // Update the note to point to the published version as current
@@ -813,6 +814,6 @@ export class NoteService {
       });
 
       return result;
-    }
+    },
   );
 }

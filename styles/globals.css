@@ -108,6 +108,20 @@
   }
 }
 
+/* Subtle BlockNote Link Styling */
+.bn-editor a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.bn-editor a:hover {
+  text-decoration-style: solid;
+  opacity: 0.8;
+}
+
 @theme inline {
   @keyframes aurora {
   0% {

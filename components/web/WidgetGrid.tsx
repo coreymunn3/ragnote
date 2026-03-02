@@ -34,7 +34,7 @@ const WidgetGrid = <T extends { id: string }>({
   const [displayCount, setDisplayCount] = useState(
     initialItemLimit && initialItemLimit < items.length
       ? initialItemLimit
-      : items.length
+      : items.length,
   );
 
   // Slice items based on current display count
@@ -58,7 +58,7 @@ const WidgetGrid = <T extends { id: string }>({
     <div
       className={cn(
         className,
-        "w-full p-4 rounded-md bg-gradient-to-br from-muted/70 via-background to-muted/40"
+        "w-full p-4 rounded-md bg-gradient-to-br from-muted/70 via-background to-muted/40",
       )}
     >
       {/* Title area */}
@@ -89,7 +89,7 @@ const WidgetGrid = <T extends { id: string }>({
             <AnimatedListItem
               key={item.id}
               index={index}
-              animation="fadeInUp"
+              animation="fadeIn"
               delay={delay * STAGGER_DELAY}
             >
               {renderItem(item, index)}

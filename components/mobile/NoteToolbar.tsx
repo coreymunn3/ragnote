@@ -6,6 +6,7 @@ import VersionSelector from "../VersionSelector";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { BookCheckIcon, MessageCircleIcon } from "lucide-react";
 import SaveStatus, { SaveStatusType } from "../SaveStatus";
+import { useOfflineGuard } from "@/hooks/useOfflineGuard";
 
 interface NoteToolbarProps {
   note: Note;
@@ -33,23 +34,26 @@ const NoteToolbar = ({
       setSelectedVersionId(nextVersion.id);
     },
   });
+  const { isOnline, guardMutation } = useOfflineGuard();
 
   /**
    * Publish the note version
    */
   const handlePublishNote = () => {
-    if (note && selectedVersionId) {
-      publishNoteVersionMutation.mutate({
-        versionId: selectedVersionId,
-        noteId: note.id,
-      });
-    } else {
-      toast.error("Unable to Publish");
-    }
+    guardMutation(() => {
+      if (note && selectedVersionId) {
+        publishNoteVersionMutation.mutate({
+          versionId: selectedVersionId,
+          noteId: note.id,
+        });
+      } else {
+        toast.error("Unable to Publish");
+      }
+    });
   };
 
   return (
-    <div className="flex items-center justify-between bg-background">
+    <div className="flex items-center justify-between py-1 bg-background">
       {/* Left side: Version Selector and Save Status */}
       <div className="flex items-center space-x-2">
         {selectedVersion && (
@@ -85,6 +89,7 @@ const NoteToolbar = ({
           variant="ghost"
           icon={<MessageCircleIcon className="h-4 w-4" />}
           onClick={handleToggleChat}
+          disabled={!isOnline}
         />
 
         {/* Publish button */}
@@ -94,7 +99,9 @@ const NoteToolbar = ({
           className="text-primary"
           onClick={handlePublishNote}
           isLoading={publishNoteVersionMutation.isPending}
-          disabled={!selectedVersion || selectedVersion?.is_published}
+          disabled={
+            !selectedVersion || selectedVersion?.is_published || !isOnline
+          }
         />
       </div>
     </div>
