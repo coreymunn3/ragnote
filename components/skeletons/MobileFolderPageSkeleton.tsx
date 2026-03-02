@@ -1,3 +1,4 @@
+import { Skeleton } from "../ui/skeleton";
 import MobileListSkeleton from "./MobileListSkeleton";
 
 const MobileFolderPageSkeleton = () => {
@@ -5,7 +6,7 @@ const MobileFolderPageSkeleton = () => {
     <div className="flex flex-col space-y-4">
       {/* Title/Header Skeleton */}
       <div className="h-10 px-4 flex items-center">
-        <div className="h-6 w-32 bg-muted rounded animate-pulse" />
+        <Skeleton className="h-6 w-32" />
       </div>
       <MobileListSkeleton showTitle={false} showAction={false} itemCount={3} />
     </div>
