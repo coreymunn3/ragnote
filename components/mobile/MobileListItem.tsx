@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
 import { getFolderIcon } from "@/lib/utils";
 import {
@@ -13,6 +14,8 @@ import MobileListItemNoteDetail from "./MobileListItemNoteDetail";
 import MobileListItemChatDetail from "./MobileListItemChatDetail";
 import MobileListItemFolderDetail from "./MobileListItemFolderDetail";
 import { TypographyP } from "../ui/typography";
+import { AnimatedExpandable } from "@/components/animations";
+import FolderItemRenderer from "../web/FolderItemRenderer";
 
 interface MobileListItemProps {
   type: MobileListType;
@@ -29,6 +32,8 @@ interface DetailElement {
 }
 
 const MobileListItem = ({ type, item, isLastItem }: MobileListItemProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   // Check if the item is pinned (for notes and chats)
   const isPinned =
     (type === "note" && (item as Note).is_pinned) ||
@@ -43,7 +48,13 @@ const MobileListItem = ({ type, item, isLastItem }: MobileListItemProps) => {
           displayName: folder.folder_name,
           href: folder.href,
           icon: getFolderIcon(folder.id),
-          detailElement: <MobileListItemFolderDetail folder={folder} />,
+          detailElement: (
+            <MobileListItemFolderDetail
+              folder={folder}
+              isOpen={isOpen}
+              onToggle={() => setIsOpen(!isOpen)}
+            />
+          ),
         };
       case "note":
         const note = item as Note;
@@ -99,6 +110,20 @@ const MobileListItem = ({ type, item, isLastItem }: MobileListItemProps) => {
           {itemData.detailElement}
         </div>
       </div>
+      {/* Expandable folder contents */}
+      {type === "folder" && (
+        <AnimatedExpandable isOpen={isOpen}>
+          <div className="pl-8 pr-4 pb-2 space-y-1">
+            {(item as FolderWithItems).items.map((folderItem) => (
+              <FolderItemRenderer
+                key={folderItem.id}
+                item={folderItem}
+                itemType={(item as FolderWithItems).itemType}
+              />
+            ))}
+          </div>
+        </AnimatedExpandable>
+      )}
       {isLastItem && <hr className="border-sidebar-border"></hr>}
     </div>
   );
