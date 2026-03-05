@@ -336,7 +336,7 @@ const CommandBar = (props: CommandBarProps) => {
         {searchMutation.isPending && <SearchResultsSkeleton />}
         {/* show the items if we get search results */}
         {!!searchResults && (
-          <div className="p-2 flex flex-wrap gap-2">
+          <div className="p-1 grid grid-cols-1 md:grid-cols-2 gap-2">
             {/* if we have more than 0 results, show them */}
             {searchResults.numResults > 0 &&
               searchResults.searchResults
