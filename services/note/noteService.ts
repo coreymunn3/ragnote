@@ -854,6 +854,8 @@ export class NoteService {
             data: {
               is_published: true,
               published_at: new Date(),
+              last_indexed_at: new Date(),
+              last_indexed_char_count: plainTextContent.length,
             },
           });
 
