@@ -76,7 +76,6 @@ const WebNotePageContent = ({
   }
 
   // If we still don't have a note after loading, return skeleton or error
-  // The offline banner handles the "offline" notification
   if (!noteData) {
     return <EditorSkeleton />;
   }
