@@ -438,18 +438,49 @@ export class NoteService {
         throw new NotFoundError("Note version not found or access denied");
       }
 
-      // Extract plain text from rich text content
+      // Extract plain text and title from rich text content
       const plainTextContent =
         RichTextExtractor.extractPlainText(richTextContent);
-
-      // Extract title from the first line of the rich text content
       const extractedTitle = RichTextExtractor.extractTitle(richTextContent);
 
       /**
-       * In a transaction, update the note title and version content.
+       * Automatic note version embedding
+       *
+       * Over time as the user edits the note, the note's embeddings will slowly become more and more stale
+       * So, after a certain amount of editing or time has passed, we should automatically re-embed in the background
+       * so that if the user suddenly decides to use AI features, the embedding will contain the note's data.
+       * from here on out, 'index' refers to 'embedding'
+       *
+       * This has several steps:
+       * - compute the time since the last indexing
+       * - compute the difference in characters since the last indexing
+       *
+       */
+
+      // Check if indexing is needed
+      const INDEXING_COOLDOWN = 10 * 60 * 1000; // 10 minutes
+      const SIGNIFICANT_CHANGE_THRESHOLD = 500; // characters
+
+      // calculate the time since the note was last embedding
+      const timeSinceLastIndex = noteVersion.last_indexed_at
+        ? Date.now() - noteVersion.last_indexed_at.getTime()
+        : Infinity;
+      // calculate the difference in chars since the last embedding
+      const lastIndexCharDetla = Math.abs(
+        (noteVersion.last_indexed_char_count || 0) - plainTextContent.length,
+      );
+      // figure out if we should index based on these content differences
+      const shouldIndex =
+        !noteVersion.last_indexed_at ||
+        timeSinceLastIndex > INDEXING_COOLDOWN ||
+        lastIndexCharDetla > SIGNIFICANT_CHANGE_THRESHOLD;
+
+      /**
+       * In a transaction, update the note title and version content,
+       * and if necessary, also re-embed the note version.
        */
       const result = await prisma.$transaction(async (tx) => {
-        // save the new title
+        // Update the new title
         const updatedNote = await tx.note.update({
           where: {
             id: noteVersion.note_id,
@@ -463,19 +494,64 @@ export class NoteService {
             updated_at: true,
           },
         });
-        // save the version content
-        const savedVersion = await tx.note_version.update({
-          where: { id: versionId },
-          data: {
-            rich_text_content: richTextContent,
-            plain_text_content: plainTextContent,
-          },
-        });
-        // return both the saved version and updated note
-        return {
-          version: savedVersion,
-          note: updatedNote,
-        };
+
+        /**
+         * This conditional logic seems duplicative, but it's oriented this way to ensure
+         * that we always place the re-embedding process in the same atomic update as the
+         * content rich text/plain text updates
+         *
+         * which is to ensure that all 'update' fields have the exact same timestamp
+         *
+         * If we should index, create a transaction that:
+         * - delete old embeddings
+         * - create new embeddings
+         * - update the note version content fields
+         *
+         * if we should NOT index, create transaction that:
+         * - save the version content and return
+         */
+        if (shouldIndex) {
+          const aiService = new AiService(userId);
+          // delete old embedding
+          await aiService.deleteEmbeddingsForVersion(versionId, tx);
+          // create new embedding
+          await aiService.createEmbeddedChunksForVersion(
+            versionId,
+            extractedTitle,
+            plainTextContent,
+            tx,
+          );
+          // save the new content
+          const savedVersion = await tx.note_version.update({
+            where: { id: versionId },
+            data: {
+              rich_text_content: richTextContent,
+              plain_text_content: plainTextContent,
+              last_indexed_at: new Date(),
+              last_indexed_char_count: plainTextContent.length,
+            },
+          });
+
+          return {
+            version: savedVersion,
+            note: updatedNote,
+          };
+        } else {
+          // No indexing needed - just save content
+          // DON'T update last_indexed_at - it stays at previous value
+          const savedVersion = await tx.note_version.update({
+            where: { id: versionId },
+            data: {
+              rich_text_content: richTextContent,
+              plain_text_content: plainTextContent,
+            },
+          });
+
+          return {
+            version: savedVersion,
+            note: updatedNote,
+          };
+        }
       });
       return result;
     },
