@@ -273,6 +273,85 @@ export class ChatService {
     },
   );
 
+  public ensureScopeIsFresh = withErrorHandling(
+    async (params: {
+      userId: string;
+      chatScope: ChatScopeObject;
+    }): Promise<void> => {
+      const { userId, chatScope } = params;
+      if (chatScope.noteVersions.length === 0) return;
+
+      const versionIds = chatScope.noteVersions.map((v) => v.versionId);
+      // find versions that need to be re-embedded (stale content)
+      const staleVersions = await prisma.note_version.findMany({
+        where: {
+          id: { in: versionIds }, // versions in this scope
+          OR: [
+            // that have never been indexed OR whose updated_at is more recent than last indexed at
+            { last_indexed_at: null },
+            {
+              updated_at: {
+                gt: prisma.note_version.fields.last_indexed_at,
+              },
+            },
+          ],
+        },
+        include: {
+          note: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      });
+      // nothing stale, return
+      if (staleVersions.length === 0) return;
+      // if there are many stale versions, log it
+      if (staleVersions.length >= 20) {
+        console.log(
+          `[ensureScopeIsFresh] Syncing ${staleVersions.length} stale versions.`,
+        );
+      }
+      // re-embed stale versions
+      const aiService = new AiService(userId);
+      await Promise.all(
+        staleVersions.map(async (version) => {
+          try {
+            await prisma.$transaction(async (tx) => {
+              // delete old embeddings
+              await aiService.deleteEmbeddingsForVersion(version.id, tx);
+              // crete new embeddings
+              await aiService.createEmbeddedChunksForVersion(
+                version.id,
+                version.note.title,
+                version.plain_text_content,
+                tx,
+              );
+              // update tracking fields
+              await tx.note_version.update({
+                where: {
+                  id: version.id,
+                },
+                data: {
+                  last_indexed_at: new Date(),
+                  last_indexed_char_count: version.plain_text_content.length,
+                },
+              });
+            });
+          } catch (error) {
+            // log error but don't fail the op
+            console.error(
+              `[ensureScopeIsFresh] Failed to sync version ${version.id}:`,
+              error,
+            );
+            // re-throw to let promise.all catch
+            throw error;
+          }
+        }),
+      );
+    },
+  );
+
   /**
    * Entry point for sending a chat message. This method orchestrates the entire
    * pipeline, from receiving the user's message to returning the AI's response.
@@ -331,6 +410,14 @@ export class ChatService {
         scope: validatedScope,
         noteId: validatedNoteId,
         folderId: validatedFolderId,
+      });
+
+      /**
+       * Just in time content embedding - ensure the versions in-scope are 'fresh'
+       */
+      await this.ensureScopeIsFresh({
+        userId: validatedUserId,
+        chatScope: currentChatScope,
       });
 
       /**
