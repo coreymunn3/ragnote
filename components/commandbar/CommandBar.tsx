@@ -194,7 +194,7 @@ const CommandBar = (props: CommandBarProps) => {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-2"
+              className="gap-1"
               disabled={!isOnline}
             >
               {primaryMode === "chat" ? (
@@ -209,7 +209,7 @@ const CommandBar = (props: CommandBarProps) => {
               <ChevronDownIcon className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center">
+          <DropdownMenuContent align="start">
             {enhancedModes.map(
               ({ mode, label, icon: ModeIcon, requiresPro }) => (
                 <DropdownMenuItem
@@ -227,7 +227,7 @@ const CommandBar = (props: CommandBarProps) => {
                   {ModeIcon}
                   {label}
                   {requiresPro && !isPro && (
-                    <Crown className="h-3 w-3 ml-auto text-yellow-600" />
+                    <Crown className="h-3 w-3 ml-auto text-primary" />
                   )}
                 </DropdownMenuItem>
               ),
@@ -249,7 +249,7 @@ const CommandBar = (props: CommandBarProps) => {
                   ? `Chat with ${scope === "global" ? "all your notes" : scope === "folder" ? "this folder" : "this note"}...`
                   : "Search Your Notes"
             }
-            className="flex-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0"
+            className="flex-1 p-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0"
             value={query}
             disabled={chatMutation.isPending || !isOnline}
             onChange={(e) => setQuery(e.target.value)}
@@ -282,6 +282,7 @@ const CommandBar = (props: CommandBarProps) => {
           <Button
             variant={"ghost"}
             className="text-primary hover:text-primary"
+            size={"icon"}
             onClick={handleSubmit}
             disabled={chatMutation.isPending || !isOnline}
           >
@@ -298,7 +299,7 @@ const CommandBar = (props: CommandBarProps) => {
         </div>
 
         {/* after the search bar - controls/info */}
-        <div className="flex items-center justify-center w-12">
+        <div className="flex items-center justify-center w-8">
           {/* Search Mode Toggle - Semantic Search or Text Matching - only show in search mode */}
           {primaryMode === "search" && (
             <TooltipProvider>
