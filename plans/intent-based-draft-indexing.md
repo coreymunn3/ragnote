@@ -141,15 +141,6 @@ public updateNoteVersionContent = withErrorHandling(
         select: { id: true, title: true },
       });
 
-      // Save the version content
-      const savedVersion = await tx.note_version.update({
-        where: { id: versionId },
-        data: {
-          rich_text_content: richTextContent,
-          plain_text_content: plainTextContent,
-        },
-      });
-
       // Conditionally index if needed
       if (shouldIndex) {
         const aiService = new AiService(userId);
@@ -165,20 +156,39 @@ public updateNoteVersionContent = withErrorHandling(
           tx
         );
 
-        // Update tracking fields
-        await tx.note_version.update({
+        // CRITICAL: Update content AND tracking fields in SINGLE operation
+        // This ensures updated_at and last_indexed_at are set to the same timestamp
+        // Prevents "always stale" bug where timestamps differ by milliseconds
+        const savedVersion = await tx.note_version.update({
           where: { id: versionId },
           data: {
+            rich_text_content: richTextContent,
+            plain_text_content: plainTextContent,
             last_indexed_at: new Date(),
             last_indexed_char_count: plainTextContent.length,
           },
         });
-      }
 
-      return {
-        version: savedVersion,
-        note: updatedNote,
-      };
+        return {
+          version: savedVersion,
+          note: updatedNote,
+        };
+      } else {
+        // No indexing needed - just save content
+        // DON'T update last_indexed_at - it stays at previous value
+        const savedVersion = await tx.note_version.update({
+          where: { id: versionId },
+          data: {
+            rich_text_content: richTextContent,
+            plain_text_content: plainTextContent,
+          },
+        });
+
+        return {
+          version: savedVersion,
+          note: updatedNote,
+        };
+      }
     });
 
     return result;
@@ -560,6 +570,98 @@ await tx.note_version.update({
 3. **Cost**
    - Embedding API costs increase by less than 20%
    - Cost per active user remains under $0.10/month
+
+## Critical Implementation Considerations
+
+### Timestamp Synchronization Issue
+
+**Problem:** If `updated_at` and `last_indexed_at` are set in separate database operations, they will have different timestamps (even within the same transaction), causing notes to appear perpetually stale.
+
+**Example of the bug:**
+
+```typescript
+// WRONG: Two separate updates
+await tx.note_version.update({
+  data: { rich_text_content, plain_text_content },
+  // updated_at = 10:00:00.123 (auto-set)
+});
+
+await tx.note_version.update({
+  data: { last_indexed_at: new Date() },
+  // updated_at = 10:00:00.456 (auto-set AGAIN)
+  // last_indexed_at = 10:00:00.456
+});
+
+// Result: updated_at (10:00:00.456) > last_indexed_at (10:00:00.456) = FALSE
+// But on next save without indexing:
+// updated_at = 10:05:00.789, last_indexed_at = 10:00:00.456
+// Stale check: TRUE (correct)
+```
+
+**Solution:** Combine content save and tracking field update into a **single operation** when indexing occurs:
+
+```typescript
+// CORRECT: Single update when indexing
+if (shouldIndex) {
+  // ... perform embedding ...
+
+  // Save content AND tracking fields together
+  await tx.note_version.update({
+    where: { id: versionId },
+    data: {
+      rich_text_content: richTextContent,
+      plain_text_content: plainTextContent,
+      last_indexed_at: new Date(), // Set in same operation as content
+      last_indexed_char_count: plainTextContent.length,
+    },
+  });
+} else {
+  // Save content only, don't touch last_indexed_at
+  await tx.note_version.update({
+    where: { id: versionId },
+    data: {
+      rich_text_content: richTextContent,
+      plain_text_content: plainTextContent,
+      // last_indexed_at NOT updated - stays at previous value
+    },
+  });
+}
+```
+
+**Why this works:**
+
+- Prisma's `@updatedAt` decorator sets `updated_at` to the database's current timestamp
+- Including `last_indexed_at: new Date()` in the same operation ensures both use the same (or nearly identical) timestamp
+- The staleness check `updated_at > last_indexed_at` will correctly return FALSE immediately after indexing
+- When content is saved WITHOUT indexing, `updated_at` advances but `last_indexed_at` stays old, correctly marking it as stale
+
+**Testing this fix:**
+
+1. Save note with indexing → Verify `updated_at === last_indexed_at` (within 1ms)
+2. Save note without indexing → Verify `updated_at > last_indexed_at` (correctly stale)
+3. Chat with stale note → Verify JIT sync updates both timestamps to same value
+
+### Migration Script for Existing Data
+
+Before deploying, backfill `last_indexed_at` for existing published notes:
+
+```sql
+-- Backfill last_indexed_at for existing published versions
+UPDATE note_version
+SET last_indexed_at = published_at,
+    last_indexed_char_count = LENGTH(plain_text_content)
+WHERE is_published = true
+  AND last_indexed_at IS NULL;
+
+-- For unpublished versions, set to created_at (best guess)
+UPDATE note_version
+SET last_indexed_at = created_at,
+    last_indexed_char_count = LENGTH(plain_text_content)
+WHERE is_published = false
+  AND last_indexed_at IS NULL;
+```
+
+This prevents all existing notes from appearing stale on first chat after deployment.
 
 ## Performance Considerations
 
