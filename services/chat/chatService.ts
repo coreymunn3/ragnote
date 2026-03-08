@@ -304,6 +304,8 @@ export class ChatService {
           },
         },
       });
+      // logging
+      console.log(`${staleVersions.length} version need to be re-embedded`);
       // nothing stale, return
       if (staleVersions.length === 0) return;
       // if there are many stale versions, log it
@@ -313,6 +315,8 @@ export class ChatService {
         );
       }
       // re-embed stale versions
+      console.log("re-embedding stale versions now...");
+      console.time("reembedding-timer");
       const aiService = new AiService(userId);
       await Promise.all(
         staleVersions.map(async (version) => {
@@ -349,6 +353,8 @@ export class ChatService {
           }
         }),
       );
+      // log the time spend re-embedding
+      console.timeEnd("reembedding-timer");
     },
   );
 

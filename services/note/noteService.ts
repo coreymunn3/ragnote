@@ -474,6 +474,12 @@ export class NoteService {
         !noteVersion.last_indexed_at ||
         timeSinceLastIndex > INDEXING_COOLDOWN ||
         lastIndexCharDetla > SIGNIFICANT_CHANGE_THRESHOLD;
+      // logging
+      console.log(
+        `should index: ${shouldIndex}`,
+        timeSinceLastIndex,
+        lastIndexCharDetla,
+      );
 
       /**
        * In a transaction, update the note title and version content,
