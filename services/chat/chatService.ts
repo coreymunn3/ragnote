@@ -58,7 +58,7 @@ export class ChatService {
 
       // Transform the raw session to our application type
       return await transformToChatSession(session);
-    }
+    },
   );
 
   /**
@@ -82,7 +82,7 @@ export class ChatService {
       /**
        * Now, lets fill in the noteVersions array to properly build a fully scoped chat
        */
-      // 1 - scope is note - get the id and most recent published version for the one note
+      // 1 - scope is note - get the current version (draft or published)
       if (chatScope.scope === "note" && chatScope.scopeId) {
         const note = await prisma.note.findFirst({
           where: {
@@ -90,24 +90,20 @@ export class ChatService {
             user_id: validatedData.userId,
             is_deleted: false,
           },
-          // this includes only the most recently published version
-          include: {
-            versions: {
-              where: { is_published: true },
-              orderBy: { published_at: "desc" },
-              take: 1,
-            },
+          select: {
+            id: true,
+            current_version_id: true,
           },
         });
 
-        if (note && note.versions.length > 0) {
+        if (note && note.current_version_id) {
           chatScope.noteVersions.push({
             noteId: note.id,
-            versionId: note.versions[0].id,
+            versionId: note.current_version_id,
           });
         }
       }
-      // 2 - scope is folder - id & most recent published version of each note in the folder (scopeId)
+      // 2 - scope is folder - get the current version of each note in the folder
       if (chatScope.scope === "folder" && chatScope.scopeId) {
         // find all notes in the folder with their version data
         const notes = await prisma.note.findMany({
@@ -116,25 +112,22 @@ export class ChatService {
             folder_id: chatScope.scopeId,
             is_deleted: false,
           },
-          include: {
-            versions: {
-              where: { is_published: true },
-              orderBy: { published_at: "desc" },
-              take: 1,
-            },
+          select: {
+            id: true,
+            current_version_id: true,
           },
         });
         // extract note id and last published version id for the scope
         notes.forEach((note) => {
-          if (note.versions.length > 0) {
+          if (note.current_version_id) {
             chatScope.noteVersions.push({
               noteId: note.id,
-              versionId: note.versions[0].id,
+              versionId: note.current_version_id,
             });
           }
         });
       }
-      // 3 - scope is global - id & most recent published version of each note the user has made
+      // 3 - scope is global - current version of each note
       if (chatScope.scope === "global" && !chatScope.scopeId) {
         // find all notes in the folder with their version data
         const notes = await prisma.note.findMany({
@@ -142,26 +135,23 @@ export class ChatService {
             user_id: validatedData.userId,
             is_deleted: false,
           },
-          include: {
-            versions: {
-              where: { is_published: true },
-              orderBy: { published_at: "desc" },
-              take: 1,
-            },
+          select: {
+            id: true,
+            current_version_id: true,
           },
         });
         // extract note id and last published version id for the scope
         notes.forEach((note) => {
-          if (note.versions.length > 0) {
+          if (note.current_version_id) {
             chatScope.noteVersions.push({
               noteId: note.id,
-              versionId: note.versions[0].id,
+              versionId: note.current_version_id,
             });
           }
         });
       }
       return chatScope;
-    }
+    },
   );
 
   /**
@@ -188,7 +178,7 @@ export class ChatService {
 
       // Transform the session to our application type
       return await transformToChatSession(session);
-    }
+    },
   );
 
   /**
@@ -207,10 +197,10 @@ export class ChatService {
       });
       // Transform all sessions to application types
       const transformedSessions = await Promise.all(
-        sessions.map((s) => transformToChatSession(s))
+        sessions.map((s) => transformToChatSession(s)),
       );
       return transformedSessions;
-    }
+    },
   );
 
   /**
@@ -241,7 +231,7 @@ export class ChatService {
 
       // Transform each message to the application type
       return messages.map(transformToChatMessage);
-    }
+    },
   );
 
   /**
@@ -280,7 +270,7 @@ export class ChatService {
 
       // Transform to application type
       return transformToChatMessage(message);
-    }
+    },
   );
 
   /**
@@ -329,7 +319,7 @@ export class ChatService {
 
       if (!hasProAccess) {
         throw new UnauthorizedError(
-          "Chat features require an active Pro subscription"
+          "Chat features require an active Pro subscription",
         );
       }
 
@@ -399,11 +389,11 @@ export class ChatService {
       const agent = await aiService.createAgentFromScope(
         validatedUserId,
         currentChatScope,
-        messageHistory
+        messageHistory,
       );
       if (!agent) {
         throw new InternalServerError(
-          `Unable to create/init chat agent with scope: ${JSON.stringify(currentChatScope)}`
+          `Unable to create/init chat agent with scope: ${JSON.stringify(currentChatScope)}`,
         );
       }
 
@@ -469,13 +459,13 @@ export class ChatService {
           })
           .then(() => {
             console.log(
-              `Generated chat title for session ${currentSession.id}`
+              `Generated chat title for session ${currentSession.id}`,
             );
           })
           .catch((error) => {
             console.error(
               `Failed to generate/update chat title for session ${currentSession.id}:`,
-              error
+              error,
             );
           });
       }
@@ -486,7 +476,7 @@ export class ChatService {
         userMessage,
         aiMessage,
       };
-    }
+    },
   );
 
   /**
@@ -514,11 +504,11 @@ export class ChatService {
 
       // Transform all sessions to application types
       const transformedSessions = await Promise.all(
-        sessions.map((s) => transformToChatSession(s))
+        sessions.map((s) => transformToChatSession(s)),
       );
 
       return transformedSessions;
-    }
+    },
   );
 
   /**
@@ -561,7 +551,7 @@ export class ChatService {
       // transform and return
       const transformedSession = await transformToChatSession(updatedChat);
       return transformedSession;
-    }
+    },
   );
 
   /**
@@ -593,7 +583,7 @@ export class ChatService {
           is_deleted: true,
         },
       });
-    }
+    },
   );
 
   /**
@@ -617,10 +607,10 @@ export class ChatService {
 
       // Transform all sessions to application types
       const transformedSessions = await Promise.all(
-        sessions.map((s) => transformToChatSession(s))
+        sessions.map((s) => transformToChatSession(s)),
       );
 
       return transformedSessions;
-    }
+    },
   );
 }
