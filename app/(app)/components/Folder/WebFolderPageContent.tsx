@@ -159,7 +159,7 @@ const WebFolderPageContent = ({
         open={renameOpen}
         onOpenChange={setRenameOpen}
         title="Rename This Folder"
-        placeholder="Folder Name"
+        initialValue={folderData.data.folder_name}
         confirmText="Rename"
         confirmLoadingText="Renaming..."
         onConfirm={(inputValue) => {

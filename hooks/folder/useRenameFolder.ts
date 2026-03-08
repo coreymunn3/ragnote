@@ -33,9 +33,7 @@ export function useRenameFolder(options?: UseRenameFolderOptions) {
       queryClient.invalidateQueries({
         queryKey: ["folder", variables.folderId],
       });
-      toast.success(
-        `...and it shall hereby be known as ${updatedFolder.folder_name}`
-      );
+      toast.success(`Renamed to ${updatedFolder.folder_name}`);
 
       // Custom onSuccess callback
       options?.onSuccess?.(updatedFolder, variables, context);

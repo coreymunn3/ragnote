@@ -9,10 +9,9 @@ import InputDialog from "@/components/dialogs/InputDialog";
 import MobileList from "@/components/mobile/MobileList";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
-import { ArrowLeftIcon, FolderPenIcon, Trash2Icon } from "lucide-react";
+import { FolderPenIcon, Trash2Icon } from "lucide-react";
 import CreateNote from "@/components/CreateNote";
 import { useMobileHeader } from "@/contexts/MobileHeaderContext";
-import { Button } from "@/components/ui/button";
 import OptionsMenu from "@/components/OptionsMenu";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import { Note } from "@/lib/types/noteTypes";
@@ -134,7 +133,7 @@ const MobileFolderPageContent = ({
         open={renameOpen}
         onOpenChange={setRenameOpen}
         title="Rename This Folder"
-        placeholder="Folder Name"
+        initialValue={folderData.data.folder_name}
         confirmText="Rename"
         confirmLoadingText="Renaming..."
         onConfirm={(inputValue) => {

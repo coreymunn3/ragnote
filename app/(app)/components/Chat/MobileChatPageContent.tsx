@@ -10,8 +10,7 @@ import { useChat } from "@/hooks/chat/useChat";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { useUpdateChat } from "@/hooks/chat/useUpdateChat";
 import { useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { ArrowLeftIcon, SquarePenIcon, Trash2Icon } from "lucide-react";
+import { SquarePenIcon, Trash2Icon } from "lucide-react";
 import ScopeBadge from "@/components/ScopeBadge";
 import OptionsMenu from "@/components/OptionsMenu";
 import { toast } from "sonner";
@@ -165,7 +164,7 @@ const MobileChatPageContent = ({
         open={renameOpen}
         onOpenChange={setRenameOpen}
         title="Rename This Chat"
-        placeholder="Chat Title"
+        initialValue={chatSession.data.title!}
         confirmText="Rename"
         confirmLoadingText="Renaming..."
         onConfirm={(inputValue) => handleSaveTitle(inputValue)}
