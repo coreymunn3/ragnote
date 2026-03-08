@@ -6,7 +6,7 @@ import z from "zod";
 
 export const createGetNotesTool = async (
   userId: string,
-  chatScope: ChatScopeObject
+  chatScope: ChatScopeObject,
 ) => {
   return tool({
     name: "get_notes_content",
@@ -29,7 +29,7 @@ export const createGetNotesTool = async (
 
 const getNoteVersionsForScope = async (
   userId: string,
-  chatScope: ChatScopeObject
+  chatScope: ChatScopeObject,
 ): Promise<(PrismaNoteVersion & { note: PrismaNote })[]> => {
   // this handles all 3 chat scope instances - note, folder, and global
   const versionIds = chatScope.noteVersions.map((version) => version.versionId);
@@ -42,7 +42,6 @@ const getNoteVersionsForScope = async (
         user_id: userId,
         is_deleted: false,
       },
-      is_published: true,
     },
     include: {
       note: true,
