@@ -45,7 +45,7 @@ import {
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import UpgradeDialog from "../dialogs/UpgradeDialog";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import ChatPanel from "../chat/ChatPanel";
+import { useChatPanel } from "@/contexts/ChatPanelContext";
 
 type PrimaryMode = "chat" | "search";
 
@@ -54,14 +54,22 @@ interface CommandBarProps {
   scopeId?: string;
   allowedModes?: PrimaryMode[];
   onSearch?: (query: string) => void;
+  scopeTitle?: string; // Title for the chat panel (e.g., folder name, "All Notes")
 }
 
 const CommandBar = (props: CommandBarProps) => {
-  const { scope, scopeId, allowedModes = ["chat", "search"], onSearch } = props;
+  const {
+    scope,
+    scopeId,
+    allowedModes = ["chat", "search"],
+    onSearch,
+    scopeTitle,
+  } = props;
   const isMobile = useIsMobile();
   const [query, setQuery] = useState("");
   const { isPro } = useUserSubscription();
   const isOnline = useOnlineStatus();
+  const { openPanel } = useChatPanel();
 
   const enhancedModes = allowedModes.map((mode) => ({
     mode,
@@ -85,12 +93,6 @@ const CommandBar = (props: CommandBarProps) => {
   const [searchMode, setSearchMode] = useState<SearchMode>("text");
   const [showNoResults, setShowNoResults] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-
-  // Chat panel state
-  const [chatPanelOpen, setChatPanelOpen] = useState(false);
-  const [initialChatMessage, setInitialChatMessage] = useState<
-    string | undefined
-  >();
 
   /**
    * Mutation to execute the search
@@ -118,9 +120,15 @@ const CommandBar = (props: CommandBarProps) => {
     }
 
     if (primaryMode === "chat") {
-      // Open chat panel with initial message
-      setInitialChatMessage(query);
-      setChatPanelOpen(true);
+      // Open chat panel with initial message using context
+      const title =
+        scopeTitle ||
+        (scope === "global"
+          ? "All Notes"
+          : scope === "folder"
+            ? "Folder"
+            : "Note");
+      openPanel(scope, scopeId, title, query);
       // Clear the query
       setQuery("");
     } else {
@@ -133,14 +141,6 @@ const CommandBar = (props: CommandBarProps) => {
       // Clear the query
       setQuery("");
     }
-  };
-
-  /**
-   * Handle chat panel close - reset initial message
-   */
-  const handleChatPanelClose = () => {
-    setChatPanelOpen(false);
-    setInitialChatMessage(undefined);
   };
 
   /**
@@ -306,7 +306,19 @@ const CommandBar = (props: CommandBarProps) => {
           {/* Scope Badge - only show in chat mode */}
           {primaryMode === "chat" && (
             <div className="flex items-center">
-              <ScopeBadge chatScope={scope} />
+              <ScopeBadge
+                chatScope={scope}
+                onClick={() => {
+                  const title =
+                    scopeTitle ||
+                    (scope === "global"
+                      ? "All Notes"
+                      : scope === "folder"
+                        ? "Folder"
+                        : "Note");
+                  openPanel(scope, scopeId, title);
+                }}
+              />
             </div>
           )}
         </div>
@@ -349,23 +361,6 @@ const CommandBar = (props: CommandBarProps) => {
       <UpgradeDialog
         open={showUpgradeModal}
         onOpenChange={setShowUpgradeModal}
-      />
-
-      {/* Chat Panel */}
-      <ChatPanel
-        open={chatPanelOpen}
-        onOpenChange={handleChatPanelClose}
-        title={
-          scope === "global"
-            ? "All Notes"
-            : scope === "folder"
-              ? "Folder"
-              : "Note"
-        }
-        isMobile={isMobile}
-        scope={scope}
-        scopeId={scopeId}
-        initialMessage={initialChatMessage}
       />
     </div>
   );
