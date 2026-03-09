@@ -12,11 +12,9 @@ import {
   Search,
   ChevronDownIcon,
   Crown,
-  Loader2Icon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useSearch } from "@/hooks/search/useSearch";
-import { useChat } from "@/hooks/chat/useChat";
 import { AnimatedExpandable, AnimatedListItem } from "../animations";
 import { toast } from "sonner";
 import SearchResultsSkeleton from "../skeletons/SearchResultsSkeleton";
@@ -30,7 +28,6 @@ import SearchResultItem from "./SearchResultItem";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import ProButton from "../ProButton";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useRouter } from "next/navigation";
 import ScopeBadge from "../ScopeBadge";
 import {
   Tooltip,
@@ -46,9 +43,9 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
-import { Skeleton } from "../ui/skeleton";
 import UpgradeDialog from "../dialogs/UpgradeDialog";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import ChatPanel from "../chat/ChatPanel";
 
 type PrimaryMode = "chat" | "search";
 
@@ -62,7 +59,6 @@ interface CommandBarProps {
 const CommandBar = (props: CommandBarProps) => {
   const { scope, scopeId, allowedModes = ["chat", "search"], onSearch } = props;
   const isMobile = useIsMobile();
-  const router = useRouter();
   const [query, setQuery] = useState("");
   const { isPro } = useUserSubscription();
   const isOnline = useOnlineStatus();
@@ -90,15 +86,11 @@ const CommandBar = (props: CommandBarProps) => {
   const [showNoResults, setShowNoResults] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  /**
-   * Mutation to execute the chat
-   * when it completes, navigate to the chat session page
-   */
-  const chatMutation = useChat({
-    onSuccess: (data) => {
-      router.push(`/chat/${data.session.id}`);
-    },
-  });
+  // Chat panel state
+  const [chatPanelOpen, setChatPanelOpen] = useState(false);
+  const [initialChatMessage, setInitialChatMessage] = useState<
+    string | undefined
+  >();
 
   /**
    * Mutation to execute the search
@@ -126,13 +118,9 @@ const CommandBar = (props: CommandBarProps) => {
     }
 
     if (primaryMode === "chat") {
-      // Send chat message
-      chatMutation.mutate({
-        message: query,
-        scope: scope,
-        scopeId: scopeId,
-        sessionId: undefined, // Always create a new session from command bar
-      });
+      // Open chat panel with initial message
+      setInitialChatMessage(query);
+      setChatPanelOpen(true);
       // Clear the query
       setQuery("");
     } else {
@@ -145,6 +133,14 @@ const CommandBar = (props: CommandBarProps) => {
       // Clear the query
       setQuery("");
     }
+  };
+
+  /**
+   * Handle chat panel close - reset initial message
+   */
+  const handleChatPanelClose = () => {
+    setChatPanelOpen(false);
+    setInitialChatMessage(undefined);
   };
 
   /**
@@ -235,31 +231,25 @@ const CommandBar = (props: CommandBarProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* the input (or if chat pending, a skeleton) */}
-        {chatMutation.isPending ? (
-          <div className="flex-1 text-sm">
-            <Skeleton className="w-48 h-6" />
-          </div>
-        ) : (
-          <Input
-            placeholder={
-              !isOnline
-                ? "Offline - search and chat unavailable"
-                : primaryMode === "chat"
-                  ? `Chat with ${scope === "global" ? "all your notes" : scope === "folder" ? "this folder" : "this note"}...`
-                  : "Search Your Notes"
+        {/* the input */}
+        <Input
+          placeholder={
+            !isOnline
+              ? "Offline - search and chat unavailable"
+              : primaryMode === "chat"
+                ? `Chat with ${scope === "global" ? "all your notes" : scope === "folder" ? "this folder" : "this note"}...`
+                : "Search Your Notes"
+          }
+          className="flex-1 p-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0"
+          value={query}
+          disabled={!isOnline}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSubmit();
             }
-            className="flex-1 p-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0"
-            value={query}
-            disabled={chatMutation.isPending || !isOnline}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSubmit();
-              }
-            }}
-          />
-        )}
+          }}
+        />
 
         {/* clear search results button - only shows when there are search results */}
         {primaryMode === "search" && !!searchResults && (
@@ -284,15 +274,10 @@ const CommandBar = (props: CommandBarProps) => {
             className="text-primary hover:text-primary"
             size={"icon"}
             onClick={handleSubmit}
-            disabled={chatMutation.isPending || !isOnline}
+            disabled={!isOnline}
           >
             <span>
-              {!isMobile &&
-                (primaryMode === "chat"
-                  ? chatMutation.isPending
-                    ? "Sending..."
-                    : "Send"
-                  : "Search")}
+              {!isMobile && (primaryMode === "chat" ? "Send" : "Search")}
             </span>
             <CornerDownLeft className="h-4 w-4" />
           </Button>
@@ -364,6 +349,23 @@ const CommandBar = (props: CommandBarProps) => {
       <UpgradeDialog
         open={showUpgradeModal}
         onOpenChange={setShowUpgradeModal}
+      />
+
+      {/* Chat Panel */}
+      <ChatPanel
+        open={chatPanelOpen}
+        onOpenChange={handleChatPanelClose}
+        title={
+          scope === "global"
+            ? "All Notes"
+            : scope === "folder"
+              ? "Folder"
+              : "Note"
+        }
+        isMobile={isMobile}
+        scope={scope}
+        scopeId={scopeId}
+        initialMessage={initialChatMessage}
       />
     </div>
   );
