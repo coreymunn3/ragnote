@@ -272,7 +272,7 @@ const CommandBar = (props: CommandBarProps) => {
           <Button
             variant={"ghost"}
             className="text-primary hover:text-primary"
-            size={"icon"}
+            size={isMobile ? "icon" : "sm"}
             onClick={handleSubmit}
             disabled={!isOnline}
           >
@@ -284,7 +284,7 @@ const CommandBar = (props: CommandBarProps) => {
         </div>
 
         {/* after the search bar - controls/info */}
-        <div className="flex items-center justify-center w-8">
+        <div className="flex items-center justify-center">
           {/* Search Mode Toggle - Semantic Search or Text Matching - only show in search mode */}
           {primaryMode === "search" && (
             <TooltipProvider>
@@ -292,6 +292,7 @@ const CommandBar = (props: CommandBarProps) => {
                 <TooltipTrigger asChild>
                   <ProButton
                     variant={searchMode === "semantic" ? "default" : "ghost"}
+                    size={"icon"}
                     className={`${searchMode === "text" ? "text-primary" : "text-background"}`}
                     icon={<BrainIcon className="h-4 w-4" />}
                     onClick={toggleSearchMode}
