@@ -19,6 +19,7 @@ import {
   updateChatSessionTitleSchema,
   softDeleteChatSessionSchema,
   getDeletedChatsSchema,
+  getChatHistoryForScopeSchema,
 } from "./chatValidators";
 import {
   transformToChatMessage,
@@ -590,6 +591,53 @@ export class ChatService {
           note_id: validatedNoteId,
           is_deleted: false,
         },
+        orderBy: {
+          updated_at: "desc",
+        },
+      });
+
+      // Transform all sessions to application types
+      const transformedSessions = await Promise.all(
+        sessions.map((s) => transformToChatSession(s)),
+      );
+
+      return transformedSessions;
+    },
+  );
+
+  /**
+   * Gets chat history for any scope (note, folder, or global)
+   * Unified method to replace getChatSessionsForNote, getChatSessionsForFolder, etc.
+   */
+  public getChatHistoryForScope = withErrorHandling(
+    async (params: {
+      userId: string;
+      scope: ChatScope;
+      scopeId?: string;
+    }): Promise<ChatSession[]> => {
+      // Validate the args
+      const validated = getChatHistoryForScopeSchema.parse(params);
+
+      // Build the where clause based on scope
+      const whereClause: any = {
+        user_id: validated.userId,
+        is_deleted: false,
+      };
+
+      // Add scope-specific filters
+      if (validated.scope === "note") {
+        whereClause.note_id = validated.scopeId;
+      } else if (validated.scope === "folder") {
+        whereClause.folder_id = validated.scopeId;
+      } else if (validated.scope === "global") {
+        // Global = no note_id or folder_id (user's general chats)
+        whereClause.note_id = null;
+        whereClause.folder_id = null;
+      }
+
+      // Get all chat sessions matching the scope
+      const sessions = await prisma.chat_session.findMany({
+        where: whereClause,
         orderBy: {
           updated_at: "desc",
         },
