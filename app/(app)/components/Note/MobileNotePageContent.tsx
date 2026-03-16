@@ -100,13 +100,13 @@ const MobileNotePageContent = ({ noteId }: MobileNotePageContentProps) => {
     }
   }, [noteData, router, setHeaderConfig, resetHeaderConfig]);
 
-  const isLoading = noteLoading || versionsLoading || !noteData;
+  const isLoading = noteLoading || versionsLoading;
   const error =
     (!noteData && noteError) || (!noteVersions && versionsError)
       ? noteError || versionsError
       : null;
 
-  if (isLoading && !noteData) {
+  if ((noteLoading || versionsLoading) && !noteData) {
     return <MobileNotePageSkeleton />;
   }
 

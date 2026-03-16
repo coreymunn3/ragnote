@@ -54,12 +54,7 @@ const WebNotePageContent = ({ noteId }: WebNotePageContentProps) => {
   };
 
   // Combine loading states
-  const isLoading =
-    noteLoading ||
-    noteFetching ||
-    versionsLoading ||
-    versionsFetching ||
-    !noteData;
+  const isLoading = (noteLoading || versionsLoading) && !noteData;
 
   // Determine error state
   const error =
