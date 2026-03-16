@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetDeletedItems } from "@/hooks/deleted/useGetDeletedItems";
-import { DeletedItemsCollection } from "@/lib/types/deletedTypes";
 import FolderWidget from "@/components/web/FolderWidget";
 
 const WebRecentlyDeletedContent = () => {
