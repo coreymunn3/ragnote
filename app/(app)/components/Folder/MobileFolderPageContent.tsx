@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
-import { FolderWithItems } from "@/lib/types/folderTypes";
 import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 import InputDialog from "@/components/dialogs/InputDialog";
 import MobileList from "@/components/mobile/MobileList";
@@ -22,23 +21,18 @@ import CommandBar from "@/components/commandbar/CommandBar";
 
 interface MobileFolderPageContentProps {
   folderId: string;
-  initialFolder: FolderWithItems | null;
 }
 
 const MobileFolderPageContent = ({
   folderId,
-  initialFolder,
 }: MobileFolderPageContentProps) => {
   const router = useRouter();
   const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
   // dialog state management
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  // get the folder data
-  const folderData = useGetFolderById(folderId, {
-    placeholderData: initialFolder || undefined,
-    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
-  });
+  // Fetch the folder data client-side
+  const folderData = useGetFolderById(folderId);
 
   // hooks
   const renameFolder = useRenameFolder();

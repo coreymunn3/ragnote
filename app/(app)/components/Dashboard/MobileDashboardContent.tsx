@@ -3,23 +3,13 @@ import CreateFolder from "@/components/CreateFolder";
 import MobileList, { SystemLinkItem } from "@/components/mobile/MobileList";
 import CommandBar from "@/components/commandbar/CommandBar";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
-import { FolderWithItems } from "@/lib/types/folderTypes";
 import { MessageSquareIcon, Trash2Icon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetNotes } from "@/hooks/note/useGetNotes";
-import CreateNote from "@/components/CreateNote";
 
-interface MobileDashboardContentProps {
-  userFolders: FolderWithItems[];
-}
-
-const MobileDashboardContent = ({
-  userFolders,
-}: MobileDashboardContentProps) => {
-  // fetch the user's folders
-  const folders = useGetFolders({
-    placeholderData: userFolders,
-  });
+const MobileDashboardContent = () => {
+  // Fetch the user's folders client-side
+  const folders = useGetFolders();
 
   // fetch the user's notes
   const userNotes = useGetNotes();

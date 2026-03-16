@@ -8,11 +8,7 @@ import { useMobileHeader } from "@/contexts/MobileHeaderContext";
 import MobileBackButton from "@/components/mobile/MobileBackButton";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 
-interface MobileChatsContentProps {
-  chatSessions: ChatSession[];
-}
-
-const MobileChatsContent = ({ chatSessions }: MobileChatsContentProps) => {
+const MobileChatsContent = () => {
   const router = useRouter();
   const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
 
@@ -30,10 +26,8 @@ const MobileChatsContent = ({ chatSessions }: MobileChatsContentProps) => {
     };
   }, [setHeaderConfig, resetHeaderConfig, router]);
 
-  // re-fetch the user's chat sessions
-  const userChatSessions = useGetChatSessionsForUser({
-    placeholderData: chatSessions,
-  });
+  // Fetch the user's chat sessions client-side
+  const userChatSessions = useGetChatSessionsForUser();
 
   // Sort chat sessions by last updated time
   const sortedChats =

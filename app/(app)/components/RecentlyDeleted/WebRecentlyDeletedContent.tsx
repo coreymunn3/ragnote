@@ -14,17 +14,9 @@ import { useGetDeletedItems } from "@/hooks/deleted/useGetDeletedItems";
 import { DeletedItemsCollection } from "@/lib/types/deletedTypes";
 import FolderWidget from "@/components/web/FolderWidget";
 
-interface WebRecentlyDeletedContentProps {
-  deletedItems: DeletedItemsCollection;
-}
-
-const WebRecentlyDeletedContent = ({
-  deletedItems,
-}: WebRecentlyDeletedContentProps) => {
-  // re-fetch the deleted items
-  const deletedData = useGetDeletedItems({
-    placeholderData: deletedItems,
-  });
+const WebRecentlyDeletedContent = () => {
+  // Fetch the deleted items client-side
+  const deletedData = useGetDeletedItems();
 
   const data = deletedData.data;
 

@@ -7,15 +7,9 @@ import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { ChatSession } from "@/lib/types/chatTypes";
 import { useGetChatSessionsForUser } from "@/hooks/chat/useGetChatSessionsForUser";
 
-interface WebChatsContentProps {
-  chatSessions: ChatSession[];
-}
-
-const WebChatsContent = ({ chatSessions }: WebChatsContentProps) => {
-  // re-fetch the user's chat sessions
-  const userChatSessions = useGetChatSessionsForUser({
-    placeholderData: chatSessions,
-  });
+const WebChatsContent = () => {
+  // Fetch the user's chat sessions client-side
+  const userChatSessions = useGetChatSessionsForUser();
 
   // Sort chat sessions by last updated time
   const sortedChats =

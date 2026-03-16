@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import BaseNotePageContent from "./BaseNotePageContent";
 import { useMobileHeader } from "@/contexts/MobileHeaderContext";
 import { useGetNote } from "@/hooks/note/useGetNote";
@@ -18,45 +17,40 @@ import MobileNotePageSkeleton from "@/components/skeletons/MobileNotePageSkeleto
 
 interface MobileNotePageContentProps {
   noteId: string;
-  initialNote: Note | null;
-  initialNoteVersions: PrismaNoteVersion[];
 }
 
-const MobileNotePageContent = ({
-  noteId,
-  initialNote,
-  initialNoteVersions,
-}: MobileNotePageContentProps) => {
+const MobileNotePageContent = ({ noteId }: MobileNotePageContentProps) => {
   const router = useRouter();
   const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
 
   // State management
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
-    initialNote?.current_version?.id || null,
+    null,
   );
   // dialog state management
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
 
-  // Re-fetch note data with initial data
+  // Fetch note data client-side
   const {
     data: noteData,
     isLoading: noteLoading,
     error: noteError,
-  } = useGetNote(noteId, {
-    placeholderData: initialNote || undefined,
-    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
-  });
+  } = useGetNote(noteId);
 
-  // Re-fetch note versions with initial data
+  // Fetch note versions client-side
   const {
     data: noteVersions,
     isLoading: versionsLoading,
     error: versionsError,
-  } = useGetNoteVersions(noteId, {
-    placeholderData: initialNoteVersions,
-    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
-  });
+  } = useGetNoteVersions(noteId);
+
+  // Set initial selected version when note data loads
+  useEffect(() => {
+    if (noteData?.current_version?.id && !selectedVersionId) {
+      setSelectedVersionId(noteData.current_version.id);
+    }
+  }, [noteData, selectedVersionId]);
 
   // Compute selected version
   const selectedVersion = useMemo(() => {
