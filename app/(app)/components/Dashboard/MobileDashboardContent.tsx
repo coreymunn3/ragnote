@@ -5,6 +5,9 @@ import CommandBar from "@/components/commandbar/CommandBar";
 import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { FolderWithItems } from "@/lib/types/folderTypes";
 import { MessageSquareIcon, Trash2Icon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useGetNotes } from "@/hooks/note/useGetNotes";
+import CreateNote from "@/components/CreateNote";
 
 interface MobileDashboardContentProps {
   userFolders: FolderWithItems[];
@@ -13,10 +16,24 @@ interface MobileDashboardContentProps {
 const MobileDashboardContent = ({
   userFolders,
 }: MobileDashboardContentProps) => {
-  // immediately re-fetch the user's folders
+  // fetch the user's folders
   const folders = useGetFolders({
     placeholderData: userFolders,
   });
+
+  // fetch the user's notes
+  const userNotes = useGetNotes();
+
+  // separate pinned/recent notes
+  const pinnedNotes = userNotes.data?.filter((note) => note.is_pinned) || [];
+  const recentNotes =
+    userNotes.data
+      ?.filter((note) => !note.is_pinned)
+      .sort(
+        (a, b) =>
+          new Date(b.current_version.updated_at).getTime() -
+          new Date(a.current_version.updated_at).getTime(),
+      ) || [];
 
   // Define system links
   const systemLinks: SystemLinkItem[] = [
@@ -37,15 +54,47 @@ const MobileDashboardContent = ({
   return (
     <div className="flex flex-col space-y-4">
       <CommandBar scope="global" />
-      <MobileList
-        title="Your Folders"
-        items={folders.data}
-        type="folder"
-        isLoading={folders.isLoading}
-        action={<CreateFolder />}
-        emptyContentMessage="No folders yet. Create a folder to get started."
-      />
-      <MobileList title="System" items={systemLinks} type="link" />
+      <Tabs defaultValue="folders">
+        <TabsList>
+          <TabsTrigger value="folders">Folders</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+        </TabsList>
+        <TabsContent value="folders">
+          <div className="flex flex-col space-y-2">
+            {/* users folders */}
+            <MobileList
+              title="Your Folders"
+              items={folders.data}
+              type="folder"
+              isLoading={folders.isLoading}
+              action={<CreateFolder />}
+              emptyContentMessage="No folders yet. Create a folder to get started."
+            />
+            {/* system folders */}
+            <MobileList title="System" items={systemLinks} type="link" />
+          </div>
+        </TabsContent>
+        <TabsContent value="notes">
+          <div className="flex flex-col space-y-2">
+            {/* Pinned Notes */}
+            <MobileList
+              title="Your Pinned Notes"
+              items={pinnedNotes}
+              type="note"
+              isLoading={userNotes.isLoading}
+              emptyContentMessage="No pinned notes yet."
+            />
+            {/* All Other Notes (sorted recent) */}
+            <MobileList
+              title="Recent Notes"
+              items={recentNotes}
+              type="note"
+              isLoading={userNotes.isLoading}
+              emptyContentMessage="No notes yet. Create a note to get started"
+            />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
