@@ -6,20 +6,11 @@ import ChatWidget from "@/components/web/ChatWidget";
 import { FileIcon, MessageSquareIcon, FolderIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetDeletedItems } from "@/hooks/deleted/useGetDeletedItems";
-import { DeletedItemsCollection } from "@/lib/types/deletedTypes";
 import FolderWidget from "@/components/web/FolderWidget";
 
-interface WebRecentlyDeletedContentProps {
-  deletedItems: DeletedItemsCollection;
-}
-
-const WebRecentlyDeletedContent = ({
-  deletedItems,
-}: WebRecentlyDeletedContentProps) => {
-  // re-fetch the deleted items
-  const deletedData = useGetDeletedItems({
-    placeholderData: deletedItems,
-  });
+const WebRecentlyDeletedContent = () => {
+  // Fetch the deleted items client-side
+  const deletedData = useGetDeletedItems();
 
   const data = deletedData.data;
 

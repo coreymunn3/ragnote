@@ -1,7 +1,6 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import NoteToolbar from "@/components/web/NoteToolbar";
-import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import BaseNotePageContent from "./BaseNotePageContent";
 import { useGetNote } from "@/hooks/note/useGetNote";
 import { useGetNoteVersions } from "@/hooks/note/useGetNoteVersions";
@@ -9,40 +8,37 @@ import EditorSkeleton from "@/components/skeletons/EditorSkeleton";
 
 interface WebNotePageContentProps {
   noteId: string;
-  initialNote: Note | null;
-  initialNoteVersions: PrismaNoteVersion[];
 }
 
-const WebNotePageContent = ({
-  noteId,
-  initialNote,
-  initialNoteVersions,
-}: WebNotePageContentProps) => {
+const WebNotePageContent = ({ noteId }: WebNotePageContentProps) => {
   // State management
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
-    initialNote?.current_version?.id || null,
+    null,
   );
   const [chatOpen, setChatOpen] = useState(false);
 
-  // Re-fetch note data with initial data
+  // Fetch note data client-side
   const {
     data: noteData,
     isLoading: noteLoading,
     isFetching: noteFetching,
     error: noteError,
-  } = useGetNote(noteId, {
-    placeholderData: initialNote || undefined,
-  });
+  } = useGetNote(noteId);
 
-  // Re-fetch note versions with initial data
+  // Fetch note versions client-side
   const {
     data: noteVersions,
     isLoading: versionsLoading,
     isFetching: versionsFetching,
     error: versionsError,
-  } = useGetNoteVersions(noteId, {
-    placeholderData: initialNoteVersions,
-  });
+  } = useGetNoteVersions(noteId);
+
+  // Set initial selected version when note data loads
+  useEffect(() => {
+    if (noteData?.current_version?.id && !selectedVersionId) {
+      setSelectedVersionId(noteData.current_version.id);
+    }
+  }, [noteData, selectedVersionId]);
 
   // Compute selected version
   const selectedVersion = useMemo(() => {
@@ -58,12 +54,7 @@ const WebNotePageContent = ({
   };
 
   // Combine loading states
-  const isLoading =
-    noteLoading ||
-    noteFetching ||
-    versionsLoading ||
-    versionsFetching ||
-    !noteData;
+  const isLoading = (noteLoading || versionsLoading) && !noteData;
 
   // Determine error state
   const error =

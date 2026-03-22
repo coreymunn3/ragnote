@@ -7,7 +7,6 @@ import NoteWidget from "@/components/web/NoteWidget";
 import ChatWidget from "@/components/web/ChatWidget";
 import OptionsMenu from "@/components/OptionsMenu";
 import { FolderPenIcon, Trash2Icon } from "lucide-react";
-import { FolderWithItems } from "@/lib/types/folderTypes";
 import { Note } from "@/lib/types/noteTypes";
 import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
@@ -23,23 +22,16 @@ import FolderPageSkeleton from "@/components/skeletons/FolderPageSkeleton";
 
 interface WebFolderPageContentProps {
   folderId: string;
-  initialFolder: FolderWithItems | null;
 }
 
-const WebFolderPageContent = ({
-  folderId,
-  initialFolder,
-}: WebFolderPageContentProps) => {
+const WebFolderPageContent = ({ folderId }: WebFolderPageContentProps) => {
   const router = useRouter();
   // dialog state management
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  // get the folder data
-  const folderData = useGetFolderById(folderId, {
-    placeholderData: initialFolder || undefined,
-    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
-  });
+  // Fetch the folder data client-side
+  const folderData = useGetFolderById(folderId);
 
   // hooks for folder operations
   const renameFolder = useRenameFolder();

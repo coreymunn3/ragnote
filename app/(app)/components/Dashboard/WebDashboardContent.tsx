@@ -6,28 +6,14 @@ import ChatWidget from "@/components/web/ChatWidget";
 import { FileIcon, MessageSquareIcon, PinIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetNotes } from "@/hooks/note/useGetNotes";
-import { Note } from "@/lib/types/noteTypes";
-import { ChatSession } from "@/lib/types/chatTypes";
 import { useGetChatSessionsForUser } from "@/hooks/chat/useGetChatSessionsForUser";
 import CommandBar from "@/components/commandbar/CommandBar";
 
-interface WebDashboardContentProps {
-  notes: Note[];
-  chatSessions: ChatSession[];
-}
-
-const WebDashboardContent = ({
-  notes,
-  chatSessions,
-}: WebDashboardContentProps) => {
-  // re-fetch the user's notes
-  const userNotes = useGetNotes({
-    placeholderData: notes,
-  });
-  // re-fetch the user's chat sessions
-  const userChatSessions = useGetChatSessionsForUser({
-    placeholderData: chatSessions,
-  });
+const WebDashboardContent = () => {
+  // Fetch the user's notes client-side
+  const userNotes = useGetNotes();
+  // Fetch the user's chat sessions client-side
+  const userChatSessions = useGetChatSessionsForUser();
 
   // Separate pinned and unpinned notes
   const pinnedNotes = userNotes.data?.filter((note) => note.is_pinned) || [];

@@ -21,14 +21,10 @@ import MobileChatPageSkeleton from "@/components/skeletons/MobileChatPageSkeleto
 
 interface MobileChatPageContentProps {
   chatSessionId: string;
-  initialChatSession: ChatSession | null;
-  initialChatMessages: ChatMessage[];
 }
 
 const MobileChatPageContent = ({
   chatSessionId,
-  initialChatSession,
-  initialChatMessages,
 }: MobileChatPageContentProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -39,17 +35,11 @@ const MobileChatPageContent = ({
   const [pendingUserMessage, setPendingUserMessage] = useState<string>("");
   const [renameOpen, setRenameOpen] = useState(false);
 
-  // Re-fetch chat session
-  const chatSession = useGetChatSession(chatSessionId, {
-    placeholderData: initialChatSession || undefined,
-    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
-  });
+  // Fetch chat session client-side
+  const chatSession = useGetChatSession(chatSessionId);
 
-  // Re-fetch chat messages
-  const chatMessages = useGetChatMessagesForSession(chatSessionId, {
-    placeholderData: initialChatMessages,
-    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
-  });
+  // Fetch chat messages client-side
+  const chatMessages = useGetChatMessagesForSession(chatSessionId);
 
   // Mutations
   const updateChatMutation = useUpdateChat();
