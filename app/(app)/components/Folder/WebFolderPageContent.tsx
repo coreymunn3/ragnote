@@ -168,8 +168,15 @@ const WebFolderPageContent = ({ folderId }: WebFolderPageContentProps) => {
         confirmLoadingText="Deleting..."
         confirmVariant="destructive"
         onConfirm={() => {
-          deleteFolder.mutate({ folderId: folder.id });
-          router.push("/dashboard");
+          deleteFolder.mutate(
+            { folderId: folder.id },
+            {
+              onSuccess: () => {
+                // route user to dashboard AFTER mutation completes
+                router.push("/dashboard");
+              },
+            },
+          );
         }}
         isLoading={deleteFolder.isPending}
       />

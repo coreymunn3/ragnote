@@ -150,8 +150,15 @@ const MobileFolderPageContent = ({
         confirmLoadingText="Deleting..."
         confirmVariant="destructive"
         onConfirm={() => {
-          deleteFolder.mutate({ folderId: folderId });
-          router.push("/dashboard");
+          deleteFolder.mutate(
+            { folderId: folderId },
+            {
+              onSuccess: () => {
+                // route user to dashboard AFTER mutation completes
+                router.push("/dashboard");
+              },
+            },
+          );
         }}
         isLoading={deleteFolder.isPending}
       />
