@@ -18,6 +18,7 @@ import {
   getChatSessionForUserSchema,
   updateChatSessionTitleSchema,
   softDeleteChatSessionSchema,
+  recoverChatSessionSchema,
   getDeletedChatsSchema,
   getChatHistoryForScopeSchema,
 } from "./chatValidators";
@@ -722,6 +723,40 @@ export class ChatService {
         },
         data: {
           is_deleted: true,
+        },
+      });
+    },
+  );
+
+  /**
+   * Recover a soft deleted chat session
+   */
+  public recoverChatSession = withErrorHandling(
+    async (params: { sessionId: string; userId: string }): Promise<void> => {
+      // validate args
+      const { sessionId: validatedSessionId, userId: validatedUserId } =
+        recoverChatSessionSchema.parse(params);
+
+      // verify the chat session exists and belongs to the user and is deleted
+      const chatSession = await prisma.chat_session.findFirst({
+        where: {
+          id: validatedSessionId,
+          user_id: validatedUserId,
+          is_deleted: true,
+        },
+      });
+      if (!chatSession) {
+        throw new NotFoundError("Chat session not found or not yet deleted");
+      }
+
+      // recover the chat session
+      await prisma.chat_session.update({
+        where: {
+          id: validatedSessionId,
+          user_id: validatedUserId,
+        },
+        data: {
+          is_deleted: false,
         },
       });
     },

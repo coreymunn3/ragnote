@@ -12,7 +12,7 @@ const chatService = new ChatService();
  */
 const getHandler = async (
   req: NextRequest,
-  { params }: { params: Promise<{ sessionId: string }> }
+  { params }: { params: Promise<{ sessionId: string }> },
 ) => {
   auth.protect();
   const { sessionId } = await params;
@@ -28,7 +28,7 @@ const getHandler = async (
 
 export const GET = withApiErrorHandling(
   getHandler,
-  "GET /api/chat/[sessionId]"
+  "GET /api/chat/[sessionId]",
 );
 
 /**
@@ -38,7 +38,7 @@ export const GET = withApiErrorHandling(
  */
 const putHandler = async (
   req: NextRequest,
-  { params }: { params: Promise<{ sessionId: string }> }
+  { params }: { params: Promise<{ sessionId: string }> },
 ) => {
   const { sessionId } = await params;
   const dbUser = await getDbUser();
@@ -56,7 +56,20 @@ const putHandler = async (
         },
         {
           status: 200,
-        }
+        },
+      );
+    case "recover":
+      await chatService.recoverChatSession({
+        sessionId,
+        userId: dbUser.id,
+      });
+      return NextResponse.json(
+        {
+          success: true,
+        },
+        {
+          status: 200,
+        },
       );
     case "update_title":
       if (!body.title) {
@@ -67,7 +80,7 @@ const putHandler = async (
           },
           {
             status: 400,
-          }
+          },
         );
       }
       const updatedTitleChat = await chatService.updateChatSessionTitle({
@@ -80,12 +93,12 @@ const putHandler = async (
       return NextResponse.json({
         success: false,
         message:
-          "action must be one of: toggle_pin, delete, update_title - or was not provided",
+          "action must be one of: delete, recover, update_title - or was not provided",
       });
   }
 };
 
 export const PUT = withApiErrorHandling(
   putHandler,
-  "POST /api/chat/[sessionId]"
+  "POST /api/chat/[sessionId]",
 );

@@ -2,7 +2,7 @@
 
 import { ChatSession } from "@/lib/types/chatTypes";
 import ScopeBadge from "../ScopeBadge";
-import { Trash2Icon } from "lucide-react";
+import { ArchiveRestore, Trash2Icon } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import { useUpdateChat } from "@/hooks/chat/useUpdateChat";
@@ -24,13 +24,28 @@ const MobileListItemChatDetail = ({
     setDeleteOpen(true);
   };
 
+  const handleRecover = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    updateChatMutation.mutate({
+      sessionId: chatSession.id,
+      action: "recover",
+    });
+  };
+
   return (
     <>
       <div className="flex items-center space-x-2">
         <ScopeBadge chatScope={chatSession.chat_scope.scope} />
-        <Button variant={"ghost"} onClick={handleDeleteNote}>
-          <Trash2Icon className="h-4 w-4" />
-        </Button>
+        {chatSession.is_deleted ? (
+          <Button variant={"ghost"} onClick={handleRecover}>
+            <ArchiveRestore className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button variant={"ghost"} onClick={handleDeleteNote}>
+            <Trash2Icon className="h-4 w-4" />
+          </Button>
+        )}
       </div>
       {/* Delete note confirmation dialog */}
       <ConfirmationDialog

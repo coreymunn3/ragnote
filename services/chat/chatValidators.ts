@@ -70,6 +70,11 @@ export const softDeleteChatSessionSchema = z.object({
   userId: z.string().uuid(),
 });
 
+export const recoverChatSessionSchema = z.object({
+  sessionId: z.string().uuid(),
+  userId: z.string().uuid(),
+});
+
 export const getDeletedChatsSchema = z.object({
   userId: z.string().uuid(),
 });
