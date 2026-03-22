@@ -58,7 +58,7 @@ export function useUpdateChat(options?: useUpdateChatOptions) {
               ...old,
               title: variables.title,
             };
-          }
+          },
         );
         // return the previous session
         return { previousSession };
@@ -96,6 +96,8 @@ export function useUpdateChat(options?: useUpdateChatOptions) {
           });
           break;
       }
+      // Custom onSuccess callback
+      options?.onSuccess?.(response, variables, context);
     },
   });
 }
