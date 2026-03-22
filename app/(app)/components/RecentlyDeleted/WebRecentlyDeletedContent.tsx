@@ -3,12 +3,7 @@
 import WidgetGrid from "@/components/web/WidgetGrid";
 import NoteWidget from "@/components/web/NoteWidget";
 import ChatWidget from "@/components/web/ChatWidget";
-import {
-  FileIcon,
-  MessageSquareIcon,
-  FolderIcon,
-  TrashIcon,
-} from "lucide-react";
+import { FileIcon, MessageSquareIcon, FolderIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetDeletedItems } from "@/hooks/deleted/useGetDeletedItems";
 import { DeletedItemsCollection } from "@/lib/types/deletedTypes";
@@ -40,9 +35,6 @@ const WebRecentlyDeletedContent = ({
             title="Deleted Folders"
             icon={<FolderIcon className="h-6 w-6 text-muted-foreground" />}
             emptyContentMessage="No deleted folders yet."
-            initialItemLimit={6}
-            showMoreIncrement={6}
-            showMoreButton={true}
             delay={0}
           />
         </AnimatedListItem>
@@ -55,9 +47,6 @@ const WebRecentlyDeletedContent = ({
             title="Deleted Notes"
             icon={<FileIcon className="h-6 w-6 text-muted-foreground" />}
             emptyContentMessage="No deleted notes yet."
-            initialItemLimit={6}
-            showMoreIncrement={6}
-            showMoreButton={true}
             delay={1}
           />
         </AnimatedListItem>
@@ -74,9 +63,6 @@ const WebRecentlyDeletedContent = ({
               <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
             }
             emptyContentMessage="No deleted chats yet."
-            initialItemLimit={6}
-            showMoreIncrement={6}
-            showMoreButton={true}
             delay={2}
           />
         </AnimatedListItem>

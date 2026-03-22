@@ -40,9 +40,6 @@ const WebChatsContent = ({ chatSessions }: WebChatsContentProps) => {
               <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
             }
             emptyContentMessage="No chats yet. Chat with one of your notes to get started."
-            initialItemLimit={8}
-            showMoreIncrement={8}
-            showMoreButton={true}
             delay={0}
           />
         </AnimatedListItem>
