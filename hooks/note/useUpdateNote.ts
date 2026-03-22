@@ -68,36 +68,52 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
           break;
 
         case "delete":
-          // For delete, invalidate notes, folders and specific folder if known
+          // invalidate the deleted-items
           queryClient.invalidateQueries({
-            queryKey: ["folders"],
+            queryKey: ["deleted-items"],
+            refetchType: "active",
           });
+          // invalidate notes
           queryClient.invalidateQueries({
             queryKey: ["notes"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["note", variables.noteId],
+          });
+          // invalidate folders
+          queryClient.invalidateQueries({
+            queryKey: ["folders"],
           });
           if (variables.folderId) {
             queryClient.invalidateQueries({
               queryKey: ["folder", variables.folderId],
             });
           }
-          // invalidate the deleted-items
-          queryClient.invalidateQueries({
-            queryKey: ["deleted-items"],
-          });
           break;
 
         case "recover":
-          // invalidate notes/folders and deleted-items
-          queryClient.invalidateQueries({
-            queryKey: ["folders"],
-          });
-          queryClient.invalidateQueries({
-            queryKey: ["notes"],
-          });
           // invalidate the deleted-items
           queryClient.invalidateQueries({
             queryKey: ["deleted-items"],
+            refetchType: "active",
           });
+          // invalidate notes
+          queryClient.invalidateQueries({
+            queryKey: ["notes"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["note", variables.noteId],
+          });
+          // invalidate folders
+          queryClient.invalidateQueries({
+            queryKey: ["folders"],
+          });
+          if (variables.folderId) {
+            queryClient.invalidateQueries({
+              queryKey: ["folder", variables.folderId],
+            });
+          }
+          break;
 
         default:
           // Fallback: invalidate folders and notes
