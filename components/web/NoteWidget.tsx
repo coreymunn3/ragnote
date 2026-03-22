@@ -3,6 +3,7 @@
 import { Note } from "@/lib/types/noteTypes";
 import { TypographyMuted, TypographySmall } from "../ui/typography";
 import {
+  ArchiveRestore,
   FolderOutputIcon,
   PinIcon,
   PinOffIcon,
@@ -29,10 +30,9 @@ import ConfirmationDialog from "../dialogs/ConfirmationDialog";
 interface NoteWidgetProps {
   note: Note;
   folderId?: string;
-  pinned?: boolean;
 }
 
-const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
+const NoteWidget = ({ note, folderId }: NoteWidgetProps) => {
   const [moveDialogOpen, setMoveDialogOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -69,8 +69,15 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
         onSuccess: () => {
           setMoveDialogOpen(false);
         },
-      }
+      },
     );
+  };
+
+  const handleRecover = () => {
+    updateNoteMutation.mutate({
+      noteId: note.id,
+      action: "recover",
+    });
   };
 
   // Prepare folder options for the select dialog
@@ -84,29 +91,48 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
     : [];
 
   // list of actions a user can take on a note
-  const noteActions: Option[] = [
-    pinned
-      ? {
+  const createNoteActions = (): Option[] => {
+    const optionsArr: Option[] = [];
+    // if note is deleted, only option is to recover
+    if (note.is_deleted) {
+      optionsArr.push({
+        label: "Recover",
+        icon: <ArchiveRestore className="h-4 w-4" />,
+        onClick: handleRecover,
+      });
+    } else {
+      // if note not deleted, you can move or delete it, or pin/unpin
+      optionsArr.push(
+        ...[
+          {
+            label: "Move",
+            icon: <FolderOutputIcon className="h-4 w-4" />,
+            onClick: handleOpenMoveDialog,
+          },
+          {
+            label: "Delete",
+            icon: <Trash2Icon className="h-4 w-4" />,
+            onClick: handleDeleteNote,
+          },
+        ],
+      );
+      if (note.is_pinned) {
+        optionsArr.push({
           label: "Unpin",
           icon: <PinOffIcon className="h-4 w-4" />,
           onClick: handleTogglePinNote,
-        }
-      : {
+        });
+      } else {
+        optionsArr.push({
           label: "Pin",
           icon: <PinIcon className="h-4 w-4" />,
           onClick: handleTogglePinNote,
-        },
-    {
-      label: "Move",
-      icon: <FolderOutputIcon className="h-4 w-4" />,
-      onClick: handleOpenMoveDialog,
-    },
-    {
-      label: "Delete",
-      icon: <Trash2Icon className="h-4 w-4" />,
-      onClick: handleDeleteNote,
-    },
-  ];
+        });
+      }
+    }
+
+    return optionsArr;
+  };
 
   // Construct note URL
   const noteUrl = `/note/${note.id}`;
@@ -116,14 +142,14 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
       <Link href={noteUrl} className="block w-full h-full">
         <Card
           variant="dense"
-          className={`${pinned && "bg-primary/10"} cursor-pointer hover:shadow-md hover:text-primary hover:border hover:border-primary transition-all duration-200`}
+          className={`${note.is_pinned && "bg-primary/10"} cursor-pointer hover:shadow-md hover:text-primary hover:border hover:border-primary transition-all duration-200`}
         >
           {/* Note Widget Header */}
           <CardHeader>
             <div className="flex justify-between items-center">
               {/* Header left - title & icon */}
               <div className="flex items-center space-x-2">
-                {pinned && <PinIcon className="h-4 w-4" />}
+                {note.is_pinned && <PinIcon className="h-4 w-4" />}
                 <CardTitle className="text-base font-semibold line-clamp-1 overflow-ellipsis">
                   {note.title}
                 </CardTitle>
@@ -131,13 +157,13 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
               {/* Header right - the published badge and options */}
               <div className="flex items-center justify-center space-x-2">
                 <VersionBadge version={note.current_version} context="note" />
-                <OptionsMenu options={noteActions} />
+                <OptionsMenu options={createNoteActions()} />
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <TypographyMuted
-              className={`line-clamp-2 h-10 ${pinned && "line-clamp-4 h-20"} overflow-ellipsis`}
+              className={`line-clamp-2 h-10 ${note.is_pinned && "line-clamp-4 h-20"} overflow-ellipsis`}
             >
               {note.preview}
             </TypographyMuted>
@@ -148,7 +174,7 @@ const NoteWidget = ({ note, folderId, pinned = false }: NoteWidgetProps) => {
               <div className="flex items-center text-muted-foreground">
                 <TypographySmall>
                   {DateTime.fromJSDate(
-                    new Date(note.current_version.updated_at)
+                    new Date(note.current_version.updated_at),
                   ).toRelative()}
                 </TypographySmall>
               </div>
