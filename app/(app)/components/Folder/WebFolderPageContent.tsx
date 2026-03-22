@@ -8,7 +8,7 @@ import ChatWidget from "@/components/web/ChatWidget";
 import OptionsMenu from "@/components/OptionsMenu";
 import { FolderPenIcon, Trash2Icon } from "lucide-react";
 import { Note } from "@/lib/types/noteTypes";
-import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
+import { useUpdateFolder } from "@/hooks/folder/useUpdateFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -34,7 +34,7 @@ const WebFolderPageContent = ({ folderId }: WebFolderPageContentProps) => {
   const folderData = useGetFolderById(folderId);
 
   // hooks for folder operations
-  const renameFolder = useRenameFolder();
+  const updateFolder = useUpdateFolder();
   const deleteFolder = useDeleteFolder();
 
   // Handle loading state
@@ -149,12 +149,13 @@ const WebFolderPageContent = ({ folderId }: WebFolderPageContentProps) => {
         confirmText="Rename"
         confirmLoadingText="Renaming..."
         onConfirm={(inputValue) => {
-          renameFolder.mutate({
+          updateFolder.mutate({
             folderId: folder.id,
-            newFolderName: inputValue,
+            action: "rename",
+            folderName: inputValue,
           });
         }}
-        isLoading={renameFolder.isPending}
+        isLoading={updateFolder.isPending}
         validate={(value) => value.trim().length > 0}
       />
 

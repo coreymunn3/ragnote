@@ -30,3 +30,8 @@ export type CreateFolderApiRequest = {
 export type UpdateFolderNameApiRequest = {
   folderName: string;
 };
+
+export type UpdateFolderApiRequest = {
+  action: "rename" | "recover";
+  folderName?: string;
+};

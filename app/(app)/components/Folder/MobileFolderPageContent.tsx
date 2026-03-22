@@ -6,7 +6,7 @@ import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
 import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 import InputDialog from "@/components/dialogs/InputDialog";
 import MobileList from "@/components/mobile/MobileList";
-import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
+import { useUpdateFolder } from "@/hooks/folder/useUpdateFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
 import { FolderPenIcon, Trash2Icon } from "lucide-react";
 import CreateNote from "@/components/CreateNote";
@@ -35,7 +35,7 @@ const MobileFolderPageContent = ({
   const folderData = useGetFolderById(folderId);
 
   // hooks
-  const renameFolder = useRenameFolder();
+  const updateFolder = useUpdateFolder();
   const deleteFolder = useDeleteFolder();
 
   // Set header configuration for Folder page (must call useEffect before any returns)
@@ -131,12 +131,13 @@ const MobileFolderPageContent = ({
         confirmText="Rename"
         confirmLoadingText="Renaming..."
         onConfirm={(inputValue) => {
-          renameFolder.mutate({
+          updateFolder.mutate({
             folderId: folderId,
-            newFolderName: inputValue,
+            action: "rename",
+            folderName: inputValue,
           });
         }}
-        isLoading={renameFolder.isPending}
+        isLoading={updateFolder.isPending}
         validate={(value) => value.trim().length > 0}
       />
 
