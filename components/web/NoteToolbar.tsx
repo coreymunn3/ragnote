@@ -220,13 +220,19 @@ const NoteToolbar = ({
             confirmVariant="destructive"
             onConfirm={() => {
               // soft delete
-              updateNoteMutation.mutate({
-                noteId: note.id,
-                folderId: note.folder_id,
-                action: "delete",
-              });
-              // route user back to the folder
-              router.push(`/folder/${note.folder_id}`);
+              updateNoteMutation.mutate(
+                {
+                  noteId: note.id,
+                  folderId: note.folder_id,
+                  action: "delete",
+                },
+                {
+                  onSuccess: () => {
+                    // route user back to the folder AFTER mutation completes
+                    router.push(`/folder/${note.folder_id}`);
+                  },
+                },
+              );
             }}
             isLoading={updateNoteMutation.isPending}
           />
