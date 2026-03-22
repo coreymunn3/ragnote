@@ -67,11 +67,18 @@ const MobileChatPageContent = ({
 
   const handleDeleteChatSession = () => {
     if (chatSession.data) {
-      updateChatMutation.mutate({
-        sessionId: chatSession.data.id,
-        action: "delete",
-      });
-      router.push(`/chats`);
+      updateChatMutation.mutate(
+        {
+          sessionId: chatSession.data.id,
+          action: "delete",
+        },
+        {
+          onSuccess: () => {
+            // route user to chats page AFTER mutation completes
+            router.push(`/chats`);
+          },
+        },
+      );
     } else {
       toast.error("Unable to Delete");
     }
