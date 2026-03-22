@@ -414,28 +414,47 @@ export class NoteService {
   public recoverNote = withErrorHandling(
     async (params: { noteId: string; userId: string }): Promise<void> => {
       const { noteId, userId } = getRecoverNoteSchema.parse(params);
-      // verify note exists and belongs ot the user
+      // verify note exists and belongs to the user, and include folder info
       const note = await prisma.note.findFirst({
         where: {
           id: noteId,
           user_id: userId,
           is_deleted: true,
         },
+        include: {
+          folder: true, // Include folder to check if it's deleted
+        },
       });
       if (!note) {
-        throw new NotFoundError("Not not found or not yet deleted");
+        throw new NotFoundError("Note not found or not yet deleted");
       }
 
-      // recover the note
-      await prisma.note.update({
-        where: {
-          id: noteId,
-          user_id: userId,
-        },
-        data: {
-          is_deleted: false,
-        },
-      });
+      // If the parent folder exists and is deleted, recover it too to maintain folder structure
+      if (note.folder_id && note.folder && note.folder.is_deleted) {
+        await prisma.$transaction([
+          // Recover the folder first
+          prisma.folder.update({
+            where: { id: note.folder_id },
+            data: { is_deleted: false },
+          }),
+          // Then recover the note
+          prisma.note.update({
+            where: { id: noteId },
+            data: { is_deleted: false },
+          }),
+        ]);
+      } else {
+        // Just recover the note if folder doesn't exist or is not deleted
+        await prisma.note.update({
+          where: {
+            id: noteId,
+            user_id: userId,
+          },
+          data: {
+            is_deleted: false,
+          },
+        });
+      }
     },
   );
 
