@@ -12,6 +12,7 @@ import {
   getNoteVersionsSchema,
   getNoteVersionSchema,
   publishNoteVersionSchema,
+  getRecoverNoteSchema,
 } from "./noteValidators";
 import {
   Note,
@@ -404,6 +405,35 @@ export class NoteService {
         data: {
           is_deleted: true,
           is_pinned: false,
+        },
+      });
+    },
+  );
+
+  // recover note soft deleted
+  public recoverNote = withErrorHandling(
+    async (params: { noteId: string; userId: string }): Promise<void> => {
+      const { noteId, userId } = getRecoverNoteSchema.parse(params);
+      // verify note exists and belongs ot the user
+      const note = await prisma.note.findFirst({
+        where: {
+          id: noteId,
+          user_id: userId,
+          is_deleted: true,
+        },
+      });
+      if (!note) {
+        throw new NotFoundError("Not not found or not yet deleted");
+      }
+
+      // recover the note
+      await prisma.note.update({
+        where: {
+          id: noteId,
+          user_id: userId,
+        },
+        data: {
+          is_deleted: false,
         },
       });
     },
