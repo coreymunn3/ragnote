@@ -271,12 +271,12 @@ export class FolderService {
     async (folderId: string, userId: string): Promise<FolderWithItems> => {
       const validatedData = getFolderByIdSchema.parse({ folderId, userId });
 
-      // Fetch folder from database
+      // Fetch folder from database (including deleted folders for preview)
       const folder = await prisma.folder.findFirst({
         where: {
           id: validatedData.folderId,
           user_id: validatedData.userId,
-          is_deleted: false,
+          // Removed is_deleted filter to allow viewing deleted folders
         },
       });
 

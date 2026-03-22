@@ -8,7 +8,12 @@ import InputDialog from "@/components/dialogs/InputDialog";
 import MobileList from "@/components/mobile/MobileList";
 import { useUpdateFolder } from "@/hooks/folder/useUpdateFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
-import { FolderPenIcon, Trash2Icon } from "lucide-react";
+import {
+  ArchiveRestore,
+  FolderPenIcon,
+  Loader2Icon,
+  Trash2Icon,
+} from "lucide-react";
 import CreateNote from "@/components/CreateNote";
 import { useMobileHeader } from "@/contexts/MobileHeaderContext";
 import OptionsMenu from "@/components/OptionsMenu";
@@ -18,6 +23,8 @@ import { ChatSession } from "@/lib/types/chatTypes";
 import MobileListSkeleton from "@/components/skeletons/MobileListSkeleton";
 import MobileBackButton from "@/components/mobile/MobileBackButton";
 import CommandBar from "@/components/commandbar/CommandBar";
+import MessageAlert from "@/components/MessageAlert";
+import { Button } from "@/components/ui/button";
 
 interface MobileFolderPageContentProps {
   folderId: string;
@@ -38,6 +45,18 @@ const MobileFolderPageContent = ({
   const updateFolder = useUpdateFolder();
   const deleteFolder = useDeleteFolder();
 
+  const isDeleted = folderData.data?.is_deleted;
+
+  // Handle recover action
+  const handleRecover = () => {
+    if (folderData.data) {
+      updateFolder.mutate({
+        folderId: folderData.data.id,
+        action: "recover",
+      });
+    }
+  };
+
   // Set header configuration for Folder page (must call useEffect before any returns)
   useEffect(() => {
     if (folderData.data) {
@@ -48,7 +67,19 @@ const MobileFolderPageContent = ({
             <MobilePageTitle title={folderData.data.folder_name} />
           </>
         ),
-        rightContent: (
+        rightContent: isDeleted ? (
+          <Button
+            size="sm"
+            onClick={handleRecover}
+            disabled={updateFolder.isPending}
+          >
+            {updateFolder.isPending ? (
+              <Loader2Icon className="h-4 w-4 animate-spin" />
+            ) : (
+              <ArchiveRestore className="h-4 w-4" />
+            )}
+          </Button>
+        ) : (
           <>
             <CreateNote folderId={folderData.data.id} />
             <OptionsMenu
@@ -73,7 +104,25 @@ const MobileFolderPageContent = ({
     return () => {
       resetHeaderConfig();
     };
-  }, [folderData.data, router, setHeaderConfig, resetHeaderConfig]);
+  }, [
+    folderData.data,
+    router,
+    setHeaderConfig,
+    resetHeaderConfig,
+    isDeleted,
+    updateFolder.isPending,
+  ]);
+
+  // Handle error state
+  if (folderData.error) {
+    return (
+      <MessageAlert
+        variant="error"
+        title="Error Loading Folder"
+        description="This folder could not be found or you don't have access to it."
+      />
+    );
+  }
 
   // Show loading skeleton while fetching
   if (folderData.isLoading || !folderData.data) {
@@ -98,9 +147,26 @@ const MobileFolderPageContent = ({
 
   return (
     <div>
+      {/* Deleted folder warning banner */}
+      {isDeleted && (
+        <div className="mb-4">
+          <MessageAlert
+            variant="warning"
+            title="This folder has been deleted"
+            description="You're viewing a deleted folder in read-only mode. You can recover it to restore full access."
+          />
+        </div>
+      )}
+
       <div className="flex flex-col space-y-8">
-        {/* Folder-scoped command bar - chat only (search is always global) */}
-        <CommandBar scope="folder" scopeId={folderId} allowedModes={["chat"]} />
+        {/* Folder-scoped command bar - chat only (search is always global) - hide if deleted */}
+        {!isDeleted && (
+          <CommandBar
+            scope="folder"
+            scopeId={folderId}
+            allowedModes={["chat"]}
+          />
+        )}
 
         {/* list of pinned items */}
         {pinnedItems.length > 0 && (
