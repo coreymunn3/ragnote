@@ -12,7 +12,7 @@ const noteService = new NoteService();
  */
 const getHandler = async (
   req: NextRequest,
-  { params }: { params: Promise<{ noteId: string }> }
+  { params }: { params: Promise<{ noteId: string }> },
 ) => {
   auth.protect();
   const { noteId } = await params;
@@ -28,10 +28,11 @@ export const GET = withApiErrorHandling(getHandler, "GET /api/note/[noteId]");
  * - pin/unpin
  * - move to different folder
  * - delete (soft)
+ * - recover
  */
 const putHandler = async (
   req: NextRequest,
-  { params }: { params: Promise<{ noteId: string }> }
+  { params }: { params: Promise<{ noteId: string }> },
 ) => {
   auth.protect();
   const { noteId } = await params;
@@ -54,7 +55,7 @@ const putHandler = async (
           },
           {
             status: 400,
-          }
+          },
         );
       }
       const movedNote = await noteService.moveNote({
@@ -72,8 +73,11 @@ const putHandler = async (
         {
           success: true,
         },
-        { status: 200 }
+        { status: 200 },
       );
+    case "recover":
+      await noteService.recoverNote({ noteId, userId: dbUser.id });
+      return NextResponse.json({ success: true }, { status: 200 });
     default:
       return NextResponse.json({
         success: false,

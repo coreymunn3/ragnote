@@ -80,7 +80,24 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
               queryKey: ["folder", variables.folderId],
             });
           }
+          // invalidate the deleted-items
+          queryClient.invalidateQueries({
+            queryKey: ["deleted-items"],
+          });
           break;
+
+        case "recover":
+          // invalidate notes/folders and deleted-items
+          queryClient.invalidateQueries({
+            queryKey: ["folders"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["notes"],
+          });
+          // invalidate the deleted-items
+          queryClient.invalidateQueries({
+            queryKey: ["deleted-items"],
+          });
 
         default:
           // Fallback: invalidate folders and notes
@@ -103,6 +120,7 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
             : "Note updated",
         move: "Note moved successfully",
         delete: "Note deleted",
+        recover: "Note recovered from trash",
       };
 
       toast.success(actionMessages[variables.action] || "Note updated");
