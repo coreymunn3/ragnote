@@ -73,9 +73,10 @@ const NoteWidget = ({ note, folderId }: NoteWidgetProps) => {
     );
   };
 
-  const handleRecover = () => {
+  const handleRecover = (e: React.MouseEvent<HTMLDivElement>) => {
     updateNoteMutation.mutate({
       noteId: note.id,
+      folderId: note.folder_id,
       action: "recover",
     });
   };
