@@ -151,12 +151,19 @@ const MobileNotePageContent = ({ noteId }: MobileNotePageContentProps) => {
         confirmVariant="destructive"
         onConfirm={() => {
           if (noteData) {
-            updateNoteMutation.mutate({
-              noteId: noteData.id,
-              folderId: noteData.folder_id,
-              action: "delete",
-            });
-            router.push(`/folder/${noteData.folder_id}`);
+            updateNoteMutation.mutate(
+              {
+                noteId: noteData.id,
+                folderId: noteData.folder_id,
+                action: "delete",
+              },
+              {
+                onSuccess: () => {
+                  // route user back to the folder AFTER mutation completes
+                  router.push(`/folder/${noteData.folder_id}`);
+                },
+              },
+            );
           } else {
             toast.error("Unable to Delete");
           }
