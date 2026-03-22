@@ -6,10 +6,16 @@ import { MessageSquareIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { ChatSession } from "@/lib/types/chatTypes";
 import { useGetChatSessionsForUser } from "@/hooks/chat/useGetChatSessionsForUser";
+import WebChatsListSkeleton from "@/components/skeletons/WebChatsListSkeleton";
 
 const WebChatsContent = () => {
   // Fetch the user's chat sessions client-side
   const userChatSessions = useGetChatSessionsForUser();
+
+  // Show skeleton while loading
+  if (userChatSessions.isLoading) {
+    return <WebChatsListSkeleton />;
+  }
 
   // Sort chat sessions by last updated time
   const sortedChats =

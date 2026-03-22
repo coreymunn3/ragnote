@@ -6,6 +6,7 @@ import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { MessageSquareIcon, Trash2Icon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetNotes } from "@/hooks/note/useGetNotes";
+import MobileDashboardSkeleton from "@/components/skeletons/MobileDashboardSkeleton";
 
 const MobileDashboardContent = () => {
   // Fetch the user's folders client-side
@@ -13,6 +14,11 @@ const MobileDashboardContent = () => {
 
   // fetch the user's notes
   const userNotes = useGetNotes();
+
+  // Show skeleton while loading
+  if (folders.isLoading || userNotes.isLoading) {
+    return <MobileDashboardSkeleton />;
+  }
 
   // separate pinned/recent notes
   const pinnedNotes = userNotes.data?.filter((note) => note.is_pinned) || [];

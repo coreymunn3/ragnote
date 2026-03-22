@@ -8,12 +8,18 @@ import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetNotes } from "@/hooks/note/useGetNotes";
 import { useGetChatSessionsForUser } from "@/hooks/chat/useGetChatSessionsForUser";
 import CommandBar from "@/components/commandbar/CommandBar";
+import WebDashboardSkeleton from "@/components/skeletons/WebDashboardSkeleton";
 
 const WebDashboardContent = () => {
   // Fetch the user's notes client-side
   const userNotes = useGetNotes();
   // Fetch the user's chat sessions client-side
   const userChatSessions = useGetChatSessionsForUser();
+
+  // Show skeleton while loading
+  if (userNotes.isLoading || userChatSessions.isLoading) {
+    return <WebDashboardSkeleton />;
+  }
 
   // Separate pinned and unpinned notes
   const pinnedNotes = userNotes.data?.filter((note) => note.is_pinned) || [];
