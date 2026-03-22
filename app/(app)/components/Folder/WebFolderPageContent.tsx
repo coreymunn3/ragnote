@@ -76,13 +76,7 @@ const WebFolderPageContent = ({
       return (
         <WidgetGrid<Note>
           items={notes}
-          renderItem={(note) => (
-            <NoteWidget
-              note={note}
-              folderId={folder.id}
-              pinned={note.is_pinned}
-            />
-          )}
+          renderItem={(note) => <NoteWidget note={note} folderId={folder.id} />}
           delay={delay}
           emptyContentMessage={emptyContentMessage}
         />
