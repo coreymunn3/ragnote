@@ -122,6 +122,73 @@
   opacity: 0.8;
 }
 
+/* Custom Inline Code Styling */
+.bn-editor code {
+  /* Primary color text */
+  color: hsl(var(--primary));
+  
+  /* Light primary background */
+  background-color: hsl(var(--primary) / 0.1);
+  
+  /* Solid border with primary color */
+  border: 1px solid hsl(var(--primary) / 0.3);
+  
+  /* Minimal padding */
+  padding: 0.125rem 0.375rem;
+  
+  /* Border radius for rounded corners */
+  border-radius: calc(var(--radius) * 0.25);
+  
+  /* Font styling */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.875em;
+  
+  /* Prevent line breaks */
+  white-space: nowrap;
+}
+
+/* Dark mode adjustments */
+.dark .bn-editor code {
+  background-color: hsl(var(--primary) / 0.15);
+  border-color: hsl(var(--primary) / 0.4);
+}
+
+/* Hover effect (optional) */
+.bn-editor code:hover {
+  background-color: hsl(var(--primary) / 0.15);
+  border-color: hsl(var(--primary) / 0.5);
+}
+
+.dark .bn-editor code:hover {
+  background-color: hsl(var(--primary) / 0.2);
+  border-color: hsl(var(--primary) / 0.6);
+}
+
+/* Code Block Styling (enhanced visual appearance) */
+.bn-editor pre {
+  background-color: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.dark .bn-editor pre {
+  background-color: hsl(var(--muted));
+  border-color: hsl(var(--border));
+}
+
+/* Code block text - override inline code styles */
+.bn-editor pre code {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  color: hsl(var(--foreground));
+  white-space: pre;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
 @theme inline {
   @keyframes aurora {
   0% {
