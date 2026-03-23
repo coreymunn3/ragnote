@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import "@blocknote/mantine/style.css";
-import type { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import type { Theme } from "@blocknote/mantine";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -10,6 +10,7 @@ import { AnimatedContainer } from "@/components/animations/AnimatedContainer";
 import { LockIcon } from "lucide-react";
 import EditorSkeleton from "./skeletons/EditorSkeleton";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { createHighlighter } from "@/lib/shiki.bundle";
 
 export interface RichTextEditorProps {
   initialContent?: any; // BlockNote JSON content
@@ -130,7 +131,10 @@ const RichTextEditor = dynamic(
       getDefaultReactSlashMenuItems,
       SuggestionMenuController,
     } = await import("@blocknote/react");
-    const { filterSuggestionItems } = await import("@blocknote/core");
+    const { filterSuggestionItems, BlockNoteSchema } = await import(
+      "@blocknote/core"
+    );
+    const { createCodeBlockSpec } = await import("@blocknote/core");
     const { IndentDecrease, IndentIncrease } = await import("lucide-react");
 
     // Custom Slash Menu item for Indent
@@ -184,6 +188,31 @@ const RichTextEditor = dynamic(
 
       const editor = useCreateBlockNote({
         initialContent,
+        schema: BlockNoteSchema.create().extend({
+          blockSpecs: {
+            codeBlock: createCodeBlockSpec({
+              indentLineWithTab: true,
+              defaultLanguage: "typescript",
+              supportedLanguages: {
+                javascript: { name: "JavaScript", aliases: ["js"] },
+                typescript: { name: "TypeScript", aliases: ["ts"] },
+                python: { name: "Python", aliases: ["py"] },
+                java: { name: "Java" },
+                css: { name: "CSS" },
+                html: { name: "HTML" },
+                json: { name: "JSON" },
+                markdown: { name: "Markdown", aliases: ["md"] },
+                bash: { name: "Bash", aliases: ["sh", "shell"] },
+                sql: { name: "SQL" },
+              },
+              createHighlighter: () =>
+                createHighlighter({
+                  themes: ["light-plus", "dark-plus"],
+                  langs: [],
+                }) as any,
+            }),
+          },
+        }),
       });
 
       // Track when component is mounted
@@ -231,15 +260,18 @@ const RichTextEditor = dynamic(
               <SideMenuController
                 sideMenu={(props) => (
                   <SideMenu {...props}>
-                    <AddBlockButton {...props} />
+                    <AddBlockButton />
                   </SideMenu>
                 )}
               />
               <SuggestionMenuController
                 triggerCharacter={"/"}
-                getItems={async (query) =>
-                  filterSuggestionItems(getCustomSlashMenuItems(editor), query)
-                }
+                getItems={async (query) => {
+                  const items = getCustomSlashMenuItems(editor as any) as any;
+                  return filterSuggestionItems(items, query) as any;
+                }}
+                suggestionMenuComponent={undefined as any}
+                onItemClick={undefined as any}
               />
             </BlockNoteView>
           </div>
