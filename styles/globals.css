@@ -122,8 +122,8 @@
   opacity: 0.8;
 }
 
-/* Custom Inline Code Styling */
-.bn-editor code {
+/* Custom Inline Code Styling - only for inline code, not code blocks */
+.bn-editor :not(pre) > code {
   /* Primary color text */
   color: hsl(var(--primary));
   
@@ -148,34 +148,29 @@
 }
 
 /* Dark mode adjustments */
-.dark .bn-editor code {
+.dark .bn-editor :not(pre) > code {
   background-color: hsl(var(--primary) / 0.15);
   border-color: hsl(var(--primary) / 0.4);
 }
 
 /* Hover effect (optional) */
-.bn-editor code:hover {
+.bn-editor :not(pre) > code:hover {
   background-color: hsl(var(--primary) / 0.15);
   border-color: hsl(var(--primary) / 0.5);
 }
 
-.dark .bn-editor code:hover {
+.dark .bn-editor :not(pre) > code:hover {
   background-color: hsl(var(--primary) / 0.2);
   border-color: hsl(var(--primary) / 0.6);
 }
 
-/* Code Block Styling (enhanced visual appearance) */
+/* Code Block Styling - transparent background to show syntax highlighting */
 .bn-editor pre {
-  background-color: hsl(var(--muted));
-  border: 1px solid hsl(var(--border));
+  background-color: transparent;
+  border: none;
   border-radius: var(--radius);
-  padding: 1rem;
+  padding: 0;
   overflow-x: auto;
-}
-
-.dark .bn-editor pre {
-  background-color: hsl(var(--muted));
-  border-color: hsl(var(--border));
 }
 
 /* Code block text - override inline code styles */
@@ -183,7 +178,7 @@
   background-color: transparent;
   border: none;
   padding: 0;
-  color: hsl(var(--foreground));
+  color: inherit;
   white-space: pre;
   font-size: 0.875rem;
   line-height: 1.5;
