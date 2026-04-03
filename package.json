@@ -45,7 +45,7 @@
     "framer-motion": "11.13.1",
     "intl-messageformat": "10.7.16",
     "llamaindex": "^0.12.1",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "lucide-react": "^0.513.0",
     "luxon": "^3.6.1",
     "next": "^16.1.7",
