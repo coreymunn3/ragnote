@@ -25,12 +25,13 @@ interface InputDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  placeholder: string;
+  placeholder?: string;
   confirmText: string;
   confirmLoadingText?: string;
   onConfirm: (inputValue: string) => void;
   isLoading?: boolean;
   validate?: (value: string) => boolean;
+  initialValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
 }
@@ -45,10 +46,11 @@ const InputDialog = ({
   onConfirm,
   isLoading = false,
   validate,
+  initialValue = "",
   value,
   onValueChange,
 }: InputDialogProps) => {
-  const [internalValue, setInternalValue] = useState("");
+  const [internalValue, setInternalValue] = useState(initialValue);
   const isMobile = useIsMobile();
 
   // Use parent-controlled value if provided, otherwise use internal state
@@ -58,7 +60,7 @@ const InputDialog = ({
   // Initialize internal value when dialog opens (only for non-parent-controlled state)
   useEffect(() => {
     if (open && value === undefined) {
-      setInternalValue("");
+      setInternalValue(initialValue);
     }
   }, [open, value]);
 

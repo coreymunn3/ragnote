@@ -2,20 +2,12 @@
 import { useEffect } from "react";
 import MobileList from "@/components/mobile/MobileList";
 import { useGetDeletedItems } from "@/hooks/deleted/useGetDeletedItems";
-import { DeletedItemsCollection } from "@/lib/types/deletedTypes";
 import { useMobileHeader } from "@/contexts/MobileHeaderContext";
-import { TrashIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import MobileBackButton from "@/components/mobile/MobileBackButton";
 
-interface MobileRecentlyDeletedContentProps {
-  deletedItems: DeletedItemsCollection;
-}
-
-const MobileRecentlyDeletedContent = ({
-  deletedItems,
-}: MobileRecentlyDeletedContentProps) => {
+const MobileRecentlyDeletedContent = () => {
   const router = useRouter();
   const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
 
@@ -36,10 +28,8 @@ const MobileRecentlyDeletedContent = ({
     };
   }, [setHeaderConfig, resetHeaderConfig, router]);
 
-  // re-fetch the deleted items
-  const deletedData = useGetDeletedItems({
-    placeholderData: deletedItems,
-  });
+  // Fetch the deleted items client-side
+  const deletedData = useGetDeletedItems();
 
   // Transform PrismaFolder to FolderWithItems for MobileList
   const deletedFoldersWithItems =

@@ -53,6 +53,12 @@ export const getChatSessionsForNoteSchema = z.object({
   noteId: z.string().uuid(),
 });
 
+export const getChatHistoryForScopeSchema = z.object({
+  userId: z.string().uuid(),
+  scope: z.union([z.literal("note"), z.literal("folder"), z.literal("global")]),
+  scopeId: z.string().uuid().optional(),
+});
+
 export const updateChatSessionTitleSchema = z.object({
   sessionId: z.string().uuid(),
   userId: z.string().uuid(),
@@ -60,6 +66,11 @@ export const updateChatSessionTitleSchema = z.object({
 });
 
 export const softDeleteChatSessionSchema = z.object({
+  sessionId: z.string().uuid(),
+  userId: z.string().uuid(),
+});
+
+export const recoverChatSessionSchema = z.object({
   sessionId: z.string().uuid(),
   userId: z.string().uuid(),
 });

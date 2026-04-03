@@ -4,9 +4,10 @@ import { toast } from "sonner";
 import ProButton from "../ProButton";
 import VersionSelector from "../VersionSelector";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
-import { BookCheckIcon, MessageCircleIcon } from "lucide-react";
+import { BookCheckIcon, CopyIcon, MessageCircleIcon } from "lucide-react";
 import SaveStatus, { SaveStatusType } from "../SaveStatus";
 import { useOfflineGuard } from "@/hooks/useOfflineGuard";
+import { Button } from "../ui/button";
 
 interface NoteToolbarProps {
   note: Note;
@@ -52,6 +53,22 @@ const NoteToolbar = ({
     });
   };
 
+  /**
+   * Copy the current selected note version content to the clipboard
+   */
+  const handleCopyNoteContent = async () => {
+    if (selectedVersion?.plain_text_content) {
+      try {
+        await navigator.clipboard.writeText(
+          selectedVersion?.plain_text_content,
+        );
+        toast.success("Note copied to clipboard");
+      } catch (error) {
+        toast.error("Failed to copy note");
+      }
+    }
+  };
+
   return (
     <div className="flex items-center justify-between py-1 bg-background">
       {/* Left side: Version Selector and Save Status */}
@@ -84,6 +101,10 @@ const NoteToolbar = ({
 
       {/* Right side: Chat and Publish buttons */}
       <div className="flex items-center space-x-2">
+        {/* Copy Note */}
+        <Button variant={"ghost"} onClick={handleCopyNoteContent}>
+          <CopyIcon className="h-4 w-4" />
+        </Button>
         {/* Chat toggle button */}
         <ProButton
           variant="ghost"

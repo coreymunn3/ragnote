@@ -1,5 +1,6 @@
 "use client";
 import {
+  ArchiveRestore,
   FolderOutputIcon,
   PinIcon,
   PinOffIcon,
@@ -44,6 +45,15 @@ const MobileListItemNoteDetail = ({ note }: MobileListItemNoteDetailProps) => {
     setMoveDialogOpen(true);
   };
 
+  const handleRecover = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    updateNoteMutation.mutate({
+      noteId: note.id,
+      folderId: note.folder_id,
+      action: "recover",
+    });
+  };
+
   const handleConfirmMove = (selectedFolderId: string) => {
     updateNoteMutation.mutate(
       {
@@ -55,7 +65,7 @@ const MobileListItemNoteDetail = ({ note }: MobileListItemNoteDetailProps) => {
         onSuccess: () => {
           setMoveDialogOpen(false);
         },
-      }
+      },
     );
   };
 
@@ -69,34 +79,52 @@ const MobileListItemNoteDetail = ({ note }: MobileListItemNoteDetailProps) => {
         }))
     : [];
 
+  // list of actions a user can take on a note
+  const createNoteActions = () => {
+    const optionsArr = [];
+    // if note is deleted, only option is to recover
+    if (note.is_deleted) {
+      optionsArr.push({
+        label: "Recover",
+        icon: <ArchiveRestore className="h-4 w-4" />,
+        onClick: handleRecover,
+      });
+    } else {
+      // if note not deleted, you can move or delete it, or pin/unpin
+      optionsArr.push(
+        {
+          label: "Move",
+          icon: <FolderOutputIcon className="h-4 w-4" />,
+          onClick: handleOpenMoveDialog,
+        },
+        {
+          label: "Delete",
+          icon: <Trash2Icon className="h-4 w-4" />,
+          onClick: handleDeleteNote,
+        },
+      );
+      if (note.is_pinned) {
+        optionsArr.push({
+          label: "Unpin",
+          icon: <PinOffIcon className="h-4 w-4" />,
+          onClick: handleTogglePinNote,
+        });
+      } else {
+        optionsArr.push({
+          label: "Pin",
+          icon: <PinIcon className="h-4 w-4" />,
+          onClick: handleTogglePinNote,
+        });
+      }
+    }
+
+    return optionsArr;
+  };
+
   return (
     <>
       <VersionBadge version={note.current_version} context="note" />
-      <OptionsMenu
-        options={[
-          note.is_pinned
-            ? {
-                label: "UnPin",
-                icon: <PinOffIcon className="h-4 w-4" />,
-                onClick: handleTogglePinNote,
-              }
-            : {
-                label: "Pin",
-                icon: <PinIcon className="h-4 w-4" />,
-                onClick: handleTogglePinNote,
-              },
-          {
-            label: "Move",
-            icon: <FolderOutputIcon className="h-4 w-4" />,
-            onClick: handleOpenMoveDialog,
-          },
-          {
-            label: "Delete",
-            icon: <Trash2Icon className="h-4 w-4" />,
-            onClick: handleDeleteNote,
-          },
-        ]}
-      />
+      <OptionsMenu options={createNoteActions()} />
 
       {/* Move Note dialog */}
       <SelectDialog

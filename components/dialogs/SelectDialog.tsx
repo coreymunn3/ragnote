@@ -68,7 +68,7 @@ const SelectDialog = <T extends string | number>({
   const currentValue =
     selectedValue !== undefined ? selectedValue : internalSelectedValue;
   const selectedOption = options.find(
-    (option) => option.value === currentValue
+    (option) => option.value === currentValue,
   );
 
   const handleConfirm = () => {

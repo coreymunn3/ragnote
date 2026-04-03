@@ -12,11 +12,9 @@ import {
   Search,
   ChevronDownIcon,
   Crown,
-  Loader2Icon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useSearch } from "@/hooks/search/useSearch";
-import { useChat } from "@/hooks/chat/useChat";
 import { AnimatedExpandable, AnimatedListItem } from "../animations";
 import { toast } from "sonner";
 import SearchResultsSkeleton from "../skeletons/SearchResultsSkeleton";
@@ -30,7 +28,6 @@ import SearchResultItem from "./SearchResultItem";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import ProButton from "../ProButton";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useRouter } from "next/navigation";
 import ScopeBadge from "../ScopeBadge";
 import {
   Tooltip,
@@ -46,9 +43,9 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
-import { Skeleton } from "../ui/skeleton";
 import UpgradeDialog from "../dialogs/UpgradeDialog";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { useChatPanel } from "@/contexts/ChatPanelContext";
 
 type PrimaryMode = "chat" | "search";
 
@@ -57,15 +54,22 @@ interface CommandBarProps {
   scopeId?: string;
   allowedModes?: PrimaryMode[];
   onSearch?: (query: string) => void;
+  scopeTitle?: string; // Title for the chat panel (e.g., folder name, "All Notes")
 }
 
 const CommandBar = (props: CommandBarProps) => {
-  const { scope, scopeId, allowedModes = ["chat", "search"], onSearch } = props;
+  const {
+    scope,
+    scopeId,
+    allowedModes = ["chat", "search"],
+    onSearch,
+    scopeTitle,
+  } = props;
   const isMobile = useIsMobile();
-  const router = useRouter();
   const [query, setQuery] = useState("");
   const { isPro } = useUserSubscription();
   const isOnline = useOnlineStatus();
+  const { openPanel } = useChatPanel();
 
   const enhancedModes = allowedModes.map((mode) => ({
     mode,
@@ -89,16 +93,6 @@ const CommandBar = (props: CommandBarProps) => {
   const [searchMode, setSearchMode] = useState<SearchMode>("text");
   const [showNoResults, setShowNoResults] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-
-  /**
-   * Mutation to execute the chat
-   * when it completes, navigate to the chat session page
-   */
-  const chatMutation = useChat({
-    onSuccess: (data) => {
-      router.push(`/chat/${data.session.id}`);
-    },
-  });
 
   /**
    * Mutation to execute the search
@@ -126,13 +120,15 @@ const CommandBar = (props: CommandBarProps) => {
     }
 
     if (primaryMode === "chat") {
-      // Send chat message
-      chatMutation.mutate({
-        message: query,
-        scope: scope,
-        scopeId: scopeId,
-        sessionId: undefined, // Always create a new session from command bar
-      });
+      // Open chat panel with initial message using context
+      const title =
+        scopeTitle ||
+        (scope === "global"
+          ? "All Notes"
+          : scope === "folder"
+            ? "Folder"
+            : "Note");
+      openPanel(scope, scopeId, title, query);
       // Clear the query
       setQuery("");
     } else {
@@ -194,7 +190,7 @@ const CommandBar = (props: CommandBarProps) => {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-2"
+              className="gap-1"
               disabled={!isOnline}
             >
               {primaryMode === "chat" ? (
@@ -209,7 +205,7 @@ const CommandBar = (props: CommandBarProps) => {
               <ChevronDownIcon className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center">
+          <DropdownMenuContent align="start">
             {enhancedModes.map(
               ({ mode, label, icon: ModeIcon, requiresPro }) => (
                 <DropdownMenuItem
@@ -227,7 +223,7 @@ const CommandBar = (props: CommandBarProps) => {
                   {ModeIcon}
                   {label}
                   {requiresPro && !isPro && (
-                    <Crown className="h-3 w-3 ml-auto text-yellow-600" />
+                    <Crown className="h-3 w-3 ml-auto text-primary" />
                   )}
                 </DropdownMenuItem>
               ),
@@ -235,31 +231,25 @@ const CommandBar = (props: CommandBarProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* the input (or if chat pending, a skeleton) */}
-        {chatMutation.isPending ? (
-          <div className="flex-1 text-sm">
-            <Skeleton className="w-48 h-6" />
-          </div>
-        ) : (
-          <Input
-            placeholder={
-              !isOnline
-                ? "Offline - search and chat unavailable"
-                : primaryMode === "chat"
-                  ? `Chat with ${scope === "global" ? "all your notes" : scope === "folder" ? "this folder" : "this note"}...`
-                  : "Search Your Notes"
+        {/* the input */}
+        <Input
+          placeholder={
+            !isOnline
+              ? "Offline - search and chat unavailable"
+              : primaryMode === "chat"
+                ? `Chat with ${scope === "global" ? "all your notes" : scope === "folder" ? "this folder" : "this note"}...`
+                : "Search Your Notes"
+          }
+          className="flex-1 p-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0"
+          value={query}
+          disabled={!isOnline}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSubmit();
             }
-            className="flex-1 border-none resize-none focus:border-none shadow-none focus-visible:ring-0"
-            value={query}
-            disabled={chatMutation.isPending || !isOnline}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSubmit();
-              }
-            }}
-          />
-        )}
+          }}
+        />
 
         {/* clear search results button - only shows when there are search results */}
         {primaryMode === "search" && !!searchResults && (
@@ -282,23 +272,19 @@ const CommandBar = (props: CommandBarProps) => {
           <Button
             variant={"ghost"}
             className="text-primary hover:text-primary"
+            size={isMobile ? "icon" : "sm"}
             onClick={handleSubmit}
-            disabled={chatMutation.isPending || !isOnline}
+            disabled={!isOnline}
           >
             <span>
-              {!isMobile &&
-                (primaryMode === "chat"
-                  ? chatMutation.isPending
-                    ? "Sending..."
-                    : "Send"
-                  : "Search")}
+              {!isMobile && (primaryMode === "chat" ? "Send" : "Search")}
             </span>
             <CornerDownLeft className="h-4 w-4" />
           </Button>
         </div>
 
         {/* after the search bar - controls/info */}
-        <div className="flex items-center justify-center w-12">
+        <div className="flex items-center justify-center">
           {/* Search Mode Toggle - Semantic Search or Text Matching - only show in search mode */}
           {primaryMode === "search" && (
             <TooltipProvider>
@@ -306,6 +292,7 @@ const CommandBar = (props: CommandBarProps) => {
                 <TooltipTrigger asChild>
                   <ProButton
                     variant={searchMode === "semantic" ? "default" : "ghost"}
+                    size={"icon"}
                     className={`${searchMode === "text" ? "text-primary" : "text-background"}`}
                     icon={<BrainIcon className="h-4 w-4" />}
                     onClick={toggleSearchMode}
@@ -320,7 +307,19 @@ const CommandBar = (props: CommandBarProps) => {
           {/* Scope Badge - only show in chat mode */}
           {primaryMode === "chat" && (
             <div className="flex items-center">
-              <ScopeBadge chatScope={scope} />
+              <ScopeBadge
+                chatScope={scope}
+                onClick={() => {
+                  const title =
+                    scopeTitle ||
+                    (scope === "global"
+                      ? "All Notes"
+                      : scope === "folder"
+                        ? "Folder"
+                        : "Note");
+                  openPanel(scope, scopeId, title);
+                }}
+              />
             </div>
           )}
         </div>
@@ -336,7 +335,7 @@ const CommandBar = (props: CommandBarProps) => {
         {searchMutation.isPending && <SearchResultsSkeleton />}
         {/* show the items if we get search results */}
         {!!searchResults && (
-          <div className="p-2 flex flex-wrap gap-2">
+          <div className="p-1 grid grid-cols-1 md:grid-cols-2 gap-2">
             {/* if we have more than 0 results, show them */}
             {searchResults.numResults > 0 &&
               searchResults.searchResults

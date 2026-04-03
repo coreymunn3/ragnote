@@ -4,6 +4,7 @@ import {
   deleteFolderSchema,
   getFolderByIdSchema,
   renameFolderSchema,
+  recoverFolderSchema,
   getDeletedFoldersSchema,
 } from "./folderValidators";
 import {
@@ -29,7 +30,7 @@ export class FolderService {
   private enrichFoldersWithItems = async (
     folders: PrismaFolder[],
     userId: string,
-    itemType: FolderItemType
+    itemType: FolderItemType,
   ): Promise<FolderWithItems[]> => {
     return Promise.all(
       folders.map(async (folder) => {
@@ -41,7 +42,7 @@ export class FolderService {
             const noteService = new NoteService();
             const allNotes = await noteService.getAllNotesInFolder(
               folder.id,
-              userId
+              userId,
             );
             // Sort notes by most recent edit time (note.updated_at or current_version.updated_at)
             items = allNotes.sort((a: Note, b: Note) => {
@@ -83,7 +84,7 @@ export class FolderService {
           items,
           itemType,
         } as FolderWithItems;
-      })
+      }),
     );
   };
 
@@ -104,7 +105,7 @@ export class FolderService {
       });
 
       return newFolder as PrismaFolder;
-    }
+    },
   );
 
   /** Rename the folder */
@@ -129,11 +130,11 @@ export class FolderService {
       // throw error is nothing happened
       if (!updatedFolder) {
         throw new NotFoundError(
-          `Folder ${validatedData.folderId} belonging to user ${validatedData.userId} not found`
+          `Folder ${validatedData.folderId} belonging to user ${validatedData.userId} not found`,
         );
       }
       return updatedFolder;
-    }
+    },
   );
 
   /** Soft Delete the folder by setting is_deleted to true and cascade to notes */
@@ -154,7 +155,7 @@ export class FolderService {
 
       if (!folder) {
         throw new NotFoundError(
-          `Folder ${validatedData.folderId} belonging to user ${validatedData.userId} not found`
+          `Folder ${validatedData.folderId} belonging to user ${validatedData.userId} not found`,
         );
       }
 
@@ -179,7 +180,53 @@ export class FolderService {
       ]);
 
       return folder;
-    }
+    },
+  );
+
+  /** Recover a soft deleted folder and all notes inside it */
+  public recoverFolder = withErrorHandling(
+    async (folderId: string, userId: string) => {
+      const validatedData = recoverFolderSchema.parse({
+        folderId,
+        userId,
+      });
+
+      // Verify folder exists, belongs to user, and is deleted
+      const folder = await prisma.folder.findFirst({
+        where: {
+          id: validatedData.folderId,
+          user_id: validatedData.userId,
+          is_deleted: true,
+        },
+      });
+
+      if (!folder) {
+        throw new NotFoundError(
+          `Folder ${validatedData.folderId} not found or not yet deleted`,
+        );
+      }
+
+      // CASCADE: Recover folder AND all notes inside in a transaction
+      await prisma.$transaction([
+        // Recover the folder
+        prisma.folder.update({
+          where: { id: validatedData.folderId },
+          data: { is_deleted: false },
+        }),
+        // Recover all notes in the folder
+        prisma.note.updateMany({
+          where: {
+            folder_id: validatedData.folderId,
+            user_id: validatedData.userId,
+          },
+          data: {
+            is_deleted: false,
+          },
+        }),
+      ]);
+
+      return folder;
+    },
   );
 
   /** Get all deleted folders for a user */
@@ -200,7 +247,7 @@ export class FolderService {
       });
 
       return folders;
-    }
+    },
   );
 
   /** Get All Folders created by the user */
@@ -216,7 +263,7 @@ export class FolderService {
 
       // Get notes for each folder using the helper method
       return await this.enrichFoldersWithItems(folders, userId, "note");
-    }
+    },
   );
 
   /** Get a single folder by ID with its items */
@@ -224,12 +271,12 @@ export class FolderService {
     async (folderId: string, userId: string): Promise<FolderWithItems> => {
       const validatedData = getFolderByIdSchema.parse({ folderId, userId });
 
-      // Fetch folder from database
+      // Fetch folder from database (including deleted folders for preview)
       const folder = await prisma.folder.findFirst({
         where: {
           id: validatedData.folderId,
           user_id: validatedData.userId,
-          is_deleted: false,
+          // Removed is_deleted filter to allow viewing deleted folders
         },
       });
 
@@ -241,9 +288,9 @@ export class FolderService {
       const enrichedFolders = await this.enrichFoldersWithItems(
         [folder],
         validatedData.userId,
-        "note"
+        "note",
       );
       return enrichedFolders[0];
-    }
+    },
   );
 }

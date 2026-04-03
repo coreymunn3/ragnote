@@ -10,9 +10,10 @@ import {
 
 interface ScopeBadgeProps {
   chatScope: ChatScope;
+  onClick?: () => void;
 }
 
-const ScopeBadge = ({ chatScope }: ScopeBadgeProps) => {
+const ScopeBadge = ({ chatScope, onClick }: ScopeBadgeProps) => {
   // Determine the icon based on scope
   const getScopeIcon = () => {
     switch (chatScope) {
@@ -44,6 +45,7 @@ const ScopeBadge = ({ chatScope }: ScopeBadgeProps) => {
           <Badge
             variant={"default"}
             className="ml-2 flex-shrink-0 w-6 h-6 p-1 flex items-center justify-center"
+            onClick={onClick}
           >
             {getScopeIcon()}
           </Badge>

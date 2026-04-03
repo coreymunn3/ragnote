@@ -1,6 +1,6 @@
 import { ChatSession } from "@/lib/types/chatTypes";
 import { TypographyMuted, TypographySmall } from "../ui/typography";
-import { MessageSquareIcon, Trash2Icon } from "lucide-react";
+import { ArchiveRestore, MessageSquareIcon, Trash2Icon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -35,6 +35,15 @@ const ChatWidget = ({ chatSession }: ChatWidgetProps) => {
     setDeleteOpen(true);
   };
 
+  const handleRecover = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    updateChatMutation.mutate({
+      sessionId: chatSession.id,
+      action: "recover",
+    });
+  };
+
   return (
     <>
       <Link href={chatUrl} className="block w-full h-full">
@@ -51,13 +60,23 @@ const ChatWidget = ({ chatSession }: ChatWidgetProps) => {
               {/* Header right - actions/options */}
               <div className="flex items-center justify-center space-x-2">
                 <ScopeBadge chatScope={chatSession.chat_scope.scope} />
-                <Button
-                  variant={"ghost"}
-                  onClick={handleDeleteNote}
-                  disabled={!isOnline}
-                >
-                  <Trash2Icon className="h-4 w-4" />
-                </Button>
+                {chatSession.is_deleted ? (
+                  <Button
+                    variant={"ghost"}
+                    onClick={handleRecover}
+                    disabled={!isOnline}
+                  >
+                    <ArchiveRestore className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    variant={"ghost"}
+                    onClick={handleDeleteNote}
+                    disabled={!isOnline}
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
           </CardHeader>

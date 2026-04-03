@@ -13,32 +13,20 @@ import ChatPageSkeleton from "@/components/skeletons/ChatPageSkeleton";
 
 interface WebChatPageContentProps {
   chatSessionId: string;
-  initialChatSession: ChatSession | null;
-  initialChatMessages: ChatMessage[];
 }
 
-const WebChatPageContent = ({
-  chatSessionId,
-  initialChatSession,
-  initialChatMessages,
-}: WebChatPageContentProps) => {
+const WebChatPageContent = ({ chatSessionId }: WebChatPageContentProps) => {
   const queryClient = useQueryClient();
   const { isPro } = useUserSubscription();
 
   // State management
   const [pendingUserMessage, setPendingUserMessage] = useState<string>("");
 
-  // Re-fetch chat session
-  const chatSession = useGetChatSession(chatSessionId, {
-    placeholderData: initialChatSession || undefined,
-    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
-  });
+  // Fetch chat session client-side
+  const chatSession = useGetChatSession(chatSessionId);
 
-  // Re-fetch chat messages
-  const chatMessages = useGetChatMessagesForSession(chatSessionId, {
-    placeholderData: initialChatMessages,
-    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
-  });
+  // Fetch chat messages client-side
+  const chatMessages = useGetChatMessagesForSession(chatSessionId);
 
   // Mutation to send chat
   const sendChatMutation = useChat({

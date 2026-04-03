@@ -10,8 +10,7 @@ import { useChat } from "@/hooks/chat/useChat";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";
 import { useUpdateChat } from "@/hooks/chat/useUpdateChat";
 import { useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { ArrowLeftIcon, SquarePenIcon, Trash2Icon } from "lucide-react";
+import { SquarePenIcon, Trash2Icon } from "lucide-react";
 import ScopeBadge from "@/components/ScopeBadge";
 import OptionsMenu from "@/components/OptionsMenu";
 import { toast } from "sonner";
@@ -22,14 +21,10 @@ import MobileChatPageSkeleton from "@/components/skeletons/MobileChatPageSkeleto
 
 interface MobileChatPageContentProps {
   chatSessionId: string;
-  initialChatSession: ChatSession | null;
-  initialChatMessages: ChatMessage[];
 }
 
 const MobileChatPageContent = ({
   chatSessionId,
-  initialChatSession,
-  initialChatMessages,
 }: MobileChatPageContentProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -40,17 +35,11 @@ const MobileChatPageContent = ({
   const [pendingUserMessage, setPendingUserMessage] = useState<string>("");
   const [renameOpen, setRenameOpen] = useState(false);
 
-  // Re-fetch chat session
-  const chatSession = useGetChatSession(chatSessionId, {
-    placeholderData: initialChatSession || undefined,
-    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
-  });
+  // Fetch chat session client-side
+  const chatSession = useGetChatSession(chatSessionId);
 
-  // Re-fetch chat messages
-  const chatMessages = useGetChatMessagesForSession(chatSessionId, {
-    placeholderData: initialChatMessages,
-    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
-  });
+  // Fetch chat messages client-side
+  const chatMessages = useGetChatMessagesForSession(chatSessionId);
 
   // Mutations
   const updateChatMutation = useUpdateChat();
@@ -78,11 +67,18 @@ const MobileChatPageContent = ({
 
   const handleDeleteChatSession = () => {
     if (chatSession.data) {
-      updateChatMutation.mutate({
-        sessionId: chatSession.data.id,
-        action: "delete",
-      });
-      router.push(`/chats`);
+      updateChatMutation.mutate(
+        {
+          sessionId: chatSession.data.id,
+          action: "delete",
+        },
+        {
+          onSuccess: () => {
+            // route user to chats page AFTER mutation completes
+            router.push(`/chats`);
+          },
+        },
+      );
     } else {
       toast.error("Unable to Delete");
     }
@@ -165,7 +161,7 @@ const MobileChatPageContent = ({
         open={renameOpen}
         onOpenChange={setRenameOpen}
         title="Rename This Chat"
-        placeholder="Chat Title"
+        initialValue={chatSession.data.title!}
         confirmText="Rename"
         confirmLoadingText="Renaming..."
         onConfirm={(inputValue) => handleSaveTitle(inputValue)}

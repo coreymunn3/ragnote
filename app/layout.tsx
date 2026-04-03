@@ -5,7 +5,6 @@ import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Toaster } from "sonner";
-import OfflineModeBanner from "@/components/OfflineModeBanner";
 import PersistentOfflineIndicator from "@/components/PersistentOfflineIndicator";
 
 export const metadata: Metadata = {
@@ -518,7 +517,6 @@ export default function RootLayout({
           </Providers>
         </div>
         {/* indicators for offline usage */}
-        <OfflineModeBanner />
         <PersistentOfflineIndicator />
       </body>
     </html>

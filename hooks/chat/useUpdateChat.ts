@@ -58,7 +58,7 @@ export function useUpdateChat(options?: useUpdateChatOptions) {
               ...old,
               title: variables.title,
             };
-          }
+          },
         );
         // return the previous session
         return { previousSession };
@@ -82,12 +82,37 @@ export function useUpdateChat(options?: useUpdateChatOptions) {
           });
           break;
         case "delete":
+          // invalidate the specific chat session
+          queryClient.invalidateQueries({
+            queryKey: ["chat-session", variables.sessionId],
+          });
           // invalidate the system folder and its contents
           queryClient.invalidateQueries({
             queryKey: ["folders"],
           });
           queryClient.invalidateQueries({
             queryKey: ["chat-sessions"],
+          });
+          // invalidate deleted items to show the newly deleted chat
+          queryClient.invalidateQueries({
+            queryKey: ["deleted-items"],
+          });
+          break;
+        case "recover":
+          // invalidate the specific chat session
+          queryClient.invalidateQueries({
+            queryKey: ["chat-session", variables.sessionId],
+          });
+          // invalidate the system folder and its contents
+          queryClient.invalidateQueries({
+            queryKey: ["folders"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["chat-sessions"],
+          });
+          // invalidate deleted items to remove the recovered chat
+          queryClient.invalidateQueries({
+            queryKey: ["deleted-items"],
           });
           break;
         default:
@@ -96,6 +121,8 @@ export function useUpdateChat(options?: useUpdateChatOptions) {
           });
           break;
       }
+      // Custom onSuccess callback
+      options?.onSuccess?.(response, variables, context);
     },
   });
 }

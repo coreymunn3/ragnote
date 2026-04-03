@@ -6,28 +6,20 @@ import ChatWidget from "@/components/web/ChatWidget";
 import { FileIcon, MessageSquareIcon, PinIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetNotes } from "@/hooks/note/useGetNotes";
-import { Note } from "@/lib/types/noteTypes";
-import { ChatSession } from "@/lib/types/chatTypes";
 import { useGetChatSessionsForUser } from "@/hooks/chat/useGetChatSessionsForUser";
 import CommandBar from "@/components/commandbar/CommandBar";
+import WebDashboardSkeleton from "@/components/skeletons/WebDashboardSkeleton";
 
-interface WebDashboardContentProps {
-  notes: Note[];
-  chatSessions: ChatSession[];
-}
+const WebDashboardContent = () => {
+  // Fetch the user's notes client-side
+  const userNotes = useGetNotes();
+  // Fetch the user's chat sessions client-side
+  const userChatSessions = useGetChatSessionsForUser();
 
-const WebDashboardContent = ({
-  notes,
-  chatSessions,
-}: WebDashboardContentProps) => {
-  // re-fetch the user's notes
-  const userNotes = useGetNotes({
-    placeholderData: notes,
-  });
-  // re-fetch the user's chat sessions
-  const userChatSessions = useGetChatSessionsForUser({
-    placeholderData: chatSessions,
-  });
+  // Show skeleton while loading
+  if (userNotes.isLoading || userChatSessions.isLoading) {
+    return <WebDashboardSkeleton />;
+  }
 
   // Separate pinned and unpinned notes
   const pinnedNotes = userNotes.data?.filter((note) => note.is_pinned) || [];
@@ -62,15 +54,10 @@ const WebDashboardContent = ({
           <AnimatedListItem index={1} animation="fadeIn">
             <WidgetGrid
               items={pinnedNotes}
-              renderItem={(note) => (
-                <NoteWidget note={note} pinned={note.is_pinned} />
-              )}
+              renderItem={(note) => <NoteWidget note={note} />}
               title="Pinned Notes"
               icon={<PinIcon className="h-6 w-6 text-muted-foreground" />}
               emptyContentMessage="No pinned notes yet. Any pinned notes will appear here."
-              initialItemLimit={2}
-              showMoreIncrement={2}
-              showMoreButton={true}
               delay={1}
             />
           </AnimatedListItem>
@@ -84,9 +71,6 @@ const WebDashboardContent = ({
             title="Recent Notes"
             icon={<FileIcon className="h-6 w-6 text-muted-foreground" />}
             emptyContentMessage="No notes yet. Create a note to get started."
-            initialItemLimit={4}
-            showMoreIncrement={4}
-            showMoreButton={true}
             delay={2}
           />
         </AnimatedListItem>
@@ -103,9 +87,6 @@ const WebDashboardContent = ({
               <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
             }
             emptyContentMessage="No chats yet. Chat with one of your notes to get started."
-            initialItemLimit={4}
-            showMoreIncrement={4}
-            showMoreButton={true}
             delay={3}
           />
         </AnimatedListItem>

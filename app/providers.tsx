@@ -12,6 +12,7 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ChatPanelProvider } from "@/contexts/ChatPanelContext";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -41,8 +42,7 @@ function makeQueryClient() {
         refetchOnWindowFocus: false,
         // Do refetch when reconnecting to internet
         refetchOnReconnect: true,
-        // Don't refetch on mount by default (let cached data show first)
-        refetchOnMount: false,
+        refetchOnMount: true,
         // REMOVE placeholderData - it prevents new pages from loading
         // The offlineFirst networkMode already handles cached data
       },
@@ -86,7 +86,9 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <ClerkProvider>
-        <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
+        <NextThemesProvider {...themeProps}>
+          <ChatPanelProvider>{children}</ChatPanelProvider>
+        </NextThemesProvider>
       </ClerkProvider>
       {/* react query dev tools */}
       <ReactQueryDevtools initialIsOpen={false} />

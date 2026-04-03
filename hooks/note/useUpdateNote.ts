@@ -68,12 +68,45 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
           break;
 
         case "delete":
-          // For delete, invalidate notes, folders and specific folder if known
+          // invalidate the deleted-items
+          queryClient.invalidateQueries({
+            queryKey: ["deleted-items"],
+            refetchType: "active",
+          });
+          // invalidate notes
+          queryClient.invalidateQueries({
+            queryKey: ["notes"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["note", variables.noteId],
+          });
+          // invalidate folders
           queryClient.invalidateQueries({
             queryKey: ["folders"],
           });
+          if (variables.folderId) {
+            queryClient.invalidateQueries({
+              queryKey: ["folder", variables.folderId],
+            });
+          }
+          break;
+
+        case "recover":
+          // invalidate the deleted-items
+          queryClient.invalidateQueries({
+            queryKey: ["deleted-items"],
+            refetchType: "active",
+          });
+          // invalidate notes
           queryClient.invalidateQueries({
             queryKey: ["notes"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["note", variables.noteId],
+          });
+          // invalidate folders
+          queryClient.invalidateQueries({
+            queryKey: ["folders"],
           });
           if (variables.folderId) {
             queryClient.invalidateQueries({
@@ -103,6 +136,7 @@ export function useUpdateNote(options?: useUpdateNoteOptions) {
             : "Note updated",
         move: "Note moved successfully",
         delete: "Note deleted",
+        recover: "Note recovered from trash",
       };
 
       toast.success(actionMessages[variables.action] || "Note updated");

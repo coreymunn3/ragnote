@@ -122,6 +122,91 @@
   opacity: 0.8;
 }
 
+/* Custom Inline Code Styling - only for inline code, not code blocks */
+.bn-editor :not(pre) > code {
+  /* Primary color text */
+  color: hsl(var(--primary));
+  
+  /* Light primary background */
+  background-color: hsl(var(--primary) / 0.1);
+  
+  /* Solid border with primary color */
+  border: 1px solid hsl(var(--primary) / 0.3);
+  
+  /* Minimal padding */
+  padding: 0.125rem 0.375rem;
+  
+  /* Border radius for rounded corners */
+  border-radius: calc(var(--radius) * 0.25);
+  
+  /* Font styling */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.875em;
+  
+  /* Prevent line breaks */
+  white-space: nowrap;
+}
+
+/* Dark mode adjustments */
+.dark .bn-editor :not(pre) > code {
+  background-color: hsl(var(--primary) / 0.15);
+  border-color: hsl(var(--primary) / 0.4);
+}
+
+/* Hover effect (optional) */
+.bn-editor :not(pre) > code:hover {
+  background-color: hsl(var(--primary) / 0.15);
+  border-color: hsl(var(--primary) / 0.5);
+}
+
+.dark .bn-editor :not(pre) > code:hover {
+  background-color: hsl(var(--primary) / 0.2);
+  border-color: hsl(var(--primary) / 0.6);
+}
+
+/* Code Block Container - override BlockNote's default dark background */
+.bn-editor [data-node-type="codeBlock"],
+.bn-editor .bn-code-block,
+.bn-editor [data-content-type="codeBlock"],
+.bn-editor div[class*="codeBlock"],
+.bn-editor div:has(> pre) {
+  background-color: hsl(210 40% 94%) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+  padding: 1rem !important;
+  padding-top: 1.5rem !important;
+}
+
+/* Dark mode - much lighter slate background for code blocks */
+.dark .bn-editor [data-node-type="codeBlock"],
+.dark .bn-editor .bn-code-block,
+.dark .bn-editor [data-content-type="codeBlock"],
+.dark .bn-editor div[class*="codeBlock"],
+.dark .bn-editor div:has(> pre) {
+  background-color: hsl(217 33% 35%) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Code Block pre element - make transparent */
+.bn-editor pre {
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Code block text - override inline code styles */
+.bn-editor pre code {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  color: inherit;
+  white-space: pre;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
 @theme inline {
   @keyframes aurora {
   0% {

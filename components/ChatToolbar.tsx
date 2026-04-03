@@ -46,12 +46,18 @@ const ChatToolbar = ({
    */
   const handleDeleteChatSession = () => {
     if (chatSession) {
-      updateChatMutation.mutate({
-        sessionId: chatSession.id,
-        action: "delete",
-      });
-      // route user back to the chats folder
-      router.push(`/chats`);
+      updateChatMutation.mutate(
+        {
+          sessionId: chatSession.id,
+          action: "delete",
+        },
+        {
+          onSuccess: () => {
+            // route user back to the chats folder
+            router.push(`/chats`);
+          },
+        },
+      );
     } else {
       toast.error("Unable to Delete");
     }

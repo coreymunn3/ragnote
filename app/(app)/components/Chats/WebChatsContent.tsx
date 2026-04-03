@@ -6,16 +6,16 @@ import { MessageSquareIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { ChatSession } from "@/lib/types/chatTypes";
 import { useGetChatSessionsForUser } from "@/hooks/chat/useGetChatSessionsForUser";
+import WebChatsListSkeleton from "@/components/skeletons/WebChatsListSkeleton";
 
-interface WebChatsContentProps {
-  chatSessions: ChatSession[];
-}
+const WebChatsContent = () => {
+  // Fetch the user's chat sessions client-side
+  const userChatSessions = useGetChatSessionsForUser();
 
-const WebChatsContent = ({ chatSessions }: WebChatsContentProps) => {
-  // re-fetch the user's chat sessions
-  const userChatSessions = useGetChatSessionsForUser({
-    placeholderData: chatSessions,
-  });
+  // Show skeleton while loading
+  if (userChatSessions.isLoading) {
+    return <WebChatsListSkeleton />;
+  }
 
   // Sort chat sessions by last updated time
   const sortedChats =
@@ -40,9 +40,6 @@ const WebChatsContent = ({ chatSessions }: WebChatsContentProps) => {
               <MessageSquareIcon className="h-6 w-6 text-muted-foreground" />
             }
             emptyContentMessage="No chats yet. Chat with one of your notes to get started."
-            initialItemLimit={8}
-            showMoreIncrement={8}
-            showMoreButton={true}
             delay={0}
           />
         </AnimatedListItem>

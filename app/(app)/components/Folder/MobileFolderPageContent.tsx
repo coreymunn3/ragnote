@@ -3,16 +3,19 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGetFolderById } from "@/hooks/folder/useGetFolderById";
-import { FolderWithItems } from "@/lib/types/folderTypes";
 import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 import InputDialog from "@/components/dialogs/InputDialog";
 import MobileList from "@/components/mobile/MobileList";
-import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
+import { useUpdateFolder } from "@/hooks/folder/useUpdateFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
-import { ArrowLeftIcon, FolderPenIcon, Trash2Icon } from "lucide-react";
+import {
+  ArchiveRestore,
+  FolderPenIcon,
+  Loader2Icon,
+  Trash2Icon,
+} from "lucide-react";
 import CreateNote from "@/components/CreateNote";
 import { useMobileHeader } from "@/contexts/MobileHeaderContext";
-import { Button } from "@/components/ui/button";
 import OptionsMenu from "@/components/OptionsMenu";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import { Note } from "@/lib/types/noteTypes";
@@ -20,30 +23,39 @@ import { ChatSession } from "@/lib/types/chatTypes";
 import MobileListSkeleton from "@/components/skeletons/MobileListSkeleton";
 import MobileBackButton from "@/components/mobile/MobileBackButton";
 import CommandBar from "@/components/commandbar/CommandBar";
+import MessageAlert from "@/components/MessageAlert";
+import { Button } from "@/components/ui/button";
 
 interface MobileFolderPageContentProps {
   folderId: string;
-  initialFolder: FolderWithItems | null;
 }
 
 const MobileFolderPageContent = ({
   folderId,
-  initialFolder,
 }: MobileFolderPageContentProps) => {
   const router = useRouter();
   const { setHeaderConfig, resetHeaderConfig } = useMobileHeader();
   // dialog state management
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  // get the folder data
-  const folderData = useGetFolderById(folderId, {
-    placeholderData: initialFolder || undefined,
-    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
-  });
+  // Fetch the folder data client-side
+  const folderData = useGetFolderById(folderId);
 
   // hooks
-  const renameFolder = useRenameFolder();
+  const updateFolder = useUpdateFolder();
   const deleteFolder = useDeleteFolder();
+
+  const isDeleted = folderData.data?.is_deleted;
+
+  // Handle recover action
+  const handleRecover = () => {
+    if (folderData.data) {
+      updateFolder.mutate({
+        folderId: folderData.data.id,
+        action: "recover",
+      });
+    }
+  };
 
   // Set header configuration for Folder page (must call useEffect before any returns)
   useEffect(() => {
@@ -55,7 +67,19 @@ const MobileFolderPageContent = ({
             <MobilePageTitle title={folderData.data.folder_name} />
           </>
         ),
-        rightContent: (
+        rightContent: isDeleted ? (
+          <Button
+            size="sm"
+            onClick={handleRecover}
+            disabled={updateFolder.isPending}
+          >
+            {updateFolder.isPending ? (
+              <Loader2Icon className="h-4 w-4 animate-spin" />
+            ) : (
+              <ArchiveRestore className="h-4 w-4" />
+            )}
+          </Button>
+        ) : (
           <>
             <CreateNote folderId={folderData.data.id} />
             <OptionsMenu
@@ -80,7 +104,25 @@ const MobileFolderPageContent = ({
     return () => {
       resetHeaderConfig();
     };
-  }, [folderData.data, router, setHeaderConfig, resetHeaderConfig]);
+  }, [
+    folderData.data,
+    router,
+    setHeaderConfig,
+    resetHeaderConfig,
+    isDeleted,
+    updateFolder.isPending,
+  ]);
+
+  // Handle error state
+  if (folderData.error) {
+    return (
+      <MessageAlert
+        variant="error"
+        title="Error Loading Folder"
+        description="This folder could not be found or you don't have access to it."
+      />
+    );
+  }
 
   // Show loading skeleton while fetching
   if (folderData.isLoading || !folderData.data) {
@@ -105,9 +147,26 @@ const MobileFolderPageContent = ({
 
   return (
     <div>
+      {/* Deleted folder warning banner */}
+      {isDeleted && (
+        <div className="mb-4">
+          <MessageAlert
+            variant="warning"
+            title="This folder has been deleted"
+            description="You're viewing a deleted folder in read-only mode. You can recover it to restore full access."
+          />
+        </div>
+      )}
+
       <div className="flex flex-col space-y-8">
-        {/* Folder-scoped command bar - chat only (search is always global) */}
-        <CommandBar scope="folder" scopeId={folderId} allowedModes={["chat"]} />
+        {/* Folder-scoped command bar - chat only (search is always global) - hide if deleted */}
+        {!isDeleted && (
+          <CommandBar
+            scope="folder"
+            scopeId={folderId}
+            allowedModes={["chat"]}
+          />
+        )}
 
         {/* list of pinned items */}
         {pinnedItems.length > 0 && (
@@ -134,16 +193,17 @@ const MobileFolderPageContent = ({
         open={renameOpen}
         onOpenChange={setRenameOpen}
         title="Rename This Folder"
-        placeholder="Folder Name"
+        initialValue={folderData.data.folder_name}
         confirmText="Rename"
         confirmLoadingText="Renaming..."
         onConfirm={(inputValue) => {
-          renameFolder.mutate({
+          updateFolder.mutate({
             folderId: folderId,
-            newFolderName: inputValue,
+            action: "rename",
+            folderName: inputValue,
           });
         }}
-        isLoading={renameFolder.isPending}
+        isLoading={updateFolder.isPending}
         validate={(value) => value.trim().length > 0}
       />
 
@@ -157,8 +217,15 @@ const MobileFolderPageContent = ({
         confirmLoadingText="Deleting..."
         confirmVariant="destructive"
         onConfirm={() => {
-          deleteFolder.mutate({ folderId: folderId });
-          router.push("/dashboard");
+          deleteFolder.mutate(
+            { folderId: folderId },
+            {
+              onSuccess: () => {
+                // route user to dashboard AFTER mutation completes
+                router.push("/dashboard");
+              },
+            },
+          );
         }}
         isLoading={deleteFolder.isPending}
       />

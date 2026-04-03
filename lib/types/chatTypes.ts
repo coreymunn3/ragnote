@@ -77,7 +77,7 @@ export type SendChatApiRequest = {
 };
 
 export type UpdateChatApiRequest = {
-  action: "delete" | "update_title";
+  action: "delete" | "update_title" | "recover";
   title?: string;
 };
 

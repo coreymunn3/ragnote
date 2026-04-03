@@ -37,7 +37,7 @@ const UpgradeDialog = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Crown className="h-5 w-5 text-yellow-600" />
+            <Crown className="h-5 w-5 text-primary" />
             Upgrade to Pro
           </DialogTitle>
           <DialogDescription>

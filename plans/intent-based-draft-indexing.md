@@ -21,40 +21,42 @@ The solution implements a multi-trigger indexing strategy that keeps embeddings 
 - Workflow friction: Users must remember to publish notes before chatting
 - Missed context: Critical information in drafts is invisible to the AI
 
-## Solution: Intent-Based Indexing
+## Solution: Simplified 3-Tier Indexing Strategy
 
-Implement a three-tier indexing strategy that balances cost, performance, and user experience.
+Implement a streamlined three-tier indexing strategy that balances cost, performance, and user experience without unnecessary complexity.
 
 ### Architecture Diagram
 
 ```mermaid
 graph TD
-    User((User)) -->|Types in Note| Save[Tier 1: Auto-Save Indexing\nThrottled]
-    User -->|Focuses Chat Input| Intent[Tier 2: Pre-emptive Sync\nHidden Latency]
-    User -->|Sends Message| Safety[Tier 3: Final Freshness Check\nAccuracy Guarantee]
-    User -->|Publishes Note| Milestone[Tier 4: Milestone Indexing\nVersion History]
+    User((User)) -->|Edits Note| Save[Tier 1: Auto-Save Indexing\nThrottled Background]
+    User -->|Sends Chat Message| JIT[Tier 2: Just-In-Time Sync\nAccuracy Guarantee]
+    User -->|Publishes Note| Milestone[Tier 3: Milestone Indexing\nVersion History]
 
     Save --> DB[(Vector DB)]
-    Intent --> DB
-    Safety --> DB
+    JIT --> DB
     Milestone --> DB
 
     DB --> Agent[AI Agent Response]
     Agent --> User
 
-    style Intent fill:#90EE90
-    style Safety fill:#FFD700
-    style Milestone fill:#87CEEB
+    style Save fill:#90EE90,stroke:#ffffff,color:#000000
+    style JIT fill:#FFD700,stroke:#ffffff,color:#000000
+    style Milestone fill:#87CEEB,stroke:#ffffff,color:#000000
+    style User fill:#4a4a4a,stroke:#ffffff,color:#ffffff
+    style DB fill:#4a4a4a,stroke:#ffffff,color:#ffffff
+    style Agent fill:#4a4a4a,stroke:#ffffff,color:#ffffff
+
+    linkStyle default stroke:#ffffff,stroke-width:2px
 ```
 
 ### Indexing Tiers
 
-| Tier               | Trigger                    | Logic                                                                          | Purpose                                           |
-| ------------------ | -------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------- |
-| **1. Auto-Save**   | `updateNoteVersionContent` | `(now - last_indexed_at > 10m)` OR `(abs(length - last_indexed_length) > 500)` | Periodic background updates during active editing |
-| **2. Pre-emptive** | Chat input focus/typing    | `updated_at > last_indexed_at`                                                 | Mask latency by syncing while user composes query |
-| **3. Safety Net**  | `sendChat` execution       | `updated_at > last_indexed_at`                                                 | Guarantee 100% freshness before AI response       |
-| **4. Milestone**   | Explicit publish action    | Always runs                                                                    | Create permanent versioned index                  |
+| Tier                | Trigger                    | Logic                                                                          | Purpose                                           |
+| ------------------- | -------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------- |
+| **1. Auto-Save**    | `updateNoteVersionContent` | `(now - last_indexed_at > 10m)` OR `(abs(length - last_indexed_length) > 500)` | Periodic background updates during active editing |
+| **2. Just-In-Time** | `sendChat` execution       | `updated_at > last_indexed_at`                                                 | Guarantee 100% freshness before AI response       |
+| **3. Milestone**    | Explicit publish action    | Always runs                                                                    | Create permanent versioned index                  |
 
 ## Implementation Steps
 
@@ -78,7 +80,7 @@ model note_version {
 npx prisma migrate dev --name add_indexing_tracking
 ```
 
-### 2. Update Note Service (Tier 1: Auto-Save)
+### 2. Update Note Service (Tier 1: Auto-Save Indexing)
 
 **File:** [`services/note/noteService.ts`](services/note/noteService.ts:417)
 
@@ -113,7 +115,7 @@ public updateNoteVersionContent = withErrorHandling(
     const plainTextContent = RichTextExtractor.extractPlainText(richTextContent);
     const extractedTitle = RichTextExtractor.extractTitle(richTextContent);
 
-    // Check if indexing is needed
+    // Check if indexing is needed (Tier 1: Auto-Save)
     const INDEXING_COOLDOWN = 10 * 60 * 1000; // 10 minutes
     const SIGNIFICANT_CHANGE_THRESHOLD = 500; // characters
 
@@ -139,15 +141,6 @@ public updateNoteVersionContent = withErrorHandling(
         select: { id: true, title: true },
       });
 
-      // Save the version content
-      const savedVersion = await tx.note_version.update({
-        where: { id: versionId },
-        data: {
-          rich_text_content: richTextContent,
-          plain_text_content: plainTextContent,
-        },
-      });
-
       // Conditionally index if needed
       if (shouldIndex) {
         const aiService = new AiService(userId);
@@ -163,20 +156,39 @@ public updateNoteVersionContent = withErrorHandling(
           tx
         );
 
-        // Update tracking fields
-        await tx.note_version.update({
+        // CRITICAL: Update content AND tracking fields in SINGLE operation
+        // This ensures updated_at and last_indexed_at are set to the same timestamp
+        // Prevents "always stale" bug where timestamps differ by milliseconds
+        const savedVersion = await tx.note_version.update({
           where: { id: versionId },
           data: {
+            rich_text_content: richTextContent,
+            plain_text_content: plainTextContent,
             last_indexed_at: new Date(),
             last_indexed_char_count: plainTextContent.length,
           },
         });
-      }
 
-      return {
-        version: savedVersion,
-        note: updatedNote,
-      };
+        return {
+          version: savedVersion,
+          note: updatedNote,
+        };
+      } else {
+        // No indexing needed - just save content
+        // DON'T update last_indexed_at - it stays at previous value
+        const savedVersion = await tx.note_version.update({
+          where: { id: versionId },
+          data: {
+            rich_text_content: richTextContent,
+            plain_text_content: plainTextContent,
+          },
+        });
+
+        return {
+          version: savedVersion,
+          note: updatedNote,
+        };
+      }
     });
 
     return result;
@@ -184,129 +196,11 @@ public updateNoteVersionContent = withErrorHandling(
 );
 ```
 
-### 3. Create Sync Endpoint (Tier 2: Pre-emptive)
-
-**File:** `app/api/notes/sync-scope/route.ts` (new file)
-
-```typescript
-import { withApiErrorHandling } from "@/lib/errors/apiRouteHandlers";
-import { getDbUser } from "@/lib/getDbUser";
-import { auth } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { AiService } from "@/services/ai/aiService";
-import { z } from "zod";
-
-const syncScopeSchema = z.object({
-  scope: z.enum(["note", "folder", "global"]),
-  scopeId: z.string().uuid().optional(),
-});
-
-/**
- * Pre-emptively sync embeddings for notes in the current scope
- * Called when user focuses chat input to mask latency
- */
-const postHandler = async (req: NextRequest) => {
-  auth.protect();
-  const dbUser = await getDbUser();
-
-  const body = await req.json();
-  const { scope, scopeId } = syncScopeSchema.parse(body);
-
-  // Build query based on scope
-  let whereClause: any = {
-    user_id: dbUser.id,
-    is_deleted: false,
-  };
-
-  if (scope === "note" && scopeId) {
-    whereClause.id = scopeId;
-  } else if (scope === "folder" && scopeId) {
-    whereClause.folder_id = scopeId;
-  }
-
-  // Find notes with stale indexes
-  const staleNotes = await prisma.note.findMany({
-    where: whereClause,
-    include: {
-      current_version: {
-        select: {
-          id: true,
-          plain_text_content: true,
-          updated_at: true,
-          last_indexed_at: true,
-        },
-      },
-    },
-  });
-
-  // Filter to only those that need syncing
-  const notesToSync = staleNotes.filter((note) => {
-    if (!note.current_version) return false;
-    if (!note.current_version.last_indexed_at) return true;
-    return (
-      note.current_version.updated_at > note.current_version.last_indexed_at
-    );
-  });
-
-  // Sync in background (don't await - fire and forget)
-  if (notesToSync.length > 0) {
-    const aiService = new AiService(dbUser.id);
-
-    // Process each note asynchronously
-    Promise.all(
-      notesToSync.map(async (note) => {
-        if (!note.current_version) return;
-
-        try {
-          await prisma.$transaction(async (tx) => {
-            await aiService.deleteEmbeddingsForVersion(
-              note.current_version!.id,
-              tx,
-            );
-
-            await aiService.createEmbeddedChunksForVersion(
-              note.current_version!.id,
-              note.title,
-              note.current_version!.plain_text_content,
-              tx,
-            );
-
-            await tx.note_version.update({
-              where: { id: note.current_version!.id },
-              data: {
-                last_indexed_at: new Date(),
-                last_indexed_char_count:
-                  note.current_version!.plain_text_content.length,
-              },
-            });
-          });
-        } catch (error) {
-          console.error(`Failed to sync note ${note.id}:`, error);
-        }
-      }),
-    ).catch((error) => {
-      console.error("Background sync failed:", error);
-    });
-  }
-
-  return NextResponse.json({
-    syncing: notesToSync.length,
-    message: `Syncing ${notesToSync.length} note(s) in background`,
-  });
-};
-
-export const POST = withApiErrorHandling(
-  postHandler,
-  "POST /api/notes/sync-scope",
-);
-```
-
-### 4. Update Chat Service (Tier 3: Safety Net)
+### 3. Update Chat Service (Tier 2: Just-In-Time Sync)
 
 **File:** [`services/chat/chatService.ts`](services/chat/chatService.ts:68)
 
-#### 4a. Update `createChatScope` to use current versions
+#### 3a. Update `createChatScope` to use current versions
 
 Change the version selection logic to use `current_version_id` instead of filtering by `is_published`:
 
@@ -400,14 +294,15 @@ public createChatScope = withErrorHandling(
 );
 ```
 
-#### 4b. Add safety net sync in `sendChat`
+#### 3b. Add just-in-time sync in `sendChat`
 
-Add a helper method and call it before agent execution:
+Add a helper method to ensure scope freshness and call it before agent execution:
 
 ```typescript
 /**
- * Ensure all notes in scope have fresh embeddings
- * This is the "safety net" that guarantees accuracy
+ * Ensure all notes in scope have fresh embeddings (Tier 2: Just-In-Time)
+ * This guarantees 100% accuracy by syncing stale versions before agent execution
+ * Uses parallel processing to minimize latency for large scopes
  */
 private ensureScopeIsFresh = withErrorHandling(
   async (params: {
@@ -444,29 +339,51 @@ private ensureScopeIsFresh = withErrorHandling(
 
     if (staleVersions.length === 0) return;
 
-    // Sync each stale version
+    // Log warning if many stale versions (potential performance issue)
+    if (staleVersions.length > 20) {
+      console.warn(
+        `[ensureScopeIsFresh] Syncing ${staleVersions.length} stale versions. Consider running auto-save more frequently.`
+      );
+    }
+
+    // Sync all stale versions in parallel using Promise.all
     const aiService = new AiService(userId);
 
-    for (const version of staleVersions) {
-      await prisma.$transaction(async (tx) => {
-        await aiService.deleteEmbeddingsForVersion(version.id, tx);
+    await Promise.all(
+      staleVersions.map(async (version) => {
+        try {
+          await prisma.$transaction(async (tx) => {
+            // Delete old embeddings
+            await aiService.deleteEmbeddingsForVersion(version.id, tx);
 
-        await aiService.createEmbeddedChunksForVersion(
-          version.id,
-          version.note.title,
-          version.plain_text_content,
-          tx
-        );
+            // Create new embeddings
+            await aiService.createEmbeddedChunksForVersion(
+              version.id,
+              version.note.title,
+              version.plain_text_content,
+              tx
+            );
 
-        await tx.note_version.update({
-          where: { id: version.id },
-          data: {
-            last_indexed_at: new Date(),
-            last_indexed_char_count: version.plain_text_content.length,
-          },
-        });
-      });
-    }
+            // Update tracking fields
+            await tx.note_version.update({
+              where: { id: version.id },
+              data: {
+                last_indexed_at: new Date(),
+                last_indexed_char_count: version.plain_text_content.length,
+              },
+            });
+          });
+        } catch (error) {
+          // Log error but don't fail the entire operation
+          console.error(
+            `[ensureScopeIsFresh] Failed to sync version ${version.id}:`,
+            error
+          );
+          // Re-throw to let Promise.all catch it
+          throw error;
+        }
+      })
+    );
   }
 );
 
@@ -489,7 +406,7 @@ public sendChat = withErrorHandling(
       folderId: validatedFolderId,
     });
 
-    // SAFETY NET: Ensure scope is fresh before creating agent
+    // TIER 2: Just-in-time sync - ensure scope is fresh before creating agent
     await this.ensureScopeIsFresh({
       userId: validatedUserId,
       chatScope: currentChatScope,
@@ -500,7 +417,7 @@ public sendChat = withErrorHandling(
 );
 ```
 
-### 5. Update AI Tools
+### 4. Update AI Tools
 
 **File:** [`services/ai/agents/tools/getNotesTool.ts`](services/ai/agents/tools/getNotesTool.ts:45)
 
@@ -531,54 +448,7 @@ const getNoteVersionsForScope = async (
 };
 ```
 
-### 6. Frontend Integration
-
-**File:** [`components/chat/ChatInput.tsx`](components/chat/ChatInput.tsx)
-
-Add pre-emptive sync trigger:
-
-```typescript
-import { useEffect, useRef } from 'react';
-import axios from 'axios';
-
-export function ChatInput({ scope, scopeId, onSend }) {
-  const hasSynced = useRef(false);
-
-  // Trigger sync when component mounts or user focuses input
-  const triggerPreemptiveSync = async () => {
-    if (hasSynced.current) return;
-
-    try {
-      await axios.post('/api/notes/sync-scope', {
-        scope,
-        scopeId,
-      });
-      hasSynced.current = true;
-    } catch (error) {
-      console.error('Pre-emptive sync failed:', error);
-    }
-  };
-
-  useEffect(() => {
-    // Reset sync flag when scope changes
-    hasSynced.current = false;
-  }, [scope, scopeId]);
-
-  return (
-    <input
-      onFocus={triggerPreemptiveSync}
-      onChange={(e) => {
-        if (e.target.value.length > 0) {
-          triggerPreemptiveSync();
-        }
-      }}
-      // ... rest of input props
-    />
-  );
-}
-```
-
-### 7. Keep Publish Indexing (Tier 4: Milestone)
+### 5. Update Publish Indexing (Tier 3: Milestone)
 
 **File:** [`services/note/noteService.ts`](services/note/noteService.ts:714)
 
@@ -607,24 +477,19 @@ await tx.note_version.update({
    - Test that indexing triggers after 500 character change
    - Test that indexing does NOT trigger within cooldown period with small changes
 
-2. **Sync Endpoint**
-
-   - Test that it identifies stale notes correctly
-   - Test that it handles different scopes (note, folder, global)
-   - Test that it returns immediately (fire-and-forget)
-
-3. **Safety Net**
+2. **Just-In-Time Sync**
    - Test that `ensureScopeIsFresh` syncs stale versions
    - Test that it skips already-fresh versions
    - Test that it handles empty scopes gracefully
+   - Test that it correctly identifies versions needing sync
 
 ### Integration Tests
 
 1. **End-to-End Chat Flow**
 
    - Create a note, don't publish
-   - Open chat, verify pre-emptive sync triggers
-   - Send message, verify AI can see the draft content
+   - Send chat message, verify just-in-time sync triggers
+   - Verify AI can see the draft content
    - Verify response includes information from the draft
 
 2. **Multi-Note Folder**
@@ -633,10 +498,13 @@ await tx.note_version.update({
    - Chat with folder scope
    - Verify AI can see all 5 notes
 
-3. **Performance**
+3. **Performance & Parallelization**
    - Test with 50+ notes in a folder
-   - Verify sync completes within reasonable time
+   - Verify parallel sync completes within reasonable time
+   - Test with 100+ stale notes in global scope
+   - Verify `Promise.all` processes embeddings in parallel
    - Verify no duplicate embedding creation
+   - Measure latency improvement from parallel processing
 
 ## Cost Analysis
 
@@ -648,42 +516,37 @@ await tx.note_version.update({
 ### New State
 
 - Auto-save: Max 6 embeddings/hour per actively edited note
-- Pre-emptive: 1 embedding per chat session (if stale)
-- Safety net: Rare (only if pre-emptive failed)
+- Just-in-time: 1 embedding per chat session (only if stale)
 - Publish: 1 embedding (same as before)
 
 **Example Scenario:**
 
-- User actively edits 5 notes for 1 hour
+- User actively edits 5 notes for 1 hour, then chats 3 times
 - Each note averages 1,000 words (~1,500 tokens)
-- Max embeddings: 5 notes × 6 syncs/hour = 30 embeddings
-- Total tokens: 30 × 1,500 = 45,000 tokens
-- Cost: $0.0009 per hour of active editing
+- Auto-save embeddings: 5 notes × 6 syncs/hour = 30 embeddings
+- Just-in-time embeddings: ~3 embeddings (if any notes are stale)
+- Total tokens: 33 × 1,500 = 49,500 tokens
+- Cost: $0.001 per hour of active editing + chatting
 
 **Conclusion:** The cost increase is negligible (~$0.001/hour) while dramatically improving UX.
 
 ## Rollout Strategy
 
-### Phase 1: Schema & Backend (Week 1)
+### Phase 1: Core Decoupling (Week 1)
 
-1. Add database fields
-2. Update `updateNoteVersionContent` with auto-save indexing
-3. Create sync endpoint
-4. Update `createChatScope` to use current versions
+1. Add database fields (`last_indexed_at`, `last_indexed_char_count`)
+2. Update `createChatScope` to use `current_version_id` instead of `is_published: true`
+3. Implement `ensureScopeIsFresh` method in ChatService
+4. Update `sendChat` to call just-in-time sync
+5. Update `getNotesTool` to remove `is_published: true` filter
 
-### Phase 2: Safety Net (Week 1)
+### Phase 2: Auto-Save Indexing (Week 2)
 
-1. Implement `ensureScopeIsFresh`
-2. Update `sendChat` to call safety net
-3. Update `getNotesTool` to remove publish filter
+1. Update `updateNoteVersionContent` with conditional indexing logic
+2. Update `publishNoteVersion` to set tracking fields
+3. Add logging for embedding operations
 
-### Phase 3: Frontend Integration (Week 2)
-
-1. Add pre-emptive sync to ChatInput
-2. Add sync to Command Bar
-3. Add optional UI indicator for sync status
-
-### Phase 4: Testing & Monitoring (Week 2)
+### Phase 3: Testing & Optimization (Week 2-3)
 
 1. Run integration tests
 2. Monitor embedding API costs
@@ -699,12 +562,147 @@ await tx.note_version.update({
 
 2. **Performance**
 
-   - Chat response time remains under 2 seconds
-   - Pre-emptive sync completes before user sends message (>95% of cases)
+   - Chat response time remains under 5 seconds for typical scopes (1-10 notes)
+   - Just-in-time sync adds minimal latency (<500ms for 1-2 stale notes)
+   - Parallel processing handles 20+ stale notes efficiently (<2 seconds)
+   - Global scope with 100+ stale notes completes within acceptable time (<10 seconds)
 
 3. **Cost**
    - Embedding API costs increase by less than 20%
    - Cost per active user remains under $0.10/month
+
+## Critical Implementation Considerations
+
+### Timestamp Synchronization Issue
+
+**Problem:** If `updated_at` and `last_indexed_at` are set in separate database operations, they will have different timestamps (even within the same transaction), causing notes to appear perpetually stale.
+
+**Example of the bug:**
+
+```typescript
+// WRONG: Two separate updates
+await tx.note_version.update({
+  data: { rich_text_content, plain_text_content },
+  // updated_at = 10:00:00.123 (auto-set)
+});
+
+await tx.note_version.update({
+  data: { last_indexed_at: new Date() },
+  // updated_at = 10:00:00.456 (auto-set AGAIN)
+  // last_indexed_at = 10:00:00.456
+});
+
+// Result: updated_at (10:00:00.456) > last_indexed_at (10:00:00.456) = FALSE
+// But on next save without indexing:
+// updated_at = 10:05:00.789, last_indexed_at = 10:00:00.456
+// Stale check: TRUE (correct)
+```
+
+**Solution:** Combine content save and tracking field update into a **single operation** when indexing occurs:
+
+```typescript
+// CORRECT: Single update when indexing
+if (shouldIndex) {
+  // ... perform embedding ...
+
+  // Save content AND tracking fields together
+  await tx.note_version.update({
+    where: { id: versionId },
+    data: {
+      rich_text_content: richTextContent,
+      plain_text_content: plainTextContent,
+      last_indexed_at: new Date(), // Set in same operation as content
+      last_indexed_char_count: plainTextContent.length,
+    },
+  });
+} else {
+  // Save content only, don't touch last_indexed_at
+  await tx.note_version.update({
+    where: { id: versionId },
+    data: {
+      rich_text_content: richTextContent,
+      plain_text_content: plainTextContent,
+      // last_indexed_at NOT updated - stays at previous value
+    },
+  });
+}
+```
+
+**Why this works:**
+
+- Prisma's `@updatedAt` decorator sets `updated_at` to the database's current timestamp
+- Including `last_indexed_at: new Date()` in the same operation ensures both use the same (or nearly identical) timestamp
+- The staleness check `updated_at > last_indexed_at` will correctly return FALSE immediately after indexing
+- When content is saved WITHOUT indexing, `updated_at` advances but `last_indexed_at` stays old, correctly marking it as stale
+
+**Testing this fix:**
+
+1. Save note with indexing → Verify `updated_at === last_indexed_at` (within 1ms)
+2. Save note without indexing → Verify `updated_at > last_indexed_at` (correctly stale)
+3. Chat with stale note → Verify JIT sync updates both timestamps to same value
+
+### Migration Script for Existing Data
+
+Before deploying, backfill `last_indexed_at` for existing published notes:
+
+```sql
+-- Backfill last_indexed_at for existing published versions
+UPDATE note_version
+SET last_indexed_at = published_at,
+    last_indexed_char_count = LENGTH(plain_text_content)
+WHERE is_published = true
+  AND last_indexed_at IS NULL;
+
+-- For unpublished versions, set to created_at (best guess)
+UPDATE note_version
+SET last_indexed_at = created_at,
+    last_indexed_char_count = LENGTH(plain_text_content)
+WHERE is_published = false
+  AND last_indexed_at IS NULL;
+```
+
+This prevents all existing notes from appearing stale on first chat after deployment.
+
+## Performance Considerations
+
+### Parallel Processing Strategy
+
+The `ensureScopeIsFresh` method uses `Promise.all` to process multiple stale versions in parallel:
+
+**Benefits:**
+
+- ✅ Dramatically reduces latency for large scopes
+- ✅ 10 stale notes: ~1-2 seconds (vs. 10-20 seconds sequential)
+- ✅ 100 stale notes: ~5-10 seconds (vs. 100-200 seconds sequential)
+
+**Trade-offs:**
+
+- ⚠️ Higher concurrent load on OpenAI API (rate limits may apply)
+- ⚠️ Higher memory usage during parallel processing
+- ⚠️ Database connection pool usage increases
+
+### Rate Limiting Safeguards
+
+If you encounter OpenAI rate limits with parallel processing, consider:
+
+1. **Batch Size Limiting**: Process in chunks of 10-20 at a time
+2. **Progressive Enhancement**: Start with sequential, upgrade to parallel for Pro users
+3. **Background Processing**: For global scope, sync in background and notify user when ready
+
+### Example: Chunked Parallel Processing
+
+```typescript
+// Process in batches of 10 to avoid rate limits
+const BATCH_SIZE = 10;
+for (let i = 0; i < staleVersions.length; i += BATCH_SIZE) {
+  const batch = staleVersions.slice(i, i + BATCH_SIZE);
+  await Promise.all(
+    batch.map(async (version) => {
+      // ... sync logic
+    }),
+  );
+}
+```
 
 ## Future Enhancements
 
@@ -715,14 +713,21 @@ await tx.note_version.update({
 
 2. **Batch Optimization**
 
-   - Batch multiple note syncs into single embedding API call
-   - Reduce overhead for large folder syncs
+   - Batch multiple note embeddings into single OpenAI API call
+   - Reduce overhead and cost for large folder syncs
 
-3. **User Preferences**
+3. **Background Sync for Global Scope**
+
+   - For global scope with 50+ stale notes, sync in background
+   - Show progress indicator and allow chat once minimum threshold is met
+   - "Syncing 47 notes... You can start chatting now, more context will be added as sync completes"
+
+4. **User Preferences**
 
    - Allow users to configure sync frequency
    - Option to disable auto-sync for cost-conscious users
 
-4. **Analytics Dashboard**
+5. **Analytics Dashboard**
    - Show users their embedding usage
    - Visualize which notes are most frequently synced
+   - Alert users if they have many stale notes

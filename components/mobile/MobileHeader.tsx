@@ -19,7 +19,10 @@ const MobileHeader = () => {
   return (
     <header className="fixed top-0 right-0 h-12 w-full z-50 flex items-center justify-between px-4 py-2 bg-sidebar">
       {/* Left Section */}
-      <div className="flex items-center space-x-2">{leftContent}</div>
+      <div className="flex items-center space-x-1">
+        <BrandingHeader />
+        {leftContent}
+      </div>
 
       {/* Center Section */}
       {centerContent && (
@@ -27,7 +30,7 @@ const MobileHeader = () => {
       )}
 
       {/* Right Section - custom content + always show User Button */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1">
         {rightContent}
         <SignedIn>
           <div className={!isOnline ? "pointer-events-none opacity-80" : ""}>

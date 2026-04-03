@@ -26,14 +26,14 @@ const getHandler = async (req: NextRequest) => {
   if (!scope) {
     return NextResponse.json(
       { error: "scope query parameter is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (!["note", "folder", "global"].includes(scope)) {
     return NextResponse.json(
       { error: "scope must be one of: note, folder, global" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -41,30 +41,16 @@ const getHandler = async (req: NextRequest) => {
   if ((scope === "note" || scope === "folder") && !scopeId) {
     return NextResponse.json(
       { error: `scopeId is required for ${scope} scope` },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
-  // Get sessions based on scope
-  let sessions: ChatSession[];
-  switch (scope) {
-    case "note":
-      sessions = await chatService.getChatSessionsForNote({
-        userId: dbUser.id,
-        noteId: scopeId!,
-      });
-      break;
-    case "folder":
-      // TO DO: implement getChatSessionsForFolder
-      sessions = [];
-      break;
-    case "global":
-      // TO DO: implement getChatSessionsForGlobal
-      sessions = [];
-      break;
-    default:
-      return NextResponse.json({ error: "Invalid scope" }, { status: 400 });
-  }
+  // Get sessions using the unified method
+  const sessions = await chatService.getChatHistoryForScope({
+    userId: dbUser.id,
+    scope: scope as ChatSession["chat_scope"]["scope"],
+    scopeId: scopeId || undefined,
+  });
 
   return NextResponse.json(sessions, { status: 200 });
 };

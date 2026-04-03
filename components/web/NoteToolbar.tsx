@@ -2,7 +2,12 @@
 import { useRouter } from "next/navigation";
 import { Note, PrismaNoteVersion } from "@/lib/types/noteTypes";
 import { TypographyH4, TypographyMuted } from "../ui/typography";
-import { BookCheckIcon, MessageCircleIcon, Trash2Icon } from "lucide-react";
+import {
+  BookCheckIcon,
+  CopyIcon,
+  MessageCircleIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { DateTime } from "luxon";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
@@ -80,6 +85,22 @@ const NoteToolbar = ({
     });
   };
 
+  /**
+   * Copy the current selected note version content to the clipboard
+   */
+  const handleCopyNoteContent = async () => {
+    if (selectedVersion?.plain_text_content) {
+      try {
+        await navigator.clipboard.writeText(
+          selectedVersion?.plain_text_content,
+        );
+        toast.success("Note copied to clipboard");
+      } catch (error) {
+        toast.error("Failed to copy note");
+      }
+    }
+  };
+
   // loading state
   if (isLoading || !note) {
     return <WebToolbarSkeleton variant="note" />;
@@ -124,11 +145,12 @@ const NoteToolbar = ({
             selectedVersion.updated_at &&
             (!selectedVersion.is_published || selectedVersion.published_at) && (
               <TypographyMuted className="text-xs">
-                {`saved ${DateTime.fromISO(
+                {DateTime.fromISO(
                   selectedVersion.updated_at.toString(),
-                ).toRelative()}`}
+                ).toRelative({ style: "narrow" })}
               </TypographyMuted>
             )}
+
           {/* publish note */}
           <Tooltip>
             <TooltipTrigger asChild>
@@ -146,6 +168,16 @@ const NoteToolbar = ({
             <TooltipContent>
               {!isOnline ? "You are offline" : "Pubilsh this note"}
             </TooltipContent>
+          </Tooltip>
+
+          {/* Copy Note */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant={"ghost"} onClick={handleCopyNoteContent}>
+                <CopyIcon className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Copy to clipboard</TooltipContent>
           </Tooltip>
 
           {/* chat with note entry */}
@@ -188,13 +220,19 @@ const NoteToolbar = ({
             confirmVariant="destructive"
             onConfirm={() => {
               // soft delete
-              updateNoteMutation.mutate({
-                noteId: note.id,
-                folderId: note.folder_id,
-                action: "delete",
-              });
-              // route user back to the folder
-              router.push(`/folder/${note.folder_id}`);
+              updateNoteMutation.mutate(
+                {
+                  noteId: note.id,
+                  folderId: note.folder_id,
+                  action: "delete",
+                },
+                {
+                  onSuccess: () => {
+                    // route user back to the folder AFTER mutation completes
+                    router.push(`/folder/${note.folder_id}`);
+                  },
+                },
+              );
             }}
             isLoading={updateNoteMutation.isPending}
           />

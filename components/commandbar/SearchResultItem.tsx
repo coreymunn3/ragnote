@@ -7,10 +7,30 @@ import VersionBadge from "../VersionBadge";
 import Link from "next/link";
 import { TypographyMuted, TypographySmall } from "../ui/typography";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { DateTime } from "luxon";
 
 interface SearchResultItemProps {
   searchResult: SearchResultNote;
 }
+
+const ItemHeaderRow = ({ searchResult }: SearchResultItemProps) => {
+  const updatedDateTime = new Date(
+    searchResult.note.current_version.updated_at,
+  );
+
+  return (
+    <div className="flex items-center justify-start space-x-2 w-full min-w-0">
+      <FileIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+      <TypographySmall className="truncate flex-1 text-start">
+        {searchResult.note.title}
+      </TypographySmall>
+      <TypographySmall className="text-muted-foreground">
+        {DateTime.fromJSDate(updatedDateTime).toRelative({ style: "narrow" })}
+      </TypographySmall>
+      <VersionBadge version={searchResult.versions[0]} context="note" />
+    </div>
+  );
+};
 
 /**
  * Displays a search result with the name, the icon representing the type of item, and the highest ranking version match
@@ -21,20 +41,10 @@ const SearchResultItem = ({ searchResult }: SearchResultItemProps) => {
   const FullSize = () => {
     return (
       <Link href={`/note/${searchResult.note.id}`}>
-        <Button
-          variant={"outline"}
-          className="p-4 bg-slate-100 h-auto w-full max-w-[200px]"
-        >
+        <Button variant={"outline"} className="p-4 bg-slate-100 h-auto w-full">
           <div className="flex flex-col space-y-2 w-full min-w-0">
-            {/* Header row */}
-            <div className="flex items-center justify-start space-x-2 w-full min-w-0">
-              <FileIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <TypographySmall className="truncate flex-1 text-start">
-                {searchResult.note.title}
-              </TypographySmall>
-              <VersionBadge version={searchResult.versions[0]} context="note" />
-            </div>
-
+            {/* Header Row */}
+            <ItemHeaderRow searchResult={searchResult} />
             {/* Preview */}
             <div className="w-full min-w-0">
               <TypographyMuted className="truncate">
@@ -50,19 +60,10 @@ const SearchResultItem = ({ searchResult }: SearchResultItemProps) => {
   const CompactSize = () => {
     return (
       <Link href={`/note/${searchResult.note.id}`}>
-        <Button
-          variant={"outline"}
-          className="p-2 bg-slate-100 h-auto w-full max-w-[200px]"
-        >
+        <Button variant={"outline"} className="p-2 bg-slate-100 h-auto w-full">
           <div className="flex flex-col space-y-2 w-full min-w-0">
             {/* Header row */}
-            <div className="flex items-center justify-start space-x-2 w-full min-w-0">
-              <FileIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <TypographySmall className="truncate flex-1 text-start">
-                {searchResult.note.title}
-              </TypographySmall>
-              <VersionBadge version={searchResult.versions[0]} context="note" />
-            </div>
+            <ItemHeaderRow searchResult={searchResult} />
           </div>
         </Button>
       </Link>

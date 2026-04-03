@@ -36,6 +36,11 @@ export const softDeleteNoteSchema = z.object({
   userId: z.string().uuid(),
 });
 
+export const getRecoverNoteSchema = z.object({
+  noteId: z.string().uuid(),
+  userId: z.string().uuid(),
+});
+
 export const updateNoteVersionContentSchema = z.object({
   versionId: z.string().uuid(),
   richTextContent: z.any(), // not really sure how to do this

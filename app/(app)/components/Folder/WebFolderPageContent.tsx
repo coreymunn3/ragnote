@@ -6,10 +6,14 @@ import WidgetGrid from "@/components/web/WidgetGrid";
 import NoteWidget from "@/components/web/NoteWidget";
 import ChatWidget from "@/components/web/ChatWidget";
 import OptionsMenu from "@/components/OptionsMenu";
-import { FolderPenIcon, Trash2Icon } from "lucide-react";
-import { FolderWithItems } from "@/lib/types/folderTypes";
+import {
+  ArchiveRestore,
+  FolderPenIcon,
+  Loader2Icon,
+  Trash2Icon,
+} from "lucide-react";
 import { Note } from "@/lib/types/noteTypes";
-import { useRenameFolder } from "@/hooks/folder/useRenameFolder";
+import { useUpdateFolder } from "@/hooks/folder/useUpdateFolder";
 import { useDeleteFolder } from "@/hooks/folder/useDeleteFolder";
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -20,42 +24,57 @@ import CreateNote from "@/components/CreateNote";
 import { ChatSession } from "@/lib/types/chatTypes";
 import CommandBar from "@/components/commandbar/CommandBar";
 import FolderPageSkeleton from "@/components/skeletons/FolderPageSkeleton";
+import MessageAlert from "@/components/MessageAlert";
+import { Button } from "@/components/ui/button";
 
 interface WebFolderPageContentProps {
   folderId: string;
-  initialFolder: FolderWithItems | null;
 }
 
-const WebFolderPageContent = ({
-  folderId,
-  initialFolder,
-}: WebFolderPageContentProps) => {
+const WebFolderPageContent = ({ folderId }: WebFolderPageContentProps) => {
   const router = useRouter();
   // dialog state management
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  // get the folder data
-  const folderData = useGetFolderById(folderId, {
-    placeholderData: initialFolder || undefined,
-    // Removed staleTime: 0 and refetchOnMount: true to use global defaults
-  });
+  // Fetch the folder data client-side
+  const folderData = useGetFolderById(folderId);
 
   // hooks for folder operations
-  const renameFolder = useRenameFolder();
+  const updateFolder = useUpdateFolder();
   const deleteFolder = useDeleteFolder();
+
+  // Handle error state
+  if (folderData.error) {
+    return (
+      <MessageAlert
+        variant="error"
+        title="Error Loading Folder"
+        description="This folder could not be found or you don't have access to it."
+      />
+    );
+  }
 
   // Handle loading state
   if (folderData.isLoading) {
     return <FolderPageSkeleton />;
   }
 
-  // Handle error/no data - just show loading skeleton (or could show specific error state)
+  // Handle no data (shouldn't happen after error check, but safety)
   if (!folderData.data) {
     return <FolderPageSkeleton />;
   }
 
   const folder = folderData.data;
+  const isDeleted = folder.is_deleted;
+
+  // Handle recover action
+  const handleRecover = () => {
+    updateFolder.mutate({
+      folderId: folder.id,
+      action: "recover",
+    });
+  };
 
   // Separate pinned and unpinned items - both Note and ChatSession have is_pinned
   const unpinnedItems = folder.items.filter(
@@ -76,13 +95,7 @@ const WebFolderPageContent = ({
       return (
         <WidgetGrid<Note>
           items={notes}
-          renderItem={(note) => (
-            <NoteWidget
-              note={note}
-              folderId={folder.id}
-              pinned={note.is_pinned}
-            />
-          )}
+          renderItem={(note) => <NoteWidget note={note} folderId={folder.id} />}
           delay={delay}
           emptyContentMessage={emptyContentMessage}
         />
@@ -104,42 +117,65 @@ const WebFolderPageContent = ({
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      {/* Deleted folder warning banner */}
+      {isDeleted && (
+        <AnimatedListItem index={0} animation="fadeIn">
+          <MessageAlert
+            variant="warning"
+            title="This folder has been deleted"
+            description="You're viewing a deleted folder in read-only mode. You can recover it to restore full access."
+          />
+        </AnimatedListItem>
+      )}
+
+      <div className="flex items-center justify-between mt-4">
         <AnimatedTypography variant="h1">
           {folder.folder_name}
         </AnimatedTypography>
         <div className="flex space-x-2 items-center">
           <TypographyMuted>{`${folder.items.length} Items`}</TypographyMuted>
 
-          <Fragment>
-            <CreateNote folderId={folder.id} />
-            <OptionsMenu
-              options={[
-                {
-                  label: "Rename",
-                  icon: <FolderPenIcon className="h-4 w-4" />,
-                  onClick: () => setRenameOpen(true),
-                },
-                {
-                  label: "Delete",
-                  icon: <Trash2Icon className="h-4 w-4" />,
-                  onClick: () => setDeleteOpen(true),
-                },
-              ]}
-            />
-          </Fragment>
+          {isDeleted ? (
+            <Button onClick={handleRecover} disabled={updateFolder.isPending}>
+              {updateFolder.isPending ? (
+                <Loader2Icon className="h-4 w-4 animate-spin" />
+              ) : (
+                <ArchiveRestore className="h-4 w-4" />
+              )}
+            </Button>
+          ) : (
+            <Fragment>
+              <CreateNote folderId={folder.id} />
+              <OptionsMenu
+                options={[
+                  {
+                    label: "Rename",
+                    icon: <FolderPenIcon className="h-4 w-4" />,
+                    onClick: () => setRenameOpen(true),
+                  },
+                  {
+                    label: "Delete",
+                    icon: <Trash2Icon className="h-4 w-4" />,
+                    onClick: () => setDeleteOpen(true),
+                  },
+                ]}
+              />
+            </Fragment>
+          )}
         </div>
       </div>
 
       <div className="flex flex-col space-y-4">
-        {/* Folder-scoped command bar - chat only (search is always global) */}
-        <AnimatedListItem index={0} animation="fadeIn">
-          <CommandBar
-            scope="folder"
-            scopeId={folder.id}
-            allowedModes={["chat"]}
-          />
-        </AnimatedListItem>
+        {/* Folder-scoped command bar - chat only (search is always global) - hide if deleted */}
+        {!isDeleted && (
+          <AnimatedListItem index={0} animation="fadeIn">
+            <CommandBar
+              scope="folder"
+              scopeId={folder.id}
+              allowedModes={["chat"]}
+            />
+          </AnimatedListItem>
+        )}
 
         {/* Display pinned items prominently */}
         {pinnedItems.length > 0 && (
@@ -159,16 +195,17 @@ const WebFolderPageContent = ({
         open={renameOpen}
         onOpenChange={setRenameOpen}
         title="Rename This Folder"
-        placeholder="Folder Name"
+        initialValue={folderData.data.folder_name}
         confirmText="Rename"
         confirmLoadingText="Renaming..."
         onConfirm={(inputValue) => {
-          renameFolder.mutate({
+          updateFolder.mutate({
             folderId: folder.id,
-            newFolderName: inputValue,
+            action: "rename",
+            folderName: inputValue,
           });
         }}
-        isLoading={renameFolder.isPending}
+        isLoading={updateFolder.isPending}
         validate={(value) => value.trim().length > 0}
       />
 
@@ -182,8 +219,15 @@ const WebFolderPageContent = ({
         confirmLoadingText="Deleting..."
         confirmVariant="destructive"
         onConfirm={() => {
-          deleteFolder.mutate({ folderId: folder.id });
-          router.push("/dashboard");
+          deleteFolder.mutate(
+            { folderId: folder.id },
+            {
+              onSuccess: () => {
+                // route user to dashboard AFTER mutation completes
+                router.push("/dashboard");
+              },
+            },
+          );
         }}
         isLoading={deleteFolder.isPending}
       />

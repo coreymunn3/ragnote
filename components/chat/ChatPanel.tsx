@@ -10,7 +10,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChatScope } from "@/lib/types/chatTypes";
 import ChatMessages from "./ChatMessages";
 import VersionBadge from "../VersionBadge";
@@ -32,6 +32,7 @@ interface ChatPanelProps {
   scopeId?: string;
   note?: Note;
   noteVersions?: PrismaNoteVersion[];
+  initialMessage?: string;
 }
 
 const ChatPanel = ({
@@ -43,16 +44,21 @@ const ChatPanel = ({
   scopeId,
   note,
   noteVersions,
+  initialMessage,
 }: ChatPanelProps) => {
   const queryClient = useQueryClient();
   // GET the chat session history for this note version
   // MUTATION to send a chat message (this create a new session & will hold the conversation)
   const [chatSessionId, setChatSessionId] = useState<string | undefined>();
-  const [pendingUserMessage, setPendingUserMessage] = useState<string>("");
+  const [pendingUserMessage, setPendingUserMessage] = useState<string>(
+    initialMessage || "",
+  );
   const [historyExpanded, setHistoryExpanded] = useState<boolean>(false);
+  const hasAutoSentInitialMessage = useRef(false);
+
   // the user must chat with only the most recently published version
   const mostRecentPublishedVersion = noteVersions?.filter(
-    (version) => version.is_published
+    (version) => version.is_published,
   )[0];
 
   // Hook for getting chat history
@@ -95,8 +101,11 @@ const ChatPanel = ({
         queryKey: ["folders"],
       });
 
-      // Clear optimistic messages since real messages are now in the API data
-      setPendingUserMessage("");
+      // Don't clear pending message immediately - let it clear after messages load
+      // This prevents a flash of empty state
+      setTimeout(() => {
+        setPendingUserMessage("");
+      }, 500);
     },
     onError: (error) => {
       // Remove optimistic and thinking messages on error
@@ -110,13 +119,15 @@ const ChatPanel = ({
    * @returns
    */
   const handleSendChat = (message: string) => {
-    if (!note?.id) return;
+    // For folder/global scope, scopeId might be undefined
+    const effectiveScopeId = scope === "note" ? note?.id : scopeId;
+
     // Set optimistic message state - ChatMessages will automatically show thinking
     setPendingUserMessage(message);
     // Send message using the API
     sendChatMutation.mutate({
       scope,
-      scopeId: note.id,
+      scopeId: effectiveScopeId,
       message,
       sessionId: chatSessionId,
     });
@@ -134,7 +145,31 @@ const ChatPanel = ({
     setHistoryExpanded(false);
     setChatSessionId(undefined);
     setPendingUserMessage("");
+    hasAutoSentInitialMessage.current = false;
   };
+
+  /**
+   * Auto-send initial message when panel opens with an initialMessage prop
+   * This is used when opening the chat panel from the CommandBar
+   */
+  useEffect(() => {
+    if (open && initialMessage && !hasAutoSentInitialMessage.current) {
+      hasAutoSentInitialMessage.current = true;
+      setPendingUserMessage(initialMessage);
+      setTimeout(() => {
+        handleSendChat(initialMessage);
+      }, 10);
+    }
+  }, [open, initialMessage]);
+
+  /**
+   * Reset the auto-send flag when panel closes
+   */
+  useEffect(() => {
+    if (!open) {
+      hasAutoSentInitialMessage.current = false;
+    }
+  }, [open]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -147,7 +182,7 @@ const ChatPanel = ({
           isMobile
             ? "h-[80vh] rounded-t-lg flex flex-col"
             : "min-w-[500px] flex flex-col",
-          "[&>button]:hidden"
+          "[&>button]:hidden",
         )}
         side={isMobile ? "bottom" : "right"}
       >
@@ -168,13 +203,16 @@ const ChatPanel = ({
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>
-                        You are chatting with the most recently published
-                        version of this note
+                        {scope === "note"
+                          ? "You are chatting with this note"
+                          : scope === "folder"
+                            ? "You are chatting with all notes in this folder"
+                            : "You are chatting with all your notes"}
                       </p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-                {!!mostRecentPublishedVersion && (
+                {scope === "note" && !!mostRecentPublishedVersion && (
                   <VersionBadge
                     version={mostRecentPublishedVersion}
                     context="version"
@@ -200,18 +238,10 @@ const ChatPanel = ({
 
           {/* Middle area - space for conversation bubbles with top fade */}
           <div className="flex-1 min-h-0 p-3">
-            {!mostRecentPublishedVersion ? (
-              <div className="flex items-center justify-center h-full text-center">
-                <TypographyMuted>
-                  Publish this note to begin chatting!
-                </TypographyMuted>
-              </div>
-            ) : (
-              <ChatMessages
-                messages={chatConversation.data || []}
-                pendingUserMessage={pendingUserMessage}
-              />
-            )}
+            <ChatMessages
+              messages={chatConversation.data || []}
+              pendingUserMessage={pendingUserMessage}
+            />
           </div>
 
           {/* Bottom area - message input */}
@@ -219,11 +249,14 @@ const ChatPanel = ({
             <ChatInput
               onSend={handleSendChat}
               showSuggestions={false} // disable for now - need to make these dynamic first
-              disabled={
-                !mostRecentPublishedVersion || sendChatMutation.isPending
+              disabled={sendChatMutation.isPending}
+              placeholder={
+                scope === "note"
+                  ? `Ask about ${title}...`
+                  : scope === "folder"
+                    ? `Ask about notes in ${title}...`
+                    : "Ask about all your notes..."
               }
-              tooltipMessage="At least 1 published version of this note required to send message."
-              placeholder={`Ask about ${title}...`}
             />
           </div>
         </div>
