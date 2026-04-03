@@ -177,7 +177,7 @@ DIRECT_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler
 
 ### Switching Between Databases
 
-To easily switch between local and production databases, add these shell aliases to your `~/.zshrc` or `~/.bashrc`:
+To easily switch between local and production databases, we create a .env.local and .env.production. Store appropriate secrets in eaech. Then, add these shell aliases to your `~/.zshrc` or `~/.bashrc` to enable quick exporting to the terminal:
 
 ```bash
 # Database environment switchers
@@ -231,6 +231,10 @@ npm run db:migrate:deploy
 # Push schema changes without migration (dev only)
 npm run db:push
 ```
+
+As of April 2026, I've switched this setup slightly. Instead of 2 different env files, I keep just a .env and comment out the DATABASE_URL and DIRECT_URL I don't need for whatever environment I'm in.
+
+**HINT** If You forget your prod database password, go to the Vercel Env Vars dashboard, and view the secret.
 
 ## 🗄 Database Schema
 
