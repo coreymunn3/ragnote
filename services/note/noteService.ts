@@ -462,6 +462,9 @@ export class NoteService {
    * Update note content with both rich text and plain text versions
    * Update the note title, using the first non-empty block from the rich text content
    * Used when saving note edits from the rich text editor
+   *
+   * PHASE 1: Fast save of content (no blocking on embeddings)
+   * PHASE 2: Async embedding creation in background (if needed)
    */
   public updateNoteVersionContent = withErrorHandling(
     async (params: {
@@ -531,11 +534,10 @@ export class NoteService {
       );
 
       /**
-       * In a transaction, update the note title and version content,
-       * and if necessary, also re-embed the note version.
+       * PHASE 1: Fast transaction -  update the note title and version content
        */
       const result = await prisma.$transaction(async (tx) => {
-        // Update the new title
+        // Update the note title
         const updatedNote = await tx.note.update({
           where: {
             id: noteVersion.note_id,
@@ -550,64 +552,71 @@ export class NoteService {
           },
         });
 
-        /**
-         * This conditional logic seems duplicative, but it's oriented this way to ensure
-         * that we always place the re-embedding process in the same atomic update as the
-         * content rich text/plain text updates
-         *
-         * which is to ensure that all 'update' fields have the exact same timestamp
-         *
-         * If we should index, create a transaction that:
-         * - delete old embeddings
-         * - create new embeddings
-         * - update the note version content fields
-         *
-         * if we should NOT index, create transaction that:
-         * - save the version content and return
-         */
-        if (shouldIndex) {
-          const aiService = new AiService(userId);
-          // delete old embedding
-          await aiService.deleteEmbeddingsForVersion(versionId, tx);
-          // create new embedding
-          await aiService.createEmbeddedChunksForVersion(
-            versionId,
-            extractedTitle,
-            plainTextContent,
-            tx,
-          );
-          // save the new content
-          const savedVersion = await tx.note_version.update({
-            where: { id: versionId },
-            data: {
-              rich_text_content: richTextContent,
-              plain_text_content: plainTextContent,
-              last_indexed_at: new Date(),
-              last_indexed_char_count: plainTextContent.length,
-            },
-          });
+        // Save the version content
+        const savedVersion = await tx.note_version.update({
+          where: { id: versionId },
+          data: {
+            rich_text_content: richTextContent,
+            plain_text_content: plainTextContent,
+          },
+        });
 
-          return {
-            version: savedVersion,
-            note: updatedNote,
-          };
-        } else {
-          // No indexing needed - just save content
-          // DON'T update last_indexed_at - it stays at previous value
-          const savedVersion = await tx.note_version.update({
-            where: { id: versionId },
-            data: {
-              rich_text_content: richTextContent,
-              plain_text_content: plainTextContent,
-            },
-          });
-
-          return {
-            version: savedVersion,
-            note: updatedNote,
-          };
-        }
+        return {
+          version: savedVersion,
+          note: updatedNote,
+        };
       });
+
+      /**
+       * PHASE 2: Async embedding creation (non-blocking)
+       * Fire-and-forget - embeddings are created in the background
+       * If this fails, the next save will retry based on the indexing logic
+       */
+      if (shouldIndex) {
+        // Don't await - let it run in the background
+        try {
+          // Run in a separate transaction to avoid blocking the save
+          // do not await! return the result immediately, this embedding is fire-and-forget
+          prisma.$transaction(async (tx) => {
+            console.log(
+              `🔄 Starting async embedding creation for version ${versionId} of note ${extractedTitle}`,
+            );
+            // instance of ai service
+            const aiService = new AiService(userId);
+            // Delete old embeddings
+            await aiService.deleteEmbeddingsForVersion(versionId, tx);
+
+            // Create new embeddings
+            await aiService.createEmbeddedChunksForVersion(
+              versionId,
+              extractedTitle,
+              plainTextContent,
+              tx,
+            );
+
+            // Update the indexed metadata
+            await tx.note_version.update({
+              where: { id: versionId },
+              data: {
+                last_indexed_at: new Date(),
+                last_indexed_char_count: plainTextContent.length,
+              },
+            });
+          });
+
+          console.log(
+            `Embedding creation completed for version ${versionId} of note ${extractedTitle}`,
+          );
+        } catch (error) {
+          console.error(
+            `Failed to create embeddings asynchronously for version ${versionId} of note ${extractedTitle}:`,
+            error,
+          );
+          // Don't throw - this is fire-and-forget
+          // The next save will retry if needed based on the indexing logic
+        }
+      }
+
       return result;
     },
   );
