@@ -576,8 +576,7 @@ export class NoteService {
         // Don't await - let it run in the background
         try {
           // Run in a separate transaction to avoid blocking the save
-          // do not await! return the result immediately, this embedding is fire-and-forget
-          prisma.$transaction(async (tx) => {
+          await prisma.$transaction(async (tx) => {
             console.log(
               `🔄 Starting async embedding creation for version ${versionId} of note ${extractedTitle}`,
             );
