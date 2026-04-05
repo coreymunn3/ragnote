@@ -207,6 +207,13 @@
   line-height: 1.5;
 }
 
+/* Reduce the size of buttons inside of the sid menu */
+.bn-side-menu button {
+  width: 28px !important;
+  height: 28px !important;
+  padding: 4px !important;
+}
+
 @theme inline {
   @keyframes aurora {
   0% {

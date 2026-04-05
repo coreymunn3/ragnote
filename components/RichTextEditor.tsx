@@ -7,10 +7,12 @@ import type { Theme } from "@blocknote/mantine";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { AnimatedContainer } from "@/components/animations/AnimatedContainer";
-import { LockIcon } from "lucide-react";
+import { LockIcon, Trash2, Trash2Icon } from "lucide-react";
 import EditorSkeleton from "./skeletons/EditorSkeleton";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { createHighlighter } from "@/lib/shiki.bundle";
+import { Button } from "./ui/button";
+import { RemoveBlockButton } from "./RemoveBlockButton";
 
 export interface RichTextEditorProps {
   initialContent?: any; // BlockNote JSON content
@@ -261,6 +263,7 @@ const RichTextEditor = dynamic(
                 sideMenu={(props) => (
                   <SideMenu {...props}>
                     <AddBlockButton />
+                    <RemoveBlockButton />
                   </SideMenu>
                 )}
               />
