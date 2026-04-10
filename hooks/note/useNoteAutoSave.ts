@@ -3,6 +3,7 @@ import { debounce, type DebouncedFunc } from "lodash";
 import type { BlockNoteEditor } from "@blocknote/core";
 import { useSaveNoteVersionContent } from "./useSaveNoteVersionContent";
 import { SaveStatusType } from "@/components/SaveStatus";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface UseNoteAutoSaveOptions {
   noteId: string;
@@ -35,12 +36,26 @@ export function useNoteAutoSave({
   versionId,
 }: UseNoteAutoSaveOptions): UseNoteAutoSaveReturn {
   // ============================================================================
+  // QUERY CLIENT: For canceling in-flight queries on cleanup
+  // ============================================================================
+  const queryClient = useQueryClient();
+
+  // ============================================================================
   // LOCAL STATE: Tracks whether there are unsaved changes
   // ============================================================================
   // This flag is set to true immediately when the user types, and reset to false
   // when the save completes successfully. This allows us to show "Unsaved changes"
   // instantly without waiting for the debounce timer.
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // ============================================================================
+  // FIRST RENDER TRACKING: Prevents onChange from firing on initial mount
+  // ============================================================================
+  // CRITICAL BUG FIX #3: BlockNote editor fires onChange during initialization.
+  // This causes unwanted autosave calls when the editor first mounts, even though
+  // the user hasn't made any changes. We track the first render and skip it.
+  // Note: This means paste won't autosave until you press another key.
+  const isFirstRender = useRef(true);
 
   // ============================================================================
   // TANSTACK QUERY MUTATION: Handles the actual save API call
@@ -121,10 +136,17 @@ export function useNoteAutoSave({
     debouncedSaveRef.current = debouncedSave;
 
     // Return the wrapper function that components will call on every editor change
-    // This wrapper does two things:
-    // 1. Immediately sets hasUnsavedChanges to true (shows "Unsaved changes" instantly)
-    // 2. Calls the debounced save function (which waits 1s before actually saving)
+    // This wrapper does three things:
+    // 1. Skips the first onChange event (which fires during editor initialization)
+    // 2. Immediately sets hasUnsavedChanges to true (shows "Unsaved changes" instantly)
+    // 3. Calls the debounced save function (which waits 1s before actually saving)
     return (editor: BlockNoteEditor) => {
+      // Skip the first onChange event to prevent saving on mount
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+        return;
+      }
+
       setHasUnsavedChanges(true);
       debouncedSave(editor);
     };
@@ -145,6 +167,10 @@ export function useNoteAutoSave({
   // Without cleanup: Timer from Note A could still fire and save content to Note A
   // With cleanup: Timer is cancelled, preventing incorrect save to wrong note
   //
+  // CRITICAL BUG FIX #4: Also cancel any in-flight mutation requests when the
+  // component unmounts or version changes. This prevents 404 errors when a note
+  // is deleted while autosave requests are still pending.
+  //
   // The cleanup function runs:
   // 1. When the component unmounts
   // 2. Before the effect runs again (when handleEditorChange changes)
@@ -153,17 +179,27 @@ export function useNoteAutoSave({
       // Cancel any pending debounced save using the properly typed ref
       // The DebouncedFunc type from lodash includes the cancel() method
       debouncedSaveRef.current?.cancel();
+
+      // Cancel any in-flight save mutations to prevent 404s after deletion
+      if (versionId) {
+        queryClient.cancelQueries({
+          queryKey: ["saveNoteVersion", noteId, versionId],
+        });
+      }
     };
-  }, [handleEditorChange]);
+  }, [handleEditorChange, noteId, versionId, queryClient]);
 
   // ============================================================================
-  // VERSION CHANGE EFFECT: Resets unsaved changes flag when version changes
+  // VERSION CHANGE EFFECT: Resets state when version changes
   // ============================================================================
-  // When the user switches to a different version of the note, we reset the
-  // hasUnsavedChanges flag because we're now looking at different content.
-  // This prevents showing "Unsaved changes" for the new version when there are none.
+  // When the user switches to a different version of the note, we need to:
+  // 1. Reset hasUnsavedChanges flag (we're looking at different content now)
+  // 2. Reset isFirstRender flag (the editor will remount with new content)
+  // This prevents showing "Unsaved changes" for the new version when there are none,
+  // and ensures we skip the first onChange event after switching versions.
   useEffect(() => {
     setHasUnsavedChanges(false);
+    isFirstRender.current = true;
   }, [versionId]);
 
   // ============================================================================
