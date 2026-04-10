@@ -1,5 +1,6 @@
 "use client";
 import { useParams } from "next/navigation";
+import { useRef, useMemo } from "react";
 import RichTextEditor from "@/components/RichTextEditor";
 import MessageAlert from "@/components/MessageAlert";
 import ChatPanel from "@/components/chat/ChatPanel";
@@ -57,6 +58,28 @@ const BaseNotePageContent = ({
     versionId: selectedVersionId,
   });
 
+  // ============================================================================
+  // STABLE EDITOR KEY: Only changes when version actually switches
+  // ============================================================================
+  // CRITICAL BUG FIX: Using selectedVersionId directly as the key causes the
+  // editor to remount on every re-render where selectedVersionId changes, even
+  // if it's just a reference change. This leads to:
+  // 1. Editor remounting unnecessarily during query refetches
+  // 2. onChange events firing during remount
+  // 3. Duplicate autosave calls
+  //
+  // SOLUTION: Track the previous versionId and only update the key when it
+  // actually changes to a different value. This prevents remounts during
+  // re-renders that don't involve a real version switch.
+  const prevVersionIdRef = useRef(selectedVersionId);
+  const editorKey = useMemo(() => {
+    if (prevVersionIdRef.current !== selectedVersionId) {
+      prevVersionIdRef.current = selectedVersionId;
+      return selectedVersionId;
+    }
+    return prevVersionIdRef.current;
+  }, [selectedVersionId]);
+
   // Prepare toolbar props
   const toolbarProps: ToolbarProps = {
     note,
@@ -101,7 +124,7 @@ const BaseNotePageContent = ({
       {/* Editor - scrollable content */}
       <div className="flex-1 overflow-auto pt-2">
         <RichTextEditor
-          key={selectedVersionId}
+          key={editorKey}
           initialContent={selectedVersion.rich_text_content}
           onChange={handleEditorChange}
           readOnly={
