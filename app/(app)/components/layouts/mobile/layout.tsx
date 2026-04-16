@@ -9,7 +9,7 @@ export default function MobileLayout({
 }) {
   return (
     <MobileHeaderProvider>
-      <div className="flex flex-col h-screen bg-sidebar relative">
+      <div className="flex flex-col min-h-screen bg-sidebar relative">
         <BackgroundPattern />
         <MobileHeader />
         <div className="flex-1 relative z-10">{children}</div>
