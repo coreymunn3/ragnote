@@ -513,7 +513,7 @@ export default function RootLayout({
             }}
           >
             <main className="flex-1">{children}</main>
-            <Toaster />
+            <Toaster closeButton={true} />
           </Providers>
         </div>
         {/* indicators for offline usage */}

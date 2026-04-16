@@ -5,12 +5,14 @@ import "@blocknote/mantine/style.css";
 import { BlockNoteEditor } from "@blocknote/core";
 import type { Theme } from "@blocknote/mantine";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { AnimatedContainer } from "@/components/animations/AnimatedContainer";
-import { LockIcon } from "lucide-react";
+import { LockIcon, Trash2, Trash2Icon } from "lucide-react";
 import EditorSkeleton from "./skeletons/EditorSkeleton";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { createHighlighter } from "@/lib/shiki.bundle";
+import { Button } from "./ui/button";
+import { RemoveBlockButton } from "./RemoveBlockButton";
 
 export interface RichTextEditorProps {
   initialContent?: any; // BlockNote JSON content
@@ -183,6 +185,9 @@ const RichTextEditor = dynamic(
       const [isMounted, setIsMounted] = useState(false);
       const isOnline = useOnlineStatus();
 
+      // Skip first onChange event (BlockNote fires it during initialization)
+      const isFirstChange = useRef(true);
+
       // If offline, force read-only mode
       const isReadOnly = readOnly || !isOnline;
 
@@ -255,12 +260,22 @@ const RichTextEditor = dynamic(
               slashMenu={false}
               theme={customTheme || undefined}
               editable={!isReadOnly}
-              onChange={onChange}
+              onChange={() => {
+                // Skip the first onChange event (fires on mount)
+                if (isFirstChange.current) {
+                  isFirstChange.current = false;
+                  return;
+                }
+                onChange?.(editor);
+              }}
             >
               <SideMenuController
                 sideMenu={(props) => (
                   <SideMenu {...props}>
-                    <AddBlockButton />
+                    <div className="flex flex-col md:flex-row ">
+                      <AddBlockButton />
+                      <RemoveBlockButton />
+                    </div>
                   </SideMenu>
                 )}
               />

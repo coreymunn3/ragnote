@@ -65,29 +65,10 @@ export function useSaveNoteVersionContent(options?: useSaveNoteVersionOptions) {
         },
       );
 
-      // Optimistically update the folders cache with the new title from the API response
-      // This avoids refetching all folders just to update one note's title in the sidebar
-      const foldersData = queryClient.getQueryData<FolderWithItems[]>([
-        "folders",
-      ]);
-
-      if (foldersData) {
-        const updatedFolders = foldersData.map((folder) => ({
-          ...folder,
-          items: folder.items.map((item) => {
-            // Check if this is the note we just updated
-            if ("title" in item && item.id === variables.noteId) {
-              return {
-                ...item,
-                title: result.note.title,
-              };
-            }
-            return item;
-          }),
-        }));
-
-        queryClient.setQueryData(["folders"], updatedFolders);
-      }
+      // Invalidate folders / folder-folderID routes to refetch
+      // ensures the note name in the folder sidebar and in the folder page are updated when the title or content changes
+      queryClient.invalidateQueries({ queryKey: ["folders"] });
+      queryClient.invalidateQueries({ queryKey: ["folder"] });
 
       // Custom onSuccess callback
       options?.onSuccess?.(result, variables, context);
