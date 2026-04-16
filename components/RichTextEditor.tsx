@@ -272,8 +272,10 @@ const RichTextEditor = dynamic(
               <SideMenuController
                 sideMenu={(props) => (
                   <SideMenu {...props}>
-                    <AddBlockButton />
-                    <RemoveBlockButton />
+                    <div className="flex flex-col md:flex-row ">
+                      <AddBlockButton />
+                      <RemoveBlockButton />
+                    </div>
                   </SideMenu>
                 )}
               />
