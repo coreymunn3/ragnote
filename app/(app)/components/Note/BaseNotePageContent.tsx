@@ -1,6 +1,5 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useRef, useMemo } from "react";
 import RichTextEditor from "@/components/RichTextEditor";
 import MessageAlert from "@/components/MessageAlert";
 import ChatPanel from "@/components/chat/ChatPanel";

@@ -22,7 +22,6 @@ export interface UseNoteAutoSaveReturn {
  * - Debounces saves (1s delay after last keystroke)
  * - Cancels pending saves when switching versions/notes
  * - Cancels in-flight API requests on unmount/version change
- * - Skips first onChange event (BlockNote fires it on mount)
  * - Derives save status to avoid race conditions
  */
 export function useNoteAutoSave({
@@ -31,9 +30,6 @@ export function useNoteAutoSave({
 }: UseNoteAutoSaveOptions): UseNoteAutoSaveReturn {
   const queryClient = useQueryClient();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-
-  // Skip first onChange event (BlockNote fires it during initialization)
-  const isFirstRender = useRef(true);
 
   const saveNoteVersionContent = useSaveNoteVersionContent({
     onSuccess: () => setHasUnsavedChanges(false),
@@ -75,17 +71,11 @@ export function useNoteAutoSave({
   // Reset state when version changes
   useEffect(() => {
     setHasUnsavedChanges(false);
-    isFirstRender.current = true;
   }, [versionId]);
 
   // Editor change handler
   const handleEditorChange = useCallback(
     (editor: BlockNoteEditor) => {
-      // Skip first onChange (fires on mount)
-      if (isFirstRender.current) {
-        isFirstRender.current = false;
-        return;
-      }
       setHasUnsavedChanges(true);
       debouncedSave(editor);
     },
