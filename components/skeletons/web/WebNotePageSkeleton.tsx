@@ -1,5 +1,5 @@
 import ToolbarSkeleton from "./WebToolbarSkeleton";
-import EditorSkeleton from "./EditorSkeleton";
+import EditorSkeleton from "../EditorSkeleton";
 
 const WebNotePageSkeleton = () => {
   return (

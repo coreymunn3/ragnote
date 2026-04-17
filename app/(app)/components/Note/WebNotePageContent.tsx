@@ -4,7 +4,7 @@ import NoteToolbar from "@/components/web/NoteToolbar";
 import BaseNotePageContent from "./BaseNotePageContent";
 import { useGetNote } from "@/hooks/note/useGetNote";
 import { useGetNoteVersions } from "@/hooks/note/useGetNoteVersions";
-import WebNotePageSkeleton from "@/components/skeletons/WebNotePageSkeleton";
+import WebNotePageSkeleton from "@/components/skeletons/web/WebNotePageSkeleton";
 
 interface WebNotePageContentProps {
   noteId: string;

@@ -11,7 +11,7 @@ import {
 import { DateTime } from "luxon";
 import { useUpdateNote } from "@/hooks/note/useUpdateNote";
 import { usePublishNoteVersion } from "@/hooks/note/usePublishNoteVersion";
-import WebToolbarSkeleton from "../skeletons/WebToolbarSkeleton";
+import WebToolbarSkeleton from "../skeletons/web/WebToolbarSkeleton";
 import { toast } from "sonner";
 import ProButton from "../ProButton";
 import { useUserSubscription } from "@/hooks/user/useUserSubscription";

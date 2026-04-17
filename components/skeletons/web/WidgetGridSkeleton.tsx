@@ -1,5 +1,5 @@
-import { Skeleton } from "../ui/skeleton";
-import { TypographyH3 } from "../ui/typography";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TypographyH3 } from "@/components/ui/typography";
 
 interface WidgetGridSkeletonProps {
   title?: string;

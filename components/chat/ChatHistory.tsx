@@ -2,10 +2,10 @@
 import { TypographyMuted, TypographySmall } from "../ui/typography";
 import { Button } from "../ui/button";
 import { ChatSession } from "@/lib/types/chatTypes";
-import { ChevronRight, HistoryIcon, Loader2Icon } from "lucide-react";
+import { ChevronRight, HistoryIcon } from "lucide-react";
 import { AnimatedExpandable, AnimatedListItem } from "@/components/animations";
 import ChatHistoryItem from "./ChatHistoryItem";
-import WebChatHistoryHeaderSkeleton from "../skeletons/WebChatHistoryHeaderSkeleton";
+import WebChatHistoryHeaderSkeleton from "../skeletons/web/WebChatHistoryHeaderSkeleton";
 
 // Small header component for the chat history section
 const ChatHistoryHeader = ({

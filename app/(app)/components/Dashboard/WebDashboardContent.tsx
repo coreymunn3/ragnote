@@ -8,7 +8,7 @@ import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetNotes } from "@/hooks/note/useGetNotes";
 import { useGetChatSessionsForUser } from "@/hooks/chat/useGetChatSessionsForUser";
 import CommandBar from "@/components/commandbar/CommandBar";
-import WebDashboardSkeleton from "@/components/skeletons/WebDashboardSkeleton";
+import WebDashboardSkeleton from "@/components/skeletons/web/WebDashboardSkeleton";
 
 const WebDashboardContent = () => {
   // Fetch the user's notes client-side
