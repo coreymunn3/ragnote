@@ -4,7 +4,7 @@ import { Note } from "@/lib/types/noteTypes";
 import OptionsMenu, { Option } from "../OptionsMenu";
 import { ChatSession } from "@/lib/types/chatTypes";
 import { TypographyMuted, TypographyP } from "../ui/typography";
-import MobileListSkeleton from "../skeletons/MobileListSkeleton";
+import MobileListSkeleton from "../skeletons/mobile/MobileListSkeleton";
 import { LucideIcon } from "lucide-react";
 
 export interface SystemLinkItem {

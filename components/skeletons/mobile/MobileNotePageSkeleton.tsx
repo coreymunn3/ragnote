@@ -1,9 +1,9 @@
-import { Skeleton } from "../ui/skeleton";
-import EditorSkeleton from "./EditorSkeleton";
+import { Skeleton } from "../../ui/skeleton";
+import EditorSkeleton from "../EditorSkeleton";
 
 const MobileNotePageSkeleton = () => {
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="flex flex-col h-[calc(100vh-4rem)] pt-4">
       {/* Toolbar Skeleton */}
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center space-x-2">

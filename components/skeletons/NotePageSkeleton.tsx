@@ -1,5 +1,5 @@
 import ResponsivePage from "@/components/ResponsivePage";
-import MobileNotePageSkeleton from "./MobileNotePageSkeleton";
+import MobileNotePageSkeleton from "./mobile/MobileNotePageSkeleton";
 import WebNotePageSkeleton from "./WebNotePageSkeleton";
 
 const NotePageSkeleton = () => {

@@ -1,5 +1,5 @@
 import ResponsivePage from "@/components/ResponsivePage";
-import MobileFolderPageSkeleton from "./MobileFolderPageSkeleton";
+import MobileFolderPageSkeleton from "./mobile/MobileFolderPageSkeleton";
 import WebFolderPageSkeleton from "./WebFolderPageSkeleton";
 
 const FolderPageSkeleton = () => {

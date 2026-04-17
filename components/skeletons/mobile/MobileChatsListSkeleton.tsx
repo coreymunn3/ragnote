@@ -1,4 +1,4 @@
-import MobileListSkeleton from "./MobileListSkeleton";
+import MobileListSkeleton from "../MobileListSkeleton";
 
 const MobileChatsListSkeleton = () => {
   return (
