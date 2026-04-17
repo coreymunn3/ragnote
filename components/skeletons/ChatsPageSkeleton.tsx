@@ -1,6 +1,6 @@
 import ResponsivePage from "@/components/ResponsivePage";
 import MobileChatsListSkeleton from "./mobile/MobileChatsListSkeleton";
-import WebChatsListSkeleton from "./WebChatsListSkeleton";
+import WebChatsListSkeleton from "./web/WebChatsListSkeleton";
 
 const ChatsPageSkeleton = () => {
   return (

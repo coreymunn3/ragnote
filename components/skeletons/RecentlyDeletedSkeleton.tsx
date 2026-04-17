@@ -1,6 +1,6 @@
 import ResponsivePage from "@/components/ResponsivePage";
 import MobileRecentlyDeletedSkeleton from "./mobile/MobileRecentlyDeletedSkeleton";
-import WebRecentlyDeletedSkeleton from "./WebRecentlyDeletedSkeleton";
+import WebRecentlyDeletedSkeleton from "./web/WebRecentlyDeletedSkeleton";
 
 const RecentlyDeletedSkeleton = () => {
   return (
