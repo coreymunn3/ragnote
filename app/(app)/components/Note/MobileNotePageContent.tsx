@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import ConfirmationDialog from "@/components/dialogs/ConfirmationDialog";
 import MobileBackButton from "@/components/mobile/MobileBackButton";
-import MobileNotePageSkeleton from "@/components/skeletons/MobileNotePageSkeleton";
+import MobileNotePageSkeleton from "@/components/skeletons/mobile/MobileNotePageSkeleton";
 
 interface MobileNotePageContentProps {
   noteId: string;

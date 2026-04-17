@@ -25,6 +25,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    staleTimes: {
+      // This tells the router cache to reuse previously fetched RSC payloads for 30 seconds, eliminating the server round-trip on repeat visits.
+      // should help to ensure zero server-side-driven loading states when navigating pages
+      dynamic: 30,
+    },
+  },
 };
 
 export default withSerwist(nextConfig);

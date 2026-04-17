@@ -7,7 +7,7 @@ import { FileIcon, MessageSquareIcon, FolderIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
 import { useGetDeletedItems } from "@/hooks/deleted/useGetDeletedItems";
 import FolderWidget from "@/components/web/FolderWidget";
-import WebRecentlyDeletedSkeleton from "@/components/skeletons/WebRecentlyDeletedSkeleton";
+import WebRecentlyDeletedSkeleton from "@/components/skeletons/web/WebRecentlyDeletedSkeleton";
 
 const WebRecentlyDeletedContent = () => {
   // Fetch the deleted items client-side

@@ -20,7 +20,7 @@ import OptionsMenu from "@/components/OptionsMenu";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import { Note } from "@/lib/types/noteTypes";
 import { ChatSession } from "@/lib/types/chatTypes";
-import MobileListSkeleton from "@/components/skeletons/MobileListSkeleton";
+import MobileListSkeleton from "@/components/skeletons/mobile/MobileListSkeleton";
 import MobileBackButton from "@/components/mobile/MobileBackButton";
 import CommandBar from "@/components/commandbar/CommandBar";
 import MessageAlert from "@/components/MessageAlert";

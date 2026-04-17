@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import MobilePageTitle from "@/components/mobile/MobilePageTitle";
 import InputDialog from "@/components/dialogs/InputDialog";
 import MobileBackButton from "@/components/mobile/MobileBackButton";
-import MobileChatPageSkeleton from "@/components/skeletons/MobileChatPageSkeleton";
+import MobileChatPageSkeleton from "@/components/skeletons/mobile/MobileChatPageSkeleton";
 
 interface MobileChatPageContentProps {
   chatSessionId: string;

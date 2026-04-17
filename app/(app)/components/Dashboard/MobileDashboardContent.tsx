@@ -6,7 +6,7 @@ import { useGetFolders } from "@/hooks/folder/useGetFolders";
 import { MessageSquareIcon, Trash2Icon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetNotes } from "@/hooks/note/useGetNotes";
-import MobileDashboardSkeleton from "@/components/skeletons/MobileDashboardSkeleton";
+import MobileDashboardSkeleton from "@/components/skeletons/mobile/MobileDashboardSkeleton";
 
 const MobileDashboardContent = () => {
   // Fetch the user's folders client-side

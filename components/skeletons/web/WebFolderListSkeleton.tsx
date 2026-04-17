@@ -1,6 +1,6 @@
-import { Skeleton } from "../ui/skeleton";
-import { SidebarMenu, SidebarMenuItem } from "../ui/sidebar";
-import { AnimatedListItem } from "../animations";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SidebarMenu, SidebarMenuItem } from "@/components/ui/sidebar";
+import { AnimatedListItem } from "@/components/animations";
 
 interface FolderListSkeletonProps {
   itemCount?: number;

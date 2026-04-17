@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import CreateFolder from "../CreateFolder";
 import { getFolderIcon } from "@/lib/utils";
-import WebFolderListSkeleton from "../skeletons/WebFolderListSkeleton";
+import WebFolderListSkeleton from "../skeletons/web/WebFolderListSkeleton";
 
 interface FolderListProps {
   folders: FolderWithItems[] | undefined;

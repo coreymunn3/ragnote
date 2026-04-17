@@ -1,6 +1,6 @@
 import ResponsivePage from "@/components/ResponsivePage";
-import MobileDashboardSkeleton from "./MobileDashboardSkeleton";
-import WebDashboardSkeleton from "./WebDashboardSkeleton";
+import MobileDashboardSkeleton from "./mobile/MobileDashboardSkeleton";
+import WebDashboardSkeleton from "./web/WebDashboardSkeleton";
 
 const DashboardSkeleton = () => {
   return (

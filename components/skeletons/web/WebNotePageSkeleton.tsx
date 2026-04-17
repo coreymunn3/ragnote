@@ -1,9 +1,9 @@
 import ToolbarSkeleton from "./WebToolbarSkeleton";
-import EditorSkeleton from "./EditorSkeleton";
+import EditorSkeleton from "../EditorSkeleton";
 
 const WebNotePageSkeleton = () => {
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="flex flex-col h-[calc(100vh-4rem)] pt-2">
       {/* Toolbar */}
       <div className="flex-shrink-0">
         <ToolbarSkeleton variant="note" />

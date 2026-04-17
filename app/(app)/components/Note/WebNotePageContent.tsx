@@ -4,7 +4,7 @@ import NoteToolbar from "@/components/web/NoteToolbar";
 import BaseNotePageContent from "./BaseNotePageContent";
 import { useGetNote } from "@/hooks/note/useGetNote";
 import { useGetNoteVersions } from "@/hooks/note/useGetNoteVersions";
-import EditorSkeleton from "@/components/skeletons/EditorSkeleton";
+import WebNotePageSkeleton from "@/components/skeletons/web/WebNotePageSkeleton";
 
 interface WebNotePageContentProps {
   noteId: string;
@@ -63,12 +63,12 @@ const WebNotePageContent = ({ noteId }: WebNotePageContentProps) => {
       : null;
 
   if (isLoading && !noteData) {
-    return <EditorSkeleton />;
+    return <WebNotePageSkeleton />;
   }
 
   // If we still don't have a note after loading, return skeleton or error
   if (!noteData) {
-    return <EditorSkeleton />;
+    return <WebNotePageSkeleton />;
   }
 
   return (

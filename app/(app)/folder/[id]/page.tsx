@@ -1,14 +1,14 @@
 import MobileFolderPageContent from "../../components/Folder/MobileFolderPageContent";
 import WebFolderPageContent from "../../components/Folder/WebFolderPageContent";
 import ResponsivePage from "@/components/ResponsivePage";
+import { use } from "react";
 
-export default async function FolderPage({
+export default function FolderPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  // Await params before using
-  const { id } = await params;
+  const { id } = use(params);
 
   // Render each view component - data fetching now happens client-side
   const mobileView = <MobileFolderPageContent folderId={id} />;
