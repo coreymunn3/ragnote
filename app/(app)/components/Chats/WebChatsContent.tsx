@@ -4,9 +4,8 @@ import WidgetGrid from "@/components/web/WidgetGrid";
 import ChatWidget from "@/components/web/ChatWidget";
 import { MessageSquareIcon } from "lucide-react";
 import { AnimatedListItem, AnimatedTypography } from "@/components/animations";
-import { ChatSession } from "@/lib/types/chatTypes";
 import { useGetChatSessionsForUser } from "@/hooks/chat/useGetChatSessionsForUser";
-import WebChatsListSkeleton from "@/components/skeletons/WebChatsListSkeleton";
+import WebChatsListSkeleton from "@/components/skeletons/web/WebChatsListSkeleton";
 
 const WebChatsContent = () => {
   // Fetch the user's chat sessions client-side
