@@ -18,7 +18,7 @@
     "@blocknote/core": "^0.47.2",
     "@blocknote/mantine": "^0.47.2",
     "@blocknote/react": "^0.47.2",
-    "@clerk/nextjs": "^6.39.2",
+    "@clerk/nextjs": "^6.39.3",
     "@llamaindex/openai": "^0.4.22",
     "@llamaindex/postgres": "^0.0.65",
     "@llamaindex/workflow": "^1.1.24",
