@@ -7,7 +7,7 @@ import type { Theme } from "@blocknote/mantine";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { AnimatedContainer } from "@/components/animations/AnimatedContainer";
-import { LockIcon, Trash2, Trash2Icon } from "lucide-react";
+import { LockIcon, Trash2, Trash2Icon, WrapText } from "lucide-react";
 import EditorSkeleton from "./skeletons/EditorSkeleton";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { createHighlighter } from "@/lib/shiki.bundle";
@@ -167,11 +167,24 @@ const RichTextEditor = dynamic(
       subtext: "Decrease block indentation",
     });
 
+    // Custom slash menu item for Newline (in a table)
+    const newlineItem = (editor: BlockNoteEditor) => ({
+      title: "New Line",
+      onItemClick: () => {
+        editor.insertInlineContent("\n");
+      },
+      aliases: ["newline", "line break"],
+      group: "Formatting",
+      icon: <WrapText size={18} />,
+      subtext: "Insert a line break",
+    });
+
     // Combine default items with custom indent/outdent items
     const getCustomSlashMenuItems = (editor: BlockNoteEditor) => [
       ...getDefaultReactSlashMenuItems(editor),
       indentItem(editor),
       outdentItem(editor),
+      newlineItem(editor),
     ];
 
     const BlockNoteEditorComponent = ({
