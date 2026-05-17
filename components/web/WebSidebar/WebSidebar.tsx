@@ -92,7 +92,7 @@ const WebSidebar = () => {
           ]}
         />
         {/* A spacer */}
-        <div className="min-h-[40px] w-full">d</div>
+        <div className="min-h-[40px] w-full"></div>
       </SidebarContent>
       <SidebarFooter className="absolute w-full z-10 bottom-0 left-0 right-0 bg-sidebar/25 backdrop-blur-sm">
         <BrandingHeader />
