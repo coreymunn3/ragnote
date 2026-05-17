@@ -91,15 +91,15 @@ const BaseNotePageContent = ({
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="flex flex-col h-screen">
       {/* Toolbar - fixed at top (only for web view) */}
       {renderToolbar && (
-        <div className="flex-shrink-0 sticky top-0 z-40 bg-transparent">
+        <div className="flex-shrink-0 fixed top-12 left-0 right-0 z-40 bg-background/25 backdrop-blur-sm">
           {renderToolbar(toolbarProps)}
         </div>
       )}
       {/* Editor - scrollable content */}
-      <div className="flex-1 overflow-auto pt-2">
+      <div className="flex-1 overflow-auto pt-16">
         <RichTextEditor
           key={selectedVersionId}
           initialContent={selectedVersion.rich_text_content}
