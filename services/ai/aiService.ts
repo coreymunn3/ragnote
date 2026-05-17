@@ -253,22 +253,25 @@ export class AiService {
     prismaTransaction?: PrismaTransaction,
   ): Promise<EmbeddedChunks> {
     try {
-      // for shorter notes, just embed as single chunk
-      if (plainTextContent.length <= AiService.SINGLE_CHUNK_THRESHOLD) {
-        return await this.createSingleChunk(
-          versionId,
-          noteTitle,
-          plainTextContent,
-          prismaTransaction,
-        );
-      }
-      // for longer notes, chunk & embed
-      return await this.createSentenceBasedChunks(
+      // Generate embeddings (reuses existing logic, keeps OpenAI calls outside transaction)
+      const embeddingsData = await this.generateEmbeddingsForVersion(
         versionId,
         noteTitle,
         plainTextContent,
+      );
+
+      // Save to database and get the saved chunk results
+      const savedChunks = await this.insertPrecomputedEmbeddings(
+        versionId,
+        embeddingsData,
         prismaTransaction,
       );
+
+      return {
+        success: true,
+        chunksCreated: embeddingsData.chunks.length,
+        chunks: savedChunks,
+      };
     } catch (error) {
       console.error(`Error creating embeddings: ${error}`);
 
@@ -377,145 +380,26 @@ export class AiService {
   /**
    * Insert pre-computed embeddings into database
    * Used after generateEmbeddingsForVersion to save embeddings in a fast transaction
+   * @returns Array of affected row counts from the database inserts
    */
   public async insertPrecomputedEmbeddings(
     versionId: string,
     embeddingsData: { chunks: string[]; embeddings: number[][] },
     prismaTransaction?: PrismaTransaction,
-  ): Promise<void> {
+  ): Promise<number[]> {
     const prismaObj = prismaTransaction || prisma;
     const { chunks, embeddings } = embeddingsData;
+    const savedChunks: number[] = [];
 
     for (let i = 0; i < chunks.length; i++) {
-      await prismaObj.$executeRaw`
+      const result = await prismaObj.$executeRaw`
         INSERT INTO note_chunk (id, note_version_id, chunk_index, chunk_text, embedding)
         VALUES (gen_random_uuid(), ${versionId}::uuid, ${i}, ${chunks[i]}, ${embeddings[i]}::vector(1536))
       `;
-    }
-  }
-
-  /**
-   * Create a single chunk - when note content is very short
-   * @param versionId
-   * @param noteTitle
-   * @param plainTextContent
-   * @param prismaTransaction
-   */
-  private async createSingleChunk(
-    versionId: string,
-    noteTitle: string,
-    plainTextContent: string,
-    prismaTransaction?: PrismaTransaction,
-  ): Promise<EmbeddedChunks> {
-    // figure out which client instance we will use - prismaTransaction but fall back to regular prisma instance otherwise
-    const prismaObj = prismaTransaction || prisma;
-
-    // Calculate token count for tracking
-    const tokenCount =
-      tokenTrackingService.estimateTokensFromText(plainTextContent);
-    // enhance the content by adding the title - this makes the title searchable and in the context
-    const embeddedContent = `([TITLE]: ${noteTitle})\n${plainTextContent}`;
-    // create the embedding with the title
-    const embedding =
-      await Settings.embedModel.getTextEmbedding(embeddedContent);
-
-    // Record token usage for this embedding operation
-    try {
-      await tokenTrackingService.recordTokenUsage({
-        userId: this.userId,
-        modelName: "text-embedding-3-small",
-        operationType: "EMBEDDING",
-        promptTokens: tokenCount,
-        completionTokens: 0, // embeddings only have input tokens
-        totalTokens: tokenCount,
-        noteVersionId: versionId,
-      });
-    } catch (error) {
-      console.error("Failed to record embedding token usage:", error);
+      savedChunks.push(result);
     }
 
-    const savedChunk = await prismaObj.$executeRaw`
-      INSERT INTO note_chunk (id, note_version_id, chunk_index, chunk_text, embedding)
-      VALUES (gen_random_uuid(), ${versionId}::uuid, 0, ${embeddedContent}, ${embedding}::vector(1536))
-      RETURNING *
-    `;
-
-    return {
-      success: true,
-      chunksCreated: 1,
-      chunks: [savedChunk],
-    };
-  }
-
-  /**
-   * Create multiple chunks, using sentence splitter
-   * @param versionId
-   * @param noteTitle
-   * @param plainTextContent
-   * @param prismaTransaction
-   */
-  private async createSentenceBasedChunks(
-    versionId: string,
-    noteTitle: string,
-    plainTextContent: string,
-    prismaTransaction?: PrismaTransaction,
-  ): Promise<EmbeddedChunks> {
-    // figure out which client instance we will use - prismaTransaction but fall back to regular prisma instance otherwise
-    const prismaObj = prismaTransaction || prisma;
-
-    // split the text into sentence-coherent chunks
-    const sentenceSplitter = new SentenceSplitter({
-      chunkSize: 500, // Reasonable chunk size for notes
-      chunkOverlap: 50, // Some overlap for context
-      paragraphSeparator: "\n\n",
-    });
-
-    const rawChunks = sentenceSplitter.splitText(plainTextContent);
-    const enhancedChunks = rawChunks.map(
-      (chunk) => `([TITLE]: ${noteTitle})\n${chunk}`,
-    );
-
-    // Calculate total token count for all chunks
-    const totalTokens = enhancedChunks.reduce(
-      (total, chunk) =>
-        total + tokenTrackingService.estimateTokensFromText(chunk),
-      0,
-    );
-
-    const embeddings =
-      await Settings.embedModel.getTextEmbeddings(enhancedChunks);
-
-    // Record token usage for this embedding operation
-    try {
-      await tokenTrackingService.recordTokenUsage({
-        userId: this.userId,
-        modelName: "text-embedding-3-small",
-        operationType: "EMBEDDING",
-        promptTokens: totalTokens,
-        completionTokens: 0, // embeddings only have input tokens
-        totalTokens: totalTokens,
-        noteVersionId: versionId,
-      });
-    } catch (error) {
-      console.error("Failed to record embedding token usage:", error);
-    }
-
-    // Save chunks to database using raw SQL
-    const savedChunks = [];
-    for (let i = 0; i < enhancedChunks.length; i++) {
-      const savedChunk = await prismaObj.$executeRaw`
-        INSERT INTO note_chunk (id, note_version_id, chunk_index, chunk_text, embedding)
-        VALUES (gen_random_uuid(), ${versionId}::uuid, ${i}, ${enhancedChunks[i]}, ${embeddings[i]}::vector(1536))
-        RETURNING *
-      `;
-      savedChunks.push(savedChunk);
-    }
-
-    return {
-      success: true,
-      chunksCreated: savedChunks.length,
-      chunks: savedChunks,
-    };
+    return savedChunks;
   }
 
   /**
