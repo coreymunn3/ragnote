@@ -17,7 +17,7 @@ const MobileHeader = () => {
   const rightContent = headerConfig.rightContent || null;
 
   return (
-    <header className="fixed top-0 right-0 h-12 w-full z-50 flex items-center justify-between px-4 py-2 bg-sidebar">
+    <header className="fixed top-0 right-0 h-12 w-full z-50 flex items-center justify-between px-4 py-2 bg-sidebar/25 backdrop-blur-sm">
       {/* Left Section */}
       <div className="flex items-center space-x-1">
         <BrandingHeader />

@@ -316,46 +316,71 @@ export class ChatService {
           `[ensureScopeIsFresh] Syncing ${staleVersions.length} stale versions.`,
         );
       }
-      // re-embed stale versions
+      // re-embed stale versions using two-phase approach
       console.log("re-embedding stale versions now...");
       console.time("reembedding-timer");
       const aiService = new AiService(userId);
-      await Promise.all(
+
+      // PHASE 1: Generate all embeddings in parallel (NO database locks)
+      console.log("[ensureScopeIsFresh] Phase 1: Generating embeddings...");
+      console.time("phase-1-embeddings");
+      const embeddingResults = await Promise.all(
         staleVersions.map(async (version) => {
           try {
-            await prisma.$transaction(async (tx) => {
-              // delete old embeddings
-              await aiService.deleteEmbeddingsForVersion(version.id, tx);
-              // crete new embeddings
-              await aiService.createEmbeddedChunksForVersion(
-                version.id,
-                version.note.title,
-                version.plain_text_content,
-                tx,
-              );
-              // update tracking fields
-              await tx.note_version.update({
-                where: {
-                  id: version.id,
-                },
-                data: {
-                  last_indexed_at: new Date(),
-                  last_indexed_char_count: version.plain_text_content.length,
-                },
-              });
-            });
+            const embeddings = await aiService.generateEmbeddingsForVersion(
+              version.id,
+              version.note.title,
+              version.plain_text_content,
+            );
+            return { version, embeddings, error: null };
           } catch (error) {
-            // log error but don't fail the op
             console.error(
-              `[ensureScopeIsFresh] Failed to sync version ${version.id}:`,
+              `[ensureScopeIsFresh] Failed to generate embeddings for version ${version.id}:`,
               error,
             );
-            // re-throw to let promise.all catch
-            throw error;
+            return { version, embeddings: null, error };
           }
         }),
       );
-      // log the time spend re-embedding
+      console.timeEnd("phase-1-embeddings");
+
+      // PHASE 2: Save to database in parallel (fast transactions)
+      console.log("[ensureScopeIsFresh] Phase 2: Saving to database...");
+      console.time("phase-2-database");
+      await Promise.all(
+        embeddingResults
+          .filter((result) => result.embeddings !== null)
+          .map(async ({ version, embeddings }) => {
+            try {
+              await prisma.$transaction(async (tx) => {
+                // Delete old embeddings
+                await aiService.deleteEmbeddingsForVersion(version.id, tx);
+                // Insert pre-computed embeddings
+                await aiService.insertPrecomputedEmbeddings(
+                  version.id,
+                  embeddings!,
+                  tx,
+                );
+                // Update tracking fields
+                await tx.note_version.update({
+                  where: { id: version.id },
+                  data: {
+                    last_indexed_at: new Date(),
+                    last_indexed_char_count: version.plain_text_content.length,
+                  },
+                });
+              });
+            } catch (error) {
+              console.error(
+                `[ensureScopeIsFresh] Failed to save embeddings for version ${version.id}:`,
+                error,
+              );
+              throw error;
+            }
+          }),
+      );
+      console.timeEnd("phase-2-database");
+      // log the time spent re-embedding
       console.timeEnd("reembedding-timer");
     },
   );

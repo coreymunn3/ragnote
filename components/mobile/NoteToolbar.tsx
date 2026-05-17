@@ -70,7 +70,7 @@ const NoteToolbar = ({
   };
 
   return (
-    <div className="flex items-center justify-between py-1 bg-background">
+    <div className="flex items-center justify-between py-1 bg-transparent">
       {/* Left side: Version Selector and Save Status */}
       <div className="flex items-center space-x-2">
         {selectedVersion && (

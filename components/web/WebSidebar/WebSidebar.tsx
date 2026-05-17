@@ -52,7 +52,7 @@ const WebSidebar = () => {
         </div>
       </SidebarHeader>
       {/* The Sidebar Content pane */}
-      <SidebarContent className="p-2">
+      <SidebarContent className="p-2 relative h-full">
         {/* Home */}
         <WebSidebarFolderGroup
           groupName="Get Started"
@@ -91,8 +91,10 @@ const WebSidebar = () => {
             },
           ]}
         />
+        {/* A spacer */}
+        <div className="min-h-[40px] w-full">d</div>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="absolute w-full z-10 bottom-0 left-0 right-0 bg-sidebar/25 backdrop-blur-sm">
         <BrandingHeader />
       </SidebarFooter>
       <SidebarRail />
