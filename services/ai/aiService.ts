@@ -216,7 +216,7 @@ export class AiService {
    */
   public async deleteEmbeddingsForVersion(
     versionId: string,
-    prismaTransaction?: PrismaTransaction
+    prismaTransaction?: PrismaTransaction,
   ) {
     try {
       const prismaObj = prismaTransaction || prisma;
@@ -233,7 +233,7 @@ export class AiService {
     } catch (error) {
       console.error(`Error deleting embeddings: ${error}`);
       throw new Error(
-        `Failed to delete embeddings for version ${versionId}: ${error}`
+        `Failed to delete embeddings for version ${versionId}: ${error}`,
       );
     }
   }
@@ -250,7 +250,7 @@ export class AiService {
     versionId: string,
     noteTitle: string,
     plainTextContent: string,
-    prismaTransaction?: PrismaTransaction
+    prismaTransaction?: PrismaTransaction,
   ): Promise<EmbeddedChunks> {
     try {
       // for shorter notes, just embed as single chunk
@@ -259,7 +259,7 @@ export class AiService {
           versionId,
           noteTitle,
           plainTextContent,
-          prismaTransaction
+          prismaTransaction,
         );
       }
       // for longer notes, chunk & embed
@@ -267,7 +267,7 @@ export class AiService {
         versionId,
         noteTitle,
         plainTextContent,
-        prismaTransaction
+        prismaTransaction,
       );
     } catch (error) {
       console.error(`Error creating embeddings: ${error}`);
@@ -279,13 +279,118 @@ export class AiService {
         errorStr.toLowerCase().includes("quota exceeded")
       ) {
         throw new RateLimitError(
-          "OpenAI API quota exceeded. Please check your plan and billing details."
+          "OpenAI API quota exceeded. Please check your plan and billing details.",
         );
       }
 
       throw new Error(
-        `Failed to create embeddings for version ${versionId}: ${error}`
+        `Failed to create embeddings for version ${versionId}: ${error}`,
       );
+    }
+  }
+
+  /**
+   * Generate embeddings WITHOUT saving to database
+   * Returns the chunks and embeddings for later insertion
+   * Used to separate slow OpenAI API calls from fast database transactions
+   */
+  public async generateEmbeddingsForVersion(
+    versionId: string,
+    noteTitle: string,
+    plainTextContent: string,
+  ): Promise<{ chunks: string[]; embeddings: number[][] }> {
+    try {
+      // For shorter notes, single chunk
+      if (plainTextContent.length <= AiService.SINGLE_CHUNK_THRESHOLD) {
+        const embeddedContent = `([TITLE]: ${noteTitle})\n${plainTextContent}`;
+        const embedding =
+          await Settings.embedModel.getTextEmbedding(embeddedContent);
+
+        // Track tokens
+        const tokenCount =
+          tokenTrackingService.estimateTokensFromText(plainTextContent);
+        await tokenTrackingService.recordTokenUsage({
+          userId: this.userId,
+          modelName: "text-embedding-3-small",
+          operationType: "EMBEDDING",
+          promptTokens: tokenCount,
+          completionTokens: 0,
+          totalTokens: tokenCount,
+          noteVersionId: versionId,
+        });
+
+        return { chunks: [embeddedContent], embeddings: [embedding] };
+      }
+
+      // For longer notes, chunk & embed
+      const sentenceSplitter = new SentenceSplitter({
+        chunkSize: 500,
+        chunkOverlap: 50,
+        paragraphSeparator: "\n\n",
+      });
+
+      const rawChunks = sentenceSplitter.splitText(plainTextContent);
+      const enhancedChunks = rawChunks.map(
+        (chunk) => `([TITLE]: ${noteTitle})\n${chunk}`,
+      );
+
+      const embeddings =
+        await Settings.embedModel.getTextEmbeddings(enhancedChunks);
+
+      // Track tokens
+      const totalTokens = enhancedChunks.reduce(
+        (total, chunk) =>
+          total + tokenTrackingService.estimateTokensFromText(chunk),
+        0,
+      );
+      await tokenTrackingService.recordTokenUsage({
+        userId: this.userId,
+        modelName: "text-embedding-3-small",
+        operationType: "EMBEDDING",
+        promptTokens: totalTokens,
+        completionTokens: 0,
+        totalTokens: totalTokens,
+        noteVersionId: versionId,
+      });
+
+      return { chunks: enhancedChunks, embeddings };
+    } catch (error) {
+      console.error(`Error generating embeddings: ${error}`);
+
+      // Check for OpenAI API quota errors (429)
+      const errorStr = String(error);
+      if (
+        errorStr.includes("429") ||
+        errorStr.toLowerCase().includes("quota exceeded")
+      ) {
+        throw new RateLimitError(
+          "OpenAI API quota exceeded. Please check your plan and billing details.",
+        );
+      }
+
+      throw new Error(
+        `Failed to generate embeddings for version ${versionId}: ${error}`,
+      );
+    }
+  }
+
+  /**
+   * Insert pre-computed embeddings into database
+   * Used after generateEmbeddingsForVersion to save embeddings in a fast transaction
+   */
+  public async insertPrecomputedEmbeddings(
+    versionId: string,
+    embeddingsData: { chunks: string[]; embeddings: number[][] },
+    prismaTransaction?: PrismaTransaction,
+  ): Promise<void> {
+    const prismaObj = prismaTransaction || prisma;
+    const { chunks, embeddings } = embeddingsData;
+
+    for (let i = 0; i < chunks.length; i++) {
+      await prismaObj.$executeRaw`
+        INSERT INTO note_chunk (id, note_version_id, chunk_index, chunk_text, embedding)
+        VALUES (gen_random_uuid(), ${versionId}::uuid, ${i}, ${chunks[i]}, ${embeddings[i]}::vector(1536))
+      `;
     }
   }
 
@@ -300,7 +405,7 @@ export class AiService {
     versionId: string,
     noteTitle: string,
     plainTextContent: string,
-    prismaTransaction?: PrismaTransaction
+    prismaTransaction?: PrismaTransaction,
   ): Promise<EmbeddedChunks> {
     // figure out which client instance we will use - prismaTransaction but fall back to regular prisma instance otherwise
     const prismaObj = prismaTransaction || prisma;
@@ -353,7 +458,7 @@ export class AiService {
     versionId: string,
     noteTitle: string,
     plainTextContent: string,
-    prismaTransaction?: PrismaTransaction
+    prismaTransaction?: PrismaTransaction,
   ): Promise<EmbeddedChunks> {
     // figure out which client instance we will use - prismaTransaction but fall back to regular prisma instance otherwise
     const prismaObj = prismaTransaction || prisma;
@@ -367,14 +472,14 @@ export class AiService {
 
     const rawChunks = sentenceSplitter.splitText(plainTextContent);
     const enhancedChunks = rawChunks.map(
-      (chunk) => `([TITLE]: ${noteTitle})\n${chunk}`
+      (chunk) => `([TITLE]: ${noteTitle})\n${chunk}`,
     );
 
     // Calculate total token count for all chunks
     const totalTokens = enhancedChunks.reduce(
       (total, chunk) =>
         total + tokenTrackingService.estimateTokensFromText(chunk),
-      0
+      0,
     );
 
     const embeddings =
@@ -423,7 +528,7 @@ export class AiService {
   public async createAgentFromScope(
     userId: string,
     chatScope: ChatScopeObject,
-    messageHistory?: ChatMessage[]
+    messageHistory?: ChatMessage[],
   ): Promise<AgentWorkflow | undefined> {
     return createScopedChatAgent(userId, chatScope, messageHistory);
   }
@@ -443,7 +548,7 @@ export class AiService {
       minScore?: number;
     } = {
       minScore: 0.2,
-    }
+    },
   ) {
     // create index using the utility
     const index = await createVectorStoreIndex(this.userId);
@@ -457,7 +562,7 @@ export class AiService {
     // filter by minimum score if specified
     const filteredNodes = options.minScore
       ? retrievedNodes.filter(
-          (node) => node.score != null && node.score >= options.minScore!
+          (node) => node.score != null && node.score >= options.minScore!,
         )
       : retrievedNodes;
 
@@ -465,7 +570,7 @@ export class AiService {
     const searchResult = await transformNodesToSearchResult(
       query,
       filteredNodes,
-      userId
+      userId,
     );
 
     return searchResult;

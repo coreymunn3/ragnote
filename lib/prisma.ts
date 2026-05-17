@@ -6,7 +6,7 @@ export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
     transactionOptions: {
-      timeout: 10000, // 10 seconds
+      timeout: 15000, // 15 seconds - increased for Supabase free tier variability
     },
   });
 
