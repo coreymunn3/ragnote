@@ -99,7 +99,7 @@ const BaseNotePageContent = ({
         </div>
       )}
       {/* Editor - scrollable content */}
-      <div className="flex-1 overflow-auto pt-16">
+      <div className="flex-1 overflow-auto pt-24">
         <RichTextEditor
           key={selectedVersionId}
           initialContent={selectedVersion.rich_text_content}
