@@ -94,7 +94,7 @@ const BaseNotePageContent = ({
     <div className="flex flex-col h-screen">
       {/* Toolbar - fixed at top (only for web view) */}
       {renderToolbar && (
-        <div className="flex-shrink-0 sticky top-12 z-40 bg-background/25 backdrop-blur-sm">
+        <div className="flex-shrink-0 sticky top-12 md:top-0 z-40 bg-background/25 backdrop-blur-sm">
           {renderToolbar(toolbarProps)}
         </div>
       )}
