@@ -232,6 +232,13 @@ npm run db:migrate:deploy
 npm run db:push
 ```
 
+**Connecting to the Local Database in PSQL:**
+
+```bash
+psql -h localhost -p 5432 -U postgres -d wysenote
+#password in env - 'admin'
+```
+
 As of April 2026, I've switched this setup slightly. Instead of 2 different env files, I keep just a .env and comment out the DATABASE_URL and DIRECT_URL I don't need for whatever environment I'm in.
 
 **HINT** If You forget your prod database password, go to the Vercel Env Vars dashboard, and view the secret.
@@ -251,30 +258,36 @@ Wysenote uses PostgreSQL with the following main entities:
 ## 🎯 Project Structure
 
 ```
+
 wysenote/
-├── app/                    # Next.js App Router
-│   ├── (app)/             # Main application routes
-│   │   ├── dashboard/     # Dashboard page
-│   │   ├── folder/        # Folder views
-│   │   ├── note/          # Note editor
-│   │   └── chat/          # AI chat interface
-│   └── api/               # API routes
-│       ├── note/          # Note operations
-│       ├── folder/        # Folder operations
-│       ├── chat/          # Chat operations
-│       ├── search/        # Semantic search
-│       └── stripe/        # Payment webhooks
-├── components/            # React components
-│   ├── ui/               # Base UI components
-│   ├── web/              # Desktop components
-│   ├── mobile/           # Mobile components
-│   └── chat/             # Chat components
-├── hooks/                # Custom React hooks
-├── services/             # Business logic layer
-├── lib/                  # Utility functions
-├── prisma/               # Database schema
-├── public/               # Static assets
-│   ├── logo/            # Brand logos
-│   └── icons/           # App icons
-└── styles/              # Global styles
+├── app/ # Next.js App Router
+│ ├── (app)/ # Main application routes
+│ │ ├── dashboard/ # Dashboard page
+│ │ ├── folder/ # Folder views
+│ │ ├── note/ # Note editor
+│ │ └── chat/ # AI chat interface
+│ └── api/ # API routes
+│ ├── note/ # Note operations
+│ ├── folder/ # Folder operations
+│ ├── chat/ # Chat operations
+│ ├── search/ # Semantic search
+│ └── stripe/ # Payment webhooks
+├── components/ # React components
+│ ├── ui/ # Base UI components
+│ ├── web/ # Desktop components
+│ ├── mobile/ # Mobile components
+│ └── chat/ # Chat components
+├── hooks/ # Custom React hooks
+├── services/ # Business logic layer
+├── lib/ # Utility functions
+├── prisma/ # Database schema
+├── public/ # Static assets
+│ ├── logo/ # Brand logos
+│ └── icons/ # App icons
+└── styles/ # Global styles
+
+```
+
+```
+
 ```
