@@ -26,7 +26,7 @@ Enable PRO users to upload files (images, PDFs, text files) to folders, view the
    - Max file size: **4MB per file**
    - Storage per user:
      - FREE tier: **0** (no uploads, reserved for future)
-     - PRO tier: **100GB total**
+     - PRO tier: **1 GB total**
    - FREE users: No file upload capability
 
 2. **View Files in Folders**
@@ -132,8 +132,8 @@ wysenote-files/                           # Private R2 bucket
 
 - **Max file size**: **10MB per file**
 - **Storage per user**:
-  - FREE tier: 100MB total (no uploads in MVP)
-  - PRO tier: 10GB total
+  - FREE tier: 0 GB (no uploads in MVP)
+  - PRO tier: 1 GB total
 - **Tracked in database**: `user_subscription.storage_used_bytes`
 - **Enforced at service layer**: Check user's current usage before upload
 
@@ -359,8 +359,8 @@ export function getMaxFileSize(fileType: FileType): number {
 
 // Storage limits per tier
 export const STORAGE_LIMITS = {
-  FREE: 100 * 1024 * 1024, // 100MB (no uploads in MVP)
-  PRO: 10 * 1024 * 1024 * 1024, // 10GB
+  FREE: 0,
+  PRO: 1 * 1024 * 1024 * 1024, // 1 GB
 };
 ```
 
@@ -1219,7 +1219,7 @@ export const MEMBERSHIP_FEATURES = {
       { icon: "MessageCircle", text: "Unlimited AI chat conversations" },
       { icon: "History", text: "Note versioning & history" },
       { icon: "Sparkles", text: "Advanced semantic search" },
-      { icon: "Upload", text: "File uploads (100GB storage)" }, // NEW
+      { icon: "Upload", text: "File uploads (1 GB storage)" }, // NEW
       { icon: "Image", text: "Insert images in notes" }, // NEW
       { icon: "FileText", text: "Upload PDFs and documents" }, // NEW
       { icon: "Crown", text: "Priority support" },
@@ -1240,7 +1240,7 @@ export const MEMBERSHIP_FEATURES = {
 - [ ] Reject file upload for FREE user
 - [ ] Reject oversized file (> 10MB)
 - [ ] Reject unsupported file type
-- [ ] Enforce per-user storage quota (100GB for PRO)
+- [ ] Enforce per-user storage quota (1 GB for PRO)
 - [ ] Stream file via API proxy (`/api/files/{fileId}/view`)
 - [ ] Delete file (soft delete + storage removal + update usage)
 - [ ] Move file between folders (DB only)
@@ -1319,7 +1319,7 @@ export const MEMBERSHIP_FEATURES = {
 - ✅ Users can download files via stable API proxy URLs
 - ✅ Users can delete files (updates storage usage)
 - ✅ Images can be inserted inline in notes
-- ✅ Per-user storage quota (100GB for PRO) is enforced
+- ✅ Per-user storage quota (1 GB for PRO) is enforced
 - ✅ FREE users see upgrade prompt when attempting upload
 - ✅ File moves between folders work seamlessly
 - ✅ All error cases handled gracefully
@@ -1336,7 +1336,7 @@ export const MEMBERSHIP_FEATURES = {
 - **Stable URLs** - `/api/files/{fileId}/view` never expire
 - **Extensible design** - Easy to add new file types later
 - **PRO feature** - Drives subscription value
-- **100GB limit** - Generous for personal knowledge base use case
+- **1 GB limit** - Generous for personal knowledge base use case
 - **Service layer authorization** - Uses `userService.hasProAccess()`
 
 ---
@@ -1384,17 +1384,6 @@ FileService: Streams file from R2
     ↓
 Browser: Receives file, caches for 1 hour
 ```
-
----
-
-## Key Differences from Original Plan
-
-1. **Storage**: Cloudflare R2 instead of Supabase (10GB free vs 50MB)
-2. **URLs**: API proxy pattern instead of signed URLs (stable, permanent)
-3. **Limits**: 10MB file size, 100GB per PRO user (tracked in DB)
-4. **Authorization**: Service layer using `userService.hasProAccess()`
-5. **Security**: Private bucket + API validation on every request
-6. **Simplicity**: No signed URL generation/regeneration logic
 
 ---
 
