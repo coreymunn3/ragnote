@@ -568,15 +568,13 @@ export class NoteService {
       });
 
       /**
-       * PHASE 2: Async embedding creation (non-blocking)
-       * Fire-and-forget - embeddings are created in the background
-       * If this fails, the next save will retry based on the indexing logic
+       * PHASE 2: Async embedding creation (truly non-blocking fire-and-forget)
+       * The promise is intentionally NOT awaited so the response is returned immediately after Phase 1.
+       * If this fails, the next save will retry based on the indexing logic.
        */
       if (shouldIndex) {
-        // Don't await - let it run in the background
-        try {
-          // Run in a separate transaction to avoid blocking the save
-          await prisma.$transaction(async (tx) => {
+        prisma
+          .$transaction(async (tx) => {
             console.log(
               `🔄 Starting async embedding creation for version ${versionId} of note ${extractedTitle}`,
             );
@@ -601,19 +599,19 @@ export class NoteService {
                 last_indexed_char_count: plainTextContent.length,
               },
             });
-          });
 
-          console.log(
-            `Embedding creation completed for version ${versionId} of note ${extractedTitle}`,
-          );
-        } catch (error) {
-          console.error(
-            `Failed to create embeddings asynchronously for version ${versionId} of note ${extractedTitle}:`,
-            error,
-          );
-          // Don't throw - this is fire-and-forget
-          // The next save will retry if needed based on the indexing logic
-        }
+            console.log(
+              `Embedding creation completed for version ${versionId} of note ${extractedTitle}`,
+            );
+          })
+          .catch((error) => {
+            console.error(
+              `Failed to create embeddings asynchronously for version ${versionId} of note ${extractedTitle}:`,
+              error,
+            );
+            // Don't throw - this is fire-and-forget
+            // The next save will retry if needed based on the indexing logic
+          });
       }
 
       return result;
