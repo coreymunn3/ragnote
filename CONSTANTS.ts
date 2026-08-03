@@ -36,3 +36,8 @@ export const MEMBERSHIP_UPGRADE_FEATURES = [
 ];
 
 export const UPGRADE_BUTTON_LABEL = `Upgrade to ${MEMBERSHIP_FEATURES.PRO.name} - ${MEMBERSHIP_FEATURES.PRO.price}/month`;
+
+export const FILE_STORAGE_LIMITS: Record<string, number> = {
+  FREE: 0,
+  PRO: 1 * 1024 * 1024 * 1024, // 1 GB
+};
