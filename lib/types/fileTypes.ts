@@ -22,7 +22,7 @@ export type PrismaFile = {
 };
 
 export type StorageUsage = {
-  used: bigint;
+  used: number;
   total: number;
   percentage: number;
 };

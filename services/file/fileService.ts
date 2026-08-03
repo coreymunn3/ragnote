@@ -292,9 +292,9 @@ export class FileService {
       });
 
       const tier = subscription?.tier ?? "FREE";
-      const used = subscription?.storage_used_bytes ?? BigInt(0);
+      const used = Number(subscription?.storage_used_bytes ?? 0);
       const total = FILE_STORAGE_LIMITS[tier] ?? 0;
-      const percentage = total > 0 ? (Number(used) / total) * 100 : 0;
+      const percentage = total > 0 ? (used / total) * 100 : 0;
 
       return { used, total, percentage };
     },
