@@ -30,6 +30,7 @@ enum FileType {
   DOCX
   IMAGE // For image files like JPG, PNG
   AUDIO // For audio files like MP3, WAV
+  TEXT // For text files like .txt, .md
   // Add other types as needed, e.g., VIDEO, CSV, JSON
 }
 
